@@ -15,7 +15,7 @@ else()
 endif()
 
 configure_file(YAML_Config.h.in YAML_Config.hpp)
-
+ 
 set(YAML_LIBRARY_NAME ${PROJECT_NAME})
 
 # YAML sources
