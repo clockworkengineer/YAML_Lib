@@ -36,7 +36,7 @@ target_include_directories(${YAML_LIBRARY_NAME} PUBLIC
   ${PROJECT_BINARY_DIR})
 
 # Add tests
-# add_subdirectory(tests)
+add_subdirectory(tests)
 
 # Add examples
 # add_subdirectory(examples)

@@ -8,7 +8,7 @@
 
 #include "YAML.hpp"
 
-namespace Bencode_Lib {
+namespace YAML_Lib {
 
 
-} // namespace Bencode_Lib
+} // namespace YAML_Lib
