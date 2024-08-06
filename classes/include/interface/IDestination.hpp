@@ -1,10 +1,10 @@
 #pragma once
 
 namespace YAML_Lib {
-
-// =======================================================================
-// Interface for writing destination stream during YAML/DTD_Validator stringification
-// =======================================================================
+  
+// ====================================================================
+// Interface for writing destination stream during YAML stringification
+// ====================================================================
 class IDestination
 {
 public:
@@ -23,10 +23,13 @@ public:
   // Add bytes to destination
   // ========================
   virtual void add(const std::string &bytes) = 0;
-  virtual void add(Char c) = 0;
-  // =============================
-  // Clear the current destination
-  // =============================
+  // ============================
+  // Add character to destination
+  // ============================
+  virtual void add(char ch) = 0;
+  // ============================
+  // Clear the curent destination
+  // ===========================
   virtual void clear() = 0;
 };
 }// namespace YAML_Lib

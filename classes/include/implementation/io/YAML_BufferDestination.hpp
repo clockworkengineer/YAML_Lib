@@ -7,12 +7,6 @@ namespace YAML_Lib {
 class BufferDestination final : public IDestination
 {
 public:
-  // BufferDestination Error
-  struct Error final : std::runtime_error
-  {
-    explicit Error(const std::string &message) : std::runtime_error("BufferDestination Error: " + message) {}
-  };
-  // Constructors/Destructors
   BufferDestination() = default;
   BufferDestination(const BufferDestination &other) = delete;
   BufferDestination &operator=(const BufferDestination &other) = delete;
@@ -22,9 +16,10 @@ public:
 
   void add(const std::string &bytes) override
   {
+    // for (auto b : bytes) { buffer.push_back(b); }
     std::ranges::copy(bytes, std::back_inserter(buffer));
   }
-  void add(const Char ch) override { add(toUtf8(ch)); }
+  void add(const char ch) override { buffer.push_back(ch); }
   void clear() override { buffer.clear(); }
 
   [[nodiscard]] std::string toString() const { return buffer; }
