@@ -8,8 +8,11 @@
 #include <fstream>
 #include <filesystem>
 
-std::string prefixPath(const std::string &file);
-void checkStringify(const std::string &YAMLString);
-void verifyCRLFCount(YAML_Lib::ISource &source, long lfFinal, long crFinal);
+// Unit test constants
+constexpr char kGeneratedYAMLFile[] = "generated.yaml";
+constexpr char kSingleYAMLFile[] = "testfile001.yaml";
+constexpr char kNonExistantYAMLFile[] = "doesntexist.yaml";
+
+const std::string prefixPath(const std::string &yamlFileName);
 
 using namespace YAML_Lib;

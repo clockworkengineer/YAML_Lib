@@ -19,7 +19,10 @@ enable_testing()
 set(TEST_EXECUTABLE ${YAML_LIBRARY_NAME}_Unit_Tests)
 
 set(TEST_SOURCES
-        source/YAML_Lib_Tests_YAML.cpp)
+        source/YAML_Lib_Tests_YAML.cpp
+        source/io/YAML_Lib_Tests_ISource_Buffer.cpp
+        source/io/YAML_Lib_Tests_IDestination_Buffer.cpp
+        source/misc/YAML_Lib_Tests_Helper.cpp)
 
 add_executable(${TEST_EXECUTABLE} ${TEST_SOURCES})
 target_include_directories(${TEST_EXECUTABLE} PUBLIC ${PROJECT_SOURCE_DIR}/include)
@@ -27,5 +30,5 @@ target_link_libraries(${TEST_EXECUTABLE} ${YAML_LIBRARY_NAME} Catch2::Catch2With
 
 add_test(NAME ${TEST_EXECUTABLE} COMMAND ${TEST_EXECUTABLE})
 
-# add_custom_command(TARGET ${TEST_EXECUTABLE} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/files files)
-# add_custom_command(TARGET ${TEST_EXECUTABLE} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/files ${PROJECT_BINARY_DIR}/files)
+add_custom_command(TARGET ${TEST_EXECUTABLE} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/files files)
+add_custom_command(TARGET ${TEST_EXECUTABLE} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/files ${PROJECT_BINARY_DIR}/files)

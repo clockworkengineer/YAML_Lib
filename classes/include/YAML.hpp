@@ -1,19 +1,19 @@
 #pragma once
 
-#include <memory>
-#include <string>
-#include <stdexcept>
 #include <algorithm>
-#include <utility>
-#include <vector>
-#include <map>
+#include <cstring>
+#include <cwctype>
 #include <filesystem>
-#include <set>
 #include <fstream>
+#include <map>
+#include <memory>
+#include <set>
+#include <stdexcept>
+#include <string>
 #include <type_traits>
 #include <unordered_map>
-#include <cwctype>
-#include <cstring>
+#include <utility>
+#include <vector>
 
 namespace YAML_Lib {
 
@@ -31,6 +31,13 @@ public:
   YAML(YAML &&other) = delete;
   YAML &operator=(YAML &&other) = delete;
   ~YAML() = default;
+
+  static std::string fromFile(const std::string &yamlFileName) {
+    std::ifstream yamlFile{yamlFileName, std::ios_base::binary};
+    std::ostringstream yamlFileBuffer;
+    yamlFileBuffer << yamlFile.rdbuf();
+    return yamlFileBuffer.str();
+  }
 };
 
 } // namespace YAML_Lib
