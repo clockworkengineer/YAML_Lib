@@ -43,6 +43,8 @@ public:
   ~YAML();
   // Get YAML library version
   [[nodiscard]] std::string version() const;
+    // Get YAML library version
+  [[nodiscard]] unsigned int getNumberOfDocuments() const;
   // Parse YAML into tree
   void parse(ISource &source) const;
   void parse(ISource &&source) const;

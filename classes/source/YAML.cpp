@@ -18,6 +18,7 @@ YAML::YAML() : implementation(std::make_unique<YAML_Impl>()) {}
 YAML::~YAML() {}
 
 std::string YAML::version() const { return (YAML_Impl::version()); }
+unsigned int YAML::getNumberOfDocuments() const { return implementation->getNumberOfDocuments();}
 void YAML::parse(ISource &source) const { implementation->parse(source); }
 void YAML::parse(ISource &&source) const { implementation->parse(source); }
 

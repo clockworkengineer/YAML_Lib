@@ -6,8 +6,7 @@
 
 namespace YAML_Lib {
 
-class YAML_Impl
-{
+class YAML_Impl {
 public:
   // Constructors/Destructors
   YAML_Impl() = default;
@@ -18,9 +17,16 @@ public:
   ~YAML_Impl() = default;
   // Get YAML_Lib version
   static std::string version();
+  // Get number of documents
+  [[nodiscard]] unsigned int getNumberOfDocuments() const {
+    return (numberOfDocuments);
+  }
   // Parse YAML into JNode tree
   void parse(ISource &source);
   // Create YAML text string (no white space) from JNode tree
   void stringify(IDestination &destination) const;
+
+private:
+  unsigned int numberOfDocuments{};
 };
-}// namespace YAML_Lib
+} // namespace YAML_Lib
