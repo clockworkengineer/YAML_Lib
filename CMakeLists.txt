@@ -21,6 +21,7 @@ set(YAML_LIBRARY_NAME ${PROJECT_NAME})
 # YAML sources
 set(YAML_SOURCES
   ./classes/source/YAML.cpp
+  ./classes/source/implementation/YAML_Impl.cpp
 )
 
 # YAML includes
@@ -32,11 +33,12 @@ set(YAML_INCLUDES
   ./classes/include/interface/YAML_Interfaces.hpp
   ./classes/include/implementation/io/YAML_Sources.hpp
   ./classes/include/implementation/io/YAML_Destinations.hpp
+  ./classes/include/implementation/YAML_Impl.hpp
   ./classes/include/implementation/YAML_Core.hpp
 )
 
 # YAML library
-add_library(${YAML_LIBRARY_NAME} ${YAML_SOURCES} ${YAML_INCLUDES})
+add_library(${YAML_LIBRARY_NAME} ${YAML_SOURCES} ${YAML_INCLUDES}) 
 target_include_directories(${YAML_LIBRARY_NAME} PUBLIC
   ${PROJECT_SOURCE_DIR}/classes/include
   ${PROJECT_SOURCE_DIR}/classes/include/implementation

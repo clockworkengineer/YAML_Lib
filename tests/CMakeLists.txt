@@ -19,7 +19,7 @@ enable_testing()
 set(TEST_EXECUTABLE ${YAML_LIBRARY_NAME}_Unit_Tests)
 
 set(TEST_SOURCES
-        source/YAML_Lib_Tests_YAML.cpp
+        source/parse/YAML_Lib_Tests_YAML.cpp
         source/io/YAML_Lib_Tests_ISource_Buffer.cpp
         source/io/YAML_Lib_Tests_IDestination_Buffer.cpp
         source/misc/YAML_Lib_Tests_Helper.cpp)
