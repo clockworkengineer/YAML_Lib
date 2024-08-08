@@ -5,5 +5,6 @@ TEST_CASE("Check YAML Parse start document.", "[YAML][Parse][Start]") {
   SECTION("YAML Parse start document.", "[YAML][Parse][Start]") {
     BufferSource source {"---\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
   }
 }

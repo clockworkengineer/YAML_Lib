@@ -27,6 +27,7 @@ public:
   void stringify(IDestination &destination) const;
 
 private:
+  void parseDocument(ISource &source);
   unsigned int numberOfDocuments{};
 };
 } // namespace YAML_Lib

@@ -22,6 +22,7 @@ set(YAML_LIBRARY_NAME ${PROJECT_NAME})
 set(YAML_SOURCES
   ./classes/source/YAML.cpp
   ./classes/source/implementation/YAML_Impl.cpp
+  ./classes/source/implementation/parser/YAML_Impl_Parser.cpp
 )
 
 # YAML includes
