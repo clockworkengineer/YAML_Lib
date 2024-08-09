@@ -1,25 +1,24 @@
 #pragma once
 
 namespace YAML_Lib {
-  
+
 // ========================
 // YAML character constants
 // ========================
-constexpr char kCarriageReturn{ 0x0D };
-constexpr char kLineFeed{ 0x0A };
+constexpr char kCarriageReturn{0x0D};
+constexpr char kLineFeed{0x0A};
 
 // =======================================================
 // Interface for reading source stream during YAML parsing
 // =======================================================
-class ISource
-{
+class ISource {
 public:
   // =============
   // ISource Error
   // =============
-  struct Error final : std::runtime_error
-  {
-    explicit Error(const std::string &message) : std::runtime_error("ISource Error: " + message) {}
+  struct Error final : std::runtime_error {
+    explicit Error(const std::string &message)
+        : std::runtime_error("ISource Error: " + message) {}
   };
   // ========================
   // Constructors/destructors
@@ -52,34 +51,49 @@ public:
   // ===================================
   // Is the current character whitespace
   // ===================================
-  [[nodiscard]] bool isWS() const
-  {
-    return current() == ' ' || current() == '\t' || current() == '\n' || current() == '\r';
+  [[nodiscard]] bool isWS() const {
+    return current() == ' ' || current() == '\t' || current() == '\n' ||
+           current() == '\r';
   }
   // ==================================
   // Ignore whitespace on source stream
   // ==================================
-  void ignoreWS()
-  {
-    while (more() && isWS()) { next(); }
+  void ignoreWS() {
+    while (more() && isWS()) {
+      next();
+    }
   }
   // ===============================================================
   // Is current string a match at the current source stream position
   // ===============================================================
-  [[nodiscard]] bool match(const std::string &targetString)
-  {
+  [[nodiscard]] bool match(const std::string &targetString) {
     long index = 0;
     while (more() && current() == targetString[index]) {
       next();
-      if (++index == static_cast<long>(targetString.length())) { return true; }
+      if (++index == static_cast<long>(targetString.length())) {
+        return true;
+      }
     }
     backup(index);
     return false;
   }
+  // ==============================
+  // Move to beginning of next line
+  // ==============================
+  void nextLine() {
+    while (more() && current() != kLineFeed) {
+      next();
+    }
+    if (more()) {
+      next();
+    }
+  }
   // ==================================
   // Get current source stream position
   // ==================================
-  [[nodiscard]] std::pair<long, long> getPosition() const { return std::make_pair(lineNo, column); }
+  [[nodiscard]] std::pair<long, long> getPosition() const {
+    return std::make_pair(lineNo, column);
+  }
 
 protected:
   // ========================
@@ -92,4 +106,4 @@ protected:
   long lineNo = 1;
   long column = 1;
 };
-}// namespace YAML_Lib
+} // namespace YAML_Lib

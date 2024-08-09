@@ -16,8 +16,10 @@ void YAML_Impl::parseDocument(ISource &source) {
     // Start of document
     if (source.match("---")) {
       numberOfDocuments++;
+      source.nextLine();
       // End of document
     } else if (source.match("...")) {
+      source.nextLine();
       return;
     }
   }
