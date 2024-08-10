@@ -11,7 +11,7 @@ TEST_CASE("Check YAML creation.", "[YAML][API]") {
   }
   SECTION("Parse YAML.", "[YAML][API][Parse]") {
     YAML yaml;
-    BufferSource buffer("---\n doe: \"a deer, a female deer\"");
+    BufferSource buffer("---\n...\n");
     REQUIRE_NOTHROW(yaml.parse(buffer));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
   }

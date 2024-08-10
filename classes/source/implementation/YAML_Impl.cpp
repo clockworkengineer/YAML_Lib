@@ -18,16 +18,6 @@ std::string YAML_Impl::version() {
   return versionString.str();
 }
 
-void YAML_Impl::parse(ISource &source) {
-  // Start of document
-  if (source.match("---")) { 
-    numberOfDocuments++;
-  // End of document
-  } else if (source.match("...")) {
-    ;
-  }
-}
-
 void YAML_Impl::stringify(IDestination &destination) const {}
 
 } // namespace YAML_Lib
