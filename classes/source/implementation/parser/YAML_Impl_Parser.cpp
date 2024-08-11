@@ -18,6 +18,7 @@ void parseIndentLevel(ISource &source) {
 }
 
 void YAML_Impl::parseDocument(ISource &source) {
+  unsigned int startNumberOfDocuments = getNumberOfDocuments();
   while (source.more()) {
     // Start of document
     if (source.match("---")) {
@@ -27,11 +28,10 @@ void YAML_Impl::parseDocument(ISource &source) {
       // End of document
     } else if (source.match("...")) {
       source.nextLine();
+      if (startNumberOfDocuments == getNumberOfDocuments()) {
+        numberOfDocuments++;
+      }
       return;
-    } else {
-      numberOfDocuments++;
-      source.nextLine();
-      parseIndentLevel(source);
     }
   }
 }
