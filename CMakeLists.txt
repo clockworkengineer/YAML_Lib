@@ -32,6 +32,7 @@ set(YAML_INCLUDES
   ./classes/include/interface/ISource.hpp
   ./classes/include/interface/IDestination.hpp
   ./classes/include/interface/YAML_Interfaces.hpp
+  ./classes/include/implementation/common/YAML_Error.hpp
   ./classes/include/implementation/io/YAML_Sources.hpp
   ./classes/include/implementation/io/YAML_Destinations.hpp
   ./classes/include/implementation/YAML_Impl.hpp
@@ -43,6 +44,7 @@ add_library(${YAML_LIBRARY_NAME} ${YAML_SOURCES} ${YAML_INCLUDES})
 target_include_directories(${YAML_LIBRARY_NAME} PUBLIC
   ${PROJECT_SOURCE_DIR}/classes/include
   ${PROJECT_SOURCE_DIR}/classes/include/implementation
+  ${PROJECT_SOURCE_DIR}/classes/include/implementation/common
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/io
   ${PROJECT_SOURCE_DIR}/classes/include/interface
   ${PROJECT_BINARY_DIR})

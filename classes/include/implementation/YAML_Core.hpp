@@ -10,3 +10,6 @@
 // IO
 #include "YAML_Sources.hpp"
 #include "YAML_Destinations.hpp"
+
+// Error
+#include "YAML_Error.hpp"

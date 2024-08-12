@@ -23,7 +23,7 @@ TEST_CASE("Check YAML Parse start document.", "[YAML][Parse][Start]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 4);
   }
-    SECTION("YAML Parse end document.", "[YAML][Parse][End]") {
+  SECTION("YAML Parse end document.", "[YAML][Parse][End]") {
     BufferSource source{"...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
@@ -32,5 +32,17 @@ TEST_CASE("Check YAML Parse start document.", "[YAML][Parse][Start]") {
     BufferSource source{"...\n...\n...\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 4);
+  }
+  SECTION("YAML Parse multiple documents.", "[YAML][Parse][Mutliple]") {
+    BufferSource source{
+        "---\n...\n---\n...\n---\n...\n---\n...\n---\n...\n---\n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 6);
+  }
+    SECTION("YAML Parse multiple documents formatting mixed up.", "[YAML][Parse][Mutliple]") {
+    BufferSource source{
+        "---\n...\n---\n...\n---\n...\n...\n---\n...\n---\n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 6);
   }
 }
