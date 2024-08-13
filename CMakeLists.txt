@@ -35,6 +35,15 @@ set(YAML_INCLUDES
   ./classes/include/implementation/common/YAML_Error.hpp
   ./classes/include/implementation/io/YAML_Sources.hpp
   ./classes/include/implementation/io/YAML_Destinations.hpp
+  ./classes/include/implementation/variants/YAML_Variant.hpp
+  ./classes/include/implementation/variants/YAML_Hole.hpp
+  ./classes/include/implementation/variants/YAML_Array.hpp
+  ./classes/include/implementation/variants/YAML_Boolean.hpp
+  ./classes/include/implementation/variants/YAML_Null.hpp
+  ./classes/include/implementation/variants/YAML_Number.hpp
+  ./classes/include/implementation/variants/YAML_Object.hpp
+  ./classes/include/implementation/variants/YAML_String.hpp
+  ./classes/include/implementation/ynode/YAML_YNode.hpp
   ./classes/include/implementation/YAML_Impl.hpp
   ./classes/include/implementation/YAML_Core.hpp
 )
@@ -46,6 +55,8 @@ target_include_directories(${YAML_LIBRARY_NAME} PUBLIC
   ${PROJECT_SOURCE_DIR}/classes/include/implementation
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/common
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/io
+  ${PROJECT_SOURCE_DIR}/classes/include/implementation/variants
+  ${PROJECT_SOURCE_DIR}/classes/include/implementation/ynode
   ${PROJECT_SOURCE_DIR}/classes/include/interface
   ${PROJECT_BINARY_DIR})
 

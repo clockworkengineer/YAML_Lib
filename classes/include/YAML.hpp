@@ -14,23 +14,18 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <variant>
 
 #include "YAML_Config.hpp"
 #include "YAML_Interfaces.hpp"
 
 namespace YAML_Lib {
 
-// ====================
-// Internal String Type
-// ====================
-using String = std::u16string;
-using Char = String::value_type;
-
 // =========================
 // YAML forward declarations
 // =========================
 class YAML_Impl;
-// struct JNode;
+struct YNode;
 
 class YAML {
 public:
