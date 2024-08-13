@@ -10,8 +10,16 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][Arary]") {
     BufferSource source{"---\ntrue\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-//   SECTION("YAML Parse an integer.", "[YAML][Parse][Integer]") {
-//     BufferSource source{"---\n4567000\n"};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//   }
+  SECTION("YAML Parse an integer.", "[YAML][Parse][Integer]") {
+    BufferSource source{"---\n4567000\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
+  SECTION("YAML Parse an negative integer.", "[YAML][Parse][Integer]") {
+    BufferSource source{"---\n-4567000\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
+  SECTION("YAML Parse an positive integer.", "[YAML][Parse][Integer]") {
+    BufferSource source{"---\n+4567000\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
 }
