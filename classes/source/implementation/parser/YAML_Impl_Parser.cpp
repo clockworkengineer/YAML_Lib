@@ -14,16 +14,16 @@ namespace YAML_Lib {
 /// <summary>
 /// Has the end of a number been reached in source stream ?
 /// </summary>
-/// <param name="source">Source of JSON.</param>
+/// <param name="source">Source of YAML.</param>
 /// <returns>true on end of number</returns>
 bool endOfNumber(const ISource &source) {
   return source.isWS() || source.current() == ',' || source.current() == ']';
 }
 
 /// <summary>
-/// Parse a number from a JSON source stream.
+/// Parse a number from a YAML source stream.
 /// </summary>
-/// <param name="source">Source of JSON.</param>
+/// <param name="source">Source of YAML.</param>
 /// <returns>Number JNode.</returns>
 bool parseNumber(ISource &source) {
   std::string string;

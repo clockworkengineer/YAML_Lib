@@ -22,4 +22,16 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][Arary]") {
     BufferSource source{"---\n+4567000\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
+  SECTION("YAML Parse a floating point.", "[YAML][Parse][Float]") {
+    BufferSource source{"---\n3.1415926535\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
+  SECTION("YAML Parse a floating point.", "[YAML][Parse][Float]") {
+    BufferSource source{"---\n+3.1415926535\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
+  SECTION("YAML Parse a negative floating point.", "[YAML][Parse][Float]") {
+    BufferSource source{"---\n-3.1415926535\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
 }
