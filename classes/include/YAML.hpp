@@ -29,8 +29,7 @@ struct YNode;
 
 class YAML {
 public:
-public:
-  // Possible JSON Node initializer list types
+  // Possible YAML Node initializer list types
   using IntializerListTypes =
     std::variant<int, long, long long, float, double, long double, bool, std::string, std::nullptr_t, YNode>;
   // Array initializer list
@@ -51,10 +50,10 @@ public:
   // Parse YAML into tree
   void parse(ISource &source) const;
   void parse(ISource &&source) const;
-  // Create YAML text string from JNode tree (no whitespace)
+  // Create YAML text string from YNode tree (no whitespace)
   void stringify(IDestination &destination) const;
   void stringify(IDestination &&destination) const;
-  // // Create YAML text string from JNode tree (pretty printed)
+  // // Create YAML text string from YNode tree (pretty printed)
   // void print(IDestination &destination) const;
   // void print(IDestination &&destination) const;
   // // Strip whitespace from YAML string
@@ -67,15 +66,15 @@ public:
   // void traverse(IAction &action) const;
   // // Set print ident value
   // void setIndent(long indent) const;
-  // // Get root of YAML tree
-  // [[nodiscard]] JNode &root();
-  // [[nodiscard]] const JNode &root() const;
+  // Get root of YAML tree
+  [[nodiscard]] YNode &root();
+  [[nodiscard]] const YNode &root() const;
   // // Search for YAML object entry with a given key
-  // JNode &operator[](const std::string &key);
-  // const JNode &operator[](const std::string &key) const;
+  // YNode &operator[](const std::string &key);
+  // const YNode &operator[](const std::string &key) const;
   // // Get YAML array entry at index
-  // JNode &operator[](std::size_t index);
-  // const JNode &operator[](std::size_t index) const;
+  // YNode &operator[](std::size_t index);
+  // const YNode &operator[](std::size_t index) const;
   // // Read/Write YAML from file
   // static std::string fromFile(const std::string &fileName);
   // static void toFile(const std::string &fileName, const std::string &jsonString, Format format = Format::utf8);

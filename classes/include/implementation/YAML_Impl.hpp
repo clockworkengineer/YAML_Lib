@@ -21,13 +21,19 @@ public:
   [[nodiscard]] unsigned int getNumberOfDocuments() const {
     return (numberOfDocuments);
   }
-  // Parse YAML into JNode tree
+  // Parse YAML into YNode tree
   void parse(ISource &source);
-  // Create YAML text string (no white space) from JNode tree
+  // Create YAML text string (no white space) from YNode tree
   void stringify(IDestination &destination) const;
+  // Get root of JSON tree
+  [[nodiscard]] YNode &root() { return yNodeRoot; }
+  [[nodiscard]] const YNode &root() const { return yNodeRoot; }
 
 private:
   void parseDocument(ISource &source);
+  // Number of documents
   unsigned int numberOfDocuments{};
+  // Root of YAML tree
+  YNode yNodeRoot;
 };
 } // namespace YAML_Lib
