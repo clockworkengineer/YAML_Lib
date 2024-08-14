@@ -26,12 +26,36 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][Arary]") {
     BufferSource source{"---\n3.1415926535\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-  SECTION("YAML Parse a floating point.", "[YAML][Parse][Float]") {
+  SECTION("YAML Parse a positive floating point.", "[YAML][Parse][Float]") {
     BufferSource source{"---\n+3.1415926535\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
   SECTION("YAML Parse a negative floating point.", "[YAML][Parse][Float]") {
     BufferSource source{"---\n-3.1415926535\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
+  SECTION("YAML Parse a scientific floating point.", "[YAML][Parse][Float]") {
+    BufferSource source{"---\n323.777e15\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
+  SECTION("YAML Parse a small scientific floating point.",
+          "[YAML][Parse][Float]") {
+    BufferSource source{"---\n323.777e-15\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
+  SECTION("YAML Parse a negative scientific floating point.",
+          "[YAML][Parse][Float]") {
+    BufferSource source{"---\n-323.777e15\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
+    SECTION("YAML Parse a small scientific floating point.",
+          "[YAML][Parse][Float]") {
+    BufferSource source{"---\n323.777e-15\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
+  SECTION("YAML Parse a small negative scientific floating point.",
+          "[YAML][Parse][Float]") {
+    BufferSource source{"---\n-323.777e-15\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
 }
