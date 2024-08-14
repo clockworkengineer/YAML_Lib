@@ -29,6 +29,14 @@ struct YNode;
 
 class YAML {
 public:
+public:
+  // Possible JSON Node initializer list types
+  using IntializerListTypes =
+    std::variant<int, long, long long, float, double, long double, bool, std::string, std::nullptr_t, YNode>;
+  // Array initializer list
+  using ArrayInitializer = std::initializer_list<IntializerListTypes>;
+  // Object initializer list
+  using Objectintializer = std::initializer_list<std::pair<std::string, IntializerListTypes>>;
   YAML();
   YAML(const YAML &other) = delete;
   YAML &operator=(const YAML &other) = delete;

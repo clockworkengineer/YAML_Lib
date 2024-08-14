@@ -44,6 +44,9 @@ set(YAML_INCLUDES
   ./classes/include/implementation/variants/YAML_Object.hpp
   ./classes/include/implementation/variants/YAML_String.hpp
   ./classes/include/implementation/ynode/YAML_YNode.hpp
+  ./classes/include/implementation/ynode/YAML_YNode_Creation.hpp
+  ./classes/include/implementation/ynode/YAML_YNode_Index.hpp
+  ./classes/include/implementation/ynode/YAML_YNode_Reference.hpp
   ./classes/include/implementation/YAML_Impl.hpp
   ./classes/include/implementation/YAML_Core.hpp
 )

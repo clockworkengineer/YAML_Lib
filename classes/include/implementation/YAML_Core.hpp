@@ -20,6 +20,11 @@
 #include "YAML_String.hpp"
 #include "YAML_Object.hpp"
 
+// YNode
+#include "YAML_YNode_Reference.hpp"
+#include "YAML_YNode_Creation.hpp"
+#include "YAML_YNode_Index.hpp"
+
 // IO
 #include "YAML_Sources.hpp"
 #include "YAML_Destinations.hpp"
