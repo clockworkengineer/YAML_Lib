@@ -30,7 +30,7 @@ public:
   [[nodiscard]] const YNode &root() const { return yNodeRoot; }
 
 private:
-  void parseDocument(ISource &source);
+  void parseDocuments(ISource &source);
   // Number of documents
   unsigned int numberOfDocuments{};
   // Root of YAML tree
