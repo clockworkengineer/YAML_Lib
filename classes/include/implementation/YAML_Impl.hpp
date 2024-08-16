@@ -19,20 +19,23 @@ public:
   static std::string version();
   // Get number of documents
   [[nodiscard]] unsigned int getNumberOfDocuments() const {
-    return (numberOfDocuments);
+    return (yamlDocuments.size());
   }
   // Parse YAML into YNode tree
   void parse(ISource &source);
   // Create YAML text string (no white space) from YNode tree
   void stringify(IDestination &destination) const;
   // Get root of JSON tree
-  [[nodiscard]] YNode &root() { return yNodeRoot; }
-  [[nodiscard]] const YNode &root() const { return yNodeRoot; }
+  [[nodiscard]] std::vector<YNode> &root() { return yamlDocuments; }
+  [[nodiscard]] const std::vector<YNode> &root() const { return yamlDocuments; }
+  // Get documents root
+  // [[nodiscard]] YNode &root() { return yNodeRoot; }
+  // [[nodiscard]] const YNode &root() const { return yNodeRoot; }
 
 private:
   void parseDocuments(ISource &source);
   // Number of documents
-  unsigned int numberOfDocuments{};
+  std::vector<YNode> yamlDocuments;
   // Root of YAML tree
   YNode yNodeRoot;
 };

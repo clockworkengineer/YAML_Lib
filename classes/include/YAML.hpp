@@ -67,8 +67,8 @@ public:
   // // Set print ident value
   // void setIndent(long indent) const;
   // Get root of YAML tree
-  [[nodiscard]] YNode &root();
-  [[nodiscard]] const YNode &root() const;
+  [[nodiscard]] std::vector<YNode>   &root();
+  [[nodiscard]] const std::vector<YNode>   &root() const;
   // // Search for YAML object entry with a given key
   // YNode &operator[](const std::string &key);
   // const YNode &operator[](const std::string &key) const;
