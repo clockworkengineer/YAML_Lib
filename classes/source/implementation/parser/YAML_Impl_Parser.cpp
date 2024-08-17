@@ -11,6 +11,20 @@
 
 namespace YAML_Lib {
 
+YNode parseString(ISource &source) {
+
+  if (source.current() == '\'' || source.current() == '"') {
+    std::string yamlString;
+    const char quote = source.current();
+    source.next();
+    while (source.more() && source.current() != quote) {
+      yamlString += source.current();
+      source.next();
+    }
+    return YNode::make<String>(yamlString);
+  }
+  throw SyntaxError("String does not have and quote.");
+}
 /// <summary>
 /// Has the end of a number been reached in source stream ?
 /// </summary>
@@ -87,6 +101,9 @@ void YAML_Impl::parseDocuments(ISource &source) {
         } else if ((source.current() >= '0' && source.current() <= '9') ||
                    source.current() == '-' || source.current() == '+') {
           YRef<Array>(yamlDocuments.back()).add(parseNumber(source));
+          source.nextLine();
+        } else if ((source.current() == '\'')||(source.current()=='"')) {
+          YRef<Array>(yamlDocuments.back()).add(parseString(source));
           source.nextLine();
         } else {
           throw SyntaxError("Incorrect YAML");
