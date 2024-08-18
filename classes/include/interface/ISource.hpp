@@ -80,14 +80,14 @@ public:
   // ==============================
   // Move to beginning of next line
   // ==============================
-  void nextLine() {
-    while (more() && current() != kLineFeed) {
-      next();
-    }
-    if (more()) {
-      next();
-    }
-  }
+  // void nextLine() {
+  //   while (more() && current() != kLineFeed) {
+  //     next();
+  //   }
+  //   if (more()) {
+  //     next();
+  //   }
+  // }
   // ==================================
   // Get current source stream position
   // ==================================

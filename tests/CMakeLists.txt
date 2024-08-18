@@ -23,6 +23,7 @@ set(TEST_SOURCES
         source/parse/YAML_Lib_Tests_YAML_Parse.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Array.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Simple.cpp
+        source/parse/YAML_Lib_Tests_YAML_Parse_Comment.cpp
         source/io/YAML_Lib_Tests_ISource_Buffer.cpp
         source/io/YAML_Lib_Tests_IDestination_Buffer.cpp
         source/misc/YAML_Lib_Tests_Helper.cpp)

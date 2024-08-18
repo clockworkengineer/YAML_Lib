@@ -11,6 +11,18 @@
 
 namespace YAML_Lib {
 
+void parseNext(ISource &source) {
+  while (source.more() && source.current() != kLineFeed) {
+    if (source.current()=='#') {
+      return;
+    }
+    source.next();
+  }
+  if (source.more()) {
+    source.next();
+  }
+}
+
 YNode parseString(ISource &source) {
 
   if (source.current() == '\'' || source.current() == '"') {
@@ -59,36 +71,41 @@ YNode parseNumber(ISource &source) {
 
 YNode parseArray(ISource &source) {
   auto yNode = YNode::make<Array>();
-  source.nextLine();
+  parseNext(source);
   parseIndentLevel(source);
   YRef<Array>(yNode).add(YNode::make<Null>());
   while (source.match("- ")) {
-    source.nextLine();
+    parseNext(source);
     parseIndentLevel(source);
     YRef<Array>(yNode).add(YNode::make<Null>());
   }
   return yNode;
 }
 
+void parseComment(ISource &source) { source.next(); parseNext(source); }
+
+void parseKeyValuePair(ISource &source) { throw SyntaxError("Incorrect YAML"); }
 
 void YAML_Impl::parseInternal(ISource &source) {
   if (source.match("- ")) {
     YRef<Array>(yamlDocuments.back()).add(parseArray(source));
   } else if (source.match("true")) {
-    source.nextLine();
+    parseNext(source);
     YRef<Array>(yamlDocuments.back()).add(YNode::make<Boolean>(true));
   } else if (source.match("false")) {
     YRef<Array>(yamlDocuments.back()).add(YNode::make<Boolean>(false));
-    source.nextLine();
+    parseNext(source);
   } else if ((source.current() >= '0' && source.current() <= '9') ||
              source.current() == '-' || source.current() == '+') {
     YRef<Array>(yamlDocuments.back()).add(parseNumber(source));
-    source.nextLine();
+    parseNext(source);
   } else if ((source.current() == '\'') || (source.current() == '"')) {
     YRef<Array>(yamlDocuments.back()).add(parseString(source));
-    source.nextLine();
+    parseNext(source);
+  } else if (source.current() == '#') {
+    parseComment(source);
   } else {
-    throw SyntaxError("Incorrect YAML");
+    parseKeyValuePair(source);
   }
 }
 
@@ -99,11 +116,11 @@ void YAML_Impl::parseDocuments(ISource &source) {
       parseIndentLevel(source);
       // Start of document
       if (source.match("---")) {
-        source.nextLine();
+        parseNext(source);
         yamlDocuments.push_back(YNode::make<Array>());
         // End of document
       } else if (source.match("...")) {
-        source.nextLine();
+        parseNext(source);
         if (startNumberOfDocuments == getNumberOfDocuments()) {
           yamlDocuments.push_back(YNode::make<Array>());
         }
