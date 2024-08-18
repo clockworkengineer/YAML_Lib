@@ -34,6 +34,7 @@ public:
 
 private:
   void parseDocuments(ISource &source);
+  void parseInternal(ISource &source);
   // Number of documents
   std::vector<YNode> yamlDocuments;
   // Root of YAML tree

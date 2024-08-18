@@ -70,6 +70,28 @@ YNode parseArray(ISource &source) {
   return yNode;
 }
 
+
+void YAML_Impl::parseInternal(ISource &source) {
+  if (source.match("- ")) {
+    YRef<Array>(yamlDocuments.back()).add(parseArray(source));
+  } else if (source.match("true")) {
+    source.nextLine();
+    YRef<Array>(yamlDocuments.back()).add(YNode::make<Boolean>(true));
+  } else if (source.match("false")) {
+    YRef<Array>(yamlDocuments.back()).add(YNode::make<Boolean>(false));
+    source.nextLine();
+  } else if ((source.current() >= '0' && source.current() <= '9') ||
+             source.current() == '-' || source.current() == '+') {
+    YRef<Array>(yamlDocuments.back()).add(parseNumber(source));
+    source.nextLine();
+  } else if ((source.current() == '\'') || (source.current() == '"')) {
+    YRef<Array>(yamlDocuments.back()).add(parseString(source));
+    source.nextLine();
+  } else {
+    throw SyntaxError("Incorrect YAML");
+  }
+}
+
 void YAML_Impl::parseDocuments(ISource &source) {
   while (source.more()) {
     unsigned int startNumberOfDocuments = getNumberOfDocuments();
@@ -90,24 +112,7 @@ void YAML_Impl::parseDocuments(ISource &source) {
         if (yamlDocuments.empty()) {
           yamlDocuments.push_back(YNode::make<Array>());
         }
-        if (source.match("- ")) {
-          YRef<Array>(yamlDocuments.back()).add(parseArray(source));
-        } else if (source.match("true")) {
-          source.nextLine();
-          YRef<Array>(yamlDocuments.back()).add(YNode::make<Boolean>(true));
-        } else if (source.match("false")) {
-          YRef<Array>(yamlDocuments.back()).add(YNode::make<Boolean>(false));
-          source.nextLine();
-        } else if ((source.current() >= '0' && source.current() <= '9') ||
-                   source.current() == '-' || source.current() == '+') {
-          YRef<Array>(yamlDocuments.back()).add(parseNumber(source));
-          source.nextLine();
-        } else if ((source.current() == '\'')||(source.current()=='"')) {
-          YRef<Array>(yamlDocuments.back()).add(parseString(source));
-          source.nextLine();
-        } else {
-          throw SyntaxError("Incorrect YAML");
-        }
+        parseInternal(source);
       }
     }
   }
