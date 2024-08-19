@@ -13,7 +13,7 @@ namespace YAML_Lib {
 
 void parseNext(ISource &source) {
   while (source.more() && source.current() != kLineFeed) {
-    if (source.current()=='#') {
+    if (source.current() == '#') {
       return;
     }
     source.next();
@@ -82,28 +82,40 @@ YNode parseArray(ISource &source) {
   return yNode;
 }
 
-void parseComment(ISource &source) { source.next(); parseNext(source); }
+YNode parseComment(ISource &source) {
+  std::string comment;
+  source.next();
+  while (source.more() && source.current() != kLineFeed) {
+    comment += source.current();
+    source.next();
+  }
+  if (source.more()) {
+    source.next();
+  }
+  return(YNode::make<Comment>(comment));
+}
 
 void parseKeyValuePair(ISource &source) { throw SyntaxError("Incorrect YAML"); }
 
 void YAML_Impl::parseInternal(ISource &source) {
+  auto &document = YRef<Document>(yamlDocuments.back());
   if (source.match("- ")) {
-    YRef<Array>(yamlDocuments.back()).add(parseArray(source));
+    document.add(parseArray(source));
   } else if (source.match("true")) {
     parseNext(source);
-    YRef<Array>(yamlDocuments.back()).add(YNode::make<Boolean>(true));
+    document.add(YNode::make<Boolean>(true));
   } else if (source.match("false")) {
-    YRef<Array>(yamlDocuments.back()).add(YNode::make<Boolean>(false));
+    document.add(YNode::make<Boolean>(false));
     parseNext(source);
   } else if ((source.current() >= '0' && source.current() <= '9') ||
              source.current() == '-' || source.current() == '+') {
-    YRef<Array>(yamlDocuments.back()).add(parseNumber(source));
+    document.add(parseNumber(source));
     parseNext(source);
   } else if ((source.current() == '\'') || (source.current() == '"')) {
-    YRef<Array>(yamlDocuments.back()).add(parseString(source));
+    document.add(parseString(source));
     parseNext(source);
   } else if (source.current() == '#') {
-    parseComment(source);
+    document.add(parseComment(source));
   } else {
     parseKeyValuePair(source);
   }
@@ -117,17 +129,17 @@ void YAML_Impl::parseDocuments(ISource &source) {
       // Start of document
       if (source.match("---")) {
         parseNext(source);
-        yamlDocuments.push_back(YNode::make<Array>());
+        yamlDocuments.push_back(YNode::make<Document>());
         // End of document
       } else if (source.match("...")) {
         parseNext(source);
         if (startNumberOfDocuments == getNumberOfDocuments()) {
-          yamlDocuments.push_back(YNode::make<Array>());
+          yamlDocuments.push_back(YNode::make<Document>());
         }
         break;
       } else {
         if (yamlDocuments.empty()) {
-          yamlDocuments.push_back(YNode::make<Array>());
+          yamlDocuments.push_back(YNode::make<Document>());
         }
         parseInternal(source);
       }
