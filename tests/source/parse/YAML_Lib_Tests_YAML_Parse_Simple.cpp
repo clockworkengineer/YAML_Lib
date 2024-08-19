@@ -1,6 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][Arary]") {
+TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][Simple]") {
   const YAML yaml;
   SECTION("YAML Parse a boolean (true).", "[YAML][Parse][Boolean]") {
     BufferSource source{"---\ntrue\n"};
@@ -56,7 +56,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][Arary]") {
     REQUIRE_FALSE(!isA<Number>(yaml.root()[0][0]));
     REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.root()[0][0]).is<float>());
     REQUIRE(YAML_Lib::YRef<Number>(yaml.root()[0][0]).value<float>() ==
-            3.141592741f);
+            3.141592741f); 
   }
   SECTION("YAML Parse a negative floating point.", "[YAML][Parse][Float]") {
     BufferSource source{"---\n-3.1415926535\n"};

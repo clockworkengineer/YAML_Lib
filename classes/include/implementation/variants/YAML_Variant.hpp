@@ -5,7 +5,7 @@ namespace YAML_Lib {
 struct Variant
 {
   // JNode Variant Types
-  enum class Type : uint8_t { base = 0, object, array, number, string, boolean, null, hole };
+  enum class Type : uint8_t { base = 0, object, array, number, string, boolean, null, hole, comment, document };
   // Constructors/Destructors
   explicit Variant(const Type nodeType = Type::base) : yNodeType(nodeType) {}
   Variant(const Variant &other) = default;

@@ -39,6 +39,8 @@ set(YAML_INCLUDES
   ./classes/include/implementation/variants/YAML_Hole.hpp
   ./classes/include/implementation/variants/YAML_Array.hpp
   ./classes/include/implementation/variants/YAML_Boolean.hpp
+  ./classes/include/implementation/variants/YAML_Comment.hpp
+  ./classes/include/implementation/variants/YAML_Document.hpp
   ./classes/include/implementation/variants/YAML_Null.hpp
   ./classes/include/implementation/variants/YAML_Number.hpp
   ./classes/include/implementation/variants/YAML_Object.hpp

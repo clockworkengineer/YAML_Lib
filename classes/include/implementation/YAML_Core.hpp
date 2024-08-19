@@ -15,6 +15,8 @@
 #include "YAML_Hole.hpp"
 #include "YAML_Array.hpp"
 #include "YAML_Boolean.hpp"
+#include "YAML_Comment.hpp"
+#include "YAML_Document.hpp"
 #include "YAML_Null.hpp"
 #include "YAML_Number.hpp"
 #include "YAML_String.hpp"
