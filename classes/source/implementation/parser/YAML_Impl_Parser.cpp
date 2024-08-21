@@ -33,15 +33,12 @@ YNode parseString(ISource &source) {
       yamlString += source.current();
       source.next();
     }
+    parseNext(source);
     return YNode::make<String>(yamlString);
   }
   throw SyntaxError("String does not have and quote.");
 }
-/// <summary>
-/// Has the end of a number been reached in source stream ?
-/// </summary>
-/// <param name="source">Source of YAML.</param>
-/// <returns>true on end of number</returns>
+
 bool endOfNumber(const ISource &source) {
   return source.isWS() || source.current() == ',' || source.current() == ']';
 }
@@ -51,11 +48,7 @@ void parseIndentLevel(ISource &source) {
     source.next();
   }
 }
-/// <summary>
-/// Parse a number from a YAML source stream.
-/// </summary>
-/// <param name="source">Source of YAML.</param>
-/// <returns>Number JNode.</returns>
+
 YNode parseNumber(ISource &source) {
   std::string string;
   for (; source.more() && !endOfNumber(source); source.next()) {
@@ -64,6 +57,7 @@ YNode parseNumber(ISource &source) {
   if (Number number{string}; number.is<int>() || number.is<long>() ||
                              number.is<long long>() || number.is<float>() ||
                              number.is<double>() || number.is<long double>()) {
+    parseNext(source);
     return YNode::make<Number>(number);
   }
   throw SyntaxError(source.getPosition(), "Invalid numeric value.");
@@ -79,6 +73,7 @@ YNode parseArray(ISource &source) {
     parseIndentLevel(source);
     YRef<Array>(yNode).add(YNode::make<Null>());
   }
+  parseNext(source);
   return yNode;
 }
 
@@ -92,32 +87,32 @@ YNode parseComment(ISource &source) {
   if (source.more()) {
     source.next();
   }
-  return(YNode::make<Comment>(comment));
+  return (YNode::make<Comment>(comment));
 }
 
-void parseKeyValuePair(ISource &source) { throw SyntaxError("Incorrect YAML"); }
+YNode parseKeyValuePair(ISource &source) {
+  throw SyntaxError("Incorrect YAML");
+}
 
-void YAML_Impl::parseInternal(ISource &source) {
-  auto &document = YRef<Document>(yamlDocuments.back());
+YNode YAML_Impl::parseInternal(ISource &source) {
+
   if (source.match("- ")) {
-    document.add(parseArray(source));
+    return (parseArray(source));
   } else if (source.match("true")) {
     parseNext(source);
-    document.add(YNode::make<Boolean>(true));
+    return (YNode::make<Boolean>(true));
   } else if (source.match("false")) {
-    document.add(YNode::make<Boolean>(false));
     parseNext(source);
+    return (YNode::make<Boolean>(false));
   } else if ((source.current() >= '0' && source.current() <= '9') ||
              source.current() == '-' || source.current() == '+') {
-    document.add(parseNumber(source));
-    parseNext(source);
+    return (parseNumber(source));
   } else if ((source.current() == '\'') || (source.current() == '"')) {
-    document.add(parseString(source));
-    parseNext(source);
+    return (parseString(source));
   } else if (source.current() == '#') {
-    document.add(parseComment(source));
+    return (parseComment(source));
   } else {
-    parseKeyValuePair(source);
+    return (parseKeyValuePair(source));
   }
 }
 
@@ -141,7 +136,7 @@ void YAML_Impl::parseDocuments(ISource &source) {
         if (yamlDocuments.empty()) {
           yamlDocuments.push_back(YNode::make<Document>());
         }
-        parseInternal(source);
+        YRef<Document>(yamlDocuments.back()).add(parseInternal(source));
       }
     }
   }
