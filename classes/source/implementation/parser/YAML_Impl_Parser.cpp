@@ -80,19 +80,15 @@ YNode parseNumber(ISource &source) {
 
 YNode parseArray(ISource &source) {
   auto yNode = YNode::make<Array>();
-  parseNext(source);
+  YRef<Array>(yNode).add(parseDocument(source));
   parseIndentLevel(source);
-  YRef<Array>(yNode).add(YNode::make<Null>());
   while (source.match("- ")) {
-    parseNext(source);
-    parseIndentLevel(source);
-    YRef<Array>(yNode).add(YNode::make<Null>());
+    YRef<Array>(yNode).add(parseDocument(source));
+      parseIndentLevel(source);
   }
   parseNext(source);
   return yNode;
 }
-
-
 
 YNode parseKeyValuePair(ISource &source) {
   throw SyntaxError("Incorrect YAML");
