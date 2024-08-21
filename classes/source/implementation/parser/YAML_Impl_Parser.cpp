@@ -11,6 +11,8 @@
 
 namespace YAML_Lib {
 
+YNode parseDocument(ISource &source);
+
 void parseNext(ISource &source) {
   while (source.more() && source.current() != kLineFeed) {
     if (source.current() == '#') {
@@ -19,6 +21,16 @@ void parseNext(ISource &source) {
     source.next();
   }
   if (source.more()) {
+    source.next();
+  }
+}
+
+bool endOfNumber(const ISource &source) {
+  return source.isWS() || source.current() == ',' || source.current() == ']';
+}
+
+void parseIndentLevel(ISource &source) {
+  while (source.more() && source.current() == ' ') {
     source.next();
   }
 }
@@ -39,14 +51,17 @@ YNode parseString(ISource &source) {
   throw SyntaxError("String does not have and quote.");
 }
 
-bool endOfNumber(const ISource &source) {
-  return source.isWS() || source.current() == ',' || source.current() == ']';
-}
-
-void parseIndentLevel(ISource &source) {
-  while (source.more() && source.current() == ' ') {
+YNode parseComment(ISource &source) {
+  std::string comment;
+  source.next();
+  while (source.more() && source.current() != kLineFeed) {
+    comment += source.current();
     source.next();
   }
+  if (source.more()) {
+    source.next();
+  }
+  return (YNode::make<Comment>(comment));
 }
 
 YNode parseNumber(ISource &source) {
@@ -77,25 +92,15 @@ YNode parseArray(ISource &source) {
   return yNode;
 }
 
-YNode parseComment(ISource &source) {
-  std::string comment;
-  source.next();
-  while (source.more() && source.current() != kLineFeed) {
-    comment += source.current();
-    source.next();
-  }
-  if (source.more()) {
-    source.next();
-  }
-  return (YNode::make<Comment>(comment));
-}
+
 
 YNode parseKeyValuePair(ISource &source) {
   throw SyntaxError("Incorrect YAML");
 }
 
-YNode YAML_Impl::parseInternal(ISource &source) {
+YNode parseDocument(ISource &source) {
 
+  parseIndentLevel(source);
   if (source.match("- ")) {
     return (parseArray(source));
   } else if (source.match("true")) {
@@ -120,7 +125,6 @@ void YAML_Impl::parseDocuments(ISource &source) {
   while (source.more()) {
     unsigned int startNumberOfDocuments = getNumberOfDocuments();
     while (source.more()) {
-      parseIndentLevel(source);
       // Start of document
       if (source.match("---")) {
         parseNext(source);
@@ -136,7 +140,7 @@ void YAML_Impl::parseDocuments(ISource &source) {
         if (yamlDocuments.empty()) {
           yamlDocuments.push_back(YNode::make<Document>());
         }
-        YRef<Document>(yamlDocuments.back()).add(parseInternal(source));
+        YRef<Document>(yamlDocuments.back()).add(parseDocument(source));
       }
     }
   }
