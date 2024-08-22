@@ -91,7 +91,15 @@ YNode parseArray(ISource &source) {
 }
 
 YNode parseKeyValuePair(ISource &source) {
-  throw SyntaxError("Incorrect YAML");
+  std::string key;
+  while(source.more() && source.current() != ':') {
+    key += source.current();
+    source.next();
+  }
+  source.next();
+  YNode yNode=YNode::make<Object>();
+  YRef<Object>(yNode).add(ObjectEntry(key, parseDocument(source)));
+  return(yNode);
 }
 
 YNode parseDocument(ISource &source) {
