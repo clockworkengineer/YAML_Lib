@@ -13,6 +13,18 @@ namespace YAML_Lib {
 
 YNode parseDocument(ISource &source);
 
+bool validKey(const std::string &key) {
+  if (!std::isalpha(key[0])) {
+    return (false);
+  }
+  for (auto ch : key) {
+    if (!std::isalpha(ch)) {
+      return (false);
+    }
+  }
+  return (true);
+}
+
 void parseNext(ISource &source) {
   while (source.more() && source.current() != kLineFeed) {
     if (source.current() == '#') {
@@ -84,7 +96,7 @@ YNode parseArray(ISource &source) {
   parseIndentLevel(source);
   while (source.match("- ")) {
     YRef<Array>(yNode).add(parseDocument(source));
-      parseIndentLevel(source);
+    parseIndentLevel(source);
   }
   parseNext(source);
   return yNode;
@@ -92,14 +104,20 @@ YNode parseArray(ISource &source) {
 
 YNode parseKeyValuePair(ISource &source) {
   std::string key;
-  while(source.more() && source.current() != ':') {
+  while (source.more() && source.current() != ':') {
     key += source.current();
     source.next();
   }
   source.next();
-  YNode yNode=YNode::make<Object>();
+  while (key.back() == ' ') {
+    key.pop_back();
+  }
+  if (!validKey(key)) {
+    throw Error("Invalid key specified");
+  }
+  YNode yNode = YNode::make<Object>();
   YRef<Object>(yNode).add(ObjectEntry(key, parseDocument(source)));
-  return(yNode);
+  return (yNode);
 }
 
 YNode parseDocument(ISource &source) {
