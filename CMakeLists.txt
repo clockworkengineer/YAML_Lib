@@ -23,6 +23,7 @@ set(YAML_SOURCES
   ./classes/source/YAML.cpp
   ./classes/source/implementation/YAML_Impl.cpp
   ./classes/source/implementation/parser/YAML_Impl_Parser.cpp
+  ./classes/source/implementation/stringify/YAML_Impl_Stringify.cpp
 )
 
 # YAML includes

@@ -39,10 +39,17 @@ TEST_CASE("Check YAML Parse start document.", "[YAML][Parse][Start]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 6);
   }
-    SECTION("YAML Parse multiple documents formatting mixed up.", "[YAML][Parse][Mutliple]") {
+  SECTION("YAML Parse multiple documents formatting mixed up.",
+          "[YAML][Parse][Mutliple]") {
     BufferSource source{
         "---\n...\n---\n...\n---\n...\n...\n---\n...\n---\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 6);
   }
+  // SECTION("YAML Parse document with comments before start.",
+  //         "[YAML][Parse][Comments]") {
+  //   BufferSource source{"# comment 1\n---\n# comment 2\n# comment 3\n"};
+  //   REQUIRE_NOTHROW(yaml.parse(source));
+  //   REQUIRE(yaml.getNumberOfDocuments() == 1);
+  // }
 }

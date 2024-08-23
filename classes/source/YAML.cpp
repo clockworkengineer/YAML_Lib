@@ -20,6 +20,12 @@ unsigned int YAML::getNumberOfDocuments() const {
 }
 void YAML::parse(ISource &source) const { implementation->parse(source); }
 void YAML::parse(ISource &&source) const { implementation->parse(source); }
+void YAML::stringify(IDestination &destination) const {
+  implementation->stringify(destination);
+}
+void YAML::stringify(IDestination &&destination) const {
+  implementation->stringify(destination);
+}
 std::vector<YNode> &YAML::root() { return implementation->root(); }
 const std::vector<YNode> &YAML::root() const { return implementation->root(); }
 

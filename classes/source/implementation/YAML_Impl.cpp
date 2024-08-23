@@ -18,6 +18,4 @@ std::string YAML_Impl::version() {
   return versionString.str();
 }
 
-void YAML_Impl::stringify(IDestination &destination) const {}
-
 } // namespace YAML_Lib
