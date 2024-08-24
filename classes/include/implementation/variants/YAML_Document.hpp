@@ -8,7 +8,7 @@ struct Document : Variant
   using Entry = YNode;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
-  Document() : Variant(Type::array) {} // document treated as array so passes indexing checks
+  Document() : Variant(Type::document) {} // document treated as array so passes indexing checks
   Document(const Document &other) = default;
   Document &operator=(const Document &other) = default;
   Document(Document &&other) = default;
@@ -21,25 +21,25 @@ struct Document : Variant
   // Return reference to document base
   Entries &value() { return yNodeDocument; }
   [[nodiscard]] const Entries &value() const { return yNodeDocument; }
-  // // Document indexing operators
-  // YNode &operator[](const std::size_t index)
-  // {
-  //   if (index < yNodeDocument.size()) { return yNodeDocument[index]; }
-  //   throw YNode::Error("Invalid index used to access document.");
-  // }
-  // const YNode &operator[](const std::size_t index) const
-  // {
-  //   if (index < yNodeDocument.size()) { return yNodeDocument[index]; }
-  //   throw YNode::Error("Invalid index used to access document.");
-  // }
-  // // Resize Document
-  // void resize(const std::size_t index)
-  // {
-  //   yNodeDocument.resize(index + 1);
-  //   for (auto &entry : yNodeDocument) {
-  //     if (entry.isEmpty()) { entry = YNode::make<Hole>(); }
-  //   }
-  // }
+  // Document indexing operators
+  YNode &operator[](const std::size_t index)
+  {
+    if (index < yNodeDocument.size()) { return yNodeDocument[index]; }
+    throw YNode::Error("Invalid index used to access document.");
+  }
+  const YNode &operator[](const std::size_t index) const
+  {
+    if (index < yNodeDocument.size()) { return yNodeDocument[index]; }
+    throw YNode::Error("Invalid index used to access document.");
+  }
+  // Resize Document
+  void resize(const std::size_t index)
+  {
+    yNodeDocument.resize(index + 1);
+    for (auto &entry : yNodeDocument) {
+      if (entry.isEmpty()) { entry = YNode::make<Hole>(); }
+    }
+  }
 
 private:
   // Document entries list

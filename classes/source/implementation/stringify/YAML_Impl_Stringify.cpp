@@ -79,10 +79,15 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
     // }
     // destination.add("]");
     if (!YRef<Array>(yNode).value().empty()) {
-      for (auto &entry : YRef<Array>(yNode).value()) {
+      for (const auto &entry : YRef<Array>(yNode).value()) {
         stringifyYAML(destination, entry);
       }
     }
+
+  } else if (isA<Document>(yNode)) {
+     for (auto &entry : YRef<Document>(yNode).value()) {
+        stringifyYAML(destination, entry);
+      }
   } else {
     throw Error("Unknown YNode type encountered during stringification.");
   }

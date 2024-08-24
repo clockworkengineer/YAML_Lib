@@ -22,6 +22,8 @@ template <typename T> bool isA(const YNode &yNode) {
     return yNode.getVariant().getNodeType() == Variant::Type::hole;
   } else if constexpr (std::is_same_v<T, Comment>) {
     return yNode.getVariant().getNodeType() == Variant::Type::comment;
+  } else if constexpr (std::is_same_v<T, Document>) {
+    return yNode.getVariant().getNodeType() == Variant::Type::document;
   } else {
     return false;
   }
@@ -62,6 +64,10 @@ template <typename T> void checkYNode(const YNode &yNode) {
   } else if constexpr (std::is_same_v<T, Comment>) {
     if (!isA<T>(yNode)) {
       throw YNode::Error("YNode not a comment.");
+    }
+  } else if constexpr (std::is_same_v<T, Document>) {
+    if (!isA<T>(yNode)) {
+      throw YNode::Error("YNode not a document.");
     }
   }
 }
