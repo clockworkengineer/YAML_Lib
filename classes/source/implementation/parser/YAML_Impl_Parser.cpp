@@ -14,15 +14,18 @@ namespace YAML_Lib {
 YNode parseDocument(ISource &source);
 
 bool validKey(const std::string &key) {
-  if (!std::isalpha(key[0])) {
-    return (false);
-  }
-  for (auto ch : key) {
-    if (!std::isalpha(ch)) {
+  if (!key.empty()) {
+    if (!std::isalpha(key[0])) {
       return (false);
     }
+    for (auto ch : key) {
+      if (!std::isalpha(ch)) {
+        return (false);
+      }
+    }
+    return (true);
   }
-  return (true);
+  return (false);
 }
 
 void parseNext(ISource &source) {
@@ -109,8 +112,10 @@ YNode parseKeyValuePair(ISource &source) {
     source.next();
   }
   source.next();
-  while (key.back() == ' ') {
-    key.pop_back();
+  if (!key.empty()) {
+    while (key.back() == ' ') {
+      key.pop_back();
+    }
   }
   if (!validKey(key)) {
     throw Error("Invalid key specified");

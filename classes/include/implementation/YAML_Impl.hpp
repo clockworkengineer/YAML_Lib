@@ -19,7 +19,13 @@ public:
   static std::string version();
   // Get number of documents
   [[nodiscard]] unsigned int getNumberOfDocuments() const {
-    return (yamlDocuments.size());
+    unsigned int numberOfDocuments = 0;
+    for (auto &yNode : yamlDocuments) {
+      if (isA<Document>(yNode)) {
+        numberOfDocuments++;
+      }
+    }
+    return numberOfDocuments;
   }
   // Parse YAML into YNode tree
   void parse(ISource &source);
