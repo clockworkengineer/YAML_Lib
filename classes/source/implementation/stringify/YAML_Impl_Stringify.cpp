@@ -26,16 +26,11 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
     destination.add(YRef<Hole>(yNode).toString());
   } else if (isA<Object>(yNode)) {
     for (auto &entry : YRef<Object>(yNode).value()) {
-      stringifyYAML(destination, entry.getKeyYNode());
+      destination.add(YRef<String>(entry.getKeyYNode()).toString());
       destination.add(": ");
-      stringifyYAML(destination,entry.getYNode());
+      stringifyYAML(destination, entry.getYNode());
       destination.add('\n');
-
     }
-    // if (indent != 0) {
-    //   destination.add("\n" + std::string(indent - printIndent, ' '));
-    // }
-    // destination.add("}");
   } else if (isA<Array>(yNode)) {
     if (!YRef<Array>(yNode).value().empty()) {
       for (const auto &entry : YRef<Array>(yNode).value()) {

@@ -49,14 +49,42 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() == "---\ntrue...\n");
   }
-  SECTION("YAML Stringify document key value pair.",
+  SECTION("YAML Stringify document object key value pair.",
           "[YAML][Stringify][Object]") {
     BufferSource source{"---\n doe: 'a deer, a female deer'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() ==
-            "---\n\"doe\": \"a deer, a female deer\"\n...\n");
+            "---\ndoe: \"a deer, a female deer\"\n...\n");
+  }
+  SECTION("YAML Stringify document object two key value pairs.",
+          "[YAML][Stringify][Object]") {
+    BufferSource source{
+        "---\n doe: 'a deer, a female deer'\n ray: 'a drop of golden sun'\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() ==
+            "---\ndoe: \"a deer, a female deer\"\nray: \"a drop of golden "
+            "sun\"\n...\n");
+  }
+  SECTION("YAML Parse array with one string elements and restringify.",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\n   - 'One'\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\n    - \"One\"\n...\n");
+  }
+  SECTION("YAML Parse array with multiple string elements and restringify.",
+          "[YAML][Parse][Array]") {
+    BufferSource source{
+        "---\n   - \"One\"\n  - \"Two\"\n  - \"Three\"\n  - \"Four\"\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\n    - \"One\"\n    - \"Two\"\n    - \"Three\"\n    - \"Four\"\n...\n");
   }
   // SECTION("YAML Stringify document with comments before start.",
   // "[YAML][Stringify][Comments]") {
@@ -65,15 +93,6 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
   //   BufferDestination destination;
   //   REQUIRE_NOTHROW(yaml.stringify(destination));
   //   // REQUIRE(yaml.getNumberOfDocuments() == 1);
-  //   REQUIRE(destination.toString() == "");
-  // }
-  // SECTION("YAML Parse array with multiple string elements and restringify.",
-  //         "[YAML][Parse][Array]") {
-  //   BufferSource source{
-  //       "---\n   - 'One'\n  - 'Two'\n  - 'Three'\n  - 'Four'\n"};
-  //   REQUIRE_NOTHROW(yaml.parse(source));
-  //   BufferDestination destination;
-  //   REQUIRE_NOTHROW(yaml.stringify(destination));
   //   REQUIRE(destination.toString() == "");
   // }
 }
