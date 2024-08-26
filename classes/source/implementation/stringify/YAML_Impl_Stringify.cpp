@@ -25,30 +25,13 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
   } else if (isA<Hole>(yNode)) {
     destination.add(YRef<Hole>(yNode).toString());
   } else if (isA<Object>(yNode)) {
-    // size_t commaCount = YRef<Object>(yNode).value().size() - 1;
-    // destination.add('{');
-    // if (indent != 0) {
-    //   destination.add('\n');
-    // }
-    // for (auto &entry : YRef<Object>(yNode).value()) {
-    //   if (indent != 0) {
-    //     destination.add(std::string(indent, ' '));
-    //   }
-    //   stringify(entry.getKeyyNode(), destination,
-    //             indent != 0 ? indent + printIndent : 0);
-    //   destination.add(":");
-    //   if (indent != 0) {
-    //     destination.add(" ");
-    //   }
-    //   stringify(entry.getyNode(), destination,
-    //             indent != 0 ? indent + printIndent : 0);
-    //   if (commaCount-- > 0) {
-    //     destination.add(",");
-    //     if (indent != 0) {
-    //       destination.add('\n');
-    //     }
-    //   }
-    // }
+    for (auto &entry : YRef<Object>(yNode).value()) {
+      stringifyYAML(destination, entry.getKeyYNode());
+      destination.add(": ");
+      stringifyYAML(destination,entry.getYNode());
+      destination.add('\n');
+
+    }
     // if (indent != 0) {
     //   destination.add("\n" + std::string(indent - printIndent, ' '));
     // }
