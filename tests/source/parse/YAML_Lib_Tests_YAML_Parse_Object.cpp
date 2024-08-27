@@ -51,6 +51,14 @@ TEST_CASE("Check YAML Parsing of Objects.", "[YAML][Parse][Object]") {
     REQUIRE(YRef<Number>(YRef<Object>(yaml.root()[0][0])["pi"]).value<int>() ==
             3); // check as int to save rounding errors
   }
+  SECTION("YAML Parse object with one key value pair and the value is an "
+          "embedded array.",
+          "[YAML][Parse][Object]") {
+    BufferSource source{"---\n numbers:\n   - 1\n   - 2\n   - 3\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Object>(yaml.root()[0][0]));
+    REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]["numbers"]));
+  }
   SECTION("YAML Parse object with one key value pair (key has trailing space) "
           "and validate.",
           "[YAML][Parse][Object]") {

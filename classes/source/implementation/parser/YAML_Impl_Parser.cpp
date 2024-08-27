@@ -28,6 +28,11 @@ bool validKey(const std::string &key) {
   return (false);
 }
 
+void parseWS(ISource &source) {
+  while (source.more() && source.isWS()) {
+    source.next();
+  }
+}
 void parseNext(ISource &source) {
   while (source.more() && source.current() != kLineFeed) {
     if (source.current() == '#') {
@@ -45,9 +50,12 @@ bool endOfNumber(const ISource &source) {
 }
 
 void parseIndentLevel(ISource &source) {
-  while (source.more() && source.current() == ' ') {
+  while (source.more() && source.isWS()) {
     source.next();
   }
+  // if (source.current()==kLineFeed) {
+  //   parseNext(source);
+  // }
 }
 
 YNode parseString(ISource &source) {
@@ -119,6 +127,10 @@ ObjectEntry parseKeyValuePair(ISource &source) {
   }
   if (!validKey(key)) {
     throw Error("Invalid key specified");
+  }
+  parseWS(source);
+  if (source.current()==kLineFeed) {
+    parseNext(source);
   }
   return ObjectEntry(key, parseDocument(source));
 }
