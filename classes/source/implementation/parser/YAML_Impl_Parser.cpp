@@ -19,7 +19,7 @@ bool validKey(const std::string &key) {
       return (false);
     }
     for (auto ch : key) {
-      if (!std::isalpha(ch)) {
+      if ((ch != '-') && !std::isalpha(ch)) {
         return (false);
       }
     }
@@ -105,7 +105,7 @@ YNode parseArray(ISource &source) {
   return yNode;
 }
 
-YNode parseKeyValuePair(ISource &source) {
+ObjectEntry parseKeyValuePair(ISource &source) {
   std::string key;
   while (source.more() && source.current() != ':') {
     key += source.current();
@@ -120,8 +120,15 @@ YNode parseKeyValuePair(ISource &source) {
   if (!validKey(key)) {
     throw Error("Invalid key specified");
   }
+  return ObjectEntry(key, parseDocument(source));
+}
+
+YNode parseObject(ISource &source) {
   YNode yNode = YNode::make<Object>();
-  YRef<Object>(yNode).add(ObjectEntry(key, parseDocument(source)));
+  while (source.more() && std::isalpha(source.current())) {
+    YRef<Object>(yNode).add(parseKeyValuePair(source));
+    parseIndentLevel(source);
+  }
   return (yNode);
 }
 
@@ -144,7 +151,7 @@ YNode parseDocument(ISource &source) {
   } else if (source.current() == '#') {
     return (parseComment(source));
   } else {
-    return (parseKeyValuePair(source));
+    return (parseObject(source));
   }
 }
 
