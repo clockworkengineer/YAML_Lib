@@ -52,9 +52,18 @@ TEST_CASE("Check YAML Parsing of Objects.", "[YAML][Parse][Object]") {
             3); // check as int to save rounding errors
   }
   SECTION("YAML Parse object with one key value pair and the value is an "
-          "embedded array.",
+          "embedded array of ints.",
           "[YAML][Parse][Object]") {
     BufferSource source{"---\n numbers:\n   - 1\n   - 2\n   - 3\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Object>(yaml.root()[0][0]));
+    REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]["numbers"]));
+  }
+  SECTION("YAML Parse object with one key value pair and the value is an "
+          "embedded array of strings.",
+          "[YAML][Parse][Object]") {
+    BufferSource source{
+        "---\n numbers:\n   - 'one'\n   - 'two'\n   - 'three'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Object>(yaml.root()[0][0]));
     REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]["numbers"]));
