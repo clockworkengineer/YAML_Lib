@@ -5,8 +5,8 @@
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
 
-#include <fstream>
 #include <filesystem>
+#include <fstream>
 
 // Unit test constants
 constexpr char kGeneratedYAMLFile[] = "generated.yaml";
@@ -16,7 +16,8 @@ constexpr char kNonExistantYAMLFile[] = "doesntexist.yaml";
 const std::string prefixPath(const std::string &yamlFileName);
 
 // Test files macro
-#define TEST_FILE_LIST(file)                                     \
-  auto file = GENERATE(values<std::string>({ "testfile001.yaml"}))
+#define TEST_FILE_LIST(file)                                                   \
+  auto file =                                                                  \
+      GENERATE(values<std::string>({"testfile001.yaml"/*, "testfile002.yaml"*/}))
 
 using namespace YAML_Lib;
