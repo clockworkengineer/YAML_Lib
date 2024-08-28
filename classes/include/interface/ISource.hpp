@@ -36,10 +36,6 @@ public:
   // Are there still more characters to read
   // ========================================
   [[nodiscard]] virtual bool more() const = 0;
-  // // ========================
-  // // Backup length characters
-  // // ========================
-  // virtual void backup(unsigned long length) = 0;
   // ===================================
   // Reset to beginning of source stream
   // ===================================
@@ -78,17 +74,6 @@ public:
     backup(index);
     return false;
   }
-  // ==============================
-  // Move to beginning of next line
-  // ==============================
-  // void nextLine() {
-  //   while (more() && current() != kLineFeed) {
-  //     next();
-  //   }
-  //   if (more()) {
-  //     next();
-  //   }
-  // }
   // ==================================
   // Get current source stream position
   // ==================================

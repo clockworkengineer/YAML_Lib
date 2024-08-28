@@ -47,9 +47,9 @@ struct Array : Variant
     }
   }
   // Get/Set indentation
-  unsigned long getIndentation() { return indentation; }
-  void getIndentation(unsigned long indentation) { this->indentation = indentation; }
-  
+  unsigned long gegIndentation() { return indentation; }
+  void setIndentation(unsigned long indentation) { this->indentation = indentation; }
+
 private:
   // Array entries list
   Entries yNodeArray;

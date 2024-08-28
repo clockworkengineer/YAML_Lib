@@ -69,8 +69,8 @@ struct Object : Variant {
   Entries &value() { return yNodeObject; }
   [[nodiscard]] const Entries &value() const { return yNodeObject; }
   // Get/Set indentation
-  unsigned long getIndentation() { return indentation; }
-  void getIndentation(unsigned long indentation) { this->indentation = indentation; }
+  unsigned long gegIndentation() { return indentation; }
+  void setIndentation(unsigned long indentation) { this->indentation = indentation; }
 
 private:
   // Search for a given entry given a key and object list

@@ -50,18 +50,18 @@ bool endOfNumber(const ISource &source) {
   return source.isWS() || source.current() == ',' || source.current() == ']';
 }
 
-void parseIndentLevel(ISource &source) {
-  [[maybe_unused]] auto ch = source.current();
+unsigned long parseIndentLevel(ISource &source) {
   while (source.more() && source.isWS()) {
     source.next();
   }
+  return source.getPosition().first;
 }
 
 YNode parseString(ISource &source) {
 
-  if (source.current() == '\'' || source.current() == '"') {
+  const char quote = source.current();
+  if (quote == '\'' || quote == '"') {
     std::string yamlString;
-    const char quote = source.current();
     source.next();
     while (source.more() && source.current() != quote) {
       yamlString += source.current();
@@ -103,10 +103,10 @@ YNode parseNumber(ISource &source) {
 YNode parseArray(ISource &source) {
   auto yNode = YNode::make<Array>();
   YRef<Array>(yNode).add(parseDocument(source));
-  parseIndentLevel(source);
+  YRef<Array>(yNode).setIndentation(parseIndentLevel(source));
   while (source.match("- ")) {
     YRef<Array>(yNode).add(parseDocument(source));
-    parseIndentLevel(source);
+    YRef<Array>(yNode).setIndentation(parseIndentLevel(source));
   }
   parseNext(source);
   return yNode;
@@ -128,7 +128,7 @@ ObjectEntry parseKeyValuePair(ISource &source) {
     throw Error("Invalid key specified");
   }
   parseWS(source);
-  if (source.current()==kLineFeed) {
+  if (source.current() == kLineFeed) {
     parseNext(source);
   }
   return ObjectEntry(key, parseDocument(source));
@@ -138,14 +138,14 @@ YNode parseObject(ISource &source) {
   YNode yNode = YNode::make<Object>();
   while (source.more() && std::isalpha(source.current())) {
     YRef<Object>(yNode).add(parseKeyValuePair(source));
-    parseIndentLevel(source);
+    YRef<Object>(yNode).setIndentation(parseIndentLevel(source));
   }
   return (yNode);
 }
 
 YNode parseDocument(ISource &source) {
 
-  parseIndentLevel(source);
+  [[maybe_unused]] auto current = parseIndentLevel(source);
   if (source.match("- ")) {
     return (parseArray(source));
   } else if (source.match("true")) {
