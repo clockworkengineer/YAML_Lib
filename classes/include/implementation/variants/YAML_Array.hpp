@@ -46,10 +46,15 @@ struct Array : Variant
       if (entry.isEmpty()) { entry = YNode::make<Hole>(); }
     }
   }
-
+  // Get/Set indentation
+  unsigned long getIndentation() { return indentation; }
+  void getIndentation(unsigned long indentation) { this->indentation = indentation; }
+  
 private:
   // Array entries list
   Entries yNodeArray;
+  // Array indentation
+  unsigned long indentation {};
 };
 
 }// namespace YAML_Lib
