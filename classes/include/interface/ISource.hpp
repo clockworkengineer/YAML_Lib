@@ -52,8 +52,9 @@ public:
   // Is the current character whitespace
   // ===================================
   [[nodiscard]] bool isWS() const {
-    return current() == ' ' || current() == '\t' || current() == '\n' ||
-           current() == '\r';
+    auto ch =current();
+    return ch == ' ' || ch == '\t' || ch== '\n' ||
+           ch == '\r';
   }
   // ==================================
   // Ignore whitespace on source stream

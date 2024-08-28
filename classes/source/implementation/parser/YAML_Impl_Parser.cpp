@@ -33,6 +33,7 @@ void parseWS(ISource &source) {
     source.next();
   }
 }
+
 void parseNext(ISource &source) {
   while (source.more() && source.current() != kLineFeed) {
     if (source.current() == '#') {
@@ -50,12 +51,10 @@ bool endOfNumber(const ISource &source) {
 }
 
 void parseIndentLevel(ISource &source) {
+  [[maybe_unused]] auto ch = source.current();
   while (source.more() && source.isWS()) {
     source.next();
   }
-  // if (source.current()==kLineFeed) {
-  //   parseNext(source);
-  // }
 }
 
 YNode parseString(ISource &source) {

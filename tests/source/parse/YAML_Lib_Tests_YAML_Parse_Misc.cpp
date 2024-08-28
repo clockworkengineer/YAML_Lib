@@ -15,8 +15,8 @@ TEST_CASE("Check YAML parsing of a list of example YAML files.", "[YAML][Parse][
 //   }
   SECTION("Parse from file directly.", "[YAML][Parse][Examples][File]")
   {
-    // FileSource yamlSource{ prefixPath(testFile) };
-    // REQUIRE_NOTHROW(yaml.parse(yamlSource));
+    FileSource yamlSource{ prefixPath(testFile) };
+    REQUIRE_NOTHROW(yaml.parse(yamlSource));
     // yamlSource.reset();
     // yaml.parse(yamlSource);
     // REQUIRE_FALSE(!(isA<Object>(yaml.root()) || (isA<Array>(yaml.root()))));

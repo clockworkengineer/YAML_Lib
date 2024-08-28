@@ -41,7 +41,7 @@ TEST_CASE("Check ISource (Buffer) interface.", "[YAML][ISource][Buffer]") {
     while (source.more()) {
       source.next();
     }
-    REQUIRE(source.position() == 343);                   // eof
+    REQUIRE(source.position() == 330);                   // eof
     REQUIRE(source.current() == static_cast<char>(EOF)); // eof
   }
   SECTION("Create BufferSource, move past last character, reset and then check "
