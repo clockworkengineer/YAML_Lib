@@ -39,8 +39,6 @@ public:
   // [[nodiscard]] const YNode &root() const { return yNodeRoot; }
 
 private:
-  void parseDocuments(ISource &source);
-  // YNode parseDocument(ISource &source);
   // Number of documents
   std::vector<YNode> yamlDocuments;
   // Root of YAML tree

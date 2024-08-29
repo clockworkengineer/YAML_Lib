@@ -28,6 +28,24 @@ bool validKey(const std::string &key) {
   return (false);
 }
 
+std::string parseKey(ISource &source) {
+  std::string key{};
+  while (source.more() && source.current() != ':') {
+    key += source.current();
+    source.next();
+  }
+  source.next();
+  if (!key.empty()) {
+    while (key.back() == ' ') {
+      key.pop_back();
+    }
+  }
+  if (!validKey(key)) {
+    throw Error("Invalid key specified");
+  }
+  return key;
+}
+
 void parseWS(ISource &source) {
   while (source.more() && source.isWS()) {
     source.next();
@@ -50,7 +68,7 @@ bool endOfNumber(const ISource &source) {
   return source.isWS() || source.current() == ',' || source.current() == ']';
 }
 
-unsigned long parseIndentLevel(ISource &source) {
+unsigned long currentIndentLevel(ISource &source) {
   while (source.more() && source.isWS()) {
     source.next();
   }
@@ -103,30 +121,30 @@ YNode parseNumber(ISource &source) {
 YNode parseArray(ISource &source) {
   auto yNode = YNode::make<Array>();
   YRef<Array>(yNode).add(parseDocument(source));
-  YRef<Array>(yNode).setIndentation(parseIndentLevel(source));
+  YRef<Array>(yNode).setIndentation(currentIndentLevel(source));
   while (source.match("- ")) {
     YRef<Array>(yNode).add(parseDocument(source));
-    YRef<Array>(yNode).setIndentation(parseIndentLevel(source));
+    YRef<Array>(yNode).setIndentation(currentIndentLevel(source));
   }
   parseNext(source);
   return yNode;
 }
 
-ObjectEntry parseKeyValuePair(ISource &source) {
-  std::string key;
-  while (source.more() && source.current() != ':') {
-    key += source.current();
-    source.next();
-  }
-  source.next();
-  if (!key.empty()) {
-    while (key.back() == ' ') {
-      key.pop_back();
-    }
-  }
-  if (!validKey(key)) {
-    throw Error("Invalid key specified");
-  }
+ObjectEntry parseKeyValue(ISource &source) {
+  std::string key{parseKey(source)};
+  // while (source.more() && source.current() != ':') {
+  //   key += source.current();
+  //   source.next();
+  // }
+  // source.next();
+  // if (!key.empty()) {
+  //   while (key.back() == ' ') {
+  //     key.pop_back();
+  //   }
+  // }
+  // if (!validKey(key)) {
+  //   throw Error("Invalid key specified");
+  // }
   parseWS(source);
   if (source.current() == kLineFeed) {
     parseNext(source);
@@ -137,15 +155,15 @@ ObjectEntry parseKeyValuePair(ISource &source) {
 YNode parseObject(ISource &source) {
   YNode yNode = YNode::make<Object>();
   while (source.more() && std::isalpha(source.current())) {
-    YRef<Object>(yNode).add(parseKeyValuePair(source));
-    YRef<Object>(yNode).setIndentation(parseIndentLevel(source));
+    YRef<Object>(yNode).add(parseKeyValue(source));
+    YRef<Object>(yNode).setIndentation(currentIndentLevel(source));
   }
   return (yNode);
 }
 
 YNode parseDocument(ISource &source) {
 
-  [[maybe_unused]] auto current = parseIndentLevel(source);
+  [[maybe_unused]] auto current = currentIndentLevel(source);
   if (source.match("- ")) {
     return (parseArray(source));
   } else if (source.match("true")) {
@@ -166,7 +184,7 @@ YNode parseDocument(ISource &source) {
   }
 }
 
-void YAML_Impl::parseDocuments(ISource &source) {
+void YAML_Impl::parse(ISource &source) {
   while (source.more()) {
     unsigned int startNumberOfDocuments = getNumberOfDocuments();
     while (source.more()) {
@@ -190,6 +208,5 @@ void YAML_Impl::parseDocuments(ISource &source) {
     }
   }
 }
-void YAML_Impl::parse(ISource &source) { parseDocuments(source); }
 
 } // namespace YAML_Lib
