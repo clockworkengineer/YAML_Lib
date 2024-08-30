@@ -69,9 +69,7 @@ bool endOfNumber(const ISource &source) {
 }
 
 unsigned long currentIndentLevel(ISource &source) {
-  while (source.more() && source.isWS()) {
-    source.next();
-  }
+  parseWS(source);
   return source.getPosition().first;
 }
 
@@ -163,21 +161,24 @@ YNode parseObject(ISource &source) {
 
 YNode parseDocument(ISource &source) {
 
-  [[maybe_unused]] auto current = currentIndentLevel(source);
+  YNode yNode;
+  YAML_Impl::identations.push(currentIndentLevel(source));
   if (source.match("- ")) {
-    return (parseArray(source));
+    yNode = parseArray(source);
   } else if (source.current() == 't' || source.current() == 'f') {
-    return (parseBoolean(source));
+    yNode = parseBoolean(source);
   } else if ((source.current() >= '0' && source.current() <= '9') ||
              source.current() == '-' || source.current() == '+') {
-    return (parseNumber(source));
+    yNode = parseNumber(source);
   } else if ((source.current() == '\'') || (source.current() == '"')) {
-    return (parseString(source));
+    yNode = parseString(source);
   } else if (source.current() == '#') {
-    return (parseComment(source));
+    yNode = parseComment(source);
   } else {
-    return (parseObject(source));
+    yNode = parseObject(source);
   }
+  YAML_Impl::identations.pop();
+  return yNode;
 }
 
 void YAML_Impl::parse(ISource &source) {

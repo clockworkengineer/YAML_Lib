@@ -38,6 +38,9 @@ public:
   // [[nodiscard]] YNode &root() { return yNodeRoot; }
   // [[nodiscard]] const YNode &root() const { return yNodeRoot; }
 
+  // Identation levels
+  inline static std::stack<unsigned long> identations;
+
 private:
   // Number of documents
   std::vector<YNode> yamlDocuments;

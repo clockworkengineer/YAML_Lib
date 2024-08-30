@@ -15,6 +15,7 @@
 #include <utility>
 #include <vector>
 #include <variant>
+#include <stack>
 
 #include "YAML_Config.hpp"
 #include "YAML_Interfaces.hpp"
