@@ -118,6 +118,19 @@ YNode parseNumber(ISource &source) {
   throw SyntaxError(source.getPosition(), "Invalid numeric value.");
 }
 
+YNode parseBoolean(ISource &source) {
+  YNode yNode;
+  if (source.match("true")) {
+    parseNext(source);
+    yNode = YNode::make<Boolean>(true);
+  } else if (source.match("false")) {
+    parseNext(source);
+    yNode = YNode::make<Boolean>(false);
+  } else {
+    throw SyntaxError("Expected boolean value.");
+  }
+  return yNode;
+}
 YNode parseArray(ISource &source) {
   auto yNode = YNode::make<Array>();
   YRef<Array>(yNode).add(parseDocument(source));
@@ -132,19 +145,6 @@ YNode parseArray(ISource &source) {
 
 ObjectEntry parseKeyValue(ISource &source) {
   std::string key{parseKey(source)};
-  // while (source.more() && source.current() != ':') {
-  //   key += source.current();
-  //   source.next();
-  // }
-  // source.next();
-  // if (!key.empty()) {
-  //   while (key.back() == ' ') {
-  //     key.pop_back();
-  //   }
-  // }
-  // if (!validKey(key)) {
-  //   throw Error("Invalid key specified");
-  // }
   parseWS(source);
   if (source.current() == kLineFeed) {
     parseNext(source);
@@ -166,12 +166,8 @@ YNode parseDocument(ISource &source) {
   [[maybe_unused]] auto current = currentIndentLevel(source);
   if (source.match("- ")) {
     return (parseArray(source));
-  } else if (source.match("true")) {
-    parseNext(source);
-    return (YNode::make<Boolean>(true));
-  } else if (source.match("false")) {
-    parseNext(source);
-    return (YNode::make<Boolean>(false));
+  } else if (source.current() == 't' || source.current() == 'f') {
+    return (parseBoolean(source));
   } else if ((source.current() >= '0' && source.current() <= '9') ||
              source.current() == '-' || source.current() == '+') {
     return (parseNumber(source));

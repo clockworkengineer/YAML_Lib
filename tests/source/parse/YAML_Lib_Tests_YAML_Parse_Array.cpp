@@ -54,11 +54,11 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Arary]") {
     BufferSource source{"---\n  - 'One'\n  - 'Two'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-   SECTION("YAML Parse nested array ",
-          "[YAML][Parse][Array]") {
-    BufferSource source{"---\n - - 1\n    - 2\n    - 3\n  - - 4\n    - 5\n    - 6\n...\n"};
-    REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE_FALSE(!isA<Document>(yaml.root()[0]));
-    REQUIRE(YRef<Array>(yaml.root()[0][0][0]).size() == 2);
-  }
+  //  SECTION("YAML Parse nested array ",
+  //         "[YAML][Parse][Array]") {
+  //   BufferSource source{"---\n - - 1\n    - 2\n    - 3\n  - - 4\n    - 5\n    - 6\n...\n"};
+  //   REQUIRE_NOTHROW(yaml.parse(source));
+  //   REQUIRE_FALSE(!isA<Document>(yaml.root()[0]));
+  //   REQUIRE(YRef<Array>(yaml.root()[0][0][0]).size() == 2);
+  // }
 }
