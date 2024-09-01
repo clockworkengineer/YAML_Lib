@@ -52,7 +52,7 @@ void parseWS(ISource &source) {
   }
 }
 
-void parseNext(ISource &source) {
+void moveToNextLine(ISource &source) {
   while (source.more() && source.current() != kLineFeed) {
     if (source.current() == '#') {
       return;
@@ -83,7 +83,7 @@ YNode parseString(ISource &source) {
       yamlString += source.current();
       source.next();
     }
-    parseNext(source);
+    moveToNextLine(source);
     return YNode::make<String>(yamlString);
   }
   throw SyntaxError("String does not have and quote.");
@@ -110,7 +110,7 @@ YNode parseNumber(ISource &source) {
   if (Number number{string}; number.is<int>() || number.is<long>() ||
                              number.is<long long>() || number.is<float>() ||
                              number.is<double>() || number.is<long double>()) {
-    parseNext(source);
+    moveToNextLine(source);
     return YNode::make<Number>(number);
   }
   throw SyntaxError(source.getPosition(), "Invalid numeric value.");
@@ -119,10 +119,10 @@ YNode parseNumber(ISource &source) {
 YNode parseBoolean(ISource &source) {
   YNode yNode;
   if (source.match("true")) {
-    parseNext(source);
+    moveToNextLine(source);
     yNode = YNode::make<Boolean>(true);
   } else if (source.match("false")) {
-    parseNext(source);
+    moveToNextLine(source);
     yNode = YNode::make<Boolean>(false);
   } else {
     throw SyntaxError("Expected boolean value.");
@@ -131,13 +131,11 @@ YNode parseBoolean(ISource &source) {
 }
 YNode parseArray(ISource &source) {
   auto yNode = YNode::make<Array>();
-  YRef<Array>(yNode).add(parseDocument(source));
-  YRef<Array>(yNode).setIndentation(currentIndentLevel(source));
-  while (source.match("- ")) {
+  do {
     YRef<Array>(yNode).add(parseDocument(source));
     YRef<Array>(yNode).setIndentation(currentIndentLevel(source));
-  }
-  parseNext(source);
+  } while (source.match("- "));
+  moveToNextLine(source);
   return yNode;
 }
 
@@ -145,7 +143,7 @@ ObjectEntry parseKeyValue(ISource &source) {
   std::string key{parseKey(source)};
   parseWS(source);
   if (source.current() == kLineFeed) {
-    parseNext(source);
+    moveToNextLine(source);
   }
   return ObjectEntry(key, parseDocument(source));
 }
@@ -187,11 +185,11 @@ void YAML_Impl::parse(ISource &source) {
     while (source.more()) {
       // Start of document
       if (source.match("---")) {
-        parseNext(source);
+        moveToNextLine(source);
         yamlDocuments.push_back(YNode::make<Document>());
         // End of document
       } else if (source.match("...")) {
-        parseNext(source);
+        moveToNextLine(source);
         if (startNumberOfDocuments == getNumberOfDocuments()) {
           yamlDocuments.push_back(YNode::make<Document>());
         }
