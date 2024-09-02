@@ -11,7 +11,7 @@
 
 namespace YAML_Lib {
 
-YNode parseDocument(ISource &source,unsigned long indentation);
+YNode parseDocument(ISource &source, unsigned long indentation);
 
 bool validKey(const std::string &key) {
   if (!key.empty()) {
@@ -122,10 +122,11 @@ YNode parseBoolean(ISource &source) {
   }
   return yNode;
 }
-YNode parseArray(ISource &source) {
+YNode parseArray(ISource &source, unsigned long indentLevel) {
   auto yNode = YNode::make<Array>();
   do {
-    YRef<Array>(yNode).add(parseDocument(source, currentIndentLevel(source)));
+    unsigned long arrayIdentLevel = currentIndentLevel(source);
+    YRef<Array>(yNode).add(parseDocument(source, arrayIdentLevel));
     source.ignoreWS();
   } while (source.match("- "));
   moveToNextLine(source);
@@ -133,15 +134,16 @@ YNode parseArray(ISource &source) {
 }
 
 ObjectEntry parseKeyValue(ISource &source) {
+  unsigned long ObjectIndentLevel = currentIndentLevel(source);
   std::string key{parseKey(source)};
   source.ignoreWS();
   if (source.current() == kLineFeed) {
     moveToNextLine(source);
   }
-  return ObjectEntry(key, parseDocument(source, currentIndentLevel(source)));
+  return ObjectEntry(key, parseDocument(source, ObjectIndentLevel));
 }
 
-YNode parseObject(ISource &source) {
+YNode parseObject(ISource &source, unsigned long indentLevel) {
   YNode yNode = YNode::make<Object>();
   while (source.more() && std::isalpha(source.current())) {
     YRef<Object>(yNode).add(parseKeyValue(source));
@@ -155,7 +157,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
   YNode yNode;
   source.ignoreWS();
   if (source.match("- ")) {
-    yNode = parseArray(source);
+    yNode = parseArray(source, indentLevel);
   } else if (source.current() == 't' || source.current() == 'f') {
     yNode = parseBoolean(source);
   } else if ((source.current() >= '0' && source.current() <= '9') ||
@@ -166,7 +168,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
   } else if (source.current() == '#') {
     yNode = parseComment(source);
   } else {
-    yNode = parseObject(source);
+    yNode = parseObject(source, indentLevel);
   }
   return yNode;
 }
