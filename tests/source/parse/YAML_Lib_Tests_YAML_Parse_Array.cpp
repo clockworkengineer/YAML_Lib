@@ -21,7 +21,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Arary]") {
   SECTION("YAML Parse array with multiple string elements and check result.",
           "[YAML][Parse][Array]") {
     BufferSource source{
-        "---\n   - 'One'\n  - 'Two'\n  - 'Three'\n  - 'Four'\n"};
+        "---\n   - 'One'\n   - 'Two'\n   - 'Three'\n   - 'Four'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Document>(yaml.root()[0]));
     REQUIRE(YRef<Array>(yaml.root()[0][0]).size() == 4);
@@ -32,7 +32,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Arary]") {
   }
   SECTION("YAML Parse array with multiple integer elements and check result.",
           "[YAML][Parse][Array]") {
-    BufferSource source{"---\n   - -1\n  - +2\n  - -3\n  - 4\n"};
+    BufferSource source{"---\n   - -1\n   - +2\n   - -3\n   - 4\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Document>(yaml.root()[0]));
     REQUIRE(YRef<Array>(yaml.root()[0][0]).size() == 4);
@@ -54,11 +54,23 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Arary]") {
     BufferSource source{"---\n  - 'One'\n  - 'Two'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-  //  SECTION("YAML Parse nested array ",
-  //         "[YAML][Parse][Array]") {
-  //   BufferSource source{"---\n - - 1\n    - 2\n    - 3\n  - - 4\n    - 5\n    - 6\n...\n"};
-  //   REQUIRE_NOTHROW(yaml.parse(source));
-  //   REQUIRE_FALSE(!isA<Document>(yaml.root()[0]));
-  //   REQUIRE(YRef<Array>(yaml.root()[0][0][0]).size() == 2);
-  // }
+  SECTION("YAML Parse nested array ", "[YAML][Parse][Array]") {
+    BufferSource source{"---\n - - 1\n - - 4\n   - 5\n   - 6\n...\n"};
+    // BufferSource source{"---\n - - 1\n - - 4\n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Document>(yaml.root()[0]));
+    REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]));
+    REQUIRE(YRef<Array>(yaml.root()[0][0]).size() == 2);
+    REQUIRE(YRef<Array>(yaml.root()[0][0][0]).size() == 1);
+    REQUIRE(YRef<Array>(yaml.root()[0][0][0]).size() == 1);
+    REQUIRE_FALSE(!isA<Number>(yaml.root()[0][0][0][0]));
+    REQUIRE(YRef<Number>(yaml.root()[0][0][0][0]).value<int>() == 1);
+    REQUIRE(YRef<Array>(yaml.root()[0][0][1]).size() == 3);
+    REQUIRE_FALSE(!isA<Number>(yaml.root()[0][0][1][0]));
+    REQUIRE(YRef<Number>(yaml.root()[0][0][1][0]).value<int>() == 4);
+    REQUIRE_FALSE(!isA<Number>(yaml.root()[0][0][1][1]));
+    REQUIRE(YRef<Number>(yaml.root()[0][0][1][1]).value<int>() == 5);
+    REQUIRE_FALSE(!isA<Number>(yaml.root()[0][0][1][2]));
+    REQUIRE(YRef<Number>(yaml.root()[0][0][1][2]).value<int>() == 6);
+  }
 }

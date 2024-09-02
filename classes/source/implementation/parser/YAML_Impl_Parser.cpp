@@ -63,7 +63,7 @@ bool endOfNumber(const ISource &source) {
 }
 
 unsigned long currentIndentLevel(ISource &source) {
-  return source.getPosition().first;
+  return source.getPosition().second-1;
 }
 
 YNode parseString(ISource &source) {
@@ -125,28 +125,31 @@ YNode parseBoolean(ISource &source) {
 YNode parseArray(ISource &source, unsigned long indentLevel) {
   auto yNode = YNode::make<Array>();
   do {
-    unsigned long arrayIdentLevel = currentIndentLevel(source);
-    YRef<Array>(yNode).add(parseDocument(source, arrayIdentLevel));
+    // unsigned long arrayIdentLevel = currentIndentLevel(source);
+    YRef<Array>(yNode).add(parseDocument(source, indentLevel));
     source.ignoreWS();
+    if (indentLevel > currentIndentLevel(source)) {
+      return yNode;
+    }
   } while (source.match("- "));
   moveToNextLine(source);
   return yNode;
 }
 
-ObjectEntry parseKeyValue(ISource &source) {
-  unsigned long ObjectIndentLevel = currentIndentLevel(source);
+ObjectEntry parseKeyValue(ISource &source, unsigned long indentLevel) {
+  // unsigned long ObjectIndentLevel = currentIndentLevel(source);
   std::string key{parseKey(source)};
   source.ignoreWS();
   if (source.current() == kLineFeed) {
     moveToNextLine(source);
   }
-  return ObjectEntry(key, parseDocument(source, ObjectIndentLevel));
+  return ObjectEntry(key, parseDocument(source, indentLevel));
 }
 
 YNode parseObject(ISource &source, unsigned long indentLevel) {
   YNode yNode = YNode::make<Object>();
   while (source.more() && std::isalpha(source.current())) {
-    YRef<Object>(yNode).add(parseKeyValue(source));
+    YRef<Object>(yNode).add(parseKeyValue(source, indentLevel));
     source.ignoreWS();
   }
   return (yNode);
@@ -157,7 +160,13 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
   YNode yNode;
   source.ignoreWS();
   if (source.match("- ")) {
-    yNode = parseArray(source, indentLevel);
+      // unsigned long ObjectIndentLevel = currentIndentLevel(source);
+    //   unsigned long newIdent =currentIndentLevel(source)-2;
+    // if (indentLevel > newIdent) {
+    //   int i = 0;
+    //   i++;
+    // }
+    yNode = parseArray(source, currentIndentLevel(source)-2);
   } else if (source.current() == 't' || source.current() == 'f') {
     yNode = parseBoolean(source);
   } else if ((source.current() >= '0' && source.current() <= '9') ||
@@ -168,7 +177,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
   } else if (source.current() == '#') {
     yNode = parseComment(source);
   } else {
-    yNode = parseObject(source, indentLevel);
+    yNode = parseObject(source, currentIndentLevel(source));
   }
   return yNode;
 }
