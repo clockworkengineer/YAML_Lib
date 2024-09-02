@@ -11,7 +11,7 @@
 
 namespace YAML_Lib {
 
-YNode parseDocument(ISource &source);
+YNode parseDocument(ISource &source,unsigned long indentation);
 
 bool validKey(const std::string &key) {
   if (!key.empty()) {
@@ -46,12 +46,6 @@ std::string parseKey(ISource &source) {
   return key;
 }
 
-void parseWS(ISource &source) {
-  while (source.more() && source.isWS()) {
-    source.next();
-  }
-}
-
 void moveToNextLine(ISource &source) {
   while (source.more() && source.current() != kLineFeed) {
     if (source.current() == '#') {
@@ -69,7 +63,6 @@ bool endOfNumber(const ISource &source) {
 }
 
 unsigned long currentIndentLevel(ISource &source) {
-  parseWS(source);
   return source.getPosition().first;
 }
 
@@ -132,8 +125,8 @@ YNode parseBoolean(ISource &source) {
 YNode parseArray(ISource &source) {
   auto yNode = YNode::make<Array>();
   do {
-    YRef<Array>(yNode).add(parseDocument(source));
-    YRef<Array>(yNode).setIndentation(currentIndentLevel(source));
+    YRef<Array>(yNode).add(parseDocument(source, currentIndentLevel(source)));
+    source.ignoreWS();
   } while (source.match("- "));
   moveToNextLine(source);
   return yNode;
@@ -141,26 +134,26 @@ YNode parseArray(ISource &source) {
 
 ObjectEntry parseKeyValue(ISource &source) {
   std::string key{parseKey(source)};
-  parseWS(source);
+  source.ignoreWS();
   if (source.current() == kLineFeed) {
     moveToNextLine(source);
   }
-  return ObjectEntry(key, parseDocument(source));
+  return ObjectEntry(key, parseDocument(source, currentIndentLevel(source)));
 }
 
 YNode parseObject(ISource &source) {
   YNode yNode = YNode::make<Object>();
   while (source.more() && std::isalpha(source.current())) {
     YRef<Object>(yNode).add(parseKeyValue(source));
-    YRef<Object>(yNode).setIndentation(currentIndentLevel(source));
+    source.ignoreWS();
   }
   return (yNode);
 }
 
-YNode parseDocument(ISource &source) {
+YNode parseDocument(ISource &source, unsigned long indentLevel) {
 
   YNode yNode;
-  YAML_Impl::identations.push(currentIndentLevel(source));
+  source.ignoreWS();
   if (source.match("- ")) {
     yNode = parseArray(source);
   } else if (source.current() == 't' || source.current() == 'f') {
@@ -175,7 +168,6 @@ YNode parseDocument(ISource &source) {
   } else {
     yNode = parseObject(source);
   }
-  YAML_Impl::identations.pop();
   return yNode;
 }
 
@@ -198,7 +190,7 @@ void YAML_Impl::parse(ISource &source) {
         if (yamlDocuments.empty()) {
           yamlDocuments.push_back(YNode::make<Document>());
         }
-        YRef<Document>(yamlDocuments.back()).add(parseDocument(source));
+        YRef<Document>(yamlDocuments.back()).add(parseDocument(source, 0));
       }
     }
   }
