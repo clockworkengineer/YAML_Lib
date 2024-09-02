@@ -125,7 +125,6 @@ YNode parseBoolean(ISource &source) {
 YNode parseArray(ISource &source, unsigned long indentLevel) {
   auto yNode = YNode::make<Array>();
   do {
-    // unsigned long arrayIdentLevel = currentIndentLevel(source);
     YRef<Array>(yNode).add(parseDocument(source, indentLevel));
     source.ignoreWS();
     if (indentLevel > currentIndentLevel(source)) {
@@ -137,7 +136,6 @@ YNode parseArray(ISource &source, unsigned long indentLevel) {
 }
 
 ObjectEntry parseKeyValue(ISource &source, unsigned long indentLevel) {
-  // unsigned long ObjectIndentLevel = currentIndentLevel(source);
   std::string key{parseKey(source)};
   source.ignoreWS();
   if (source.current() == kLineFeed) {
@@ -160,12 +158,6 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
   YNode yNode;
   source.ignoreWS();
   if (source.match("- ")) {
-      // unsigned long ObjectIndentLevel = currentIndentLevel(source);
-    //   unsigned long newIdent =currentIndentLevel(source)-2;
-    // if (indentLevel > newIdent) {
-    //   int i = 0;
-    //   i++;
-    // }
     yNode = parseArray(source, currentIndentLevel(source)-2);
   } else if (source.current() == 't' || source.current() == 'f') {
     yNode = parseBoolean(source);

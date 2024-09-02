@@ -56,7 +56,6 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Arary]") {
   }
   SECTION("YAML Parse nested array ", "[YAML][Parse][Array]") {
     BufferSource source{"---\n - - 1\n - - 4\n   - 5\n   - 6\n...\n"};
-    // BufferSource source{"---\n - - 1\n - - 4\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Document>(yaml.root()[0]));
     REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]));
