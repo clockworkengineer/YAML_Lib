@@ -138,9 +138,6 @@ YNode parseArray(ISource &source, unsigned long indentLevel) {
 ObjectEntry parseKeyValue(ISource &source, unsigned long indentLevel) {
   std::string key{parseKey(source)};
   source.ignoreWS();
-  // if (source.current() == kLineFeed) {
-  //   moveToNextLine(source);
-  // }
   return ObjectEntry(key, parseDocument(source, indentLevel));
 }
 

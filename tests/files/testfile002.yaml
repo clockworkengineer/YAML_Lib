@@ -1,9 +1,9 @@
 people:
-  - name: John
+  - name: 'John'
     likes:
-      - apples
-      - bananas
-  - name: Jane
+      - 'apples'
+      - 'bananas'
+  - name: 'Jane'
     likes:
-      - strawberries
-      - oranges
+      - 'strawberries'
+      - 'oranges'
