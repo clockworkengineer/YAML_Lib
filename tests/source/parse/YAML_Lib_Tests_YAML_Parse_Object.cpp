@@ -147,6 +147,17 @@ TEST_CASE("Check YAML Parsing of Objects.", "[YAML][Parse][Object]") {
                        .contains("partridges"));
     REQUIRE_FALSE(!YRef<Object>(yaml.root()[0][0]["xmas-fifth-day"])
                        .contains("turtle-doves"));
-    // NEEDS IDENTATION TO WORK
+    REQUIRE(YRef<String>(yaml.root()[0][0]["xmas-fifth-day"]["calling-birds"])
+                .value() == "four");
+    REQUIRE(YRef<Number>(yaml.root()[0][0]["xmas-fifth-day"]["french-hens"])
+                .value<int>() == 3);
+    REQUIRE(YRef<Number>(yaml.root()[0][0]["xmas-fifth-day"]["golden-rings"])
+                .value<int>() == 5);
+    REQUIRE(YRef<String>(yaml.root()[0][0]["xmas-fifth-day"]["turtle-doves"])
+                .value() == "two");
+    REQUIRE(YRef<Number>(yaml.root()[0][0]["xmas-fifth-day"]["partridges"]["count"])
+                .value<int>() == 1);
+    REQUIRE(YRef<String>(yaml.root()[0][0]["xmas-fifth-day"]["partridges"]["location"])
+                .value() == "a pear tree");
   }
 }
