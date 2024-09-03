@@ -126,9 +126,18 @@ TEST_CASE("Check YAML Parsing of Objects.", "[YAML][Parse][Object]") {
     REQUIRE_FALSE(!YRef<Object>(yaml.root()[0][0]).contains("french-hens"));
     REQUIRE(YRef<Number>(yaml.root()[0][0]["french-hens"]).value<int>() == 3);
     REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]["calling-birds"]));
+    REQUIRE(YRef<Array>(yaml.root()[0][0]["calling-birds"]).size() == 4);
+    REQUIRE(YRef<String>(yaml.root()[0][0]["calling-birds"][0]).value() ==
+            "huey");
+    REQUIRE(YRef<String>(yaml.root()[0][0]["calling-birds"][1]).value() ==
+            "dewey");
     REQUIRE(YRef<String>(yaml.root()[0][0]["calling-birds"][2]).value() ==
             "louie");
-    //       REQUIRE_FALSE(!isA<Number>(yaml.root()[0][0]["golden-rings"])); //
+    REQUIRE(YRef<String>(yaml.root()[0][0]["calling-birds"][3]).value() ==
+            "fred");
+    REQUIRE_FALSE(!YRef<Object>(yaml.root()[0][0]).contains("xmas-fifth-day"));
+    REQUIRE_FALSE(!isA<Object>(yaml.root()[0][0]["xmas-fifth-day"]));
+    //   REQUIRE_FALSE(!isA<Number>(yaml.root()[0][0]["golden-rings"])); //
     // NEEDS IDENTATION TO WORK
   }
 }
