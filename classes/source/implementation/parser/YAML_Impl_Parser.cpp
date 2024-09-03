@@ -63,7 +63,7 @@ bool endOfNumber(const ISource &source) {
 }
 
 unsigned long currentIndentLevel(ISource &source) {
-  return source.getPosition().second-1;
+  return source.getPosition().second - 1;
 }
 
 YNode parseString(ISource &source) {
@@ -138,9 +138,9 @@ YNode parseArray(ISource &source, unsigned long indentLevel) {
 ObjectEntry parseKeyValue(ISource &source, unsigned long indentLevel) {
   std::string key{parseKey(source)};
   source.ignoreWS();
-  if (source.current() == kLineFeed) {
-    moveToNextLine(source);
-  }
+  // if (source.current() == kLineFeed) {
+  //   moveToNextLine(source);
+  // }
   return ObjectEntry(key, parseDocument(source, indentLevel));
 }
 
@@ -149,16 +149,18 @@ YNode parseObject(ISource &source, unsigned long indentLevel) {
   while (source.more() && std::isalpha(source.current())) {
     YRef<Object>(yNode).add(parseKeyValue(source, indentLevel));
     source.ignoreWS();
+    if (indentLevel > currentIndentLevel(source)) {
+      return yNode;
+    }
   }
   return (yNode);
 }
 
 YNode parseDocument(ISource &source, unsigned long indentLevel) {
-
   YNode yNode;
   source.ignoreWS();
   if (source.match("- ")) {
-    yNode = parseArray(source, currentIndentLevel(source)-2);
+    yNode = parseArray(source, currentIndentLevel(source) - 2);
   } else if (source.current() == 't' || source.current() == 'f') {
     yNode = parseBoolean(source);
   } else if ((source.current() >= '0' && source.current() <= '9') ||
