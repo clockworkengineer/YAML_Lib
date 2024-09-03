@@ -137,7 +137,16 @@ TEST_CASE("Check YAML Parsing of Objects.", "[YAML][Parse][Object]") {
             "fred");
     REQUIRE_FALSE(!YRef<Object>(yaml.root()[0][0]).contains("xmas-fifth-day"));
     REQUIRE_FALSE(!isA<Object>(yaml.root()[0][0]["xmas-fifth-day"]));
-    //   REQUIRE_FALSE(!isA<Number>(yaml.root()[0][0]["golden-rings"])); //
+    REQUIRE_FALSE(!YRef<Object>(yaml.root()[0][0]["xmas-fifth-day"])
+                       .contains("calling-birds"));
+    REQUIRE_FALSE(!YRef<Object>(yaml.root()[0][0]["xmas-fifth-day"])
+                       .contains("french-hens"));
+    REQUIRE_FALSE(!YRef<Object>(yaml.root()[0][0]["xmas-fifth-day"])
+                       .contains("golden-rings"));
+    REQUIRE_FALSE(!YRef<Object>(yaml.root()[0][0]["xmas-fifth-day"])
+                       .contains("partridges"));
+    REQUIRE_FALSE(!YRef<Object>(yaml.root()[0][0]["xmas-fifth-day"])
+                       .contains("turtle-doves"));
     // NEEDS IDENTATION TO WORK
   }
 }
