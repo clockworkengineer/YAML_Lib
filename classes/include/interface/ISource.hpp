@@ -32,6 +32,10 @@ public:
   // Move to next character
   // ======================
   virtual void next() = 0;
+  // ========================
+  // Backup length characters
+  // ========================
+  virtual void backup(unsigned long length) = 0;
   // =======================================
   // Are there still more characters to read
   // ========================================
@@ -48,9 +52,8 @@ public:
   // Is the current character whitespace
   // ===================================
   [[nodiscard]] bool isWS() const {
-    auto ch =current();
-    return ch == ' ' || ch == '\t' || ch== '\n' ||
-           ch == '\r';
+    auto ch = current();
+    return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
   }
   // ==================================
   // Ignore whitespace on source stream
@@ -74,6 +77,17 @@ public:
     backup(index);
     return false;
   }
+  bool match(const char *target) {
+    long index = 0;
+    while (more() && current() == static_cast<char>(target[index])) {
+      next();
+      if (++index == static_cast<long>(std::strlen(target))) {
+        return true;
+      }
+    }
+    backup(index);
+    return false;
+  }
   // ==================================
   // Get current source stream position
   // ==================================
@@ -82,10 +96,6 @@ public:
   }
 
 protected:
-  // ========================
-  // Backup length characters
-  // ========================
-  virtual void backup(unsigned long length) = 0;
   // ========================================
   // Current line and column on source stream
   // ========================================

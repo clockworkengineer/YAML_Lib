@@ -49,13 +49,13 @@ public:
     return std::filesystem::file_size(filename);
   }
 
-private:
   void backup(const unsigned long length) override
   {
     source.clear();
     source.seekg(-static_cast<long>(length), std::ios_base::cur);
   }
 
+private:
   mutable std::ifstream source;
   std::string filename;
 };
