@@ -67,7 +67,7 @@ unsigned long currentIndentLevel(ISource &source) {
 }
 
 YNode parseString(ISource &source) {
-
+  YNode yNode;
   const char quote = source.current();
   if (quote == '\'' || quote == '"') {
     std::string yamlString;
@@ -77,9 +77,9 @@ YNode parseString(ISource &source) {
       source.next();
     }
     moveToNextLine(source);
-    return YNode::make<String>(yamlString);
+    yNode = YNode::make<String>(yamlString);
   }
-  throw SyntaxError("String does not have and quote.");
+  return yNode;
 }
 
 YNode parseComment(ISource &source) {
@@ -96,6 +96,7 @@ YNode parseComment(ISource &source) {
 }
 
 YNode parseNumber(ISource &source) {
+  YNode yNode;
   std::string string;
   for (; source.more() && !endOfNumber(source); source.next()) {
     string += source.current();
@@ -104,9 +105,11 @@ YNode parseNumber(ISource &source) {
                              number.is<long long>() || number.is<float>() ||
                              number.is<double>() || number.is<long double>()) {
     moveToNextLine(source);
-    return YNode::make<Number>(number);
+    yNode = YNode::make<Number>(number);
+  } else {
+    source.backup(string.size());
   }
-  throw SyntaxError(source.getPosition(), "Invalid numeric value.");
+  return yNode;
 }
 
 YNode parseBoolean(ISource &source) {
@@ -117,21 +120,26 @@ YNode parseBoolean(ISource &source) {
   } else if (source.match("false")) {
     moveToNextLine(source);
     yNode = YNode::make<Boolean>(false);
-  } else {
-    throw SyntaxError("Expected boolean value.");
   }
   return yNode;
 }
 YNode parseArray(ISource &source, unsigned long indentLevel) {
-  auto yNode = YNode::make<Array>();
-  do {
-    YRef<Array>(yNode).add(parseDocument(source, indentLevel));
-    source.ignoreWS();
-    if (indentLevel > currentIndentLevel(source)) {
-      return yNode;
-    }
-  } while (source.match("- "));
-  moveToNextLine(source);
+  YNode yNode;
+  source.next();
+  if (source.current() == ' ') {
+    source.next();
+    yNode = YNode::make<Array>();
+    do {
+      YRef<Array>(yNode).add(parseDocument(source, indentLevel));
+      source.ignoreWS();
+      if (indentLevel > currentIndentLevel(source)) {
+        return yNode;
+      }
+    } while (source.match("- "));
+    moveToNextLine(source);
+  } else {
+    source.backup(1);
+  }
   return yNode;
 }
 
@@ -156,21 +164,44 @@ YNode parseObject(ISource &source, unsigned long indentLevel) {
 YNode parseDocument(ISource &source, unsigned long indentLevel) {
   YNode yNode;
   source.ignoreWS();
-  if (source.match("- ")) {
-    yNode = parseArray(source, currentIndentLevel(source) - 2);
-  } else if (source.current() == 't' || source.current() == 'f') {
-    yNode = parseBoolean(source);
-  } else if ((source.current() >= '0' && source.current() <= '9') ||
-             source.current() == '-' || source.current() == '+') {
-    yNode = parseNumber(source);
-  } else if ((source.current() == '\'') || (source.current() == '"')) {
-    yNode = parseString(source);
-  } else if (source.current() == '#') {
-    yNode = parseComment(source);
-  } else {
-    yNode = parseObject(source, currentIndentLevel(source));
+  if (source.current() == '-') {
+    yNode = parseArray(source, currentIndentLevel(source));
+    if (!yNode.isEmpty()) {
+      return yNode;
+    }
   }
-  return yNode;
+  if (source.current() == 't' || source.current() == 'f') {
+    yNode = parseBoolean(source);
+    if (!yNode.isEmpty()) {
+      return yNode;
+    }
+  }
+  if ((source.current() >= '0' && source.current() <= '9') ||
+      source.current() == '-' || source.current() == '+') {
+    yNode = parseNumber(source);
+    if (!yNode.isEmpty()) {
+      return yNode;
+    }
+  }
+  if ((source.current() == '\'') || (source.current() == '"')) {
+    yNode = parseString(source);
+    if (!yNode.isEmpty()) {
+      return yNode;
+    }
+  }
+  if (source.current() == '#') {
+    yNode = parseComment(source);
+    if (!yNode.isEmpty()) {
+      return yNode;
+    }
+  }
+  yNode = parseObject(source, currentIndentLevel(source));
+  if (!yNode.isEmpty()) {
+    return yNode;
+  }
+
+  throw SyntaxError("Invalid YAML.");
+  
 }
 
 void YAML_Impl::parse(ISource &source) {
