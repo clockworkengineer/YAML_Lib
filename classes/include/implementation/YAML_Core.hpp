@@ -20,7 +20,7 @@
 #include "YAML_Null.hpp"
 #include "YAML_Number.hpp"
 #include "YAML_String.hpp"
-#include "YAML_Object.hpp"
+#include "YAML_Dictionary.hpp"
 
 // YNode
 #include "YAML_YNode_Reference.hpp"

@@ -35,8 +35,8 @@ public:
     std::variant<int, long, long long, float, double, long double, bool, std::string, std::nullptr_t, YNode>;
   // Array initializer list
   using ArrayInitializer = std::initializer_list<IntializerListTypes>;
-  // Object initializer list
-  using Objectintializer = std::initializer_list<std::pair<std::string, IntializerListTypes>>;
+  // Dictionary initializer list
+  using Dictionaryintializer = std::initializer_list<std::pair<std::string, IntializerListTypes>>;
   YAML();
   YAML(const YAML &other) = delete;
   YAML &operator=(const YAML &other) = delete;
@@ -70,7 +70,7 @@ public:
   // Get root of YAML tree
   [[nodiscard]] std::vector<YNode>   &root();
   [[nodiscard]] const std::vector<YNode>   &root() const;
-  // // Search for YAML object entry with a given key
+  // // Search for YAML dictionary entry with a given key
   // YNode &operator[](const std::string &key);
   // const YNode &operator[](const std::string &key) const;
   // // Get YAML array entry at index

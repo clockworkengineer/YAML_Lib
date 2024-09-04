@@ -24,8 +24,8 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
     destination.add(YRef<Null>(yNode).toString());
   } else if (isA<Hole>(yNode)) {
     destination.add(YRef<Hole>(yNode).toString());
-  } else if (isA<Object>(yNode)) {
-    for (auto &entry : YRef<Object>(yNode).value()) {
+  } else if (isA<Dictionary>(yNode)) {
+    for (auto &entry : YRef<Dictionary>(yNode).value()) {
       destination.add(YRef<String>(entry.getKeyYNode()).toString());
       destination.add(": ");
       stringifyYAML(destination, entry.getYNode());

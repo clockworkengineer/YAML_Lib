@@ -22,7 +22,7 @@ set(TEST_SOURCES
         source/yaml/YAML_Lib_Tests_YAML.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Array.cpp
-        source/parse/YAML_Lib_Tests_YAML_Parse_Object.cpp
+        source/parse/YAML_Lib_Tests_YAML_Parse_Dictionary.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Simple.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Comment.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Misc.cpp

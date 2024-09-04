@@ -39,11 +39,11 @@ inline YNode::YNode(const YAML::ArrayInitializer &array)
   *this = make<Array>();
   for (const auto &entry : array) { YRef<Array>(*this).add(typeToYNode(entry)); }
 }
-// Construct YNode Object from initializer list
-inline YNode::YNode(const YAML::Objectintializer &object)
+// Construct YNode Dictionary from initializer list
+inline YNode::YNode(const YAML::Dictionaryintializer &dictionary)
 {
-  *this = make<Object>();
-  for (const auto &[fst, snd] : object) { YRef<Object>(*this).add(Object::Entry(fst, typeToYNode(snd))); }
+  *this = make<Dictionary>();
+  for (const auto &[fst, snd] : dictionary) { YRef<Dictionary>(*this).add(Dictionary::Entry(fst, typeToYNode(snd))); }
 }
 
 }// namespace YAML_Lib

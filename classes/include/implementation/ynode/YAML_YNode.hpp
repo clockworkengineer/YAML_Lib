@@ -13,7 +13,7 @@ struct YNode
   YNode() = default;
   template<typename T> explicit YNode(T value);
   YNode(const YAML::ArrayInitializer &array);
-  YNode(const YAML::Objectintializer &object);
+  YNode(const YAML::Dictionaryintializer &dictionary);
   YNode(const YNode &other) = delete;
   YNode &operator=(const YNode &other) = delete;
   YNode(YNode &&other) = default;

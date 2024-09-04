@@ -143,16 +143,16 @@ YNode parseArray(ISource &source, unsigned long indentLevel) {
   return yNode;
 }
 
-ObjectEntry parseKeyValue(ISource &source, unsigned long indentLevel) {
+DictionaryEntry parseKeyValue(ISource &source, unsigned long indentLevel) {
   std::string key{parseKey(source)};
   source.ignoreWS();
-  return ObjectEntry(key, parseDocument(source, indentLevel));
+  return DictionaryEntry(key, parseDocument(source, indentLevel));
 }
 
-YNode parseObject(ISource &source, unsigned long indentLevel) {
-  YNode yNode = YNode::make<Object>();
+YNode parseDictionary(ISource &source, unsigned long indentLevel) {
+  YNode yNode = YNode::make<Dictionary>();
   while (source.more() && std::isalpha(source.current())) {
-    YRef<Object>(yNode).add(parseKeyValue(source, indentLevel));
+    YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel));
     source.ignoreWS();
     if (indentLevel > currentIndentLevel(source)) {
       return yNode;
@@ -195,13 +195,11 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
       return yNode;
     }
   }
-  yNode = parseObject(source, currentIndentLevel(source));
+  yNode = parseDictionary(source, currentIndentLevel(source));
   if (!yNode.isEmpty()) {
     return yNode;
   }
-
   throw SyntaxError("Invalid YAML.");
-  
 }
 
 void YAML_Impl::parse(ISource &source) {

@@ -12,8 +12,8 @@ template <typename T> bool isA(const YNode &yNode) {
     return yNode.getVariant().getNodeType() == Variant::Type::number;
   } else if constexpr (std::is_same_v<T, Array>) {
     return yNode.getVariant().getNodeType() == Variant::Type::array;
-  } else if constexpr (std::is_same_v<T, Object>) {
-    return yNode.getVariant().getNodeType() == Variant::Type::object;
+  } else if constexpr (std::is_same_v<T, Dictionary>) {
+    return yNode.getVariant().getNodeType() == Variant::Type::dictionary;
   } else if constexpr (std::is_same_v<T, Boolean>) {
     return yNode.getVariant().getNodeType() == Variant::Type::boolean;
   } else if constexpr (std::is_same_v<T, Null>) {
@@ -45,9 +45,9 @@ template <typename T> void checkYNode(const YNode &yNode) {
     if (!isA<T>(yNode)) {
       throw YNode::Error("YNode not an array.");
     }
-  } else if constexpr (std::is_same_v<T, Object>) {
+  } else if constexpr (std::is_same_v<T, Dictionary>) {
     if (!isA<T>(yNode)) {
-      throw YNode::Error("YNode not an object.");
+      throw YNode::Error("YNode not an dictionary.");
     }
   } else if constexpr (std::is_same_v<T, Boolean>) {
     if (!isA<T>(yNode)) {
@@ -79,11 +79,11 @@ template <typename T> const T &YRef(const YNode &yNode) {
   checkYNode<T>(yNode);
   return static_cast<const T &>(yNode.getVariant());
 }
-template <typename T> T &YRef(Object::Entry &yNodeEntry) {
+template <typename T> T &YRef(Dictionary::Entry &yNodeEntry) {
   checkYNode<T>(yNodeEntry.getYNode());
   return static_cast<T &>(yNodeEntry.getYNode().getVariant());
 }
-template <typename T> const T &YRef(const Object::Entry &yNodeEntry) {
+template <typename T> const T &YRef(const Dictionary::Entry &yNodeEntry) {
   checkYNode<T>(yNodeEntry.getYNode());
   return static_cast<const T &>(yNodeEntry.getYNode().getVariant());
 }
