@@ -53,6 +53,7 @@ public:
   {
     source.clear();
     source.seekg(-static_cast<long>(length), std::ios_base::cur);
+    column -= length;
   }
 
 private:

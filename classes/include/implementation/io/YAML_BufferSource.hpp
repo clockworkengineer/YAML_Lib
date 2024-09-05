@@ -45,7 +45,7 @@ public:
   }
   [[nodiscard]] std::size_t position() const override { return bufferPosition; }
 
-  void backup(const unsigned long length) override { bufferPosition -= length; }
+  void backup(const unsigned long length) override { bufferPosition -= length; column -= length;}
 
 private:
   std::size_t bufferPosition = 0;

@@ -107,7 +107,7 @@ YNode parseNumber(ISource &source) {
     moveToNextLine(source);
     yNode = YNode::make<Number>(number);
   } else {
-    source.backup(string.size());
+    source.backup(1);
   }
   return yNode;
 }
@@ -142,13 +142,11 @@ YNode parseArray(ISource &source, unsigned long indentLevel) {
   }
   return yNode;
 }
-
 DictionaryEntry parseKeyValue(ISource &source, unsigned long indentLevel) {
   std::string key{parseKey(source)};
   source.ignoreWS();
   return DictionaryEntry(key, parseDocument(source, indentLevel));
 }
-
 YNode parseDictionary(ISource &source, unsigned long indentLevel) {
   YNode yNode = YNode::make<Dictionary>();
   while (source.more() && std::isalpha(source.current())) {
@@ -160,18 +158,17 @@ YNode parseDictionary(ISource &source, unsigned long indentLevel) {
   }
   return (yNode);
 }
-
 YNode parseDocument(ISource &source, unsigned long indentLevel) {
   YNode yNode;
   source.ignoreWS();
-  if (source.current() == '-') {
-    yNode = parseArray(source, currentIndentLevel(source));
+  if (source.current() == 't' || source.current() == 'f') {
+    yNode = parseBoolean(source);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  if (source.current() == 't' || source.current() == 'f') {
-    yNode = parseBoolean(source);
+  if ((source.current() == '\'') || (source.current() == '"')) {
+    yNode = parseString(source);
     if (!yNode.isEmpty()) {
       return yNode;
     }
@@ -183,14 +180,14 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
       return yNode;
     }
   }
-  if ((source.current() == '\'') || (source.current() == '"')) {
-    yNode = parseString(source);
+  if (source.current() == '#') {
+    yNode = parseComment(source);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  if (source.current() == '#') {
-    yNode = parseComment(source);
+  if (source.current() == '-') {
+    yNode = parseArray(source, currentIndentLevel(source));
     if (!yNode.isEmpty()) {
       return yNode;
     }
