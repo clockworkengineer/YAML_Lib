@@ -41,18 +41,18 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
     }
 
   } else if (isA<Document>(yNode)) {
+    destination.add("---\n");
     for (const auto &entry : YRef<Document>(yNode).value()) {
       stringifyYAML(destination, entry);
     }
+    destination.add("...\n");
   } else {
     throw Error("Unknown YNode type encountered during stringification.");
   }
 }
 void YAML_Impl::stringify(IDestination &destination) const {
   for (auto &document : yamlDocuments) {
-    destination.add("---\n");
     stringifyYAML(destination, document);
-    destination.add("...\n");
   }
 }
 
