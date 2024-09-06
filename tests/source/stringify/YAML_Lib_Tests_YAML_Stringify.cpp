@@ -24,7 +24,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() ==
-            "---\n# comment 1\n# comment 2\n# comment 3\n...\n");
+            "---\n...\n# comment 1\n# comment 2\n# comment 3\n");
   }
   SECTION("YAML Stringify document one with integer.",
           "[YAML][Stringify][Integer]") {
@@ -86,13 +86,13 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() == "---\n    - \"One\"\n    - \"Two\"\n    - \"Three\"\n    - \"Four\"\n...\n");
   }
-  // SECTION("YAML Stringify document with comments before start.",
-  // "[YAML][Stringify][Comments]") {
-  //   BufferSource source{"# comment 1\n---\n# comment 2\n# comment 3\n"};
-  //   REQUIRE_NOTHROW(yaml.parse(source));
-  //   BufferDestination destination;
-  //   REQUIRE_NOTHROW(yaml.stringify(destination));
-  //   // REQUIRE(yaml.getNumberOfDocuments() == 1);
-  //   REQUIRE(destination.toString() == "");
-  // }
+  SECTION("YAML Stringify document with comments before start.",
+  "[YAML][Stringify][Comments]") {
+    BufferSource source{"# comment 1\n---\n# comment 2\n# comment 3\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE(destination.toString() == "# comment 1\n---\n# comment 2\n# comment 3\n...\n");
+  }
 }

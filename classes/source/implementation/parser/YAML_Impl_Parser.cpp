@@ -201,19 +201,24 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
 
 void YAML_Impl::parse(ISource &source) {
   while (source.more()) {
+    bool inDocument = false;
     unsigned int startNumberOfDocuments = getNumberOfDocuments();
     while (source.more()) {
       // Start of document
       if (source.match("---")) {
+        inDocument = true;
         moveToNextLine(source);
         yamlDocuments.push_back(YNode::make<Document>());
         // End of document
       } else if (source.match("...")) {
         moveToNextLine(source);
+        inDocument = false;
         if (startNumberOfDocuments == getNumberOfDocuments()) {
           yamlDocuments.push_back(YNode::make<Document>());
         }
         break;
+      } else if (source.current() == '#' && !inDocument) {
+        yamlDocuments.push_back(parseComment(source));
       } else {
         if (yamlDocuments.empty()) {
           yamlDocuments.push_back(YNode::make<Document>());
