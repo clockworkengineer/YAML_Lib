@@ -18,7 +18,7 @@ public:
   // Get YAML_Lib version
   static std::string version();
   // Get number of document
-  [[nodiscard]] unsigned int getNumberOfDocuments() const {
+  [[nodiscard]] unsigned long getNumberOfDocuments() const {
     unsigned int numberOfDocuments = 0;
     for (auto &yNode : yamlYNodeTree) {
       if (isA<Document>(yNode)) {
@@ -35,13 +35,13 @@ public:
   [[nodiscard]] std::vector<YNode> &root() { return yamlYNodeTree; }
   [[nodiscard]] const std::vector<YNode> &root() const { return yamlYNodeTree; }
   // Get document
-  [[nodiscard]] std::vector<YNode> &document() { return yamlDocuments; }
-  [[nodiscard]] const std::vector<YNode> &document() const { return yamlDocuments; }
+  [[nodiscard]] YNode &document(unsigned long index) { return yamlYNodeTree[0]; }
+  [[nodiscard]] const YNode &document(unsigned long index) const { return yamlYNodeTree[0]; }
 private:
   // Yaml tree
   std::vector<YNode> yamlYNodeTree;
     // Yaml document
-  std::vector<YNode> yamlDocuments;
+  // std::vector<YNode> yamlDocuments;
   // Root of YAML tree
   YNode yNodeRoot;
 };

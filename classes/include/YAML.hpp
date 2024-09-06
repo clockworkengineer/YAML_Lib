@@ -73,8 +73,8 @@ public:
   [[nodiscard]] std::vector<YNode> &root();
   [[nodiscard]] const std::vector<YNode> &root() const;
   // Get vector of YAML document
-  [[nodiscard]] std::vector<YNode> &document();
-  [[nodiscard]] const std::vector<YNode> &document() const;
+  [[nodiscard]] YNode &document(unsigned long index);
+  [[nodiscard]] const YNode &document(unsigned long index) const;
   // // Search for YAML dictionary entry with a given key
   // YNode &operator[](const std::string &key);
   // const YNode &operator[](const std::string &key) const;
