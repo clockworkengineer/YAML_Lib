@@ -19,7 +19,7 @@ public:
   static std::string version();
   // Get number of document
   [[nodiscard]] unsigned long getNumberOfDocuments() const {
-    unsigned int numberOfDocuments = 0;
+    unsigned long numberOfDocuments = 0;
     for (auto &yNode : yamlYNodeTree) {
       if (isA<Document>(yNode)) {
         numberOfDocuments++;
@@ -35,14 +35,32 @@ public:
   [[nodiscard]] std::vector<YNode> &root() { return yamlYNodeTree; }
   [[nodiscard]] const std::vector<YNode> &root() const { return yamlYNodeTree; }
   // Get document
-  [[nodiscard]] YNode &document(unsigned long index) { return yamlYNodeTree[0]; }
-  [[nodiscard]] const YNode &document(unsigned long index) const { return yamlYNodeTree[0]; }
+  [[nodiscard]] YNode &document(unsigned long index) {
+    long numberOfDocuments = index;
+    for (auto &yNode : yamlYNodeTree) {
+      if (isA<Document>(yNode)) {
+        if (--numberOfDocuments < 0) {
+          return yNode;
+        }
+      }
+    }
+    throw Error("Document does not exist.");
+  }
+  [[nodiscard]] const YNode &document(unsigned long index) const {
+    long numberOfDocuments = index;
+    for (auto &yNode : yamlYNodeTree) {
+      if (isA<Document>(yNode)) {
+        if (--numberOfDocuments < 0) {
+          return yNode;
+        }
+      }
+    }
+    throw Error("Document does not exist.");
+  }
+
 private:
-  // Yaml tree
+  // YAML tree
   std::vector<YNode> yamlYNodeTree;
-    // Yaml document
-  // std::vector<YNode> yamlDocuments;
-  // Root of YAML tree
-  YNode yNodeRoot;
+
 };
 } // namespace YAML_Lib
