@@ -51,7 +51,7 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
   }
 }
 void YAML_Impl::stringify(IDestination &destination) const {
-  for (auto &document : yamlDocuments) {
+  for (auto &document : yamlYNodeTree) {
     stringifyYAML(destination, document);
   }
 }

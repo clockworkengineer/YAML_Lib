@@ -28,5 +28,7 @@ void YAML::stringify(IDestination &&destination) const {
 }
 std::vector<YNode> &YAML::root() { return implementation->root(); }
 const std::vector<YNode> &YAML::root() const { return implementation->root(); }
+std::vector<YNode> &YAML::document() { return implementation->document(); }
+const std::vector<YNode> &YAML::document() const { return implementation->document(); }
 
 } // namespace YAML_Lib

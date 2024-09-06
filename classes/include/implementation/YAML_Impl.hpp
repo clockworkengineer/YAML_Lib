@@ -17,10 +17,10 @@ public:
   ~YAML_Impl() = default;
   // Get YAML_Lib version
   static std::string version();
-  // Get number of documents
+  // Get number of document
   [[nodiscard]] unsigned int getNumberOfDocuments() const {
     unsigned int numberOfDocuments = 0;
-    for (auto &yNode : yamlDocuments) {
+    for (auto &yNode : yamlYNodeTree) {
       if (isA<Document>(yNode)) {
         numberOfDocuments++;
       }
@@ -32,17 +32,15 @@ public:
   // Create YAML text string (no white space) from YNode tree
   void stringify(IDestination &destination) const;
   // Get root of JSON tree
-  [[nodiscard]] std::vector<YNode> &root() { return yamlDocuments; }
-  [[nodiscard]] const std::vector<YNode> &root() const { return yamlDocuments; }
-  // Get documents root
-  // [[nodiscard]] YNode &root() { return yNodeRoot; }
-  // [[nodiscard]] const YNode &root() const { return yNodeRoot; }
-
-  // Identation levels
-  inline static std::stack<unsigned long> identations;
-
+  [[nodiscard]] std::vector<YNode> &root() { return yamlYNodeTree; }
+  [[nodiscard]] const std::vector<YNode> &root() const { return yamlYNodeTree; }
+  // Get document
+  [[nodiscard]] std::vector<YNode> &document() { return yamlDocuments; }
+  [[nodiscard]] const std::vector<YNode> &document() const { return yamlDocuments; }
 private:
-  // Number of documents
+  // Yaml tree
+  std::vector<YNode> yamlYNodeTree;
+    // Yaml document
   std::vector<YNode> yamlDocuments;
   // Root of YAML tree
   YNode yNodeRoot;

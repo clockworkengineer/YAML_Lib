@@ -208,22 +208,22 @@ void YAML_Impl::parse(ISource &source) {
       if (source.match("---")) {
         inDocument = true;
         moveToNextLine(source);
-        yamlDocuments.push_back(YNode::make<Document>());
+        yamlYNodeTree.push_back(YNode::make<Document>());
         // End of document
       } else if (source.match("...")) {
         moveToNextLine(source);
         inDocument = false;
         if (startNumberOfDocuments == getNumberOfDocuments()) {
-          yamlDocuments.push_back(YNode::make<Document>());
+          yamlYNodeTree.push_back(YNode::make<Document>());
         }
         break;
       } else if (source.current() == '#' && !inDocument) {
-        yamlDocuments.push_back(parseComment(source));
+        yamlYNodeTree.push_back(parseComment(source));
       } else {
-        if (yamlDocuments.empty()) {
-          yamlDocuments.push_back(YNode::make<Document>());
+        if (yamlYNodeTree.empty()) {
+          yamlYNodeTree.push_back(YNode::make<Document>());
         }
-        YRef<Document>(yamlDocuments.back()).add(parseDocument(source, 0));
+        YRef<Document>(yamlYNodeTree.back()).add(parseDocument(source, 0));
       }
     }
   }
