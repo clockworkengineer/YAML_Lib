@@ -24,7 +24,9 @@ set(TEST_SOURCES
         source/parse/YAML_Lib_Tests_YAML_Parse.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Array.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Dictionary.cpp
-        source/parse/YAML_Lib_Tests_YAML_Parse_Simple.cpp
+        source/parse/YAML_Lib_Tests_YAML_Parse_Boolean.cpp
+        source/parse/YAML_Lib_Tests_YAML_Parse_Numeric.cpp
+        source/parse/YAML_Lib_Tests_YAML_Parse_String.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Comment.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Misc.cpp
         source/stringify/YAML_Lib_Tests_YAML_Stringify.cpp

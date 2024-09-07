@@ -1,21 +1,7 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][Simple]") {
+TEST_CASE("Check YAML Parsing of numeric types.", "[YAML][Parse][Numeric]") {
   const YAML yaml;
-  SECTION("YAML Parse a boolean (true).", "[YAML][Parse][Boolean]") {
-    BufferSource source{"---\ntrue\n"};
-    REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE_FALSE(!isA<Boolean>(yaml.root()[0][0]));
-    REQUIRE_FALSE(!YAML_Lib::YRef<Boolean>(yaml.root()[0][0]).value());
-  }
-  SECTION("YAML Parse a boolean (false).", "[YAML][Parse][Boolean]") {
-    BufferSource source{"---\nfalse\n"};
-    REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE_FALSE(!isA<Boolean>(yaml.root()[0][0]));
-    REQUIRE_FALSE(YAML_Lib::YRef<Boolean>(yaml.root()[0][0]).value());
-  }
   SECTION("YAML Parse an integer.", "[YAML][Parse][Integer]") {
     BufferSource source{"---\n4567000\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -40,7 +26,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][Simple]") {
     REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.root()[0][0]).is<int>());
     REQUIRE(YAML_Lib::YRef<Number>(yaml.root()[0][0]).value<int>() == 4567000);
   }
-  SECTION("YAML Parse a floating point.", "[YAML][Parse][Float]") {
+  SECTION("YAML Parse a floating point.", "[YAML][Parse][Integer]") {
     BufferSource source{"---\n3.1415926535\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
@@ -56,7 +42,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][Simple]") {
     REQUIRE_FALSE(!isA<Number>(yaml.root()[0][0]));
     REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.root()[0][0]).is<float>());
     REQUIRE(YAML_Lib::YRef<Number>(yaml.root()[0][0]).value<float>() ==
-            3.141592741f); 
+            3.141592741f);
   }
   SECTION("YAML Parse a negative floating point.", "[YAML][Parse][Float]") {
     BufferSource source{"---\n-3.1415926535\n"};
@@ -105,20 +91,20 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][Simple]") {
     REQUIRE_FALSE(!isA<Number>(yaml.root()[0][0]));
     REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.root()[0][0]).is<float>());
   }
-  SECTION("YAML Parse a single quoted string.", "[YAML][Parse][String]") {
-    BufferSource source{"---\n'test string.'\n"};
+  SECTION("YAML Parse an hexadecimal integer.", "[YAML][Parse][Hexadecimal]") {
+    BufferSource source{"---\n0x4444\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE_FALSE(!isA<String>(yaml.root()[0][0]));
-    REQUIRE(YAML_Lib::YRef<String>(yaml.root()[0][0]).value() ==
-            "test string.");
+    REQUIRE_FALSE(!isA<Number>(yaml.root()[0][0]));
+    REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.root()[0][0]).is<int>());
+    REQUIRE(YAML_Lib::YRef<Number>(yaml.root()[0][0]).value<int>() == 0x4444);
   }
-  SECTION("YAML Parse a double quoted string.", "[YAML][Parse][String]") {
-    BufferSource source{"---\n\"test string.\"\n"};
+  SECTION("YAML Parse an octal integer.", "[YAML][Parse][Octal]") {
+    BufferSource source{"---\n04444\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE_FALSE(!isA<String>(yaml.root()[0][0]));
-    REQUIRE(YAML_Lib::YRef<String>(yaml.root()[0][0]).value() ==
-            "test string.");
+    REQUIRE_FALSE(!isA<Number>(yaml.root()[0][0]));
+    REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.root()[0][0]).is<int>());
+    REQUIRE(YAML_Lib::YRef<Number>(yaml.root()[0][0]).value<int>() == 04444);
   }
 }
