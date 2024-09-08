@@ -13,6 +13,34 @@ namespace YAML_Lib {
 
 YNode parseDocument(ISource &source, unsigned long indentation);
 
+std::string translateEscapes(const std::string &yamlString) {
+  std::string translated;
+  for (std::size_t idx = 0; idx < yamlString.size(); idx++) {
+    if (yamlString[idx] == '\\') {
+      idx++;
+      if (yamlString[idx] == 't') {
+        translated += "\t";
+      } else if (yamlString[idx] == 'n') {
+        translated += "\n";
+      } else if (yamlString[idx] == '"') {
+        translated += "\"";
+      } else if (yamlString[idx] == 'b') {
+        translated += "\b";
+      } else if (yamlString[idx] == 'r') {
+        translated += "\r";
+      } else if (yamlString[idx] == 'f') {
+        translated += "\f";
+      } else if (yamlString[idx] == '\\') {
+        translated += "\\";
+      } else {
+        translated += yamlString[idx];
+      }
+    } else {
+      translated += yamlString[idx];
+    }
+  }
+  return (translated);
+}
 bool validKey(const std::string &key) {
   if (!key.empty()) {
     if (!std::isalpha(key[0])) {
@@ -76,6 +104,7 @@ YNode parseString(ISource &source) {
       yamlString += source.current();
       source.next();
     }
+    yamlString = translateEscapes(yamlString);
     moveToNextLine(source);
     yNode = YNode::make<String>(yamlString);
   }
