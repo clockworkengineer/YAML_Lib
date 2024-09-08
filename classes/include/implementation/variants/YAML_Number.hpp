@@ -11,7 +11,7 @@ struct Number : Variant {
     explicit Error(const std::string &message)
         : std::runtime_error("JNode Number Error: " + message) {}
   };
-  // All string conversions are for base 10
+  // All string conversion base default
   static constexpr int kStringConversionBase{10};
   // Floating point notation
   enum class numberNotation { normal = 0, fixed, scientific };
@@ -77,19 +77,22 @@ template <typename T> bool Number::stringToNumber(const std::string &number) {
   {
     try {
       std::size_t end = 0;
-      int base = kStringConversionBase;
+      int integerConversionBase = kStringConversionBase;
       T value;
-      if (number.find("0x") == 0) {
-        base = 16;
-      } else if (number.find("0") == 0) {
-        base = 8;
+      if constexpr (std::is_same_v<T, int> || std::is_same_v<T, long> ||
+                    std::is_same_v<T, long long>) {
+        if (number.starts_with("0x")) {
+          integerConversionBase = 16;
+        } else if (number.starts_with("0")) {
+          integerConversionBase = 8;
+        }
       }
       if constexpr (std::is_same_v<T, int>) {
-        value = std::stoi(number, &end, base);
+        value = std::stoi(number, &end, integerConversionBase);
       } else if constexpr (std::is_same_v<T, long>) {
-        value = std::stol(number, &end, base);
+        value = std::stol(number, &end, integerConversionBase);
       } else if constexpr (std::is_same_v<T, long long>) {
-        value = std::stoll(number, &end, base);
+        value = std::stoll(number, &end, integerConversionBase);
       } else if constexpr (std::is_same_v<T, float>) {
         value = std::stof(number, &end);
       } else if constexpr (std::is_same_v<T, double>) {
