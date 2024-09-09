@@ -9,7 +9,7 @@ struct String : Variant
 {
   // Constructors/Destructors
   String() : Variant(Type::string) {}
-  explicit String(std::string string) : Variant(Type::string), yNodeString(std::move(string)) {}
+  explicit String(std::string string, char quote ='"') : Variant(Type::string), yNodeString(std::move(string)), quote(quote) {}
   String(const String &other) = default;
   String &operator=(const String &other) = default;
   String(String &&other) = default;
@@ -20,8 +20,11 @@ struct String : Variant
   [[nodiscard]] const std::string &value() const { return yNodeString; }
   // Return string representation of value
   [[nodiscard]] std::string toString() const { return yNodeString; }
+  // Return string representation of value
+  [[nodiscard]] char getQuote() const { return quote; }
 
 private:
   std::string yNodeString;
+  char quote;
 };
 }// namespace YAML_Lib

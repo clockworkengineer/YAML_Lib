@@ -102,7 +102,7 @@ YNode parseString(ISource &source) {
     source.next();
     while (source.more() && source.current() != quote) {
       if (source.current() == '\\') {
-        yamlString += source.current();
+        yamlString += "\\";
         source.next();
       }
       if (source.more()) {
@@ -112,7 +112,7 @@ YNode parseString(ISource &source) {
     }
     yamlString = translateEscapes(yamlString);
     moveToNextLine(source);
-    yNode = YNode::make<String>(yamlString);
+    yNode = YNode::make<String>(yamlString, quote);
   }
   return yNode;
 }
