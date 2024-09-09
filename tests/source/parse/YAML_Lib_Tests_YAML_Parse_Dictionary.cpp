@@ -48,8 +48,9 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE(YRef<String>(YRef<Dictionary>(yaml.root()[0][0])["ray"]).value() ==
             "a drop of golden sun");
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.root()[0][0]).contains("pi"));
-    REQUIRE(YRef<Number>(YRef<Dictionary>(yaml.root()[0][0])["pi"]).value<int>() ==
-            3); // check as int to save rounding errors
+    REQUIRE(
+        YRef<Number>(YRef<Dictionary>(yaml.root()[0][0])["pi"]).value<int>() ==
+        3); // check as int to save rounding errors
   }
   SECTION("YAML Parse dictionary with one key value pair and the value is an "
           "embedded array of ints.",
@@ -68,10 +69,11 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_FALSE(!isA<Dictionary>(yaml.root()[0][0]));
     REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]["numbers"]));
   }
-  SECTION("YAML Parse dictionary with one key value pair (key has trailing space) "
-          "and validate.",
-          "[YAML][Parse][Dictionary]") {
-    BufferSource source{"---\n doe : 'a deer, a female deer'\n"};
+  SECTION(
+      "YAML Parse dictionary with one key value pair (key has trailing space) "
+      "and validate.",
+      "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n doe   : 'a deer, a female deer'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.root()[0][0]));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.root()[0][0]).contains("doe"));
@@ -84,7 +86,8 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.root()[0][0]));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.root()[0][0]).contains("outer"));
-    REQUIRE_FALSE(!YRef<Dictionary>(yaml.root()[0][0]["outer"]).contains("inner"));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.root()[0][0]["outer"]).contains("inner"));
     REQUIRE(YRef<String>(yaml.root()[0][0]["outer"]["inner"]).value() ==
             "true");
   }
@@ -133,7 +136,8 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
             "louie");
     REQUIRE(YRef<String>(yaml.root()[0][0]["calling-birds"][3]).value() ==
             "fred");
-    REQUIRE_FALSE(!YRef<Dictionary>(yaml.root()[0][0]).contains("xmas-fifth-day"));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.root()[0][0]).contains("xmas-fifth-day"));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.root()[0][0]["xmas-fifth-day"]));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.root()[0][0]["xmas-fifth-day"])
                        .contains("calling-birds"));

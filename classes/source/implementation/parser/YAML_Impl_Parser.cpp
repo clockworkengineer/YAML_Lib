@@ -41,7 +41,7 @@ std::string translateEscapes(const std::string &yamlString) {
   }
   return (translated);
 }
-bool validKey(const std::string &key) {
+bool isValidKey(const std::string &key) {
   if (!key.empty()) {
     if (!std::isalpha(key[0])) {
       return (false);
@@ -55,7 +55,25 @@ bool validKey(const std::string &key) {
   }
   return (false);
 }
-
+bool isKey(ISource &source) {
+  std::string key{};
+  while (source.more() && source.current() != ':' &&
+         source.current() != kLineFeed) {
+    key += source.current();
+    source.next();
+  }
+  if (source.current() == ':') {
+    source.backup(key.size());
+    if (!key.empty()) {
+      while (key.back() == ' ') {
+        key.pop_back();
+      }
+    }
+    return isValidKey(key);
+  }
+  source.backup(key.size());
+  return false;
+}
 std::string parseKey(ISource &source) {
   std::string key{};
   while (source.more() && source.current() != ':') {
@@ -68,7 +86,7 @@ std::string parseKey(ISource &source) {
       key.pop_back();
     }
   }
-  if (!validKey(key)) {
+  if (!isValidKey(key)) {
     throw Error("Invalid key specified");
   }
   return key;
@@ -227,9 +245,11 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
       return yNode;
     }
   }
-  yNode = parseDictionary(source, currentIndentLevel(source));
-  if (!yNode.isEmpty()) {
-    return yNode;
+  if (isKey(source)) {
+    yNode = parseDictionary(source, currentIndentLevel(source));
+    if (!yNode.isEmpty()) {
+      return yNode;
+    }
   }
   throw SyntaxError("Invalid YAML.");
 }
