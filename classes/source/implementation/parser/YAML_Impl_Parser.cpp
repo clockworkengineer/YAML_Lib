@@ -112,6 +112,18 @@ unsigned long currentIndentLevel(ISource &source) {
   return source.getPosition().second - 1;
 }
 
+YNode parseUnquotedString(ISource &source) {
+  YNode yNode;
+  std::string yamlString;
+  while (source.more() && source.current() != kLineFeed) {
+    yamlString += source.current();
+    source.next();
+  }
+  source.next();
+  yNode = YNode::make<String>(yamlString, ' ');
+  return yNode;
+}
+
 YNode parseString(ISource &source) {
   YNode yNode;
   const char quote = source.current();
@@ -250,6 +262,10 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
     if (!yNode.isEmpty()) {
       return yNode;
     }
+  }
+  yNode = parseUnquotedString(source);
+  if (!yNode.isEmpty()) {
+    return yNode;
   }
   throw SyntaxError("Invalid YAML.");
 }

@@ -36,6 +36,6 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<String>(yaml.root()[0][0]));
     REQUIRE(YAML_Lib::YRef<String>(yaml.root()[0][0]).value() ==
-            "test string.");
+            "test string. ");
   }
 }

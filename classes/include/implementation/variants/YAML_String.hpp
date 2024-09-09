@@ -25,6 +25,6 @@ struct String : Variant
 
 private:
   std::string yNodeString;
-  char quote;
+  char quote{};
 };
 }// namespace YAML_Lib
