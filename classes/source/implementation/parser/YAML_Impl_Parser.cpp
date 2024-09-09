@@ -101,8 +101,14 @@ YNode parseString(ISource &source) {
     std::string yamlString;
     source.next();
     while (source.more() && source.current() != quote) {
-      yamlString += source.current();
-      source.next();
+      if (source.current() == '\\') {
+        yamlString += source.current();
+        source.next();
+      }
+      if (source.more()) {
+        yamlString += source.current();
+        source.next();
+      }
     }
     yamlString = translateEscapes(yamlString);
     moveToNextLine(source);
