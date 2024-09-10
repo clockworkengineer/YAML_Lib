@@ -142,7 +142,9 @@ YNode parseString(ISource &source) {
         source.next();
       }
     }
-    yamlString = translateEscapes(yamlString);
+    if (quote != '\'') {
+      yamlString = translateEscapes(yamlString);
+    }
     moveToNextLine(source);
     yNode = YNode::make<String>(yamlString, quote);
   }

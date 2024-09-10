@@ -46,6 +46,14 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE(YAML_Lib::YRef<String>(yaml.root()[0][0]).value() ==
             "test string \\n. ");
   }
+    SECTION("YAML Parse an single quoted string with an escape sequence.", "[YAML][Parse][String]") {
+    BufferSource source{"---\n 'test string \\n. ' \n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE_FALSE(!isA<String>(yaml.root()[0][0]));
+    REQUIRE(YAML_Lib::YRef<String>(yaml.root()[0][0]).value() ==
+            "test string \\n. ");
+  }
     SECTION("YAML Parse an unquoted string with that terminated by EOF.", "[YAML][Parse][String]") {
     BufferSource source{"---\n test string."};
     REQUIRE_NOTHROW(yaml.parse(source));
