@@ -192,6 +192,7 @@ YNode parseBoolean(ISource &source) {
   }
   return yNode;
 }
+
 YNode parseArray(ISource &source, unsigned long indentLevel) {
   YNode yNode;
   source.next();
@@ -211,11 +212,13 @@ YNode parseArray(ISource &source, unsigned long indentLevel) {
   }
   return yNode;
 }
+
 DictionaryEntry parseKeyValue(ISource &source, unsigned long indentLevel) {
   std::string key{parseKey(source)};
   source.ignoreWS();
   return DictionaryEntry(key, parseDocument(source, indentLevel));
 }
+
 YNode parseDictionary(ISource &source, unsigned long indentLevel) {
   YNode yNode = YNode::make<Dictionary>();
   while (source.more() && std::isalpha(source.current())) {
@@ -227,6 +230,7 @@ YNode parseDictionary(ISource &source, unsigned long indentLevel) {
   }
   return (yNode);
 }
+
 YNode parseDocument(ISource &source, unsigned long indentLevel) {
   YNode yNode;
   source.ignoreWS();
