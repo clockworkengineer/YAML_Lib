@@ -1,6 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Arary]") {
+TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
   const YAML yaml;
   SECTION("YAML Parse array with one element.", "[YAML][Parse][Array]") {
     BufferSource source{"---\n   - 'One'\n"};
@@ -71,5 +71,19 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Arary]") {
     REQUIRE(YRef<Number>(yaml.root()[0][0][1][1]).value<int>() == 5);
     REQUIRE_FALSE(!isA<Number>(yaml.root()[0][0][1][2]));
     REQUIRE(YRef<Number>(yaml.root()[0][0][1][2]).value<int>() == 6);
+  }
+  SECTION("Parse Array from file and verify.",
+          "[YAML][Parse][Examples][File]") {
+    BufferSource yamlSource{YAML::fromFile(prefixPath("testfile003.yaml"))};
+    REQUIRE_NOTHROW(yaml.parse(yamlSource));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]));
+    REQUIRE(YRef<Array>(yaml.document(0)[0]).size() == 3);
+    REQUIRE(YRef<String>(yaml.document(0)[0][0]).value() == "Mark Joseph");
+    REQUIRE(YRef<String>(yaml.document(0)[0][1]).value() == "James Stephen");
+    REQUIRE(YRef<String>(yaml.document(0)[0][2]).value() == "Ken Griffey");
+    REQUIRE_FALSE(!isA<Array>(yaml.document(1)[0]));
+    REQUIRE(YRef<Array>(yaml.document(1)[0]).size() == 2);
+    REQUIRE(YRef<String>(yaml.document(1)[0][0]).value() == "Chicago Cubs");
+    REQUIRE(YRef<String>(yaml.document(1)[0][1]).value() == "St Louis Cardinals");
   }
 }
