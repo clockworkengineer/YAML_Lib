@@ -119,7 +119,9 @@ YNode parseUnquotedString(ISource &source) {
     yamlString += source.current();
     source.next();
   }
-  source.next();
+  if (source.more()) {
+    source.next();
+  }
   yNode = YNode::make<String>(yamlString, ' ');
   return yNode;
 }
