@@ -71,8 +71,21 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
                         "spans more than\n  one line\n  see?"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).value() ==
-            "test string.");
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["bar"]));
+    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]["bar"]).value() ==
+            "this is not a normal string it spans more than one line see?");
   }
+  // SECTION("YAML Parse a string block that is terminated to key value pair.",
+  //         "[YAML][Parse][String]") {
+  //   BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
+  //                       "spans more than\n  one line\n  see?\nfoo: true\n"};
+  //   REQUIRE_NOTHROW(yaml.parse(source));
+  //   REQUIRE(yaml.getNumberOfDocuments() == 1);
+  //   REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+  //   REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["bar"]));
+  //   REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]["bar"]).value() ==
+  //           "this is not a normal string it spans more than one line see?");
+  //   REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[0]["foo"]));
+  // }
 }
