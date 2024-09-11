@@ -76,16 +76,28 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]["bar"]).value() ==
             "this is not a normal string it spans more than one line see?");
   }
-  // SECTION("YAML Parse a string block that is terminated to key value pair.",
-  //         "[YAML][Parse][String]") {
-  //   BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
-  //                       "spans more than\n  one line\n  see?\nfoo: true\n"};
-  //   REQUIRE_NOTHROW(yaml.parse(source));
-  //   REQUIRE(yaml.getNumberOfDocuments() == 1);
-  //   REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
-  //   REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["bar"]));
-  //   REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]["bar"]).value() ==
-  //           "this is not a normal string it spans more than one line see?");
-  //   REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[0]["foo"]));
-  // }
+  SECTION("YAML Parse a string block that is terminated to key value pair.",
+          "[YAML][Parse][String]") {
+    BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
+                        "spans more than\n  one line\n  see?\nfoo: true\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("bar"));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("foo"));
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["bar"]));
+    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]["bar"]).value() ==
+            "this is not a normal string it spans more than one line see?");
+    REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[0]["foo"]));
+    REQUIRE_FALSE(!YRef<Boolean>(yaml.document(0)[0]["foo"]).value());
+  }
+  SECTION("YAML Parse a string block that termnates early.", "[YAML][Parse][String]") {
+    BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
+                        "spans more than\n  one line\nsee?"};
+    REQUIRE_THROWS_WITH(yaml.parse(source), "YAML Error: Invalid key 'see?' specified.");
+    // REQUIRE(yaml.getNumberOfDocuments() == 1);
+    // REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    // REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["bar"]));
+    // REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]["bar"]).value() ==
+    //         "this is not a normal string it spans more than one line see?");
+  }
 }

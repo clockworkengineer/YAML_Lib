@@ -80,14 +80,16 @@ std::string parseKey(ISource &source) {
     key += source.current();
     source.next();
   }
-  source.next();
+  if (source.more()) {
+    source.next();
+  }
   if (!key.empty()) {
     while (key.back() == ' ') {
       key.pop_back();
     }
   }
   if (!isValidKey(key)) {
-    throw Error("Invalid key specified");
+    throw Error("Invalid key '"+key+"' specified.");
   }
   return key;
 }
@@ -128,9 +130,6 @@ YNode parseBlockString(ISource &source) {
     if (indentLevel == currentIndentLevel(source)) {
       yamlString += " ";
     }
-  }
-  if (source.more()) {
-    source.next();
   }
   yNode = YNode::make<String>(yamlString, ' ');
   return yNode;
