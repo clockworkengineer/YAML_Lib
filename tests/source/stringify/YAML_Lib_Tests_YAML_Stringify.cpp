@@ -43,11 +43,11 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
   }
   SECTION("YAML Stringify document one boolean.",
           "[YAML][Stringify][Boolean]") {
-    BufferSource source{"---\ntrue"};
+    BufferSource source{"---\nTrue"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\ntrue...\n");
+    REQUIRE(destination.toString() == "---\nTrue...\n");
   }
   SECTION("YAML Stringify document dictionary key value pair.",
           "[YAML][Stringify][Dictionary]") {

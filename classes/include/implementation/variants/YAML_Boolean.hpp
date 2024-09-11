@@ -18,7 +18,7 @@ struct Boolean : Variant
   [[nodiscard]] bool &value() { return yNodeBoolean; }
   [[nodiscard]] const bool &value() const { return yNodeBoolean; }
   // Return string representation of value
-  [[nodiscard]] std::string toString() const { return yNodeBoolean ? "true" : "false"; }
+  [[nodiscard]] std::string toString() const { return yNodeBoolean ? "True" : "False"; }
 
 private:
   bool yNodeBoolean{};

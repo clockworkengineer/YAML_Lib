@@ -239,10 +239,10 @@ YNode parseNone(ISource &source) {
 
 YNode parseBoolean(ISource &source) {
   YNode yNode;
-  if (source.match("true")) {
+  if (source.match("True")) {
     moveToNextLine(source);
     yNode = YNode::make<Boolean>(true);
-  } else if (source.match("false")) {
+  } else if (source.match("False")) {
     moveToNextLine(source);
     yNode = YNode::make<Boolean>(false);
   }
@@ -290,7 +290,7 @@ YNode parseDictionary(ISource &source, unsigned long indentLevel) {
 YNode parseDocument(ISource &source, unsigned long indentLevel) {
   YNode yNode;
   source.ignoreWS();
-  if (source.current() == 't' || source.current() == 'f') {
+  if (source.current() == 'T' || source.current() == 'F') {
     yNode = parseBoolean(source);
     if (!yNode.isEmpty()) {
       return yNode;

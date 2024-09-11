@@ -79,7 +79,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
   SECTION("YAML Parse a string block that is terminated to key value pair.",
           "[YAML][Parse][String]") {
     BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
-                        "spans more than\n  one line\n  see?\nfoo: true\n"};
+                        "spans more than\n  one line\n  see?\nfoo: True\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("bar"));
@@ -111,7 +111,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
       "YAML Parse a piped string block that is terminated to key value pair.",
       "[YAML][Parse][String]") {
     BufferSource source{"---\nbar: |\n  this is not a normal string it\n  "
-                        "spans more than\n  one line\n  see?\nfoo: true\n"};
+                        "spans more than\n  one line\n  see?\nfoo: True\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("bar"));
