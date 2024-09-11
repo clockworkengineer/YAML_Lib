@@ -89,7 +89,7 @@ std::string parseKey(ISource &source) {
     }
   }
   if (!isValidKey(key)) {
-    throw Error("Invalid key '"+key+"' specified.");
+    throw Error("Invalid key '" + key + "' specified.");
   }
   return key;
 }
@@ -225,6 +225,18 @@ YNode parseNumber(ISource &source) {
   return yNode;
 }
 
+YNode parseNone(ISource &source) {
+  YNode yNode;
+  if (source.match("null")) {
+    moveToNextLine(source);
+    yNode = YNode::make<Null>();
+  } else if (source.current() == '~') {
+    moveToNextLine(source);
+    yNode = YNode::make<Null>();
+  }
+  return yNode;
+}
+
 YNode parseBoolean(ISource &source) {
   YNode yNode;
   if (source.match("true")) {
@@ -305,6 +317,12 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
   }
   if (source.current() == '-') {
     yNode = parseArray(source, currentIndentLevel(source));
+    if (!yNode.isEmpty()) {
+      return yNode;
+    }
+  }
+  if (source.current() == 'n' || source.current() == '~') {
+    yNode = parseNone(source);
     if (!yNode.isEmpty()) {
       return yNode;
     }
