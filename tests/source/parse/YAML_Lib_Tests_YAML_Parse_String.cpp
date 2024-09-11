@@ -90,7 +90,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[0]["foo"]));
     REQUIRE_FALSE(!YRef<Boolean>(yaml.document(0)[0]["foo"]).value());
   }
-  SECTION("YAML Parse a string block that termnates early.",
+  SECTION("YAML Parse a string block that terminates early.",
           "[YAML][Parse][String]") {
     BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
                         "spans more than\n  one line\nsee?"};
@@ -121,5 +121,12 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
             "this is not a normal string it\nspans more than\none line\nsee?");
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[0]["foo"]));
     REQUIRE_FALSE(!YRef<Boolean>(yaml.document(0)[0]["foo"]).value());
+  }
+  SECTION("YAML Parse a piped string block that terminates early.",
+          "[YAML][Parse][String]") {
+    BufferSource source{"---\nbar: |\n  this is not a normal string it\n  "
+                        "spans more than\n  one line\nsee?"};
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        "YAML Error: Invalid key 'see?' specified.");
   }
 }
