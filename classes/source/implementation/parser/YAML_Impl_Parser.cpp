@@ -135,6 +135,27 @@ YNode parseBlockString(ISource &source) {
   return yNode;
 }
 
+YNode parsePipedBlockString(ISource &source) {
+  YNode yNode;
+  moveToNextLine(source);
+  source.ignoreWS();
+  auto indentLevel = currentIndentLevel(source);
+  std::string yamlString;
+  while (indentLevel == currentIndentLevel(source)) {
+    while (source.more() && source.current() != kLineFeed) {
+      yamlString += source.current();
+      source.next();
+    }
+    moveToNextLine(source);
+    source.ignoreWS();
+    if (indentLevel == currentIndentLevel(source)) {
+      yamlString += kLineFeed;
+    }
+  }
+  yNode = YNode::make<String>(yamlString, ' ');
+  return yNode;
+}
+
 YNode parseUnquotedString(ISource &source) {
   YNode yNode;
   std::string yamlString;
@@ -296,6 +317,12 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
   }
   if (source.current() == '>') {
     yNode = parseBlockString(source);
+    if (!yNode.isEmpty()) {
+      return yNode;
+    }
+  }
+  if (source.current() == '|') {
+    yNode = parsePipedBlockString(source);
     if (!yNode.isEmpty()) {
       return yNode;
     }
