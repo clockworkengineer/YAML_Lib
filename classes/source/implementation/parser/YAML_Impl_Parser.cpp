@@ -96,9 +96,6 @@ std::string parseKey(ISource &source) {
 
 void moveToNextLine(ISource &source) {
   while (source.more() && source.current() != kLineFeed) {
-    if (source.current() == '#') {
-      return;
-    }
     source.next();
   }
   if (source.more()) {
