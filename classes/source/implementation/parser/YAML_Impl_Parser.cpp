@@ -249,7 +249,6 @@ YNode parseArray(ISource &source, unsigned long indentLevel) {
         return yNode;
       }
     } while (source.match("- "));
-    // moveToNextLine(source);
   } else {
     source.backup(1);
   }

@@ -2,7 +2,7 @@
 
 TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
   const YAML yaml;
-  SECTION("YAML Parse a single quoted string.", "[YAML][Parse][String]") {
+  SECTION("YAML parse a single quoted string.", "[YAML][Parse][String]") {
     BufferSource source{"---\n'test string.'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
@@ -11,7 +11,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
             "test string.");
     REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).getQuote() == '\'');
   }
-  SECTION("YAML Parse a double quoted string.", "[YAML][Parse][String]") {
+  SECTION("YAML parse a double quoted string.", "[YAML][Parse][String]") {
     BufferSource source{"---\n\"test string.\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
@@ -20,7 +20,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
             "test string.");
     REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).getQuote() == '"');
   }
-  SECTION("YAML Parse a qouted string with some escape sequences in.",
+  SECTION("YAML parse a qouted string with some escape sequences in.",
           "[YAML][Parse][String]") {
     BufferSource source{
         "---\n\"test string.\\t.\\n.\\b.\\r.\\f.\\\\.\\\".\"\n"};
@@ -30,7 +30,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).value() ==
             "test string.\t.\n.\b.\r.\f.\\.\".");
   }
-  SECTION("YAML Parse an unquoted string.", "[YAML][Parse][String]") {
+  SECTION("YAML parse an unquoted string.", "[YAML][Parse][String]") {
     BufferSource source{"---\n test string. \n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
@@ -38,7 +38,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).value() ==
             "test string. ");
   }
-  SECTION("YAML Parse an unquoted string with an escape sequence.",
+  SECTION("YAML parse an unquoted string with an escape sequence.",
           "[YAML][Parse][String]") {
     BufferSource source{"---\n test string \\n. \n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -48,7 +48,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
             "test string \\n. ");
   }
   // Single quoted strings have no escape translation
-  SECTION("YAML Parse an single quoted string with an escape sequence.",
+  SECTION("YAML parse an single quoted string with an escape sequence.",
           "[YAML][Parse][String]") {
     BufferSource source{"---\n 'test string \\n. ' \n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -57,7 +57,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).value() ==
             "test string \\n. ");
   }
-  SECTION("YAML Parse an unquoted string with that terminated by EOF.",
+  SECTION("YAML parse an unquoted string with that terminated by EOF.",
           "[YAML][Parse][String]") {
     BufferSource source{"---\n test string."};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -66,7 +66,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).value() ==
             "test string.");
   }
-  SECTION("YAML Parse a string block.", "[YAML][Parse][String]") {
+  SECTION("YAML parse a string block.", "[YAML][Parse][String]") {
     BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
                         "spans more than\n  one line\n  see?"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -76,7 +76,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]["bar"]).value() ==
             "this is not a normal string it spans more than one line see?");
   }
-  SECTION("YAML Parse a string block that is terminated to key value pair.",
+  SECTION("YAML parse a string block that is terminated to key value pair.",
           "[YAML][Parse][String]") {
     BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
                         "spans more than\n  one line\n  see?\nfoo: True\n"};
@@ -90,14 +90,14 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[0]["foo"]));
     REQUIRE_FALSE(!YRef<Boolean>(yaml.document(0)[0]["foo"]).value());
   }
-  SECTION("YAML Parse a string block that terminates early.",
+  SECTION("YAML parse a string block that terminates early.",
           "[YAML][Parse][String]") {
     BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
                         "spans more than\n  one line\nsee?"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
                         "YAML Error: Invalid key 'see?' specified.");
   }
-  SECTION("YAML Parse a piped string block.", "[YAML][Parse][String]") {
+  SECTION("YAML parse a piped string block.", "[YAML][Parse][String]") {
     BufferSource source{"---\nbar: |\n  this is not a normal string it\n  "
                         "spans more than\n  one line\n  see?\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -108,7 +108,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
             "this is not a normal string it\nspans more than\none line\nsee?");
   }
   SECTION(
-      "YAML Parse a piped string block that is terminated to key value pair.",
+      "YAML parse a piped string block that is terminated to key value pair.",
       "[YAML][Parse][String]") {
     BufferSource source{"---\nbar: |\n  this is not a normal string it\n  "
                         "spans more than\n  one line\n  see?\nfoo: True\n"};
@@ -122,7 +122,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[0]["foo"]));
     REQUIRE_FALSE(!YRef<Boolean>(yaml.document(0)[0]["foo"]).value());
   }
-  SECTION("YAML Parse a piped string block that terminates early.",
+  SECTION("YAML parse a piped string block that terminates early.",
           "[YAML][Parse][String]") {
     BufferSource source{"---\nbar: |\n  this is not a normal string it\n  "
                         "spans more than\n  one line\nsee?"};

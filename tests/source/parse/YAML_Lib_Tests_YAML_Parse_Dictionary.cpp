@@ -2,12 +2,12 @@
 
 TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
   const YAML yaml;
-  SECTION("YAML Parse dictionary with one key value pair.",
+  SECTION("YAML parse dictionary with one key value pair.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n doe: 'a deer, a female deer'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-  SECTION("YAML Parse dictionary with one key value pair and validate.",
+  SECTION("YAML parse dictionary with one key value pair and validate.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n doe: 'a deer, a female deer'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -16,13 +16,13 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE(YRef<String>(YRef<Dictionary>(yaml.document(0)[0])["doe"]).value() ==
             "a deer, a female deer");
   }
-  SECTION("YAML Parse dictionary with two key value pair.",
+  SECTION("YAML parse dictionary with two key value pair.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{
         "---\n doe: 'a deer, a female deer'\n ray: 'a drop of golden sun'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-  SECTION("YAML Parse dictionary with two key value pair and validate.",
+  SECTION("YAML parse dictionary with two key value pair and validate.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{
         "---\n doe: 'a deer, a female deer'\n ray: 'a drop of golden sun'\n"};
@@ -35,7 +35,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE(YRef<String>(YRef<Dictionary>(yaml.document(0)[0])["ray"]).value() ==
             "a drop of golden sun");
   }
-  SECTION("YAML Parse dictionary with three key value pair and validate.",
+  SECTION("YAML parse dictionary with three key value pair and validate.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n doe: 'a deer, a female deer'\n ray: 'a drop of "
                         "golden sun'\n pi: 3.14159\n"};
@@ -52,7 +52,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
         YRef<Number>(YRef<Dictionary>(yaml.document(0)[0])["pi"]).value<int>() ==
         3); // check as int to save rounding errors
   }
-  SECTION("YAML Parse dictionary with one key value pair and the value is an "
+  SECTION("YAML parse dictionary with one key value pair and the value is an "
           "embedded array of ints.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n numbers:\n   - 1\n   - 2\n   - 3\n"};
@@ -60,7 +60,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]["numbers"]));
   }
-  SECTION("YAML Parse dictionary with one key value pair and the value is an "
+  SECTION("YAML parse dictionary with one key value pair and the value is an "
           "embedded array of strings.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{
@@ -70,7 +70,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]["numbers"]));
   }
   SECTION(
-      "YAML Parse dictionary with one key value pair (key has trailing space) "
+      "YAML parse dictionary with one key value pair (key has trailing space) "
       "and validate.",
       "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n doe   : 'a deer, a female deer'\n"};
@@ -80,7 +80,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE(YRef<String>(yaml.document(0)[0]["doe"]).value() ==
             "a deer, a female deer");
   }
-  SECTION("YAML Parse dictionary with two key value pair with one nested.",
+  SECTION("YAML parse dictionary with two key value pair with one nested.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n outer:\n  inner: 'true'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -91,7 +91,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE(YRef<String>(yaml.document(0)[0]["outer"]["inner"]).value() ==
             "true");
   }
-  SECTION("YAML Parse dictionary with fhree key value pair with one nested.",
+  SECTION("YAML parse dictionary with fhree key value pair with one nested.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n outerone:\n  innerone: 'true'\n outertwo: 99\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -104,18 +104,18 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("outertwo"));
     REQUIRE(YRef<Number>(yaml.document(0)[0]["outertwo"]).value<int>() == 99);
   }
-  //   SECTION("YAML Parse dictionary with key value pair nesting on the same
+  //   SECTION("YAML parse dictionary with key value pair nesting on the same
   //   line.",
   //           "[YAML][Parse][Dictionary]") {
   //     BufferSource source{"---\n outer: inner: 'true'\n"};
   //     REQUIRE_THROWS_WITH(yaml.parse(source), "");
   //   }
-  SECTION("YAML Parse dictionary with key value pair with key starting with t.",
+  SECTION("YAML parse dictionary with key value pair with key starting with t.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n two: true\n"};
     REQUIRE_NOTHROW(yaml.parse(source), "");
   }
-  SECTION("YAML Parse dictionary with key value pair with key starting with f.",
+  SECTION("YAML parse dictionary with key value pair with key starting with f.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n four: true\n"};
     REQUIRE_NOTHROW(yaml.parse(source), "");

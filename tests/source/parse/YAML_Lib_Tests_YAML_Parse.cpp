@@ -1,52 +1,52 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YAML Parse start document.", "[YAML][Parse][Start]") {
+TEST_CASE("Check YAML parse start document.", "[YAML][Parse][Start]") {
   const YAML yaml;
-  SECTION("YAML Parse start document.", "[YAML][Parse][Start]") {
+  SECTION("YAML parse start document.", "[YAML][Parse][Start]") {
     BufferSource source{"---\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
   }
-  SECTION("YAML Parse start/end document.", "[YAML][Parse][StartEnd]") {
+  SECTION("YAML parse start/end document.", "[YAML][Parse][StartEnd]") {
     BufferSource source{"---\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
   }
-  SECTION("YAML Parse multiple start document.", "[YAML][Parse][Start]") {
+  SECTION("YAML parse multiple start document.", "[YAML][Parse][Start]") {
     BufferSource source{"---\n---\n---\n---\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 4);
   }
-  SECTION("YAML Parse multiple start/end document.",
+  SECTION("YAML parse multiple start/end document.",
           "[YAML][Parse][StartEnd]") {
     BufferSource source{"---\n---\n---\n---\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 4);
   }
-  SECTION("YAML Parse end document.", "[YAML][Parse][End]") {
+  SECTION("YAML parse end document.", "[YAML][Parse][End]") {
     BufferSource source{"...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
   }
-  SECTION("YAML Parse multiple end document.", "[YAML][Parse][End]") {
+  SECTION("YAML parse multiple end document.", "[YAML][Parse][End]") {
     BufferSource source{"...\n...\n...\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 4);
   }
-  SECTION("YAML Parse multiple document.", "[YAML][Parse][Mutliple]") {
+  SECTION("YAML parse multiple document.", "[YAML][Parse][Mutliple]") {
     BufferSource source{
         "---\n...\n---\n...\n---\n...\n---\n...\n---\n...\n---\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 6);
   }
-  SECTION("YAML Parse multiple document formatting mixed up.",
+  SECTION("YAML parse multiple document formatting mixed up.",
           "[YAML][Parse][Mutliple]") {
     BufferSource source{
         "---\n...\n---\n...\n---\n...\n...\n---\n...\n---\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 6);
   }
-  SECTION("YAML Parse document with comments before start.",
+  SECTION("YAML parse document with comments before start.",
           "[YAML][Parse][Comments]") {
     BufferSource source{"# comment 1\n---\n# comment 2\n# comment 3\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
