@@ -101,6 +101,7 @@ void moveToNextLine(ISource &source) {
   if (source.more()) {
     source.next();
   }
+  source.ignoreWS();
 }
 
 bool endOfNumber(const ISource &source) {
@@ -114,7 +115,6 @@ unsigned long currentIndentLevel(ISource &source) {
 YNode parseBlockString(ISource &source) {
   YNode yNode;
   moveToNextLine(source);
-  source.ignoreWS();
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString;
   while (indentLevel == currentIndentLevel(source)) {
@@ -123,7 +123,6 @@ YNode parseBlockString(ISource &source) {
       source.next();
     }
     moveToNextLine(source);
-    source.ignoreWS();
     if (indentLevel == currentIndentLevel(source)) {
       yamlString += " ";
     }
@@ -135,7 +134,6 @@ YNode parseBlockString(ISource &source) {
 YNode parsePipedBlockString(ISource &source) {
   YNode yNode;
   moveToNextLine(source);
-  source.ignoreWS();
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString;
   while (indentLevel == currentIndentLevel(source)) {
@@ -144,7 +142,6 @@ YNode parsePipedBlockString(ISource &source) {
       source.next();
     }
     moveToNextLine(source);
-    source.ignoreWS();
     if (indentLevel == currentIndentLevel(source)) {
       yamlString += kLineFeed;
     }
@@ -224,10 +221,7 @@ YNode parseNumber(ISource &source) {
 
 YNode parseNone(ISource &source) {
   YNode yNode;
-  if (source.match("null")) {
-    moveToNextLine(source);
-    yNode = YNode::make<Null>();
-  } else if (source.current() == '~') {
+  if (source.match("null") || source.current() == '~') {
     moveToNextLine(source);
     yNode = YNode::make<Null>();
   }
@@ -236,22 +230,11 @@ YNode parseNone(ISource &source) {
 
 YNode parseBoolean(ISource &source) {
   YNode yNode;
-  if (source.match("True")) {
+  if (source.match("True") || source.match("On") || source.match("Yes")) {
     moveToNextLine(source);
     yNode = YNode::make<Boolean>(true);
-  } else if (source.match("False")) {
-    moveToNextLine(source);
-    yNode = YNode::make<Boolean>(false);
-  } else if (source.match("On")) {
-    moveToNextLine(source);
-    yNode = YNode::make<Boolean>(true);
-  } else if (source.match("Off")) {
-    moveToNextLine(source);
-    yNode = YNode::make<Boolean>(false);
-  } else if (source.match("Yes")) {
-    moveToNextLine(source);
-    yNode = YNode::make<Boolean>(true);
-  } else if (source.match("No")) {
+  } else if (source.match("False") || source.match("Off") ||
+             source.match("No")) {
     moveToNextLine(source);
     yNode = YNode::make<Boolean>(false);
   }
