@@ -183,7 +183,6 @@ YNode parseString(ISource &source) {
     if (quote != '\'') {
       yamlString = translateEscapes(yamlString);
     }
-    moveToNextLine(source);
     yNode = YNode::make<String>(yamlString, quote);
   }
   return yNode;
@@ -211,7 +210,6 @@ YNode parseNumber(ISource &source) {
   if (Number number{string}; number.is<int>() || number.is<long>() ||
                              number.is<long long>() || number.is<float>() ||
                              number.is<double>() || number.is<long double>()) {
-    moveToNextLine(source);
     yNode = YNode::make<Number>(number);
   } else {
     source.backup(1);
@@ -222,7 +220,6 @@ YNode parseNumber(ISource &source) {
 YNode parseNone(ISource &source) {
   YNode yNode;
   if (source.match("null") || source.current() == '~') {
-    moveToNextLine(source);
     yNode = YNode::make<Null>();
   }
   return yNode;
@@ -231,11 +228,9 @@ YNode parseNone(ISource &source) {
 YNode parseBoolean(ISource &source) {
   YNode yNode;
   if (source.match("True") || source.match("On") || source.match("Yes")) {
-    moveToNextLine(source);
     yNode = YNode::make<Boolean>(true);
   } else if (source.match("False") || source.match("Off") ||
              source.match("No")) {
-    moveToNextLine(source);
     yNode = YNode::make<Boolean>(false);
   }
   return yNode;
@@ -254,7 +249,7 @@ YNode parseArray(ISource &source, unsigned long indentLevel) {
         return yNode;
       }
     } while (source.match("- "));
-    moveToNextLine(source);
+    // moveToNextLine(source);
   } else {
     source.backup(1);
   }
@@ -287,12 +282,14 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
       source.current() == 'N') {
     yNode = parseBoolean(source);
     if (!yNode.isEmpty()) {
+      moveToNextLine(source);
       return yNode;
     }
   }
   if ((source.current() == '\'') || (source.current() == '"')) {
     yNode = parseString(source);
     if (!yNode.isEmpty()) {
+      moveToNextLine(source);
       return yNode;
     }
   }
@@ -300,6 +297,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
       source.current() == '-' || source.current() == '+') {
     yNode = parseNumber(source);
     if (!yNode.isEmpty()) {
+      moveToNextLine(source);
       return yNode;
     }
   }
@@ -318,6 +316,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel) {
   if (source.current() == 'n' || source.current() == '~') {
     yNode = parseNone(source);
     if (!yNode.isEmpty()) {
+      moveToNextLine(source);
       return yNode;
     }
   }
