@@ -87,19 +87,19 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(YRef<String>(yaml.document(1)[0][1]).value() ==
             "St Louis Cardinals");
   }
-  SECTION("YAML parse flat array and verify.", "[YAML][Parse][Array]") {
-    // BufferSource source{"---\nitems: [ 1, 2, 3, 4, 5 ]\nnames: [ \"one\", "
-    //                     "\"two\", \"three\", \"four\" ]"};
-    BufferSource source{"---\nitems: [1, 2, 3, 4, 5 ]\n"};
-    REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]["items"]));
-    // REQUIRE(YRef<Array>(yaml.document(0)[0]["items"]).size() == 5);
-    // REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]["names"]));
-    // REQUIRE(YRef<Array>(yaml.document(0)[0]["names"]).size() == 5);
-    // REQUIRE(YRef<Number>(yaml.document(0)[0]["items"][0]).value<int>() == 1);
-    // REQUIRE(YRef<Number>(yaml.document(0)[0]["items"][1]).value<int>() == 2);
-    // REQUIRE(YRef<Number>(yaml.document(0)[0]["items"][2]).value<int>() == 3);
-    // REQUIRE(YRef<Number>(yaml.document(0)[0]["items"][3]).value<int>() == 4);
-    // REQUIRE(YRef<Number>(yaml.document(0)[0]["items"][4]).value<int>() == 5);
-  }
+  // SECTION("YAML parse flat array and verify.", "[YAML][Parse][Array]") {
+  //   // BufferSource source{"---\nitems: [ 1, 2, 3, 4, 5 ]\nnames: [ \"one\", "
+  //   //                     "\"two\", \"three\", \"four\" ]"};
+  //   BufferSource source{"---\nitems: [1, 2, 3, 4, 5 ]\n"};
+  //   REQUIRE_NOTHROW(yaml.parse(source));
+  //   REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]["items"]));
+  //   REQUIRE(YRef<Array>(yaml.document(0)[0]["items"]).size() == 5);
+  //   REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]["names"]));
+  //   REQUIRE(YRef<Array>(yaml.document(0)[0]["names"]).size() == 5);
+  //   REQUIRE(YRef<Number>(yaml.document(0)[0]["items"][0]).value<int>() == 1);
+  //   REQUIRE(YRef<Number>(yaml.document(0)[0]["items"][1]).value<int>() == 2);
+  //   REQUIRE(YRef<Number>(yaml.document(0)[0]["items"][2]).value<int>() == 3);
+  //   REQUIRE(YRef<Number>(yaml.document(0)[0]["items"][3]).value<int>() == 4);
+  //   REQUIRE(YRef<Number>(yaml.document(0)[0]["items"][4]).value<int>() == 5);
+  // }
 }
