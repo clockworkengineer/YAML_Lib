@@ -13,6 +13,23 @@ namespace YAML_Lib {
 
 YNode parseDocument(ISource &source, unsigned long indentation, char delimeter);
 
+void moveToNext(ISource &source, char delimeter) {
+  if (delimeter != '\0') {
+    while (source.more() && source.current() != delimeter) {
+      source.next();
+    }
+  }
+  source.ignoreWS();
+}
+
+bool endOfNumber(const ISource &source) {
+  return source.isWS() || source.current() == ',' || source.current() == ']';
+}
+
+unsigned long currentIndentLevel(ISource &source) {
+  return source.getPosition().second - 1;
+}
+
 std::string translateEscapes(const std::string &yamlString) {
   std::string translated;
   for (std::size_t idx = 0; idx < yamlString.size(); idx++) {
@@ -94,21 +111,6 @@ std::string parseKey(ISource &source) {
   return key;
 }
 
-void moveToNext(ISource &source, char delimeter) {
-  while (source.more() && source.current() != delimeter) {
-    source.next();
-  }
-  source.ignoreWS();
-}
-
-bool endOfNumber(const ISource &source) {
-  return source.isWS() || source.current() == ',' || source.current() == ']';
-}
-
-unsigned long currentIndentLevel(ISource &source) {
-  return source.getPosition().second - 1;
-}
-
 YNode parseBlockString(ISource &source, char delimeter) {
   YNode yNode;
   moveToNext(source, kLineFeed);
@@ -128,7 +130,7 @@ YNode parseBlockString(ISource &source, char delimeter) {
   return yNode;
 }
 
-YNode parsePipedBlockString(ISource &source,  char delimeter) {
+YNode parsePipedBlockString(ISource &source, char delimeter) {
   YNode yNode;
   moveToNext(source, delimeter);
   auto indentLevel = currentIndentLevel(source);
@@ -181,6 +183,7 @@ YNode parseString(ISource &source) {
       yamlString = translateEscapes(yamlString);
     }
     yNode = YNode::make<String>(yamlString, quote);
+    source.next();
   }
   return yNode;
 }
@@ -252,13 +255,39 @@ YNode parseArray(ISource &source, unsigned long indentLevel, char delimeter) {
   return yNode;
 }
 
-DictionaryEntry parseKeyValue(ISource &source, unsigned long indentLevel,char delimeter) {
+YNode parseFlatArray(ISource &source, unsigned long indentLevel,
+                     char delimeter) {
+  YNode yNodeArray = YNode::make<Array>();
+  source.next();
+  source.ignoreWS();
+  if (source.current() != ']') {
+    YRef<Array>(yNodeArray).add(parseDocument(source, indentLevel, '\0'));
+    while (source.current() == ',') {
+      source.next();
+      YRef<Array>(yNodeArray).add(parseDocument(source, indentLevel, '\0'));
+      while (source.more() && source.current() != ',' &&
+             source.current() != ']') {
+        source.next();
+      }
+    }
+  }
+  if (source.current() != ']') {
+    throw SyntaxError(source.getPosition(),
+                      "Missing closing ']' in array definition.");
+  }
+  source.next();
+  // source.ignoreWS();
+  return yNodeArray;
+}
+DictionaryEntry parseKeyValue(ISource &source, unsigned long indentLevel,
+                              char delimeter) {
   std::string key{parseKey(source)};
   source.ignoreWS();
   return DictionaryEntry(key, parseDocument(source, indentLevel, delimeter));
 }
 
-YNode parseDictionary(ISource &source, unsigned long indentLevel, char delimeter) {
+YNode parseDictionary(ISource &source, unsigned long indentLevel,
+                      char delimeter) {
   YNode yNode = YNode::make<Dictionary>();
   while (source.more() && std::isalpha(source.current())) {
     YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, delimeter));
@@ -270,7 +299,8 @@ YNode parseDictionary(ISource &source, unsigned long indentLevel, char delimeter
   return (yNode);
 }
 
-YNode parseDocument(ISource &source, unsigned long indentLevel, char delimeter) {
+YNode parseDocument(ISource &source, unsigned long indentLevel,
+                    char delimeter) {
   YNode yNode;
   source.ignoreWS();
   if (source.current() == 'T' || source.current() == 'F' ||
@@ -305,6 +335,12 @@ YNode parseDocument(ISource &source, unsigned long indentLevel, char delimeter) 
   }
   if (source.current() == '-') {
     yNode = parseArray(source, currentIndentLevel(source), delimeter);
+    if (!yNode.isEmpty()) {
+      return yNode;
+    }
+  }
+  if (source.current() == '[') {
+    yNode = parseFlatArray(source, currentIndentLevel(source), ',');
     if (!yNode.isEmpty()) {
       return yNode;
     }
@@ -365,7 +401,8 @@ void YAML_Impl::parse(ISource &source) {
         if (yamlYNodeTree.empty()) {
           yamlYNodeTree.push_back(YNode::make<Document>());
         }
-        YRef<Document>(yamlYNodeTree.back()).add(parseDocument(source, 0, kLineFeed));
+        YRef<Document>(yamlYNodeTree.back())
+            .add(parseDocument(source, 0, kLineFeed));
       }
     }
   }
