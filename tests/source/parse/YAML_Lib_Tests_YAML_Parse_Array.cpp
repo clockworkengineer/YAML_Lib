@@ -101,7 +101,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(YRef<Number>(yaml.document(0)[0]["items"][4]).value<int>() == 5);
   }
 
-  SECTION("YAML parse flat array of stings and verify.",
+  SECTION("YAML parse flat array of strings and verify.",
           "[YAML][Parse][Array]") {
     BufferSource source{"---\nnames: [\"one\", \"two\", \"three\", \"four\", \"five\" ]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -133,4 +133,18 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(YRef<String>(yaml.document(0)[0]["names"][3]).value() == "four");
     REQUIRE(YRef<String>(yaml.document(0)[0]["names"][4]).value() == "five");
   }
+
+  // SECTION("YAML parse flat array of unquoted strings and verify.",
+  //         "[YAML][Parse][Array]") {
+  //   BufferSource source{"---\nnames: [ one, two, three, four, five ]\n"};
+  //   REQUIRE_NOTHROW(yaml.parse(source));
+  //   // REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]["names"]));
+  //   // REQUIRE(YRef<Array>(yaml.document(0)[0]["names"]).size() == 5);
+  //   // REQUIRE(YRef<String>(yaml.document(0)[0]["names"][0]).value() == "one");
+  //   // REQUIRE(YRef<String>(yaml.document(0)[0]["names"][1]).value() == "two");
+  //   // REQUIRE(YRef<String>(yaml.document(0)[0]["names"][2]).value() == "three");
+  //   // REQUIRE(YRef<String>(yaml.document(0)[0]["names"][3]).value() == "four");
+  //   // REQUIRE(YRef<String>(yaml.document(0)[0]["names"][4]).value() == "five");
+  // }
+
 }

@@ -149,14 +149,17 @@ YNode parsePipedBlockString(ISource &source, char delimeter) {
   return yNode;
 }
 
-YNode parseUnquotedString(ISource &source) {
+YNode parseUnquotedString(ISource &source, char delimeter) {
   YNode yNode;
   std::string yamlString;
-  while (source.more() && source.current() != kLineFeed) {
+  if (delimeter == '\0') {
+    delimeter = ',';
+  }
+  while (source.more() && source.current() != delimeter) {
     yamlString += source.current();
     source.next();
   }
-  if (source.more()) {
+  if (source.more() && delimeter != ',') {
     source.next();
   }
   yNode = YNode::make<String>(yamlString, ' ');
@@ -270,6 +273,7 @@ YNode parseFlatArray(ISource &source, unsigned long indentLevel,
         source.next();
       }
     }
+    source.ignoreWS();
   }
   if (source.current() != ']') {
     throw SyntaxError(source.getPosition(),
@@ -404,7 +408,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
       return yNode;
     }
   }
-  yNode = parseUnquotedString(source);
+  yNode = parseUnquotedString(source, delimeter);
   if (!yNode.isEmpty()) {
     return yNode;
   }
