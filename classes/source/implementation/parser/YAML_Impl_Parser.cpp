@@ -64,7 +64,7 @@ bool isValidKey(const std::string &key) {
       return (false);
     }
     for (auto ch : key) {
-      if ((ch != '-') && !std::isalpha(ch)) {
+      if ((ch != '-') && !(std::isalpha(ch) || std::isdigit(ch))) {
         return (false);
       }
     }
@@ -276,7 +276,6 @@ YNode parseFlatArray(ISource &source, unsigned long indentLevel,
                       "Missing closing ']' in array definition.");
   }
   source.next();
-  // source.ignoreWS();
   return yNodeArray;
 }
 DictionaryEntry parseKeyValue(ISource &source, unsigned long indentLevel,
@@ -296,6 +295,35 @@ YNode parseDictionary(ISource &source, unsigned long indentLevel,
       return yNode;
     }
   }
+  return (yNode);
+}
+
+YNode parseFlatDictionary(ISource &source, unsigned long indentLevel,
+                          char delimeter) {
+  YNode yNode = YNode::make<Dictionary>();
+  source.next();
+  source.ignoreWS();
+  if (source.current() != '}') {
+    YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, '\0'));
+    while (source.more() && source.current() != ',' &&
+           source.current() != '}') {
+      source.next();
+    }
+    while (source.current() == ',') {
+      source.next();
+      source.ignoreWS();
+      YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, '\0'));
+      while (source.more() && source.current() != ',' &&
+             source.current() != '}') {
+        source.next();
+      }
+    }
+  }
+  if (source.current() != '}') {
+    throw SyntaxError(source.getPosition(),
+                      "Missing closing '}' in object definition.");
+  }
+  source.next();
   return (yNode);
 }
 
@@ -354,6 +382,12 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
   }
   if (isKey(source)) {
     yNode = parseDictionary(source, currentIndentLevel(source), delimeter);
+    if (!yNode.isEmpty()) {
+      return yNode;
+    }
+  }
+  if (source.current() == '{') {
+    yNode = parseFlatDictionary(source, currentIndentLevel(source), ',');
     if (!yNode.isEmpty()) {
       return yNode;
     }

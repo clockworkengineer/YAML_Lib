@@ -114,7 +114,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(YRef<String>(yaml.document(0)[0]["names"][4]).value() == "five");
   }
 
-  SECTION("YAML parse two flat arrays  and verify.", "[YAML][Parse][Array]") {
+  SECTION("YAML parse two flat arrays and verify.", "[YAML][Parse][Array]") {
     BufferSource source{"---\nitems: [ 1, 2, 3, 4, 5 ]\nnames: [ \"one\", "
                         "\"two\", \"three\", \"four\", \"five\" ]"};
     REQUIRE_NOTHROW(yaml.parse(source));

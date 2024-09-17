@@ -13,8 +13,9 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("doe"));
-    REQUIRE(YRef<String>(YRef<Dictionary>(yaml.document(0)[0])["doe"]).value() ==
-            "a deer, a female deer");
+    REQUIRE(
+        YRef<String>(YRef<Dictionary>(yaml.document(0)[0])["doe"]).value() ==
+        "a deer, a female deer");
   }
   SECTION("YAML parse dictionary with two key value pair.",
           "[YAML][Parse][Dictionary]") {
@@ -29,11 +30,13 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("doe"));
-    REQUIRE(YRef<String>(YRef<Dictionary>(yaml.document(0)[0])["doe"]).value() ==
-            "a deer, a female deer");
+    REQUIRE(
+        YRef<String>(YRef<Dictionary>(yaml.document(0)[0])["doe"]).value() ==
+        "a deer, a female deer");
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("ray"));
-    REQUIRE(YRef<String>(YRef<Dictionary>(yaml.document(0)[0])["ray"]).value() ==
-            "a drop of golden sun");
+    REQUIRE(
+        YRef<String>(YRef<Dictionary>(yaml.document(0)[0])["ray"]).value() ==
+        "a drop of golden sun");
   }
   SECTION("YAML parse dictionary with three key value pair and validate.",
           "[YAML][Parse][Dictionary]") {
@@ -42,15 +45,16 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("doe"));
-    REQUIRE(YRef<String>(YRef<Dictionary>(yaml.document(0)[0])["doe"]).value() ==
-            "a deer, a female deer");
-    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("ray"));
-    REQUIRE(YRef<String>(YRef<Dictionary>(yaml.document(0)[0])["ray"]).value() ==
-            "a drop of golden sun");
-    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("pi"));
     REQUIRE(
-        YRef<Number>(YRef<Dictionary>(yaml.document(0)[0])["pi"]).value<int>() ==
-        3); // check as int to save rounding errors
+        YRef<String>(YRef<Dictionary>(yaml.document(0)[0])["doe"]).value() ==
+        "a deer, a female deer");
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("ray"));
+    REQUIRE(
+        YRef<String>(YRef<Dictionary>(yaml.document(0)[0])["ray"]).value() ==
+        "a drop of golden sun");
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("pi"));
+    REQUIRE(YRef<Number>(YRef<Dictionary>(yaml.document(0)[0])["pi"])
+                .value<int>() == 3); // check as int to save rounding errors
   }
   SECTION("YAML parse dictionary with one key value pair and the value is an "
           "embedded array of ints.",
@@ -97,8 +101,8 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("outerone"));
-    REQUIRE_FALSE(
-        !YRef<Dictionary>(yaml.document(0)[0]["outerone"]).contains("innerone"));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]["outerone"])
+                       .contains("innerone"));
     REQUIRE(YRef<String>(yaml.document(0)[0]["outerone"]["innerone"]).value() ==
             "true");
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("outertwo"));
@@ -124,7 +128,8 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
           "[YAML][Parse][Examples][File]") {
     BufferSource yamlSource{YAML::fromFile(prefixPath("testfile001.yaml"))};
     REQUIRE_NOTHROW(yaml.parse(yamlSource));
-    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("french-hens"));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.document(0)[0]).contains("french-hens"));
     REQUIRE(YRef<Number>(yaml.document(0)[0]["french-hens"]).value<int>() == 3);
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]["calling-birds"]));
     REQUIRE(YRef<Array>(yaml.document(0)[0]["calling-birds"]).size() == 4);
@@ -157,12 +162,52 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
                 .value<int>() == 5);
     REQUIRE(YRef<String>(yaml.document(0)[0]["xmas-fifth-day"]["turtle-doves"])
                 .value() == "two");
-    REQUIRE(
-        YRef<Number>(yaml.document(0)[0]["xmas-fifth-day"]["partridges"]["count"])
-            .value<int>() == 1);
+    REQUIRE(YRef<Number>(
+                yaml.document(0)[0]["xmas-fifth-day"]["partridges"]["count"])
+                .value<int>() == 1);
     REQUIRE(YRef<String>(
                 yaml.document(0)[0]["xmas-fifth-day"]["partridges"]["location"])
                 .value() == "a pear tree");
   }
 
+  SECTION("YAML parse flat diction of integers and verify.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\nfoo: { thing1: 1, thing2: 2, thing3: 3 }\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("foo"));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]["foo"]));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.document(0)[0]["foo"]).contains("thing1"));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.document(0)[0]["foo"]).contains("thing2"));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.document(0)[0]["foo"]).contains("thing3"));
+    REQUIRE(YRef<Number>(yaml.document(0)[0]["foo"]["thing1"]).value<int>() ==
+            1);
+    REQUIRE(YRef<Number>(yaml.document(0)[0]["foo"]["thing2"]).value<int>() ==
+            2);
+    REQUIRE(YRef<Number>(yaml.document(0)[0]["foo"]["thing3"]).value<int>() ==
+            3);
+  }
+  SECTION("YAML parse flat diction of quoted strings and verify.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\nfoo: { thing1: \"one\", thing2: \"two\", thing3: \"three\" }\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("foo"));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]["foo"]));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.document(0)[0]["foo"]).contains("thing1"));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.document(0)[0]["foo"]).contains("thing2"));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.document(0)[0]["foo"]).contains("thing3"));
+    REQUIRE(YRef<String>(yaml.document(0)[0]["foo"]["thing1"]).value() ==
+            "one");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["foo"]["thing2"]).value() ==
+            "two");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["foo"]["thing3"]).value() ==
+            "three");
+  }
 }
