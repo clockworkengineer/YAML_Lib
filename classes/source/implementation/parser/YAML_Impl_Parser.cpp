@@ -11,12 +11,13 @@
 
 namespace YAML_Lib {
 
-YNode parseDocument(ISource &source, unsigned long indentation,
-                    const std::set<char> &delimeter);
 
-void moveToNext(ISource &source, const std::set<char> &delimeter) {
-  if (!delimeter.empty()) {
-    while (source.more() && !delimeter.contains(source.current())) {
+YNode parseDocument(ISource &source, unsigned long indentation,
+                    const std::set<char> &delimeters);
+
+void moveToNext(ISource &source, const std::set<char> &delimeters) {
+  if (!delimeters.empty()) {
+    while (source.more() && !delimeters.contains(source.current())) {
       source.next();
     }
   }
@@ -112,17 +113,17 @@ std::string parseKey(ISource &source) {
   return key;
 }
 
-YNode parseBlockString(ISource &source, const std::set<char> &delimeter) {
+YNode parseBlockString(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
   moveToNext(source, std::set<char>{kLineFeed});
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString;
   while (indentLevel == currentIndentLevel(source)) {
-    while (source.more() && !delimeter.contains(source.current())) {
+    while (source.more() && !delimeters.contains(source.current())) {
       yamlString += source.current();
       source.next();
     }
-    moveToNext(source, delimeter);
+    moveToNext(source, delimeters);
     if (indentLevel == currentIndentLevel(source)) {
       yamlString += " ";
     }
@@ -131,9 +132,9 @@ YNode parseBlockString(ISource &source, const std::set<char> &delimeter) {
   return yNode;
 }
 
-YNode parsePipedBlockString(ISource &source, const std::set<char> &delimeter) {
+YNode parsePipedBlockString(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
-  moveToNext(source, delimeter);
+  moveToNext(source, delimeters);
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString;
   while (indentLevel == currentIndentLevel(source)) {
@@ -141,7 +142,7 @@ YNode parsePipedBlockString(ISource &source, const std::set<char> &delimeter) {
       yamlString += source.current();
       source.next();
     }
-    moveToNext(source, delimeter);
+    moveToNext(source, delimeters);
     if (indentLevel == currentIndentLevel(source)) {
       yamlString += kLineFeed;
     }
@@ -150,10 +151,10 @@ YNode parsePipedBlockString(ISource &source, const std::set<char> &delimeter) {
   return yNode;
 }
 
-YNode parseUnquotedString(ISource &source, const std::set<char> &delimeter) {
+YNode parseUnquotedString(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
   std::string yamlString;
-  while (source.more() && !delimeter.contains(source.current())) {
+  while (source.more() && !delimeters.contains(source.current())) {
     yamlString += source.current();
     source.next();
   }
@@ -161,7 +162,7 @@ YNode parseUnquotedString(ISource &source, const std::set<char> &delimeter) {
   return yNode;
 }
 
-YNode parseString(ISource &source, const std::set<char> &delimeter) {
+YNode parseString(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
   const char quote = source.current();
   if (quote == '\'' || quote == '"') {
@@ -180,13 +181,13 @@ YNode parseString(ISource &source, const std::set<char> &delimeter) {
     if (quote != '\'') {
       yamlString = translateEscapes(yamlString);
     }
-    moveToNext(source, delimeter);
+    moveToNext(source, delimeters);
     yNode = YNode::make<String>(yamlString, quote);
   }
   return yNode;
 }
 
-YNode parseComment(ISource &source, const std::set<char> &delimeter) {
+YNode parseComment(ISource &source, const std::set<char> &delimeters) {
   std::string comment;
   source.next();
   while (source.more() && source.current() != kLineFeed) {
@@ -199,7 +200,7 @@ YNode parseComment(ISource &source, const std::set<char> &delimeter) {
   return (YNode::make<Comment>(comment));
 }
 
-YNode parseNumber(ISource &source, const std::set<char> &delimeter) {
+YNode parseNumber(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
   std::string string;
   for (; source.more() && !endOfNumber(source); source.next()) {
@@ -208,7 +209,7 @@ YNode parseNumber(ISource &source, const std::set<char> &delimeter) {
   if (Number number{string}; number.is<int>() || number.is<long>() ||
                              number.is<long long>() || number.is<float>() ||
                              number.is<double>() || number.is<long double>()) {
-    moveToNext(source, delimeter);
+    moveToNext(source, delimeters);
     yNode = YNode::make<Number>(number);
   } else {
     source.backup(1);
@@ -216,36 +217,36 @@ YNode parseNumber(ISource &source, const std::set<char> &delimeter) {
   return yNode;
 }
 
-YNode parseNone(ISource &source, const std::set<char> &delimeter) {
+YNode parseNone(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
   if (source.match("null") || source.current() == '~') {
-    moveToNext(source, delimeter);
+    moveToNext(source, delimeters);
     yNode = YNode::make<Null>();
   }
   return yNode;
 }
 
-YNode parseBoolean(ISource &source, const std::set<char> &delimeter) {
+YNode parseBoolean(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
   if (source.match("True") || source.match("On") || source.match("Yes")) {
     yNode = YNode::make<Boolean>(true);
   } else if (source.match("False") || source.match("Off") ||
              source.match("No")) {
-    moveToNext(source, delimeter);
+    moveToNext(source, delimeters);
     yNode = YNode::make<Boolean>(false);
   }
   return yNode;
 }
 
 YNode parseArray(ISource &source, unsigned long indentLevel,
-                 const std::set<char> &delimeter) {
+                 const std::set<char> &delimeters) {
   YNode yNode;
   source.next();
   if (source.current() == ' ') {
     source.next();
     yNode = YNode::make<Array>();
     do {
-      YRef<Array>(yNode).add(parseDocument(source, indentLevel, delimeter));
+      YRef<Array>(yNode).add(parseDocument(source, indentLevel, delimeters));
       source.ignoreWS();
       if (indentLevel > currentIndentLevel(source)) {
         return yNode;
@@ -258,7 +259,7 @@ YNode parseArray(ISource &source, unsigned long indentLevel,
 }
 
 YNode parseFlatArray(ISource &source, unsigned long indentLevel,
-                     const std::set<char> &delimeter) {
+                     const std::set<char> &delimeters) {
   YNode yNodeArray = YNode::make<Array>();
   if (source.current() != ']') {
     do {
@@ -277,17 +278,17 @@ YNode parseFlatArray(ISource &source, unsigned long indentLevel,
   return yNodeArray;
 }
 DictionaryEntry parseKeyValue(ISource &source, unsigned long indentLevel,
-                              const std::set<char> &delimeter) {
+                              const std::set<char> &delimeters) {
   std::string key{parseKey(source)};
   source.ignoreWS();
-  return DictionaryEntry(key, parseDocument(source, indentLevel, delimeter));
+  return DictionaryEntry(key, parseDocument(source, indentLevel, delimeters));
 }
 
 YNode parseDictionary(ISource &source, unsigned long indentLevel,
-                      const std::set<char> &delimeter) {
+                      const std::set<char> &delimeters) {
   YNode yNode = YNode::make<Dictionary>();
   while (source.more() && std::isalpha(source.current())) {
-    YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, delimeter));
+    YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, delimeters));
     source.ignoreWS();
     if (indentLevel > currentIndentLevel(source)) {
       return yNode;
@@ -297,7 +298,7 @@ YNode parseDictionary(ISource &source, unsigned long indentLevel,
 }
 
 YNode parseFlatDictionary(ISource &source, unsigned long indentLevel,
-                          const std::set<char> &delimeter) {
+                          const std::set<char> &delimeters) {
   YNode yNode = YNode::make<Dictionary>();
   if (source.current() != '}') {
     do {
@@ -316,38 +317,38 @@ YNode parseFlatDictionary(ISource &source, unsigned long indentLevel,
 }
 
 YNode parseDocument(ISource &source, unsigned long indentLevel,
-                    const std::set<char> &delimeter) {
+                    const std::set<char> &delimeters) {
   YNode yNode;
   source.ignoreWS();
   if (source.current() == 'T' || source.current() == 'F' ||
       source.current() == 'O' || source.current() == 'Y' ||
       source.current() == 'N') {
-    yNode = parseBoolean(source, delimeter);
+    yNode = parseBoolean(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
   if ((source.current() == '\'') || (source.current() == '"')) {
-    yNode = parseString(source, delimeter);
+    yNode = parseString(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
   if ((source.current() >= '0' && source.current() <= '9') ||
       source.current() == '-' || source.current() == '+') {
-    yNode = parseNumber(source, delimeter);
+    yNode = parseNumber(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
   if (source.current() == '#') {
-    yNode = parseComment(source, delimeter);
+    yNode = parseComment(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
   if (source.current() == '-') {
-    yNode = parseArray(source, currentIndentLevel(source), delimeter);
+    yNode = parseArray(source, currentIndentLevel(source), delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
@@ -359,13 +360,13 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
     }
   }
   if (source.current() == 'n' || source.current() == '~') {
-    yNode = parseNone(source, delimeter);
+    yNode = parseNone(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
   if (isKey(source)) {
-    yNode = parseDictionary(source, currentIndentLevel(source), delimeter);
+    yNode = parseDictionary(source, currentIndentLevel(source), delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
@@ -377,18 +378,18 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
     }
   }
   if (source.current() == '>') {
-    yNode = parseBlockString(source, delimeter);
+    yNode = parseBlockString(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
   if (source.current() == '|') {
-    yNode = parsePipedBlockString(source, delimeter);
+    yNode = parsePipedBlockString(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  yNode = parseUnquotedString(source, delimeter);
+  yNode = parseUnquotedString(source, delimeters);
   if (!yNode.isEmpty()) {
     return yNode;
   }
