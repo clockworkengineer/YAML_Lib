@@ -86,11 +86,6 @@ bool isValidKey(const std::string &key) {
 }
 bool isKey(ISource &source) {
   std::string key{extractToNext(source, {':', kLineFeed})};
-  // while (source.more() && source.current() != ':' &&
-  //        source.current() != kLineFeed) {
-  //   key += source.current();
-  //   source.next();
-  // }
   if (source.current() == ':') {
     source.backup(key.size());
     if (!key.empty()) {
@@ -120,7 +115,6 @@ std::string parseKey(ISource &source) {
 }
 
 YNode parseBlockString(ISource &source, const std::set<char> &delimeters) {
-  YNode yNode;
   moveToNext(source, {kLineFeed});
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString;
@@ -131,61 +125,52 @@ YNode parseBlockString(ISource &source, const std::set<char> &delimeters) {
       yamlString += " ";
     }
   }
-  yNode = YNode::make<String>(yamlString, ' ');
-  return yNode;
+  return YNode::make<String>(yamlString, ' ');
 }
 
 YNode parsePipedBlockString(ISource &source, const std::set<char> &delimeters) {
-  YNode yNode;
   moveToNext(source, delimeters);
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString;
   while (indentLevel == currentIndentLevel(source)) {
-    yamlString += extractToNext(source, { kLineFeed});
+    yamlString += extractToNext(source, {kLineFeed});
     moveToNext(source, delimeters);
     if (indentLevel == currentIndentLevel(source)) {
       yamlString += kLineFeed;
     }
   }
-  yNode = YNode::make<String>(yamlString, ' ');
-  return yNode;
+  return YNode::make<String>(yamlString, ' ');
 }
 
 YNode parseUnquotedString(ISource &source, const std::set<char> &delimeters) {
-  YNode yNode;
-  std::string yamlString {extractToNext(source, delimeters)};
-  yNode = YNode::make<String>(yamlString, ' ');
-  return yNode;
+  std::string yamlString{extractToNext(source, delimeters)};
+  return YNode::make<String>(yamlString, ' ');
 }
 
 YNode parseString(ISource &source, const std::set<char> &delimeters) {
-  YNode yNode;
   const char quote = source.current();
-  if (quote == '\'' || quote == '"') {
-    std::string yamlString;
-    source.next();
-    while (source.more() && source.current() != quote) {
-      if (source.current() == '\\') {
-        yamlString += "\\";
-        source.next();
-      }
-      if (source.more()) {
-        yamlString += source.current();
-        source.next();
-      }
+  std::string yamlString;
+  source.next();
+  while (source.more() && source.current() != quote) {
+    if (source.current() == '\\') {
+      yamlString += "\\";
+      source.next();
     }
-    if (quote != '\'') {
-      yamlString = translateEscapes(yamlString);
+    if (source.more()) {
+      yamlString += source.current();
+      source.next();
     }
-    moveToNext(source, delimeters);
-    yNode = YNode::make<String>(yamlString, quote);
   }
-  return yNode;
+  if (quote != '\'') {
+    yamlString = translateEscapes(yamlString);
+  }
+  moveToNext(source, delimeters);
+  return YNode::make<String>(yamlString, quote);
 }
 
 YNode parseComment(ISource &source, const std::set<char> &delimeters) {
   source.next();
-  std::string comment {extractToNext(source, {kLineFeed})};
+  std::string comment{extractToNext(source, {kLineFeed})};
   if (source.more()) {
     source.next();
   }
@@ -252,12 +237,12 @@ YNode parseArray(ISource &source, unsigned long indentLevel,
 
 YNode parseFlatArray(ISource &source, unsigned long indentLevel,
                      const std::set<char> &delimeters) {
-  YNode yNodeArray = YNode::make<Array>();
+  YNode yNode = YNode::make<Array>();
   if (source.current() != ']') {
     do {
       source.next();
       source.ignoreWS();
-      YRef<Array>(yNodeArray)
+      YRef<Array>(yNode)
           .add(parseDocument(source, indentLevel, {',', ']'}));
     } while (source.current() == ',');
     source.ignoreWS();
@@ -267,7 +252,7 @@ YNode parseFlatArray(ISource &source, unsigned long indentLevel,
                       "Missing closing ']' in array definition.");
   }
   source.next();
-  return yNodeArray;
+  return yNode;
 }
 DictionaryEntry parseKeyValue(ISource &source, unsigned long indentLevel,
                               const std::set<char> &delimeters) {
