@@ -11,7 +11,6 @@
 
 namespace YAML_Lib {
 
-
 YNode parseDocument(ISource &source, unsigned long indentation,
                     const std::set<char> &delimeters);
 
@@ -22,6 +21,17 @@ void moveToNext(ISource &source, const std::set<char> &delimeters) {
     }
   }
   source.ignoreWS();
+}
+
+std::string extractToNext(ISource &source, const std::set<char> &delimeters) {
+  std::string extracted;
+  if (!delimeters.empty()) {
+    while (source.more() && !delimeters.contains(source.current())) {
+      extracted += source.current();
+      source.next();
+    }
+  }
+  return (extracted);
 }
 
 bool endOfNumber(const ISource &source) {
@@ -75,12 +85,12 @@ bool isValidKey(const std::string &key) {
   return (false);
 }
 bool isKey(ISource &source) {
-  std::string key{};
-  while (source.more() && source.current() != ':' &&
-         source.current() != kLineFeed) {
-    key += source.current();
-    source.next();
-  }
+  std::string key{extractToNext(source, {':', kLineFeed})};
+  // while (source.more() && source.current() != ':' &&
+  //        source.current() != kLineFeed) {
+  //   key += source.current();
+  //   source.next();
+  // }
   if (source.current() == ':') {
     source.backup(key.size());
     if (!key.empty()) {
@@ -94,11 +104,7 @@ bool isKey(ISource &source) {
   return false;
 }
 std::string parseKey(ISource &source) {
-  std::string key{};
-  while (source.more() && source.current() != ':') {
-    key += source.current();
-    source.next();
-  }
+  std::string key{extractToNext(source, {':'})};
   if (source.more()) {
     source.next();
   }
@@ -115,14 +121,11 @@ std::string parseKey(ISource &source) {
 
 YNode parseBlockString(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
-  moveToNext(source, std::set<char>{kLineFeed});
+  moveToNext(source, {kLineFeed});
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString;
   while (indentLevel == currentIndentLevel(source)) {
-    while (source.more() && !delimeters.contains(source.current())) {
-      yamlString += source.current();
-      source.next();
-    }
+    yamlString += extractToNext(source, delimeters);
     moveToNext(source, delimeters);
     if (indentLevel == currentIndentLevel(source)) {
       yamlString += " ";
@@ -138,10 +141,7 @@ YNode parsePipedBlockString(ISource &source, const std::set<char> &delimeters) {
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString;
   while (indentLevel == currentIndentLevel(source)) {
-    while (source.more() && source.current() != kLineFeed) {
-      yamlString += source.current();
-      source.next();
-    }
+    yamlString += extractToNext(source, { kLineFeed});
     moveToNext(source, delimeters);
     if (indentLevel == currentIndentLevel(source)) {
       yamlString += kLineFeed;
@@ -153,11 +153,7 @@ YNode parsePipedBlockString(ISource &source, const std::set<char> &delimeters) {
 
 YNode parseUnquotedString(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
-  std::string yamlString;
-  while (source.more() && !delimeters.contains(source.current())) {
-    yamlString += source.current();
-    source.next();
-  }
+  std::string yamlString {extractToNext(source, delimeters)};
   yNode = YNode::make<String>(yamlString, ' ');
   return yNode;
 }
@@ -188,12 +184,8 @@ YNode parseString(ISource &source, const std::set<char> &delimeters) {
 }
 
 YNode parseComment(ISource &source, const std::set<char> &delimeters) {
-  std::string comment;
   source.next();
-  while (source.more() && source.current() != kLineFeed) {
-    comment += source.current();
-    source.next();
-  }
+  std::string comment {extractToNext(source, {kLineFeed})};
   if (source.more()) {
     source.next();
   }
