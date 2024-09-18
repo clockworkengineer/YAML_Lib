@@ -260,15 +260,13 @@ YNode parseArray(ISource &source, unsigned long indentLevel,
 YNode parseFlatArray(ISource &source, unsigned long indentLevel,
                      const std::set<char> &delimeter) {
   YNode yNodeArray = YNode::make<Array>();
-  source.next();
-  source.ignoreWS();
   if (source.current() != ']') {
-    YRef<Array>(yNodeArray).add(parseDocument(source, indentLevel, {',', ']'}));
-    while (source.current() == ',') {
+    do {
       source.next();
+      source.ignoreWS();
       YRef<Array>(yNodeArray)
           .add(parseDocument(source, indentLevel, {',', ']'}));
-    }
+    } while (source.current() == ',');
     source.ignoreWS();
   }
   if (source.current() != ']') {
@@ -301,16 +299,13 @@ YNode parseDictionary(ISource &source, unsigned long indentLevel,
 YNode parseFlatDictionary(ISource &source, unsigned long indentLevel,
                           const std::set<char> &delimeter) {
   YNode yNode = YNode::make<Dictionary>();
-  source.next();
-  source.ignoreWS();
   if (source.current() != '}') {
-    YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, {',', '}'}));
-    while (source.current() == ',') {
+    do {
       source.next();
       source.ignoreWS();
       YRef<Dictionary>(yNode).add(
           parseKeyValue(source, indentLevel, {',', '}'}));
-    }
+    } while (source.current() == ',');
   }
   if (source.current() != '}') {
     throw SyntaxError(source.getPosition(),
