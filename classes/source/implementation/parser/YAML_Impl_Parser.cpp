@@ -161,7 +161,7 @@ YNode parseUnquotedString(ISource &source, const std::set<char> &delimeter) {
   return yNode;
 }
 
-YNode parseString(ISource &source) {
+YNode parseString(ISource &source, const std::set<char> &delimeter) {
   YNode yNode;
   const char quote = source.current();
   if (quote == '\'' || quote == '"') {
@@ -180,8 +180,8 @@ YNode parseString(ISource &source) {
     if (quote != '\'') {
       yamlString = translateEscapes(yamlString);
     }
+    moveToNext(source, delimeter);
     yNode = YNode::make<String>(yamlString, quote);
-    source.next();
   }
   return yNode;
 }
@@ -199,7 +199,7 @@ YNode parseComment(ISource &source) {
   return (YNode::make<Comment>(comment));
 }
 
-YNode parseNumber(ISource &source) {
+YNode parseNumber(ISource &source, const std::set<char> &delimeter) {
   YNode yNode;
   std::string string;
   for (; source.more() && !endOfNumber(source); source.next()) {
@@ -208,6 +208,7 @@ YNode parseNumber(ISource &source) {
   if (Number number{string}; number.is<int>() || number.is<long>() ||
                              number.is<long long>() || number.is<float>() ||
                              number.is<double>() || number.is<long double>()) {
+      moveToNext(source, delimeter);
     yNode = YNode::make<Number>(number);
   } else {
     source.backup(1);
@@ -332,17 +333,15 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
     }
   }
   if ((source.current() == '\'') || (source.current() == '"')) {
-    yNode = parseString(source);
+    yNode = parseString(source, delimeter);
     if (!yNode.isEmpty()) {
-      moveToNext(source, delimeter);
       return yNode;
     }
   }
   if ((source.current() >= '0' && source.current() <= '9') ||
       source.current() == '-' || source.current() == '+') {
-    yNode = parseNumber(source);
+    yNode = parseNumber(source, delimeter);
     if (!yNode.isEmpty()) {
-      moveToNext(source, delimeter);
       return yNode;
     }
   }
@@ -367,7 +366,6 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
   if (source.current() == 'n' || source.current() == '~') {
     yNode = parseNone(source, delimeter);
     if (!yNode.isEmpty()) {
-      // moveToNext(source, delimeter);
       return yNode;
     }
   }
