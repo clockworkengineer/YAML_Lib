@@ -157,9 +157,6 @@ YNode parseUnquotedString(ISource &source, const std::set<char> &delimeter) {
     yamlString += source.current();
     source.next();
   }
-  // if (source.more()) {
-  //   source.next();
-  // }
   yNode = YNode::make<String>(yamlString, ' ');
   return yNode;
 }

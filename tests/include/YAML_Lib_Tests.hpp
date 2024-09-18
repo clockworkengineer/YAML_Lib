@@ -17,8 +17,9 @@ const std::string prefixPath(const std::string &yamlFileName);
 
 // Test files macro
 #define TEST_FILE_LIST(file)                                                   \
-  auto file =                                                                  \
-      GENERATE(values<std::string>({"testfile001.yaml", "testfile002.yaml",    \
-                                    "testfile003.yaml", "testfile004.yaml"}))
+  auto file = GENERATE(values<std::string>(                                    \
+      {"testfile001.yaml", "testfile002.yaml", "testfile003.yaml",             \
+       "testfile004.yaml", "testfile005.yaml", "testfile006.yaml",             \
+       "testfile007.yaml"}))
 
 using namespace YAML_Lib;
