@@ -186,7 +186,7 @@ YNode parseString(ISource &source, const std::set<char> &delimeter) {
   return yNode;
 }
 
-YNode parseComment(ISource &source) {
+YNode parseComment(ISource &source, const std::set<char> &delimeter) {
   std::string comment;
   source.next();
   while (source.more() && source.current() != kLineFeed) {
@@ -208,7 +208,7 @@ YNode parseNumber(ISource &source, const std::set<char> &delimeter) {
   if (Number number{string}; number.is<int>() || number.is<long>() ||
                              number.is<long long>() || number.is<float>() ||
                              number.is<double>() || number.is<long double>()) {
-      moveToNext(source, delimeter);
+    moveToNext(source, delimeter);
     yNode = YNode::make<Number>(number);
   } else {
     source.backup(1);
@@ -346,7 +346,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
     }
   }
   if (source.current() == '#') {
-    yNode = parseComment(source);
+    yNode = parseComment(source, delimeter);
     if (!yNode.isEmpty()) {
       return yNode;
     }
@@ -419,7 +419,7 @@ void YAML_Impl::parse(ISource &source) {
         }
         break;
       } else if (source.current() == '#' && !inDocument) {
-        yamlYNodeTree.push_back(parseComment(source));
+        yamlYNodeTree.push_back(parseComment(source, {}));
       } else {
         if (yamlYNodeTree.empty()) {
           yamlYNodeTree.push_back(YNode::make<Document>());
