@@ -11,11 +11,11 @@
 
 namespace YAML_Lib {
 
-YNode parseDocument(ISource &source, unsigned long indentation, char delimeter);
+YNode parseDocument(ISource &source, unsigned long indentation, const std::set<char> &delimeter);
 
-void moveToNext(ISource &source, char delimeter) {
-  if (delimeter != '\0') {
-    while (source.more() && source.current() != delimeter) {
+void moveToNext(ISource &source, const std::set<char> &delimeter) {
+  if (!delimeter.empty()) {
+    while (source.more() && !delimeter.contains(source.current())) {
       source.next();
     }
   }
@@ -111,13 +111,13 @@ std::string parseKey(ISource &source) {
   return key;
 }
 
-YNode parseBlockString(ISource &source, char delimeter) {
+YNode parseBlockString(ISource &source, const std::set<char> &delimeter) {
   YNode yNode;
-  moveToNext(source, kLineFeed);
+  moveToNext(source, std::set<char>{kLineFeed });
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString;
   while (indentLevel == currentIndentLevel(source)) {
-    while (source.more() && source.current() != delimeter) {
+    while (source.more() && !delimeter.contains(source.current())) {
       yamlString += source.current();
       source.next();
     }
@@ -130,7 +130,7 @@ YNode parseBlockString(ISource &source, char delimeter) {
   return yNode;
 }
 
-YNode parsePipedBlockString(ISource &source, char delimeter) {
+YNode parsePipedBlockString(ISource &source, const std::set<char> &delimeter) {
   YNode yNode;
   moveToNext(source, delimeter);
   auto indentLevel = currentIndentLevel(source);
@@ -149,19 +149,16 @@ YNode parsePipedBlockString(ISource &source, char delimeter) {
   return yNode;
 }
 
-YNode parseUnquotedString(ISource &source, char delimeter) {
+YNode parseUnquotedString(ISource &source, const std::set<char> &delimeter) {
   YNode yNode;
   std::string yamlString;
-  if (delimeter == '\0') {
-    delimeter = ',';
-  }
-  while (source.more() && source.current() != delimeter) {
+  while (source.more() && !delimeter.contains(source.current())) {
     yamlString += source.current();
     source.next();
   }
-  if (source.more() && delimeter != ',') {
-    source.next();
-  }
+  // if (source.more()) {
+  //   source.next();
+  // }
   yNode = YNode::make<String>(yamlString, ' ');
   return yNode;
 }
@@ -239,7 +236,7 @@ YNode parseBoolean(ISource &source) {
   return yNode;
 }
 
-YNode parseArray(ISource &source, unsigned long indentLevel, char delimeter) {
+YNode parseArray(ISource &source, unsigned long indentLevel, const std::set<char> &delimeter) {
   YNode yNode;
   source.next();
   if (source.current() == ' ') {
@@ -259,19 +256,19 @@ YNode parseArray(ISource &source, unsigned long indentLevel, char delimeter) {
 }
 
 YNode parseFlatArray(ISource &source, unsigned long indentLevel,
-                     char delimeter) {
+                     const std::set<char> &delimeter) {
   YNode yNodeArray = YNode::make<Array>();
   source.next();
   source.ignoreWS();
   if (source.current() != ']') {
-    YRef<Array>(yNodeArray).add(parseDocument(source, indentLevel, '\0'));
+    YRef<Array>(yNodeArray).add(parseDocument(source, indentLevel, {',',']'}));
     while (source.current() == ',') {
       source.next();
-      YRef<Array>(yNodeArray).add(parseDocument(source, indentLevel, '\0'));
-      while (source.more() && source.current() != ',' &&
-             source.current() != ']') {
-        source.next();
-      }
+      YRef<Array>(yNodeArray).add(parseDocument(source, indentLevel, {',',']'}));
+      // while (source.more() && source.current() != ',' &&
+      //        source.current() != ']') {
+      //   source.next();
+      // }
     }
     source.ignoreWS();
   }
@@ -283,14 +280,14 @@ YNode parseFlatArray(ISource &source, unsigned long indentLevel,
   return yNodeArray;
 }
 DictionaryEntry parseKeyValue(ISource &source, unsigned long indentLevel,
-                              char delimeter) {
+                              const std::set<char> &delimeter) {
   std::string key{parseKey(source)};
   source.ignoreWS();
   return DictionaryEntry(key, parseDocument(source, indentLevel, delimeter));
 }
 
 YNode parseDictionary(ISource &source, unsigned long indentLevel,
-                      char delimeter) {
+                      const std::set<char> &delimeter) {
   YNode yNode = YNode::make<Dictionary>();
   while (source.more() && std::isalpha(source.current())) {
     YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, delimeter));
@@ -303,12 +300,12 @@ YNode parseDictionary(ISource &source, unsigned long indentLevel,
 }
 
 YNode parseFlatDictionary(ISource &source, unsigned long indentLevel,
-                          char delimeter) {
+                          const std::set<char> &delimeter) {
   YNode yNode = YNode::make<Dictionary>();
   source.next();
   source.ignoreWS();
   if (source.current() != '}') {
-    YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, '\0'));
+    YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, {}));
     while (source.more() && source.current() != ',' &&
            source.current() != '}') {
       source.next();
@@ -316,7 +313,7 @@ YNode parseFlatDictionary(ISource &source, unsigned long indentLevel,
     while (source.current() == ',') {
       source.next();
       source.ignoreWS();
-      YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, '\0'));
+      YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, {}));
       while (source.more() && source.current() != ',' &&
              source.current() != '}') {
         source.next();
@@ -332,7 +329,7 @@ YNode parseFlatDictionary(ISource &source, unsigned long indentLevel,
 }
 
 YNode parseDocument(ISource &source, unsigned long indentLevel,
-                    char delimeter) {
+                    const std::set<char> &delimeter) {
   YNode yNode;
   source.ignoreWS();
   if (source.current() == 'T' || source.current() == 'F' ||
@@ -372,7 +369,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
     }
   }
   if (source.current() == '[') {
-    yNode = parseFlatArray(source, currentIndentLevel(source), ',');
+    yNode = parseFlatArray(source, currentIndentLevel(source), { ',' });
     if (!yNode.isEmpty()) {
       return yNode;
     }
@@ -391,7 +388,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
     }
   }
   if (source.current() == '{') {
-    yNode = parseFlatDictionary(source, currentIndentLevel(source), ',');
+    yNode = parseFlatDictionary(source, currentIndentLevel(source), { ',' });
     if (!yNode.isEmpty()) {
       return yNode;
     }
@@ -423,11 +420,11 @@ void YAML_Impl::parse(ISource &source) {
       // Start of document
       if (source.match("---")) {
         inDocument = true;
-        moveToNext(source, kLineFeed);
+        moveToNext(source, {kLineFeed });
         yamlYNodeTree.push_back(YNode::make<Document>());
         // End of document
       } else if (source.match("...")) {
-        moveToNext(source, kLineFeed);
+        moveToNext(source, { kLineFeed });
         inDocument = false;
         if (startNumberOfDocuments == getNumberOfDocuments()) {
           yamlYNodeTree.push_back(YNode::make<Document>());
@@ -440,7 +437,7 @@ void YAML_Impl::parse(ISource &source) {
           yamlYNodeTree.push_back(YNode::make<Document>());
         }
         YRef<Document>(yamlYNodeTree.back())
-            .add(parseDocument(source, 0, kLineFeed));
+            .add(parseDocument(source, 0, { kLineFeed} ));
       }
     }
   }
