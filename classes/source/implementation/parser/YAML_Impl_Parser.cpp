@@ -11,7 +11,8 @@
 
 namespace YAML_Lib {
 
-YNode parseDocument(ISource &source, unsigned long indentation, const std::set<char> &delimeter);
+YNode parseDocument(ISource &source, unsigned long indentation,
+                    const std::set<char> &delimeter);
 
 void moveToNext(ISource &source, const std::set<char> &delimeter) {
   if (!delimeter.empty()) {
@@ -113,7 +114,7 @@ std::string parseKey(ISource &source) {
 
 YNode parseBlockString(ISource &source, const std::set<char> &delimeter) {
   YNode yNode;
-  moveToNext(source, std::set<char>{kLineFeed });
+  moveToNext(source, std::set<char>{kLineFeed});
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString;
   while (indentLevel == currentIndentLevel(source)) {
@@ -236,7 +237,8 @@ YNode parseBoolean(ISource &source) {
   return yNode;
 }
 
-YNode parseArray(ISource &source, unsigned long indentLevel, const std::set<char> &delimeter) {
+YNode parseArray(ISource &source, unsigned long indentLevel,
+                 const std::set<char> &delimeter) {
   YNode yNode;
   source.next();
   if (source.current() == ' ') {
@@ -261,10 +263,11 @@ YNode parseFlatArray(ISource &source, unsigned long indentLevel,
   source.next();
   source.ignoreWS();
   if (source.current() != ']') {
-    YRef<Array>(yNodeArray).add(parseDocument(source, indentLevel, {',',']'}));
+    YRef<Array>(yNodeArray).add(parseDocument(source, indentLevel, {',', ']'}));
     while (source.current() == ',') {
       source.next();
-      YRef<Array>(yNodeArray).add(parseDocument(source, indentLevel, {',',']'}));
+      YRef<Array>(yNodeArray)
+          .add(parseDocument(source, indentLevel, {',', ']'}));
       // while (source.more() && source.current() != ',' &&
       //        source.current() != ']') {
       //   source.next();
@@ -305,19 +308,12 @@ YNode parseFlatDictionary(ISource &source, unsigned long indentLevel,
   source.next();
   source.ignoreWS();
   if (source.current() != '}') {
-    YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, {}));
-    while (source.more() && source.current() != ',' &&
-           source.current() != '}') {
-      source.next();
-    }
+    YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, {',', '}'}));
     while (source.current() == ',') {
       source.next();
       source.ignoreWS();
-      YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, {}));
-      while (source.more() && source.current() != ',' &&
-             source.current() != '}') {
-        source.next();
-      }
+      YRef<Dictionary>(yNode).add(
+          parseKeyValue(source, indentLevel, {',', '}'}));
     }
   }
   if (source.current() != '}') {
@@ -369,7 +365,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
     }
   }
   if (source.current() == '[') {
-    yNode = parseFlatArray(source, currentIndentLevel(source), { ',' });
+    yNode = parseFlatArray(source, currentIndentLevel(source), {','});
     if (!yNode.isEmpty()) {
       return yNode;
     }
@@ -388,7 +384,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
     }
   }
   if (source.current() == '{') {
-    yNode = parseFlatDictionary(source, currentIndentLevel(source), { ',' });
+    yNode = parseFlatDictionary(source, currentIndentLevel(source), {','});
     if (!yNode.isEmpty()) {
       return yNode;
     }
@@ -420,11 +416,11 @@ void YAML_Impl::parse(ISource &source) {
       // Start of document
       if (source.match("---")) {
         inDocument = true;
-        moveToNext(source, {kLineFeed });
+        moveToNext(source, {kLineFeed});
         yamlYNodeTree.push_back(YNode::make<Document>());
         // End of document
       } else if (source.match("...")) {
-        moveToNext(source, { kLineFeed });
+        moveToNext(source, {kLineFeed});
         inDocument = false;
         if (startNumberOfDocuments == getNumberOfDocuments()) {
           yamlYNodeTree.push_back(YNode::make<Document>());
@@ -437,7 +433,7 @@ void YAML_Impl::parse(ISource &source) {
           yamlYNodeTree.push_back(YNode::make<Document>());
         }
         YRef<Document>(yamlYNodeTree.back())
-            .add(parseDocument(source, 0, { kLineFeed} ));
+            .add(parseDocument(source, 0, {kLineFeed}));
       }
     }
   }

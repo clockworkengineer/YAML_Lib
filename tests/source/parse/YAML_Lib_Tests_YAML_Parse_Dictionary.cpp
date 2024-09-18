@@ -210,4 +210,24 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE(YRef<String>(yaml.document(0)[0]["foo"]["thing3"]).value() ==
             "three");
   }
+  SECTION("YAML parse flat dictionary of unquoted strings and verify.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\nfoo: { thing1: one, thing2: two, thing3: three}\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("foo"));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]["foo"]));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.document(0)[0]["foo"]).contains("thing1"));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.document(0)[0]["foo"]).contains("thing2"));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.document(0)[0]["foo"]).contains("thing3"));
+    REQUIRE(YRef<String>(yaml.document(0)[0]["foo"]["thing1"]).value() ==
+            "one");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["foo"]["thing2"]).value() ==
+            "two");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["foo"]["thing3"]).value() ==
+            "three");
+  }
 }
