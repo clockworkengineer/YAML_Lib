@@ -215,20 +215,22 @@ YNode parseNumber(ISource &source) {
   return yNode;
 }
 
-YNode parseNone(ISource &source) {
+YNode parseNone(ISource &source, const std::set<char> &delimeter) {
   YNode yNode;
   if (source.match("null") || source.current() == '~') {
+    moveToNext(source, delimeter);
     yNode = YNode::make<Null>();
   }
   return yNode;
 }
 
-YNode parseBoolean(ISource &source) {
+YNode parseBoolean(ISource &source, const std::set<char> &delimeter) {
   YNode yNode;
   if (source.match("True") || source.match("On") || source.match("Yes")) {
     yNode = YNode::make<Boolean>(true);
   } else if (source.match("False") || source.match("Off") ||
              source.match("No")) {
+    moveToNext(source, delimeter);
     yNode = YNode::make<Boolean>(false);
   }
   return yNode;
@@ -265,10 +267,6 @@ YNode parseFlatArray(ISource &source, unsigned long indentLevel,
       source.next();
       YRef<Array>(yNodeArray)
           .add(parseDocument(source, indentLevel, {',', ']'}));
-      // while (source.more() && source.current() != ',' &&
-      //        source.current() != ']') {
-      //   source.next();
-      // }
     }
     source.ignoreWS();
   }
@@ -328,9 +326,8 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
   if (source.current() == 'T' || source.current() == 'F' ||
       source.current() == 'O' || source.current() == 'Y' ||
       source.current() == 'N') {
-    yNode = parseBoolean(source);
+    yNode = parseBoolean(source, delimeter);
     if (!yNode.isEmpty()) {
-      moveToNext(source, delimeter);
       return yNode;
     }
   }
@@ -368,9 +365,9 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
     }
   }
   if (source.current() == 'n' || source.current() == '~') {
-    yNode = parseNone(source);
+    yNode = parseNone(source, delimeter);
     if (!yNode.isEmpty()) {
-      moveToNext(source, delimeter);
+      // moveToNext(source, delimeter);
       return yNode;
     }
   }
