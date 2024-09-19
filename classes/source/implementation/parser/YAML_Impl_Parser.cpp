@@ -76,7 +76,7 @@ bool isValidKey(const std::string &key) {
       return (false);
     }
     for (auto ch : key) {
-      if ((ch != '-') && !(std::isalpha(ch) || std::isdigit(ch))) {
+      if ((ch != '-') && !(std::isalpha(ch) || std::isdigit(ch) || ch == ' ')) {
         return (false);
       }
     }

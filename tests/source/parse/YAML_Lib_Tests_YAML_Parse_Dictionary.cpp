@@ -77,7 +77,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
       "YAML parse dictionary with one key value pair (key has trailing space) "
       "and validate.",
       "[YAML][Parse][Dictionary]") {
-    BufferSource source{"---\n doe   : 'a deer, a female deer'\n"};
+    BufferSource source{"---\ndoe   : 'a deer, a female deer'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("doe"));
@@ -192,7 +192,8 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
   }
   SECTION("YAML parse flat diction of quoted strings and verify.",
           "[YAML][Parse][Dictionary]") {
-    BufferSource source{"---\nfoo: { thing1: \"one\", thing2: \"two\", thing3: \"three\" }\n"};
+    BufferSource source{
+        "---\nfoo: { thing1: \"one\", thing2: \"two\", thing3: \"three\" }\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("foo"));
@@ -212,7 +213,8 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
   }
   SECTION("YAML parse flat dictionary of unquoted strings and verify.",
           "[YAML][Parse][Dictionary]") {
-    BufferSource source{"---\nfoo: { thing1: one, thing2: two, thing3: three}\n"};
+    BufferSource source{
+        "---\nfoo: { thing1: one, thing2: two, thing3: three}\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("foo"));
@@ -229,5 +231,16 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
             "two");
     REQUIRE(YRef<String>(yaml.document(0)[0]["foo"]["thing3"]).value() ==
             "three");
+  }
+
+  SECTION("YAML parse dictionary with space in key name.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\nMark McGwire: 55\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.document(0)[0]).contains("Mark McGwire"));
+    REQUIRE(YRef<Number>(yaml.document(0)[0]["Mark McGwire"]).value<int>() ==
+            55);
   }
 }
