@@ -47,7 +47,7 @@ struct Array : Variant
     }
   }
   // Get/Set indentation
-  unsigned long gegIndentation() { return indentation; }
+  unsigned long getIndentation() const { return indentation; }
   void setIndentation(unsigned long indentation) { this->indentation = indentation; }
 
 private:

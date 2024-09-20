@@ -71,28 +71,39 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
   }
   SECTION("YAML Parse array with one string elements and restringify.",
           "[YAML][Parse][Array]") {
-    BufferSource source{"---\n   - 'One'\n"};
+    BufferSource source{"---\n   - \"One\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\n    - \"One\"\n...\n");
+    REQUIRE(destination.toString() == "---\n   - \"One\"\n...\n");
   }
   SECTION("YAML Parse array with multiple string elements and restringify.",
           "[YAML][Parse][Array]") {
     BufferSource source{
-        "---\n   - \"One\"\n  - \"Two\"\n  - \"Three\"\n  - \"Four\"\n"};
+        "---\n  - \"One\"\n  - \"Two\"\n  - \"Three\"\n  - \"Four\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\n    - \"One\"\n    - \"Two\"\n    - \"Three\"\n    - \"Four\"\n...\n");
+    REQUIRE(destination.toString() == "---\n  - \"One\"\n  - \"Two\"\n  "
+                                      "- \"Three\"\n  - \"Four\"\n...\n");
   }
   SECTION("YAML Stringify document with comments before start.",
-  "[YAML][Stringify][Comments]") {
+          "[YAML][Stringify][Comments]") {
     BufferSource source{"# comment 1\n---\n# comment 2\n# comment 3\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE(destination.toString() == "# comment 1\n---\n# comment 2\n# comment 3\n...\n");
+    REQUIRE(destination.toString() ==
+            "# comment 1\n---\n# comment 2\n# comment 3\n...\n");
+  }
+  SECTION("YAML Stringify sequence of double quoted strings.",
+          "[YAML][Stringify][Comments]") {
+    BufferSource source{"- \"Mark McGwire\"\n- \"Sammy Sosa\"\n- \"Ken Griffey\""};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE(destination.toString() == "---\n- \"Mark McGwire\"\n- \"Sammy Sosa\"\n- \"Ken Griffey\"\n...\n");
   }
 }

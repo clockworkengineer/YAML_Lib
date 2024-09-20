@@ -34,7 +34,11 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
   } else if (isA<Array>(yNode)) {
     if (!YRef<Array>(yNode).value().empty()) {
       for (const auto &entry : YRef<Array>(yNode).value()) {
-        destination.add("    - ");
+        if (YRef<Array>(yNode).getIndentation() > 1) {
+          destination.add(
+              std::string(YRef<Array>(yNode).getIndentation() - 1, ' '));
+        }
+        destination.add("- ");
         stringifyYAML(destination, entry);
         destination.add("\n");
       }
