@@ -144,7 +144,7 @@ YNode parsePipedBlockString(ISource &source, const std::set<char> &delimeters) {
 
 YNode parseString(ISource &source, const std::set<char> &delimeters) {
   std::string yamlString{extractToNext(source, delimeters)};
-  return YNode::make<String>(yamlString, ' ');
+  return YNode::make<String>(yamlString, '\0');
 }
 
 YNode parseQuotedString(ISource &source, const std::set<char> &delimeters) {

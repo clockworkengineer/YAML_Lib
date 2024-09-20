@@ -99,20 +99,34 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
   }
   SECTION("YAML Stringify sequence of double quoted strings.",
           "[YAML][Stringify][Comments]") {
-    BufferSource source{"- \"Mark McGwire\"\n- \"Sammy Sosa\"\n- \"Ken Griffey\""};
+    BufferSource source{
+        "- \"Mark McGwire\"\n- \"Sammy Sosa\"\n- \"Ken Griffey\""};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE(destination.toString() == "---\n- \"Mark McGwire\"\n- \"Sammy Sosa\"\n- \"Ken Griffey\"\n...\n");
+    REQUIRE(
+        destination.toString() ==
+        "---\n- \"Mark McGwire\"\n- \"Sammy Sosa\"\n- \"Ken Griffey\"\n...\n");
   }
-    SECTION("YAML Stringify sequence of dsingleouble quoted strings.",
+  SECTION("YAML Stringify sequence of single quoted strings.",
           "[YAML][Stringify][Comments]") {
     BufferSource source{"- 'Mark McGwire'\n- 'Sammy Sosa'\n- 'Ken Griffey'"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE(destination.toString() == "---\n- 'Mark McGwire'\n- 'Sammy Sosa'\n- 'Ken Griffey'\n...\n");
+    REQUIRE(destination.toString() ==
+            "---\n- 'Mark McGwire'\n- 'Sammy Sosa'\n- 'Ken Griffey'\n...\n");
+  }
+ SECTION("YAML Stringify sequence of unquoted strings.",
+          "[YAML][Stringify][Comments]") {
+    BufferSource source{"- Mark McGwire\n- Sammy Sosa\n- Ken Griffey"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE(destination.toString() ==
+            "---\n- Mark McGwire\n- Sammy Sosa\n- Ken Griffey\n...\n");
   }
 }
