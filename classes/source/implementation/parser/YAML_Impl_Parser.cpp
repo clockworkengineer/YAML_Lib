@@ -235,7 +235,7 @@ YNode parseArray(ISource &source, unsigned long indentLevel,
   return yNode;
 }
 
-YNode parseFlatArray(ISource &source, unsigned long indentLevel,
+YNode parseInlineArray(ISource &source, unsigned long indentLevel,
                      const std::set<char> &delimeters) {
   YNode yNode = YNode::make<Array>();
   if (source.current() != ']') {
@@ -274,7 +274,7 @@ YNode parseDictionary(ISource &source, unsigned long indentLevel,
   return (yNode);
 }
 
-YNode parseFlatDictionary(ISource &source, unsigned long indentLevel,
+YNode parseInlineDictionary(ISource &source, unsigned long indentLevel,
                           const std::set<char> &delimeters) {
   YNode yNode = YNode::make<Dictionary>();
   if (source.current() != '}') {
@@ -331,7 +331,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
     }
   }
   if (source.current() == '[') {
-    yNode = parseFlatArray(source, currentIndentLevel(source), {','});
+    yNode = parseInlineArray(source, currentIndentLevel(source), {','});
     if (!yNode.isEmpty()) {
       return yNode;
     }
@@ -349,7 +349,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
     }
   }
   if (source.current() == '{') {
-    yNode = parseFlatDictionary(source, currentIndentLevel(source), {','});
+    yNode = parseInlineDictionary(source, currentIndentLevel(source), {','});
     if (!yNode.isEmpty()) {
       return yNode;
     }
