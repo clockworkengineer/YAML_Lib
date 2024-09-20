@@ -56,7 +56,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() ==
-            "---\ndoe: \"a deer, a female deer\"\n...\n");
+            "---\ndoe: 'a deer, a female deer'\n...\n");
   }
   SECTION("YAML Stringify document dictionary two key value pairs.",
           "[YAML][Stringify][Dictionary]") {
@@ -66,8 +66,8 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() ==
-            "---\ndoe: \"a deer, a female deer\"\nray: \"a drop of golden "
-            "sun\"\n...\n");
+            "---\ndoe: 'a deer, a female deer'\nray: 'a drop of golden "
+            "sun'\n...\n");
   }
   SECTION("YAML Parse array with one string elements and restringify.",
           "[YAML][Parse][Array]") {
@@ -105,5 +105,14 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE(destination.toString() == "---\n- \"Mark McGwire\"\n- \"Sammy Sosa\"\n- \"Ken Griffey\"\n...\n");
+  }
+    SECTION("YAML Stringify sequence of dsingleouble quoted strings.",
+          "[YAML][Stringify][Comments]") {
+    BufferSource source{"- 'Mark McGwire'\n- 'Sammy Sosa'\n- 'Ken Griffey'"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE(destination.toString() == "---\n- 'Mark McGwire'\n- 'Sammy Sosa'\n- 'Ken Griffey'\n...\n");
   }
 }

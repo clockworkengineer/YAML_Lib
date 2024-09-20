@@ -15,7 +15,7 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
   if (isA<Number>(yNode)) {
     destination.add(YRef<Number>(yNode).toString());
   } else if (isA<String>(yNode)) {
-    destination.add('"' + YRef<String>(yNode).toString() + '"');
+    destination.add(YRef<String>(yNode).getQuote() + YRef<String>(yNode).toString() + YRef<String>(yNode).getQuote());
   } else if (isA<Comment>(yNode)) {
     destination.add("#" + YRef<Comment>(yNode).value() + "\n");
   } else if (isA<Boolean>(yNode)) {
