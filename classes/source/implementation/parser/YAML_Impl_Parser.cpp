@@ -224,12 +224,16 @@ YNode parseArray(ISource &source, unsigned long indentLevel,
     yNode = YNode::make<Array>();
     YRef<Array>(yNode).setIndentation(indentLevel);
     do {
-      YRef<Array>(yNode).add(parseDocument(source, indentLevel, delimeters));
+      if (source.current() != '#') {
+        YRef<Array>(yNode).add(parseDocument(source, indentLevel, delimeters));
+      } else {
+        parseComment(source, delimeters);
+      }
       source.ignoreWS();
       if (indentLevel > currentIndentLevel(source)) {
         return yNode;
       }
-    } while (source.match("- "));
+    } while (source.match("- ") || source.current() == '#');
   } else {
     source.backup(1);
   }
@@ -264,8 +268,14 @@ DictionaryEntry parseKeyValue(ISource &source, unsigned long indentLevel,
 YNode parseDictionary(ISource &source, unsigned long indentLevel,
                       const std::set<char> &delimeters) {
   YNode yNode = YNode::make<Dictionary>();
-  while (source.more() && std::isalpha(source.current())) {
-    YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, delimeters));
+  while (source.more() &&
+         (std::isalpha(source.current()) || source.current() == '#')) {
+    if (source.current() != '#') {
+      YRef<Dictionary>(yNode).add(
+          parseKeyValue(source, indentLevel, delimeters));
+    } else {
+      parseComment(source, delimeters);
+    }
     source.ignoreWS();
     if (indentLevel > currentIndentLevel(source)) {
       return yNode;

@@ -23,6 +23,7 @@ set(TEST_SOURCES
         source/document/YAML_Lib_Tests_YAML_Document.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Array.cpp
+        source/parse/YAML_Lib_Tests_YAML_Parse_Anchors.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Dictionary.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Boolean.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Numeric.cpp
