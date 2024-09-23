@@ -196,21 +196,34 @@ YNode parseNumber(ISource &source, const std::set<char> &delimeters) {
 
 YNode parseNone(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
-  if (source.match("null") || source.current() == '~') {
-    moveToNext(source, delimeters);
-    yNode = YNode::make<Null>();
+  std::string none{extractToNext(source, {kLineFeed})};
+  int len = none.size();
+  while (none.back() == ' ') {
+    none.pop_back();
+  }
+  if (none == "null" || none == "~") {
+      yNode = YNode::make<Null>();
+    }
+  if (yNode.isEmpty()) {
+    source.backup(len);
   }
   return yNode;
 }
 
 YNode parseBoolean(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
-  if (source.match("True") || source.match("On") || source.match("Yes")) {
+  std::string boolean{extractToNext(source, {kLineFeed})};
+  int len = boolean.size();
+  while (boolean.back() == ' ') {
+    boolean.pop_back();
+  }
+  if (boolean == "True" || boolean == "On" || boolean == "Yes") {
     yNode = YNode::make<Boolean>(true);
-  } else if (source.match("False") || source.match("Off") ||
-             source.match("No")) {
-    moveToNext(source, delimeters);
+  } else if (boolean == "False" || boolean == "Off" || boolean == "No") {
     yNode = YNode::make<Boolean>(false);
+  }
+  if (yNode.isEmpty()) {
+    source.backup(len);
   }
   return yNode;
 }
