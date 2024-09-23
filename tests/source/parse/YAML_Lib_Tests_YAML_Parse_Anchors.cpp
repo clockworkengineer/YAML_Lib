@@ -8,17 +8,15 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
         "Sammy Sosa\nrbi:\n  - *SS # Subsequent occurance\n  - Ken Griffey"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
-    // REQUIRE_FALSE(!isA<Comment>(yaml.document(0)[1]));
-    // REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[2]));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("hr"));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("rbi"));
-  //   REQUIRE(YRef<String>(yaml.document(0)[0]["hr"][0]).value() ==
-  //           "Mark McGwire");
-  //   REQUIRE(YRef<String>(yaml.document(0)[0]["hr"][1]).value() ==
-  //           "&SS Sammy Sosa");
-  //   REQUIRE(YRef<String>(yaml.document(0)[0]["rbi"][0]).value() ==
-  //           "*SS ");
-  //   REQUIRE(YRef<String>(yaml.document(0)[0]["rbi"][1]).value() ==
-  //           "Ken Griffey");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["hr"][0]).value() ==
+            "Mark McGwire");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["hr"][1]).value() ==
+            "&SS Sammy Sosa");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["rbi"][0]).value() ==
+            "*SS # Subsequent occurance");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["rbi"][1]).value() ==
+            "Ken Griffey");
   }
 }
