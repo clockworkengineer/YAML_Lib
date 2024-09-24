@@ -189,7 +189,7 @@ YNode parseNumber(ISource &source, const std::set<char> &delimeters) {
     moveToNext(source, delimeters);
     yNode = YNode::make<Number>(number);
   } else {
-    source.backup(1);
+    source.backup(string.size());
   }
   return yNode;
 }
