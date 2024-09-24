@@ -202,8 +202,8 @@ YNode parseNone(ISource &source, const std::set<char> &delimeters) {
     none.pop_back();
   }
   if (none == "null" || none == "~") {
-      yNode = YNode::make<Null>();
-    }
+    yNode = YNode::make<Null>();
+  }
   if (yNode.isEmpty()) {
     source.backup(len);
   }
@@ -226,6 +226,16 @@ YNode parseBoolean(ISource &source, const std::set<char> &delimeters) {
     source.backup(len);
   }
   return yNode;
+}
+
+YNode parseAnchor(ISource &source, const std::set<char> &delimeters) {
+  source.next();
+  std::string name{extractToNext(source, {kLineFeed, ' '})};
+  source.next();
+  std::string unparsed{extractToNext(source, {kLineFeed})};
+  BufferSource anchor { unparsed};
+  YNode parsed = parseDocument(anchor, 0, delimeters);
+  return (YNode::make<Anchor>(name, unparsed, parsed));
 }
 
 YNode parseArray(ISource &source, unsigned long indentLevel,
@@ -364,6 +374,12 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
   }
   if (source.current() == '#') {
     yNode = parseComment(source, delimeters);
+    if (!yNode.isEmpty()) {
+      return yNode;
+    }
+  }
+  if (source.current() == '&') {
+    yNode = parseAnchor(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }

@@ -7,8 +7,8 @@ namespace YAML_Lib {
 struct Anchor : Variant {
   // Constructors/Destructors
   Anchor() : Variant(Type::anchor) {}
-  explicit Anchor(const std::string &name, const std::string &unparsed)
-      : Variant(Type::anchor), name(name), unparsed(unparsed)  {}
+  explicit Anchor(const std::string &name, const std::string &unparsed, YNode &parsed)
+      : Variant(Type::anchor), name(name), unparsed(unparsed), yNodeAnchor(std::move(parsed))  {}
   Anchor(const Anchor &other) = default;
   Anchor &operator=(const Anchor &other) = default;
   Anchor(Anchor &&other) = default;
