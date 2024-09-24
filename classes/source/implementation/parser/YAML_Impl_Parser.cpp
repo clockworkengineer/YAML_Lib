@@ -238,6 +238,15 @@ YNode parseAnchor(ISource &source, const std::set<char> &delimeters) {
   return (YNode::make<Anchor>(name, unparsed, parsed));
 }
 
+YNode parseAlias(ISource &source, const std::set<char> &delimeters) {
+  source.next();
+  std::string name{extractToNext(source, {kLineFeed, ' '})};
+  source.next();
+  // std::string unparsed{extractToNext(source, {kLineFeed})};
+  // BufferSource anchor{unparsed};
+  // YNode parsed = parseDocument(anchor, 0, delimeters);
+  return (YNode::make<Alias>(name));
+}
 YNode parseArray(ISource &source, unsigned long indentLevel,
                  const std::set<char> &delimeters) {
   YNode yNode;
@@ -380,6 +389,12 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
   }
   if (source.current() == '&') {
     yNode = parseAnchor(source, delimeters);
+    if (!yNode.isEmpty()) {
+      return yNode;
+    }
+  }
+  if (source.current() == '*') {
+    yNode = parseAlias(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }

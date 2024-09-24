@@ -13,11 +13,14 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
     REQUIRE(YRef<String>(yaml.document(0)[0]["hr"][0]).value() ==
             "Mark McGwire");
     REQUIRE_FALSE(!isA<Anchor>(yaml.document(0)[0]["hr"][1]));
-    REQUIRE(YRef<Anchor>(yaml.document(0)[0]["hr"][1]).toString() == "Sammy Sosa");
-    REQUIRE_FALSE(!isA<String>(YRef<Anchor>(yaml.document(0)[0]["hr"][1]).value()));
-    REQUIRE(YRef<String>(YRef<Anchor>(yaml.document(0)[0]["hr"][1]).value()).value() == "Sammy Sosa");
-    // REQUIRE(YRef<String>(yaml.document(0)[0]["rbi"][0]).value() ==
-    //         "*SS # Subsequent occurance");
+    REQUIRE(YRef<Anchor>(yaml.document(0)[0]["hr"][1]).toString() ==
+            "Sammy Sosa");
+    REQUIRE_FALSE(
+        !isA<String>(YRef<Anchor>(yaml.document(0)[0]["hr"][1]).value()));
+    REQUIRE(YRef<String>(YRef<Anchor>(yaml.document(0)[0]["hr"][1]).value())
+                .value() == "Sammy Sosa");
+    REQUIRE_FALSE(!isA<Alias>(yaml.document(0)[0]["rbi"][0]));
+    REQUIRE(YRef<Alias>(yaml.document(0)[0]["rbi"][0]).value() == "SS");
     REQUIRE(YRef<String>(yaml.document(0)[0]["rbi"][1]).value() ==
             "Ken Griffey");
   }
