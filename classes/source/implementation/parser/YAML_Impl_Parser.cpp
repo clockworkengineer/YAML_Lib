@@ -233,7 +233,7 @@ YNode parseAnchor(ISource &source, const std::set<char> &delimeters) {
   std::string name{extractToNext(source, {kLineFeed, ' '})};
   source.next();
   std::string unparsed{extractToNext(source, {kLineFeed})};
-  BufferSource anchor { unparsed};
+  BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, 0, delimeters);
   return (YNode::make<Anchor>(name, unparsed, parsed));
 }

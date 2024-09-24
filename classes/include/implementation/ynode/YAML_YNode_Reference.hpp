@@ -14,6 +14,8 @@ template <typename T> bool isA(const YNode &yNode) {
     return yNode.getVariant().getNodeType() == Variant::Type::array;
   } else if constexpr (std::is_same_v<T, Anchor>) {
     return yNode.getVariant().getNodeType() == Variant::Type::anchor;
+  } else if constexpr (std::is_same_v<T, Alias>) {
+    return yNode.getVariant().getNodeType() == Variant::Type::alias;
   } else if constexpr (std::is_same_v<T, Dictionary>) {
     return yNode.getVariant().getNodeType() == Variant::Type::dictionary;
   } else if constexpr (std::is_same_v<T, Boolean>) {
@@ -50,6 +52,10 @@ template <typename T> void checkYNode(const YNode &yNode) {
   } else if constexpr (std::is_same_v<T, Anchor>) {
     if (!isA<T>(yNode)) {
       throw YNode::Error("YNode not an anchor.");
+    }
+  } else if constexpr (std::is_same_v<T, Alias>) {
+    if (!isA<T>(yNode)) {
+      throw YNode::Error("YNode not an alias.");
     }
   } else if constexpr (std::is_same_v<T, Dictionary>) {
     if (!isA<T>(yNode)) {
