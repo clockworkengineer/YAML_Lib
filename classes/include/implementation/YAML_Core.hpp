@@ -13,8 +13,8 @@
 
 // Variants
 #include "YAML_Hole.hpp"
-#include "YAML_Anchor.hpp"
-#include "YAML_Alias.hpp"
+// #include "YAML_Anchor.hpp"
+// #include "YAML_Alias.hpp"
 #include "YAML_Array.hpp"
 #include "YAML_Boolean.hpp"
 #include "YAML_Comment.hpp"
@@ -23,6 +23,8 @@
 #include "YAML_Number.hpp"
 #include "YAML_String.hpp"
 #include "YAML_Dictionary.hpp"
+#include "YAML_Anchor.hpp"
+#include "YAML_Alias.hpp"
 
 // YNode
 #include "YAML_YNode_Reference.hpp"

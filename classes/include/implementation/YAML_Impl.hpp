@@ -58,9 +58,11 @@ public:
     throw Error("Document does not exist.");
   }
 
+  // Alias Map
+  inline static std::map<std::string, std::string> yamlAliasMap{};
+
 private:
   // YAML tree
   std::vector<YNode> yamlYNodeTree;
-
 };
 } // namespace YAML_Lib

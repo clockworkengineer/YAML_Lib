@@ -7,20 +7,22 @@ namespace YAML_Lib {
 struct Alias : Variant {
   // Constructors/Destructors
   Alias() : Variant(Type::alias) {}
-  explicit Alias(const std::string &name)
-      : Variant(Type::alias), name(name)  {}
+  explicit Alias(const std::string &name, YNode &parsed )
+      : Variant(Type::alias), name(name), yNodeAlias(std::move(parsed))  {}
   Alias(const Alias &other) = default;
   Alias &operator=(const Alias &other) = default;
   Alias(Alias &&other) = default;
   Alias &operator=(Alias &&other) = default;
   ~Alias() = default;
-  // Return reference boolean value
-  [[nodiscard]] std::string &value() { return name; }
-  [[nodiscard]] const std::string &value() const { return name; }
+  // Return parsed YNode root value
+  [[nodiscard]] YNode &value() { return yNodeAlias; }
+  [[nodiscard]] const YNode &value() const { return yNodeAlias; }
   // Return string representation of value
-  [[nodiscard]] std::string toString() const { return ""; }
-
+  [[nodiscard]] std::string toString() const { return static_cast<const String &>(yNodeAlias.getVariant()).value();;}
+  // Return string name of alias
+  [[nodiscard]] std::string getName() const { return name; }
 private:
   std::string name;
+  YNode yNodeAlias;
 };
 } // namespace YAML_Lib

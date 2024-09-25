@@ -233,6 +233,7 @@ YNode parseAnchor(ISource &source, const std::set<char> &delimeters) {
   std::string name{extractToNext(source, {kLineFeed, ' '})};
   source.next();
   std::string unparsed{extractToNext(source, {kLineFeed})};
+  YAML_Impl::yamlAliasMap[name] = unparsed;
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, 0, delimeters);
   return (YNode::make<Anchor>(name, unparsed, parsed));
@@ -242,11 +243,12 @@ YNode parseAlias(ISource &source, const std::set<char> &delimeters) {
   source.next();
   std::string name{extractToNext(source, {kLineFeed, ' '})};
   source.next();
-  // std::string unparsed{extractToNext(source, {kLineFeed})};
-  // BufferSource anchor{unparsed};
-  // YNode parsed = parseDocument(anchor, 0, delimeters);
-  return (YNode::make<Alias>(name));
+  std::string unparsed{YAML_Impl::yamlAliasMap[name]};
+  BufferSource anchor{unparsed};
+  YNode parsed = parseDocument(anchor, 0, delimeters);
+  return (YNode::make<Alias>(name, parsed));
 }
+
 YNode parseArray(ISource &source, unsigned long indentLevel,
                  const std::set<char> &delimeters) {
   YNode yNode;
