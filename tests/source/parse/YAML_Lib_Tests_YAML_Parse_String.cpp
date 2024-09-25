@@ -7,18 +7,18 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).value() ==
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
             "test string.");
-    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).getQuote() == '\'');
+    REQUIRE(YRef<String>(yaml.document(0)[0]).getQuote() == '\'');
   }
   SECTION("YAML parse a double quoted string.", "[YAML][Parse][String]") {
     BufferSource source{"---\n\"test string.\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).value() ==
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
             "test string.");
-    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).getQuote() == '"');
+    REQUIRE(YRef<String>(yaml.document(0)[0]).getQuote() == '"');
   }
   SECTION("YAML parse a qouted string with some escape sequences in.",
           "[YAML][Parse][String]") {
@@ -27,7 +27,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).value() ==
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
             "test string.\t.\n.\b.\r.\f.\\.\".");
   }
   SECTION("YAML parse an unquoted string.", "[YAML][Parse][String]") {
@@ -35,7 +35,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).value() ==
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
             "test string. ");
   }
   SECTION("YAML parse an unquoted string with an escape sequence.",
@@ -44,7 +44,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).value() ==
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
             "test string \\n. ");
   }
   // Single quoted strings have no escape translation
@@ -54,7 +54,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).value() ==
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
             "test string \\n. ");
   }
   SECTION("YAML parse an unquoted string with that terminated by EOF.",
@@ -63,7 +63,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]).value() ==
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
             "test string.");
   }
   SECTION("YAML parse a string block.", "[YAML][Parse][String]") {
@@ -73,7 +73,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["bar"]));
-    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]["bar"]).value() ==
+    REQUIRE(YRef<String>(yaml.document(0)[0]["bar"]).value() ==
             "this is not a normal string it spans more than one line see?");
   }
   SECTION("YAML parse a string block that is terminated to key value pair.",
@@ -85,7 +85,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("bar"));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("foo"));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["bar"]));
-    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]["bar"]).value() ==
+    REQUIRE(YRef<String>(yaml.document(0)[0]["bar"]).value() ==
             "this is not a normal string it spans more than one line see?");
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[0]["foo"]));
     REQUIRE_FALSE(!YRef<Boolean>(yaml.document(0)[0]["foo"]).value());
@@ -104,7 +104,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["bar"]));
-    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]["bar"]).value() ==
+    REQUIRE(YRef<String>(yaml.document(0)[0]["bar"]).value() ==
             "this is not a normal string it\nspans more than\none line\nsee?");
   }
   SECTION(
@@ -117,7 +117,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("bar"));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("foo"));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["bar"]));
-    REQUIRE(YAML_Lib::YRef<String>(yaml.document(0)[0]["bar"]).value() ==
+    REQUIRE(YRef<String>(yaml.document(0)[0]["bar"]).value() ==
             "this is not a normal string it\nspans more than\none line\nsee?");
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[0]["foo"]));
     REQUIRE_FALSE(!YRef<Boolean>(yaml.document(0)[0]["foo"]).value());
@@ -129,4 +129,15 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_THROWS_WITH(yaml.parse(source),
                         "YAML Error: Invalid key 'see?' specified.");
   }
+
+//   SECTION("YAML stringifiation of two arrays with one anchor.",
+//           "[YAML][Parse][Anchors]") {
+//     BufferSource source{
+//         "----\nhr:\n  - Mark McGwire\n  # Following node labeled SS\n  - &SS "
+//         "Sammy Sosa\nrbi:\n  - *SS # Subsequent occurance\n  - Ken Griffey"};
+//     REQUIRE_NOTHROW(yaml.parse(source));
+//     BufferDestination destination;
+//     yaml.stringify(destination);
+//     REQUIRE(destination.toString() == "");
+//   }
 }

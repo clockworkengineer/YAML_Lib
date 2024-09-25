@@ -21,6 +21,10 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
     } else {
       destination.add(YRef<String>(yNode).toString());
     }
+  } else if (isA<Anchor>(yNode)) {
+    stringifyYAML(destination, YRef<Anchor>(yNode).value());
+  } else if (isA<Alias>(yNode)) {
+    stringifyYAML(destination, YRef<Alias>(yNode).value());
   } else if (isA<Comment>(yNode)) {
     destination.add("#" + YRef<Comment>(yNode).value() + "\n");
   } else if (isA<Boolean>(yNode)) {
@@ -55,6 +59,7 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
       stringifyYAML(destination, entry);
     }
     destination.add("...\n");
+
   } else {
     throw Error("Unknown YNode type encountered during stringification.");
   }

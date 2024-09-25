@@ -7,32 +7,32 @@ TEST_CASE("Check YAML Parsing of numeric types.", "[YAML][Parse][Numeric]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.document(0)[0]).is<int>());
-    REQUIRE(YAML_Lib::YRef<Number>(yaml.document(0)[0]).value<int>() == 4567000);
+    REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<int>());
+    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<int>() == 4567000);
   }
   SECTION("YAML parse an negative integer.", "[YAML][Parse][Integer]") {
     BufferSource source{"---\n-4567000\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.document(0)[0]).is<int>());
-    REQUIRE(YAML_Lib::YRef<Number>(yaml.document(0)[0]).value<int>() == -4567000);
+    REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<int>());
+    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<int>() == -4567000);
   }
   SECTION("YAML parse an positive integer.", "[YAML][Parse][Integer]") {
     BufferSource source{"---\n+4567000\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.document(0)[0]).is<int>());
-    REQUIRE(YAML_Lib::YRef<Number>(yaml.document(0)[0]).value<int>() == 4567000);
+    REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<int>());
+    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<int>() == 4567000);
   }
   SECTION("YAML parse a floating point.", "[YAML][Parse][Integer]") {
     BufferSource source{"---\n3.1415926535\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.document(0)[0]).is<float>());
-    REQUIRE(YAML_Lib::YRef<Number>(yaml.document(0)[0]).value<float>() ==
+    REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<float>());
+    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<float>() ==
             3.141592741f);
   }
   SECTION("YAML parse a positive floating point.", "[YAML][Parse][Float]") {
@@ -40,8 +40,8 @@ TEST_CASE("Check YAML Parsing of numeric types.", "[YAML][Parse][Numeric]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.document(0)[0]).is<float>());
-    REQUIRE(YAML_Lib::YRef<Number>(yaml.document(0)[0]).value<float>() ==
+    REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<float>());
+    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<float>() ==
             3.141592741f);
   }
   SECTION("YAML parse a negative floating point.", "[YAML][Parse][Float]") {
@@ -49,8 +49,8 @@ TEST_CASE("Check YAML Parsing of numeric types.", "[YAML][Parse][Numeric]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.document(0)[0]).is<float>());
-    REQUIRE(YAML_Lib::YRef<Number>(yaml.document(0)[0]).value<float>() ==
+    REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<float>());
+    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<float>() ==
             -3.141592741f);
   }
   SECTION("YAML parse a scientific floating point.", "[YAML][Parse][Float]") {
@@ -58,8 +58,8 @@ TEST_CASE("Check YAML Parsing of numeric types.", "[YAML][Parse][Numeric]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.document(0)[0]).is<float>());
-    REQUIRE(YAML_Lib::YRef<Number>(yaml.document(0)[0]).value<float>() ==
+    REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<float>());
+    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<float>() ==
             323777002962157568.0f);
   }
   SECTION("YAML parse a small scientific floating point.",
@@ -68,7 +68,7 @@ TEST_CASE("Check YAML Parsing of numeric types.", "[YAML][Parse][Numeric]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.document(0)[0]).is<float>());
+    REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<float>());
   }
   SECTION("YAML parse a negative scientific floating point.",
           "[YAML][Parse][Float]") {
@@ -81,7 +81,7 @@ TEST_CASE("Check YAML Parsing of numeric types.", "[YAML][Parse][Numeric]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.document(0)[0]).is<float>());
+    REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<float>());
   }
   SECTION("YAML parse a small negative scientific floating point.",
           "[YAML][Parse][Float]") {
@@ -89,22 +89,22 @@ TEST_CASE("Check YAML Parsing of numeric types.", "[YAML][Parse][Numeric]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.document(0)[0]).is<float>());
+    REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<float>());
   }
   SECTION("YAML parse an hexadecimal integer.", "[YAML][Parse][Hexadecimal]") {
     BufferSource source{"---\n0x4444\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.document(0)[0]).is<int>());
-    REQUIRE(YAML_Lib::YRef<Number>(yaml.document(0)[0]).value<int>() == 0x4444);
+    REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<int>());
+    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<int>() == 0x4444);
   }
   SECTION("YAML parse an octal integer.", "[YAML][Parse][Octal]") {
     BufferSource source{"---\n04444\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!YAML_Lib::YRef<Number>(yaml.document(0)[0]).is<int>());
-    REQUIRE(YAML_Lib::YRef<Number>(yaml.document(0)[0]).value<int>() == 04444);
+    REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<int>());
+    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<int>() == 04444);
   }
 }

@@ -302,6 +302,7 @@ DictionaryEntry parseKeyValue(ISource &source, unsigned long indentLevel,
 YNode parseDictionary(ISource &source, unsigned long indentLevel,
                       const std::set<char> &delimeters) {
   YNode yNode = YNode::make<Dictionary>();
+  YRef<Dictionary>(yNode).setIndentation(indentLevel);
   while (source.more() &&
          (std::isalpha(source.current()) || source.current() == '#')) {
     if (source.current() != '#') {

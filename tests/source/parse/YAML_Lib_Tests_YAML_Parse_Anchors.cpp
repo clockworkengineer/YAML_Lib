@@ -22,7 +22,8 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
     REQUIRE_FALSE(!isA<Alias>(yaml.document(0)[0]["rbi"][0]));
     REQUIRE(YRef<String>(YRef<Alias>(yaml.document(0)[0]["rbi"][0]).value())
                 .value() == "Sammy Sosa");
-    REQUIRE(YRef<Alias>(yaml.document(0)[0]["rbi"][0]).toString() == "Sammy Sosa");
+    REQUIRE(YRef<Alias>(yaml.document(0)[0]["rbi"][0]).toString() ==
+            "Sammy Sosa");
     REQUIRE(YRef<Alias>(yaml.document(0)[0]["rbi"][0]).getName() == "SS");
     REQUIRE(YRef<String>(yaml.document(0)[0]["rbi"][1]).value() ==
             "Ken Griffey");
