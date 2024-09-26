@@ -70,7 +70,7 @@ target_include_directories(${YAML_LIBRARY_NAME} PUBLIC
 add_subdirectory(tests)
 
 # Add examples
-# add_subdirectory(examples)
+ add_subdirectory(examples)
 
 # install
 install(TARGETS ${YAML_LIBRARY_NAME} DESTINATION lib)
