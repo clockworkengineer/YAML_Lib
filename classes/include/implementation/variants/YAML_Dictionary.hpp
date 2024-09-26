@@ -69,7 +69,7 @@ struct Dictionary : Variant {
   Entries &value() { return yNodeDictionary; }
   [[nodiscard]] const Entries &value() const { return yNodeDictionary; }
   // Get/Set indentation
-  unsigned long getIndentation() { return indentation; }
+  unsigned long getIndentation() const  { return indentation; }
   void setIndentation(unsigned long indentation) { this->indentation = indentation; }
 
 private:

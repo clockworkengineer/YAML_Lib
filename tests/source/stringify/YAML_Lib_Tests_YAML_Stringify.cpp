@@ -56,7 +56,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() ==
-            "---\ndoe: 'a deer, a female deer'\n...\n");
+            "---\n doe: 'a deer, a female deer'\n...\n");
   }
   SECTION("YAML Stringify document dictionary two key value pairs.",
           "[YAML][Stringify][Dictionary]") {
@@ -66,7 +66,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() ==
-            "---\ndoe: 'a deer, a female deer'\nray: 'a drop of golden "
+            "---\n doe: 'a deer, a female deer'\n ray: 'a drop of golden "
             "sun'\n...\n");
   }
   SECTION("YAML Parse array with one string elements and restringify.",
