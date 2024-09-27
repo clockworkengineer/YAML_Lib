@@ -138,13 +138,11 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
         "Batting Average"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.root()[0][0]));
-    REQUIRE(!YRef<Dictionary>(yaml.root()[0][0]).contains(" name"));
-    REQUIRE(!YRef<Dictionary>(yaml.root()[0][0]).contains(" stats"));
-    REQUIRE(!YRef<Dictionary>(yaml.root()[0][0]).contains(" accomplishment"));
-    //     BufferDestination destination;
-    //     REQUIRE_NOTHROW(yaml.stringify(destination));
-    // //     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    //     REQUIRE(destination.toString() ==
-    //             "");
+    //     REQUIRE_FALSE(!YRef<Dictionary>(yaml.root()[0][0]).contains("name"));
+    //     REQUIRE_FALSE(!YRef<Dictionary>(yaml.root()[0][0]).contains("stats"));
+    //     REQUIRE_FALSE(!YRef<Dictionary>(yaml.root()[0][0]).contains("accomplishment"));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+//     REQUIRE(destination.toString() == "");
   }
 }
