@@ -45,7 +45,9 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
         destination.add("\n");
       }
       stringifyYAML(destination, entry.getYNode());
-      destination.add('\n');
+      if (!isA<Array>(entry.getYNode()) && !isA<Dictionary>(entry.getYNode())) {
+        destination.add("\n");
+      }
     }
   } else if (isA<Array>(yNode)) {
     if (!YRef<Array>(yNode).value().empty()) {

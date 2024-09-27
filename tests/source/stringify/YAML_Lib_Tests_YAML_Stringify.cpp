@@ -129,6 +129,16 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE(destination.toString() ==
             "---\n- Mark McGwire\n- Sammy Sosa\n- Ken Griffey\n...\n");
   }
+    SECTION("YAML Stringify nested array in dictionary.",
+          "[YAML][Stringify][Comples]") {
+    BufferSource source{
+        "---\nhr:\n  - Mark McGwire\n  - Sammy Sosa\nrbi:\n  - Sammy Sosa\n  - Ken Griffey"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.root()[0][0]));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\nhr: \n  - Mark McGwire\n  - Sammy Sosa\nrbi: \n  - Sammy Sosa\n  - Ken Griffey\n...\n");
+  }
   SECTION("YAML Stringify block/piped strings.",
           "[YAML][Stringify][Comments]") {
     BufferSource source{
