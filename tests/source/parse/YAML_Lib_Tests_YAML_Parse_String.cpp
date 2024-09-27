@@ -129,15 +129,4 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_THROWS_WITH(yaml.parse(source),
                         "YAML Error: Invalid key 'see?' specified.");
   }
-
-//   SECTION("YAML stringifiation of two arrays with one anchor.",
-//           "[YAML][Parse][Anchors]") {
-//     BufferSource source{
-//         "----\nhr:\n  - Mark McGwire\n  # Following node labeled SS\n  - &SS "
-//         "Sammy Sosa\nrbi:\n  - *SS # Subsequent occurance\n  - Ken Griffey"};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//     BufferDestination destination;
-//     yaml.stringify(destination);
-//     REQUIRE(destination.toString() == "");
-//   }
 }
