@@ -34,16 +34,16 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
   } else if (isA<Hole>(yNode)) {
     destination.add(YRef<Hole>(yNode).toString());
   } else if (isA<Dictionary>(yNode)) {
+    auto indent = YRef<Dictionary>(yNode).getIndentation();
     for (auto &entry : YRef<Dictionary>(yNode).value()) {
-      if (YRef<Dictionary>(yNode).getIndentation() > 1) {
-        destination.add(
-            std::string(YRef<Dictionary>(yNode).getIndentation() - 1, ' '));
+      if (indent > 1) {
+        destination.add(std::string(indent - 1, ' '));
       }
       destination.add(YRef<String>(entry.getKeyYNode()).toString());
       destination.add(": ");
-      if (isA<Array>(entry.getYNode())||isA<Dictionary>(entry.getYNode())){
-          destination.add("\n");  
-      } 
+      if (isA<Array>(entry.getYNode()) || isA<Dictionary>(entry.getYNode())) {
+        destination.add("\n");
+      }
       stringifyYAML(destination, entry.getYNode());
       destination.add('\n');
     }

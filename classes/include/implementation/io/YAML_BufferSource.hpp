@@ -25,15 +25,15 @@ public:
     return EOF;
   }
   void next() override {
+    if (current() == kLineFeed) {
+      lineNo++;
+      column = 1;
+    }
     if (!more()) {
       throw Error("Tried to read past and of buffer.");
     }
     bufferPosition++;
     column++;
-    if (current() == kLineFeed) {
-      lineNo++;
-      column = 1;
-    }
   }
   [[nodiscard]] bool more() const override {
     return bufferPosition < buffer.size();
@@ -45,7 +45,13 @@ public:
   }
   [[nodiscard]] std::size_t position() const override { return bufferPosition; }
 
-  void backup(const unsigned long length) override { bufferPosition -= length; column -= length;}
+  void backup(const unsigned long length) override {
+    bufferPosition -= length;
+    column -= length;
+    if (column < 0) {
+      throw Error("backup past start of buffer.");
+    }
+  }
 
 private:
   std::size_t bufferPosition = 0;

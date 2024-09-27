@@ -119,7 +119,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE(destination.toString() ==
             "---\n- 'Mark McGwire'\n- 'Sammy Sosa'\n- 'Ken Griffey'\n...\n");
   }
- SECTION("YAML Stringify sequence of unquoted strings.",
+  SECTION("YAML Stringify sequence of unquoted strings.",
           "[YAML][Stringify][Comments]") {
     BufferSource source{"- Mark McGwire\n- Sammy Sosa\n- Ken Griffey"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -128,5 +128,23 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE(destination.toString() ==
             "---\n- Mark McGwire\n- Sammy Sosa\n- Ken Griffey\n...\n");
+  }
+  SECTION("YAML Stringify block/piped strings.",
+          "[YAML][Stringify][Comments]") {
+    BufferSource source{
+        "---\nname:  Mark McGwire\naccomplishment: >\n  Mark set a major "
+        "league\n  home run record in 1998.\nstats: |\n  65 Home Runs\n  "
+        "0.278 "
+        "Batting Average"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.root()[0][0]));
+    REQUIRE(!YRef<Dictionary>(yaml.root()[0][0]).contains(" name"));
+    REQUIRE(!YRef<Dictionary>(yaml.root()[0][0]).contains(" stats"));
+    REQUIRE(!YRef<Dictionary>(yaml.root()[0][0]).contains(" accomplishment"));
+    //     BufferDestination destination;
+    //     REQUIRE_NOTHROW(yaml.stringify(destination));
+    // //     REQUIRE(yaml.getNumberOfDocuments() == 1);
+    //     REQUIRE(destination.toString() ==
+    //             "");
   }
 }
