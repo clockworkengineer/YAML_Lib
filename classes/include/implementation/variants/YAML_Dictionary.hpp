@@ -68,9 +68,9 @@ struct Dictionary : Variant {
   // Return reference to base of dictionary entries
   Entries &value() { return yNodeDictionary; }
   [[nodiscard]] const Entries &value() const { return yNodeDictionary; }
-  // Get/Set indentation
-  unsigned long getIndentation() const  { return indentation; }
-  void setIndentation(unsigned long indentation) { this->indentation = indentation; }
+  // // Get/Set indentation
+  // unsigned long getIndentation() const  { return indentation; }
+  // void setIndentation(unsigned long indentation) { this->indentation = indentation; }
 
 private:
   // Search for a given entry given a key and dictionary list
@@ -82,7 +82,7 @@ private:
   // Dictionary entries list
   Entries yNodeDictionary;
   // Array indentation
-  unsigned long indentation{};
+  // unsigned long indentation{};
 };
 
 inline Dictionary::Entries::iterator Dictionary::findKey(Entries &dictionary,

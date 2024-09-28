@@ -115,9 +115,10 @@ std::string parseKey(ISource &source) {
 }
 
 YNode parseBlockString(ISource &source, const std::set<char> &delimeters) {
+  YNode yNode;
   moveToNext(source, {kLineFeed});
   auto indentLevel = currentIndentLevel(source);
-  std::string yamlString;
+  std::string yamlString {};
   while (indentLevel == currentIndentLevel(source)) {
     yamlString += extractToNext(source, delimeters);
     moveToNext(source, delimeters);
@@ -125,10 +126,13 @@ YNode parseBlockString(ISource &source, const std::set<char> &delimeters) {
       yamlString += " ";
     }
   }
-  return YNode::make<String>(yamlString, ' ');
+  yNode = YNode::make<String>(yamlString, '>');
+  YRef<String>(yNode).setIndentation(indentLevel);
+  return yNode;
 }
 
 YNode parsePipedBlockString(ISource &source, const std::set<char> &delimeters) {
+  YNode yNode;
   moveToNext(source, delimeters);
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString;
@@ -139,7 +143,9 @@ YNode parsePipedBlockString(ISource &source, const std::set<char> &delimeters) {
       yamlString += kLineFeed;
     }
   }
-  return YNode::make<String>(yamlString, ' ');
+  yNode = YNode::make<String>(yamlString, '|');
+  YRef<String>(yNode).setIndentation(indentLevel);
+  return yNode;
 }
 
 YNode parseString(ISource &source, const std::set<char> &delimeters) {

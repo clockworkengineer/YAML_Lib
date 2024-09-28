@@ -148,11 +148,8 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
         "Batting Average"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.root()[0][0]));
-    //     REQUIRE_FALSE(!YRef<Dictionary>(yaml.root()[0][0]).contains("name"));
-    //     REQUIRE_FALSE(!YRef<Dictionary>(yaml.root()[0][0]).contains("stats"));
-    //     REQUIRE_FALSE(!YRef<Dictionary>(yaml.root()[0][0]).contains("accomplishment"));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-//     REQUIRE(destination.toString() == "");
+    REQUIRE(destination.toString() == "---\nname: Mark McGwire\naccomplishment: |\n  Mark set a major league home run record in 1998.\nstats: |\n  65 Home Runs\n  0.278 Batting Average\n...\n");
   }
 }

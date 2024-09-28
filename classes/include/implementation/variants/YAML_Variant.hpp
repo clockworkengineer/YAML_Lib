@@ -17,8 +17,12 @@ struct Variant
   [[nodiscard]] Type getNodeType() const {
     return(yNodeType);
   }
-
+  // Get/Set indentation
+  unsigned long getIndentation() const { return indentation; }
+  void setIndentation(unsigned long indentation) { this->indentation = indentation; }
 private:
   Type yNodeType;
+  // Array indentation
+  unsigned long indentation {};
 };
 }// namespace YAML_Lib
