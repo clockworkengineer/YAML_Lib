@@ -118,7 +118,7 @@ YNode parseBlockString(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
   moveToNext(source, {kLineFeed});
   auto indentLevel = currentIndentLevel(source);
-  std::string yamlString {};
+  std::string yamlString{};
   while (indentLevel == currentIndentLevel(source)) {
     yamlString += extractToNext(source, delimeters);
     moveToNext(source, delimeters);
@@ -447,7 +447,7 @@ void YAML_Impl::parse(ISource &source) {
       // Start of document
       if (source.match("---")) {
         inDocument = true;
-        moveToNext(source, {kLineFeed});
+        moveToNext(source, {kLineFeed, '|', '>'});
         yamlYNodeTree.push_back(YNode::make<Document>());
         // End of document
       } else if (source.match("...")) {
