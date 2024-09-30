@@ -439,35 +439,42 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
   throw SyntaxError("Invalid YAML.");
 }
 
-void YAML_Impl::parse(ISource &source) {
+std::vector<YNode> YAML_Impl::parseYAML(ISource &source) {
+  std::vector<YNode> yNodeTree;
   while (source.more()) {
     bool inDocument = false;
-    unsigned int startNumberOfDocuments = getNumberOfDocuments();
+    unsigned int startNumberOfDocuments=0 ,numberOfDocuments = 0;
     while (source.more()) {
       // Start of document
       if (source.match("---")) {
         inDocument = true;
         moveToNext(source, {kLineFeed, '|', '>'});
-        yamlYNodeTree.push_back(YNode::make<Document>());
+        numberOfDocuments++;
+        yNodeTree.push_back(YNode::make<Document>());
         // End of document
       } else if (source.match("...")) {
         moveToNext(source, {kLineFeed});
         inDocument = false;
-        if (startNumberOfDocuments == getNumberOfDocuments()) {
-          yamlYNodeTree.push_back(YNode::make<Document>());
+        if (startNumberOfDocuments == numberOfDocuments) {
+          numberOfDocuments++;
+          yNodeTree.push_back(YNode::make<Document>());
         }
         break;
       } else if (source.current() == '#' && !inDocument) {
-        yamlYNodeTree.push_back(parseComment(source, {}));
+        yNodeTree.push_back(parseComment(source, {}));
       } else {
-        if (yamlYNodeTree.empty()) {
-          yamlYNodeTree.push_back(YNode::make<Document>());
+        if (yNodeTree.empty()) {
+          yNodeTree.push_back(YNode::make<Document>());
         }
-        YRef<Document>(yamlYNodeTree.back())
+        YRef<Document>(yNodeTree.back())
             .add(parseDocument(source, 0, {kLineFeed}));
       }
     }
   }
+  return yNodeTree;
+}
+void YAML_Impl::parse(ISource &source) {
+  yamlYNodeTree = parseYAML(source);
 }
 
 } // namespace YAML_Lib

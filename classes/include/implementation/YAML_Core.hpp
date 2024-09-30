@@ -13,8 +13,6 @@
 
 // Variants
 #include "YAML_Hole.hpp"
-// #include "YAML_Anchor.hpp"
-// #include "YAML_Alias.hpp"
 #include "YAML_Array.hpp"
 #include "YAML_Boolean.hpp"
 #include "YAML_Comment.hpp"

@@ -62,6 +62,8 @@ public:
   inline static std::map<std::string, std::string> yamlAliasMap{};
 
 private:
+  // Parse YAML into YNode tree
+  std::vector<YNode> parseYAML(ISource &source);
   // YAML tree
   std::vector<YNode> yamlYNodeTree;
 };
