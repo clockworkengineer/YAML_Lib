@@ -442,8 +442,8 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
 std::vector<YNode> YAML_Impl::parseYAML(ISource &source) {
   std::vector<YNode> yNodeTree;
   while (source.more()) {
-    bool inDocument = false;
-    while (source.more()) {
+    // bool inDocument = false;
+    for (bool inDocument = false; source.more();) {
       // Start of document
       if (source.match("---")) {
         inDocument = true;
