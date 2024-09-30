@@ -7,8 +7,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
-            "test string.");
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "test string.");
     REQUIRE(YRef<String>(yaml.document(0)[0]).getQuote() == '\'');
   }
   SECTION("YAML parse a double quoted string.", "[YAML][Parse][String]") {
@@ -16,8 +15,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
-            "test string.");
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "test string.");
     REQUIRE(YRef<String>(yaml.document(0)[0]).getQuote() == '"');
   }
   SECTION("YAML parse a qouted string with some escape sequences in.",
@@ -35,8 +33,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
-            "test string. ");
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "test string. ");
   }
   SECTION("YAML parse an unquoted string with an escape sequence.",
           "[YAML][Parse][String]") {
@@ -44,8 +41,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
-            "test string \\n. ");
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "test string \\n. ");
   }
   // Single quoted strings have no escape translation
   SECTION("YAML parse an single quoted string with an escape sequence.",
@@ -54,8 +50,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
-            "test string \\n. ");
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "test string \\n. ");
   }
   SECTION("YAML parse an unquoted string with that terminated by EOF.",
           "[YAML][Parse][String]") {
@@ -63,8 +58,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
-            "test string.");
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "test string.");
   }
   SECTION("YAML parse a string block.", "[YAML][Parse][String]") {
     BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
@@ -128,5 +122,19 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
                         "spans more than\n  one line\nsee?"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
                         "YAML Error: Invalid key 'see?' specified.");
+  }
+// ====================================================
+// INCORRECT BEHAVIOUR - SHOULD BE ONE COMBINBED STRING
+// ====================================================     
+  SECTION("YAML parse a plain string block.", "[YAML][Parse][String]") {
+    BufferSource source{
+        "---\n  Mark McGwire\'s\n  year was crippled\n  by a knee injury."};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "Mark McGwire\'s");
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)[1]));
+    REQUIRE(YRef<String>(yaml.document(0)[1]).value() == "year was crippled");
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)[2]));
+    REQUIRE(YRef<String>(yaml.document(0)[2]).value() == "by a knee injury.");
   }
 }

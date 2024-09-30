@@ -147,4 +147,30 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(YRef<String>(yaml.document(0)[0]["names"][4]).value() == "five");
   }
 
+  SECTION("YAML parse flat array of booleans and verify.",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\nnames: [ True, False, False, False, True]\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]["names"]));
+    REQUIRE(YRef<Array>(yaml.document(0)[0]["names"]).size() == 5);
+    REQUIRE(YRef<Boolean>(yaml.document(0)[0]["names"][0]).value() == true);
+    REQUIRE(YRef<Boolean>(yaml.document(0)[0]["names"][1]).value() == false);
+    REQUIRE(YRef<Boolean>(yaml.document(0)[0]["names"][2]).value() == false);
+    REQUIRE(YRef<Boolean>(yaml.document(0)[0]["names"][3]).value() == false);
+    REQUIRE(YRef<Boolean>(yaml.document(0)[0]["names"][4]).value() == true);
+  }
+
+  SECTION("YAML parse flat array of null and verify.",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\nnames: [ ~, ~, none, none, none]\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]["names"]));
+    REQUIRE(YRef<Array>(yaml.document(0)[0]["names"]).size() == 5);
+    REQUIRE_FALSE(!isA<Null>(yaml.document(0)[0]["names"][0]));
+    REQUIRE_FALSE(!isA<Null>(yaml.document(0)[0]["names"][0]));
+    REQUIRE_FALSE(!isA<Null>(yaml.document(0)[0]["names"][0]));
+    REQUIRE_FALSE(!isA<Null>(yaml.document(0)[0]["names"][0]));
+    REQUIRE_FALSE(!isA<Null>(yaml.document(0)[0]["names"][0]));
+  }
+
 }

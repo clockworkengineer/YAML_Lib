@@ -202,7 +202,7 @@ YNode parseNumber(ISource &source, const std::set<char> &delimeters) {
 
 YNode parseNone(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
-  std::string none{extractToNext(source, {kLineFeed})};
+  std::string none{extractToNext(source, delimeters)};
   int len = none.size();
   while (none.back() == ' ') {
     none.pop_back();
@@ -218,7 +218,7 @@ YNode parseNone(ISource &source, const std::set<char> &delimeters) {
 
 YNode parseBoolean(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
-  std::string boolean{extractToNext(source, {kLineFeed})};
+  std::string boolean{extractToNext(source, delimeters)};
   int len = boolean.size();
   while (boolean.back() == ' ') {
     boolean.pop_back();
