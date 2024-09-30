@@ -443,22 +443,19 @@ std::vector<YNode> YAML_Impl::parseYAML(ISource &source) {
   std::vector<YNode> yNodeTree;
   while (source.more()) {
     bool inDocument = false;
-    unsigned int startNumberOfDocuments=0 ,numberOfDocuments = 0;
     while (source.more()) {
       // Start of document
       if (source.match("---")) {
         inDocument = true;
         moveToNext(source, {kLineFeed, '|', '>'});
-        numberOfDocuments++;
         yNodeTree.push_back(YNode::make<Document>());
         // End of document
       } else if (source.match("...")) {
         moveToNext(source, {kLineFeed});
-        inDocument = false;
-        if (startNumberOfDocuments == numberOfDocuments) {
-          numberOfDocuments++;
+        if (!inDocument) {
           yNodeTree.push_back(YNode::make<Document>());
         }
+        inDocument = false;
         break;
       } else if (source.current() == '#' && !inDocument) {
         yNodeTree.push_back(parseComment(source, {}));
@@ -473,8 +470,6 @@ std::vector<YNode> YAML_Impl::parseYAML(ISource &source) {
   }
   return yNodeTree;
 }
-void YAML_Impl::parse(ISource &source) {
-  yamlYNodeTree = parseYAML(source);
-}
+void YAML_Impl::parse(ISource &source) { yamlYNodeTree = parseYAML(source); }
 
 } // namespace YAML_Lib
