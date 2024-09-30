@@ -458,7 +458,7 @@ std::vector<YNode> YAML_Impl::parseYAML(ISource &source) {
         break;
       } else if (source.current() == '#' && !inDocument) {
         yNodeTree.push_back(parseComment(source, {}));
-      } else {
+      } else { 
         if (yNodeTree.empty()) {
           yNodeTree.push_back(YNode::make<Document>());
         }
