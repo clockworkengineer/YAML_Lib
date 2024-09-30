@@ -22,7 +22,7 @@ set(YAML_LIBRARY_NAME ${PROJECT_NAME})
 set(YAML_SOURCES
   ./classes/source/YAML.cpp
   ./classes/source/implementation/YAML_Impl.cpp
-  ./classes/source/implementation/parser/YAML_Impl_Parser.cpp
+  ./classes/source/implementation/parser/YAML_Parser.cpp
   ./classes/source/implementation/stringify/YAML_Impl_Stringify.cpp
 )
 
@@ -32,11 +32,12 @@ set(YAML_INCLUDES
   ./classes/include/YAML.hpp
   ./classes/include/interface/ISource.hpp
   ./classes/include/interface/IDestination.hpp
+  ./classes/include/interface/IParser.hpp
   ./classes/include/interface/YAML_Interfaces.hpp
   ./classes/include/implementation/common/YAML_Error.hpp
   ./classes/include/implementation/io/YAML_Sources.hpp
   ./classes/include/implementation/io/YAML_Destinations.hpp
-  ./classes/include/implementation/variants/YAML_Variant.hpp
+  ./classes/include/implementation/parser/YAML_Parser.hpp
   ./classes/include/implementation/variants/YAML_Hole.hpp
   ./classes/include/implementation/variants/YAML_Array.hpp
   ./classes/include/implementation/variants/YAML_Boolean.hpp
@@ -61,6 +62,7 @@ target_include_directories(${YAML_LIBRARY_NAME} PUBLIC
   ${PROJECT_SOURCE_DIR}/classes/include/implementation
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/common
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/io
+  ${PROJECT_SOURCE_DIR}/classes/include/implementation/parser
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/variants
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/ynode
   ${PROJECT_SOURCE_DIR}/classes/include/interface

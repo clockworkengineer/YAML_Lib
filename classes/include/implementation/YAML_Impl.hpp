@@ -3,6 +3,7 @@
 
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
+#include "YAML_Parser.hpp"
 
 namespace YAML_Lib {
 
@@ -28,7 +29,7 @@ public:
     return numberOfDocuments;
   }
   // Parse YAML into YNode tree
-  void parse(ISource &source);
+  void parse(ISource &source) { yamlYNodeTree = parser.parse(source); }
   // Create YAML text string (no white space) from YNode tree
   void stringify(IDestination &destination) const;
   // Get root of JSON tree
@@ -58,12 +59,9 @@ public:
     throw Error("Document does not exist.");
   }
 
-  // Alias Map
-  inline static std::map<std::string, std::string> yamlAliasMap{};
-
 private:
-  // Parse YAML into YNode tree
-  std::vector<YNode> parseYAML(ISource &source);
+  // YAML Parser
+  YAML_Parser parser;
   // YAML tree
   std::vector<YNode> yamlYNodeTree;
 };

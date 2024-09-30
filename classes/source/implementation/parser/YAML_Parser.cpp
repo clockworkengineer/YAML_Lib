@@ -239,7 +239,7 @@ YNode parseAnchor(ISource &source, const std::set<char> &delimeters) {
   std::string name{extractToNext(source, {kLineFeed, ' '})};
   source.next();
   std::string unparsed{extractToNext(source, {kLineFeed})};
-  YAML_Impl::yamlAliasMap[name] = unparsed;
+  YAML_Parser::yamlAliasMap[name] = unparsed;
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, 0, delimeters);
   return (YNode::make<Anchor>(name, unparsed, parsed));
@@ -249,7 +249,7 @@ YNode parseAlias(ISource &source, const std::set<char> &delimeters) {
   source.next();
   std::string name{extractToNext(source, {kLineFeed, ' '})};
   source.next();
-  std::string unparsed{YAML_Impl::yamlAliasMap[name]};
+  std::string unparsed{YAML_Parser::yamlAliasMap[name]};
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, 0, delimeters);
   return (YNode::make<Alias>(name, parsed));
@@ -439,7 +439,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
   throw SyntaxError("Invalid YAML.");
 }
 
-std::vector<YNode> YAML_Impl::parseYAML(ISource &source) {
+ std::vector<YNode> YAML_Parser::parse(ISource &source) {
   std::vector<YNode> yNodeTree;
   while (source.more()) {
     for (bool inDocument = false; source.more();) {
@@ -458,7 +458,7 @@ std::vector<YNode> YAML_Impl::parseYAML(ISource &source) {
         break;
       } else if (source.current() == '#' && !inDocument) {
         yNodeTree.push_back(parseComment(source, {}));
-      } else { 
+      } else {
         if (yNodeTree.empty()) {
           yNodeTree.push_back(YNode::make<Document>());
         }
@@ -469,6 +469,5 @@ std::vector<YNode> YAML_Impl::parseYAML(ISource &source) {
   }
   return yNodeTree;
 }
-void YAML_Impl::parse(ISource &source) { yamlYNodeTree = parseYAML(source); }
 
 } // namespace YAML_Lib
