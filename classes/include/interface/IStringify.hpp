@@ -26,7 +26,7 @@ public:
   // ========================
   virtual ~IStringify() = default;
   // ====================
-  // Stringify JNode tree
+  // Stringify YNode tree
   // ====================
   virtual void stringify(const std::vector<YNode> &yamlTree, IDestination &destination) const = 0;
 };

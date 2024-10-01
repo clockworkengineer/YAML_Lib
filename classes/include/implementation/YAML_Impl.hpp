@@ -22,7 +22,7 @@ public:
   // Get number of document
   [[nodiscard]] unsigned long getNumberOfDocuments() const {
     unsigned long numberOfDocuments = 0;
-    for (auto &yNode : yamlYNodeTree) {
+    for (auto &yNode : yamlTree) {
       if (isA<Document>(yNode)) {
         numberOfDocuments++;
       }
@@ -30,18 +30,18 @@ public:
     return numberOfDocuments;
   }
   // Parse YAML into YNode tree
-  void parse(ISource &source) { yamlYNodeTree = parser.parse(source); }
+  void parse(ISource &source) { yamlTree = parser.parse(source); }
   // Create YAML text string from YNode tree
   void stringify(IDestination &destination) const {
-    stringifer.stringify(yamlYNodeTree, destination);
+    stringifer.stringify(yamlTree, destination);
   }
   // Get root of JSON tree
-  [[nodiscard]] std::vector<YNode> &root() { return yamlYNodeTree; }
-  [[nodiscard]] const std::vector<YNode> &root() const { return yamlYNodeTree; }
+  [[nodiscard]] std::vector<YNode> &root() { return yamlTree; }
+  [[nodiscard]] const std::vector<YNode> &root() const { return yamlTree; }
   // Get document
   [[nodiscard]] YNode &document(unsigned long index) {
     long numberOfDocuments = index;
-    for (auto &yNode : yamlYNodeTree) {
+    for (auto &yNode : yamlTree) {
       if (isA<Document>(yNode)) {
         if (--numberOfDocuments < 0) {
           return yNode;
@@ -52,7 +52,7 @@ public:
   }
   [[nodiscard]] const YNode &document(unsigned long index) const {
     long numberOfDocuments = index;
-    for (auto &yNode : yamlYNodeTree) {
+    for (auto &yNode : yamlTree) {
       if (isA<Document>(yNode)) {
         if (--numberOfDocuments < 0) {
           return yNode;
@@ -68,6 +68,6 @@ private:
   // YAML Stringifier
   YAML_Stringify stringifer;
   // YAML tree
-  std::vector<YNode> yamlYNodeTree;
+  std::vector<YNode> yamlTree;
 };
 } // namespace YAML_Lib

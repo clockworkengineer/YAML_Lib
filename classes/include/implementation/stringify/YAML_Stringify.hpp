@@ -14,7 +14,7 @@ public:
   YAML_Stringify &operator=(YAML_Stringify &&other) = delete;
   ~YAML_Stringify() override = default;
   // ====================
-  // Stringify JNode tree
+  // Stringify YNode tree
   // ====================
   void stringify(const std::vector<YNode> &yamlTree,
                  IDestination &destination) const override;
