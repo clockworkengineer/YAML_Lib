@@ -1,13 +1,13 @@
 
 //
-// Class: YAML_Impl
+// Class: YAML_Stringify
 //
 // Description: High level entry points in YAML class implementation layer.
 //
 // Dependencies: C++20 - Language standard features used.
 //
 
-#include "YAML_Impl.hpp"
+#include "YAML_Stringify.hpp"
 
 namespace YAML_Lib {
 
@@ -118,8 +118,8 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
     throw Error("Unknown YNode type encountered during stringification.");
   }
 }
-void YAML_Impl::stringify(IDestination &destination) const {
-  for (auto &document : yamlYNodeTree) {
+void YAML_Stringify::stringify(const std::vector<YNode> &yamlTree, IDestination &destination) const {
+  for (auto &document : yamlTree) {
     stringifyYAML(destination, document);
   }
 }

@@ -4,6 +4,7 @@
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
 #include "YAML_Parser.hpp"
+#include "YAML_Stringify.hpp"
 
 namespace YAML_Lib {
 
@@ -30,8 +31,10 @@ public:
   }
   // Parse YAML into YNode tree
   void parse(ISource &source) { yamlYNodeTree = parser.parse(source); }
-  // Create YAML text string (no white space) from YNode tree
-  void stringify(IDestination &destination) const;
+  // Create YAML text string from YNode tree
+  void stringify(IDestination &destination) const {
+    stringifer.stringify(yamlYNodeTree, destination);
+  }
   // Get root of JSON tree
   [[nodiscard]] std::vector<YNode> &root() { return yamlYNodeTree; }
   [[nodiscard]] const std::vector<YNode> &root() const { return yamlYNodeTree; }
@@ -62,6 +65,8 @@ public:
 private:
   // YAML Parser
   YAML_Parser parser;
+  // YAML Stringifier
+  YAML_Stringify stringifer;
   // YAML tree
   std::vector<YNode> yamlYNodeTree;
 };
