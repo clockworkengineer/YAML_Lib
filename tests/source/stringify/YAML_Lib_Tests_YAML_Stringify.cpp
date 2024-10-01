@@ -155,16 +155,16 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
             "league home run record in 1998.\nstats: |\n  65 Home Runs\n  "
             "0.278 Batting Average\n...\n");
   }
-//   SECTION("YAML Stringify plain literals newlines treatd as space.",
-//           "[YAML][Stringify][literals]") {
-//     BufferSource source{
-//         "---\n  Mark McGwire\'s\n  year was crippled\n  by a knee injury."};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//     BufferDestination destination;
-//     REQUIRE_NOTHROW(yaml.stringify(destination));
-//     REQUIRE(destination.toString() ==
-//             "---\nMark McGwire\'s year was crippled by a knee injury.\n...\n");
-//   }
+  SECTION("YAML Stringify plain literals newlines treatd as space.",
+          "[YAML][Stringify][literals]") {
+    BufferSource source{
+        "---\n  Mark McGwire\'s\n  year was crippled\n  by a knee injury."};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() ==
+            "---\nMark McGwire\'s year was crippled by a knee injury.\n...\n");
+  }
   //   SECTION("YAML Stringify literals perserves newlines.",
   //   "[YAML][Stringify][literals]") {
   //     BufferSource source{"--- |\n  \\//||\\/||\n  // ||  ||__"};

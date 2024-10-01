@@ -209,9 +209,6 @@ YNode parseNumber(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
   std::string string{extractToNext(source, delimeters)};
   unsigned long len = string.size();
-  // for (; source.more() && !endOfNumber(source); source.next()) {
-  //   string += source.current();
-  // }
   while (string.back() == ' ') {
     string.pop_back();
   }
@@ -313,7 +310,8 @@ YNode parseInlineArray(ISource &source, unsigned long indentLevel,
     do {
       source.next();
       source.ignoreWS();
-      YRef<Array>(yNode).add(parseDocument(source, indentLevel, {kLineFeed,',', ']'}));
+      YRef<Array>(yNode).add(
+          parseDocument(source, indentLevel, {kLineFeed, ',', ']'}));
     } while (source.current() == ',');
     source.ignoreWS();
   }
@@ -359,7 +357,7 @@ YNode parseInlineDictionary(ISource &source, unsigned long indentLevel,
       source.next();
       source.ignoreWS();
       YRef<Dictionary>(yNode).add(
-          parseKeyValue(source, indentLevel, {kLineFeed,',', '}'}));
+          parseKeyValue(source, indentLevel, {kLineFeed, ',', '}'}));
 
     } while (source.current() == ',');
   }
