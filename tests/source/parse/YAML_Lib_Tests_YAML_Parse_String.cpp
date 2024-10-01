@@ -131,10 +131,10 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
         "---\n  Mark McGwire\'s\n  year was crippled\n  by a knee injury."};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
-    REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "Mark McGwire\'s");
-    REQUIRE_FALSE(!isA<String>(yaml.document(0)[1]));
-    REQUIRE(YRef<String>(yaml.document(0)[1]).value() == "year was crippled");
-    REQUIRE_FALSE(!isA<String>(yaml.document(0)[2]));
-    REQUIRE(YRef<String>(yaml.document(0)[2]).value() == "by a knee injury.");
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "Mark McGwire's year was crippled by a knee injury.");
+    // REQUIRE_FALSE(!isA<String>(yaml.document(0)[1]));
+    // REQUIRE(YRef<String>(yaml.document(0)[1]).value() == "year was crippled");
+    // REQUIRE_FALSE(!isA<String>(yaml.document(0)[2]));
+    // REQUIRE(YRef<String>(yaml.document(0)[2]).value() == "by a knee injury.");
   }
 }

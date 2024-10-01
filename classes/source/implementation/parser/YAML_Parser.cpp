@@ -70,6 +70,13 @@ std::string translateEscapes(const std::string &yamlString) {
   }
   return (translated);
 }
+bool isArray(ISource &source) {
+  if (source.match("- ")) {
+    source.backup(2);
+    return (true);
+  }
+  return (false);
+}
 bool isValidKey(const std::string &key) {
   if (!key.empty()) {
     if (!std::isalpha(key[0])) {
@@ -150,7 +157,21 @@ YNode parsePipedBlockString(ISource &source, const std::set<char> &delimeters) {
 
 YNode parseString(ISource &source, const std::set<char> &delimeters) {
   std::string yamlString{extractToNext(source, delimeters)};
-  return YNode::make<String>(yamlString, '\0');
+  if (source.current() != kLineFeed) {
+    return YNode::make<String>(yamlString, '\0');
+  } else {
+    source.ignoreWS();
+    while (source.more() && !isKey(source) && !isArray(source) &&
+           (source.current() != '#')) {
+      yamlString += " ";
+      yamlString += extractToNext(source, delimeters);
+      if (source.more()) {
+        source.next();
+      }
+      source.ignoreWS();
+    }
+    return YNode::make<String>(yamlString, '\0');
+  }
 }
 
 YNode parseQuotedString(ISource &source, const std::set<char> &delimeters) {
@@ -439,7 +460,7 @@ YNode parseDocument(ISource &source, unsigned long indentLevel,
   throw SyntaxError("Invalid YAML.");
 }
 
- std::vector<YNode> YAML_Parser::parse(ISource &source) {
+std::vector<YNode> YAML_Parser::parse(ISource &source) {
   std::vector<YNode> yNodeTree;
   while (source.more()) {
     for (bool inDocument = false; source.more();) {
