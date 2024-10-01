@@ -11,12 +11,6 @@
 
 namespace YAML_Lib {
 
-/// <summary>
-/// Split a string into a vector of strings using the passed in delimiter.
-/// </summary>
-/// <param name="target">String to split up.</param>
-/// <param name="delimiter">Character delimiter to split on.</param>
-/// <returns>Vector of split strings.</returns>
 std::vector<std::string> splitString(const std::string &target,
                                      const char delimiter) {
   std::stringstream sourceStream(target);

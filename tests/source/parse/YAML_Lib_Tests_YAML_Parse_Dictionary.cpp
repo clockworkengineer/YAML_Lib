@@ -243,4 +243,11 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE(YRef<Number>(yaml.document(0)[0]["Mark McGwire"]).value<int>() ==
             55);
   }
+
+  SECTION("YAML parse dictionary with flat dictionary termintor on next line.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"Sammy Sosa: {\n    hr: 63,\n    avg: 0.288\n  }\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    // REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+  }
 }

@@ -122,19 +122,12 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
                         "spans more than\n  one line\nsee?"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
                         "YAML Error: Invalid key 'see?' specified.");
-  }
-// ====================================================
-// INCORRECT BEHAVIOUR - SHOULD BE ONE COMBINBED STRING
-// ====================================================     
+  }  
   SECTION("YAML parse a plain string block.", "[YAML][Parse][String]") {
     BufferSource source{
         "---\n  Mark McGwire\'s\n  year was crippled\n  by a knee injury."};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
     REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "Mark McGwire's year was crippled by a knee injury.");
-    // REQUIRE_FALSE(!isA<String>(yaml.document(0)[1]));
-    // REQUIRE(YRef<String>(yaml.document(0)[1]).value() == "year was crippled");
-    // REQUIRE_FALSE(!isA<String>(yaml.document(0)[2]));
-    // REQUIRE(YRef<String>(yaml.document(0)[2]).value() == "by a knee injury.");
   }
 }

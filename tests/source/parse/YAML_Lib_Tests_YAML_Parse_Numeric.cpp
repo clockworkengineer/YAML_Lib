@@ -32,8 +32,7 @@ TEST_CASE("Check YAML Parsing of numeric types.", "[YAML][Parse][Numeric]") {
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<float>());
-    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<float>() ==
-            3.141592741f);
+    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<float>() == 3.141592741f);
   }
   SECTION("YAML parse a positive floating point.", "[YAML][Parse][Float]") {
     BufferSource source{"---\n+3.1415926535\n"};
@@ -41,8 +40,7 @@ TEST_CASE("Check YAML Parsing of numeric types.", "[YAML][Parse][Numeric]") {
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<float>());
-    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<float>() ==
-            3.141592741f);
+    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<float>() == 3.141592741f);
   }
   SECTION("YAML parse a negative floating point.", "[YAML][Parse][Float]") {
     BufferSource source{"---\n-3.1415926535\n"};
@@ -50,8 +48,7 @@ TEST_CASE("Check YAML Parsing of numeric types.", "[YAML][Parse][Numeric]") {
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<float>());
-    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<float>() ==
-            -3.141592741f);
+    REQUIRE(YRef<Number>(yaml.document(0)[0]).value<float>() == -3.141592741f);
   }
   SECTION("YAML parse a scientific floating point.", "[YAML][Parse][Float]") {
     BufferSource source{"---\n323.777e15\n"};
@@ -106,5 +103,15 @@ TEST_CASE("Check YAML Parsing of numeric types.", "[YAML][Parse][Numeric]") {
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Number>(yaml.document(0)[0]).is<int>());
     REQUIRE(YRef<Number>(yaml.document(0)[0]).value<int>() == 04444);
+  }
+  SECTION("YAML parse an integer and float strings.",
+          "[YAML][Parse][Integer]") {
+    BufferSource source{"---\n  -  4567000 String\n  - 5.666666 String\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0][0]));
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0][1]));
+    REQUIRE(YRef<String>(yaml.document(0)[0][0]).value() == "4567000 String");
+    REQUIRE(YRef<String>(yaml.document(0)[0][1]).value() == "5.666666 String");
   }
 }

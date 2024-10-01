@@ -35,7 +35,8 @@ std::string extractToNext(ISource &source, const std::set<char> &delimeters) {
 }
 
 bool endOfNumber(const ISource &source) {
-  return source.isWS() || source.current() == ',' || source.current() == ']';
+  return source.isWS() || source.current() == ',' || source.current() == ']' ||
+         source.current() == '}';
 }
 
 unsigned long currentIndentLevel(ISource &source) {
@@ -206,9 +207,13 @@ YNode parseComment(ISource &source, const std::set<char> &delimeters) {
 
 YNode parseNumber(ISource &source, const std::set<char> &delimeters) {
   YNode yNode;
-  std::string string;
-  for (; source.more() && !endOfNumber(source); source.next()) {
-    string += source.current();
+  std::string string{extractToNext(source, delimeters)};
+  unsigned long len = string.size();
+  // for (; source.more() && !endOfNumber(source); source.next()) {
+  //   string += source.current();
+  // }
+  while (string.back() == ' ') {
+    string.pop_back();
   }
   if (Number number{string}; number.is<int>() || number.is<long>() ||
                              number.is<long long>() || number.is<float>() ||
@@ -216,7 +221,7 @@ YNode parseNumber(ISource &source, const std::set<char> &delimeters) {
     moveToNext(source, delimeters);
     yNode = YNode::make<Number>(number);
   } else {
-    source.backup(string.size());
+    source.backup(len);
   }
   return yNode;
 }
@@ -308,7 +313,7 @@ YNode parseInlineArray(ISource &source, unsigned long indentLevel,
     do {
       source.next();
       source.ignoreWS();
-      YRef<Array>(yNode).add(parseDocument(source, indentLevel, {',', ']'}));
+      YRef<Array>(yNode).add(parseDocument(source, indentLevel, {kLineFeed,',', ']'}));
     } while (source.current() == ',');
     source.ignoreWS();
   }
@@ -354,7 +359,8 @@ YNode parseInlineDictionary(ISource &source, unsigned long indentLevel,
       source.next();
       source.ignoreWS();
       YRef<Dictionary>(yNode).add(
-          parseKeyValue(source, indentLevel, {',', '}'}));
+          parseKeyValue(source, indentLevel, {kLineFeed,',', '}'}));
+
     } while (source.current() == ',');
   }
   if (source.current() != '}') {
