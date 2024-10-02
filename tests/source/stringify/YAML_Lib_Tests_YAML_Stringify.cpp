@@ -172,6 +172,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
           "[YAML][Stringify][literals]") {
     BufferSource source{"--- |\n  \\//||\\/||\n  // ||  ||__\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value()=="\\//||\\/||\n// ||  ||__");
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() == "--- |\n  \\//||\\/||\n  // ||  ||__...\n");
