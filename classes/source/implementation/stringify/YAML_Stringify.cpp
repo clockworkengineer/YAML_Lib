@@ -103,7 +103,21 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
       }
     }
   } else if (isA<Document>(yNode)) {
-    destination.add("---\n");
+    destination.add("---");
+    if (!YRef<Document>(yNode).value().empty()) {
+      if (isA<String>(YRef<Document>(yNode)[0])) {
+        if (YRef<String>(YRef<Document>(yNode)[0]).getQuote() == '>' ||
+            YRef<String>(YRef<Document>(yNode)[0]).getQuote() == '|') {
+          destination.add(" |\n");
+        } else {
+          destination.add("\n");
+        }
+      } else {
+        destination.add("\n");
+      }
+    } else {
+      destination.add("\n");
+    }
     for (const auto &entry : YRef<Document>(yNode).value()) {
       stringifyYAML(destination, entry);
     }
@@ -112,7 +126,8 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
     throw Error("Unknown YNode type encountered during stringification.");
   }
 }
-void YAML_Stringify::stringify(const std::vector<YNode> &yamlTree, IDestination &destination) const {
+void YAML_Stringify::stringify(const std::vector<YNode> &yamlTree,
+                               IDestination &destination) const {
   for (auto &document : yamlTree) {
     stringifyYAML(destination, document);
   }

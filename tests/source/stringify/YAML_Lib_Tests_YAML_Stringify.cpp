@@ -168,12 +168,12 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE(destination.toString() ==
             "---\nMark McGwire\'s year was crippled by a knee injury....\n");
   }
-//     SECTION("YAML Stringify literals perserves newlines.",
-//     "[YAML][Stringify][literals]") {
-//       BufferSource source{"--- |\n  \\//||\\/||\n  // ||  ||__\n..."};
-//       REQUIRE_NOTHROW(yaml.parse(source));
-//       BufferDestination destination;
-//       REQUIRE_NOTHROW(yaml.stringify(destination));
-//       REQUIRE(destination.toString() == "--- |\n\\//||\\/||\n// ||  ||__\n...");
-//     }
+  SECTION("YAML Stringify literals perserves newlines.",
+          "[YAML][Stringify][literals]") {
+    BufferSource source{"--- |\n  \\//||\\/||\n  // ||  ||__\n..."};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "--- |\n  \\//||\\/||\n  // ||  ||__...\n");
+  }
 }
