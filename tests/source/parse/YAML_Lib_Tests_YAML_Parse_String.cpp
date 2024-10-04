@@ -89,7 +89,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
                         "spans more than\n  one line\nsee?"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Error: Invalid key 'see?' specified.");
+                        "IParser Error: Invalid key 'see?' specified.");
   }
   SECTION("YAML parse a piped string block.", "[YAML][Parse][String]") {
     BufferSource source{"---\nbar: |\n  this is not a normal string it\n  "
@@ -121,7 +121,7 @@ TEST_CASE("Check YAML Parsing of simple types.", "[YAML][Parse][String]") {
     BufferSource source{"---\nbar: |\n  this is not a normal string it\n  "
                         "spans more than\n  one line\nsee?"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Error: Invalid key 'see?' specified.");
+                        "IParser Error: Invalid key 'see?' specified.");
   }
   SECTION("YAML parse a plain string block.", "[YAML][Parse][String]") {
     BufferSource source{

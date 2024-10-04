@@ -11,8 +11,8 @@
 
 namespace YAML_Lib {
 
-YNode parseDocument(ISource &source, unsigned long indentation,
-                    const std::set<char> &delimeters);
+// YNode parseDocument(ISource &source, unsigned long indentation,
+//                     const std::set<char> &delimeters);
 
 void moveToNext(ISource &source, const std::set<char> &delimeters) {
   if (!delimeters.empty()) {
@@ -106,7 +106,7 @@ bool isKey(ISource &source) {
   source.backup(key.size());
   return false;
 }
-std::string parseKey(ISource &source) {
+std::string YAML_Parser::parseKey(ISource &source) {
   std::string key{extractToNext(source, {':'})};
   if (source.more()) {
     source.next();
@@ -122,7 +122,8 @@ std::string parseKey(ISource &source) {
   return key;
 }
 
-YNode parseBlockString(ISource &source, const std::set<char> &delimeters) {
+YNode YAML_Parser::parseBlockString(ISource &source,
+                                    const std::set<char> &delimeters) {
   YNode yNode;
   moveToNext(source, {kLineFeed});
   auto indentLevel = currentIndentLevel(source);
@@ -139,7 +140,8 @@ YNode parseBlockString(ISource &source, const std::set<char> &delimeters) {
   return yNode;
 }
 
-YNode parsePipedBlockString(ISource &source, const std::set<char> &delimeters) {
+YNode YAML_Parser::parsePipedBlockString(ISource &source,
+                                         const std::set<char> &delimeters) {
   YNode yNode;
   moveToNext(source, delimeters);
   auto indentLevel = currentIndentLevel(source);
@@ -156,7 +158,8 @@ YNode parsePipedBlockString(ISource &source, const std::set<char> &delimeters) {
   return yNode;
 }
 
-YNode parseString(ISource &source, const std::set<char> &delimeters) {
+YNode YAML_Parser::parseString(ISource &source,
+                               const std::set<char> &delimeters) {
   std::string yamlString{extractToNext(source, delimeters)};
   if (source.current() != kLineFeed) {
     return YNode::make<String>(yamlString, '\0');
@@ -175,7 +178,8 @@ YNode parseString(ISource &source, const std::set<char> &delimeters) {
   }
 }
 
-YNode parseQuotedString(ISource &source, const std::set<char> &delimeters) {
+YNode YAML_Parser::parseQuotedString(ISource &source,
+                                     const std::set<char> &delimeters) {
   const char quote = source.current();
   std::string yamlString;
   source.next();
@@ -196,7 +200,8 @@ YNode parseQuotedString(ISource &source, const std::set<char> &delimeters) {
   return YNode::make<String>(yamlString, quote);
 }
 
-YNode parseComment(ISource &source, const std::set<char> &delimeters) {
+YNode YAML_Parser::parseComment(ISource &source,
+                                const std::set<char> &delimeters) {
   source.next();
   std::string comment{extractToNext(source, {kLineFeed})};
   if (source.more()) {
@@ -205,7 +210,8 @@ YNode parseComment(ISource &source, const std::set<char> &delimeters) {
   return (YNode::make<Comment>(comment));
 }
 
-YNode parseNumber(ISource &source, const std::set<char> &delimeters) {
+YNode YAML_Parser::parseNumber(ISource &source,
+                               const std::set<char> &delimeters) {
   YNode yNode;
   std::string string{extractToNext(source, delimeters)};
   unsigned long len = string.size();
@@ -223,7 +229,8 @@ YNode parseNumber(ISource &source, const std::set<char> &delimeters) {
   return yNode;
 }
 
-YNode parseNone(ISource &source, const std::set<char> &delimeters) {
+YNode YAML_Parser::parseNone(ISource &source,
+                             const std::set<char> &delimeters) {
   YNode yNode;
   std::string none{extractToNext(source, delimeters)};
   int len = none.size();
@@ -239,7 +246,8 @@ YNode parseNone(ISource &source, const std::set<char> &delimeters) {
   return yNode;
 }
 
-YNode parseBoolean(ISource &source, const std::set<char> &delimeters) {
+YNode YAML_Parser::parseBoolean(ISource &source,
+                                const std::set<char> &delimeters) {
   YNode yNode;
   std::string boolean{extractToNext(source, delimeters)};
   int len = boolean.size();
@@ -257,7 +265,8 @@ YNode parseBoolean(ISource &source, const std::set<char> &delimeters) {
   return yNode;
 }
 
-YNode parseAnchor(ISource &source, const std::set<char> &delimeters) {
+YNode YAML_Parser::parseAnchor(ISource &source,
+                               const std::set<char> &delimeters) {
   source.next();
   std::string name{extractToNext(source, {kLineFeed, ' '})};
   source.next();
@@ -268,7 +277,8 @@ YNode parseAnchor(ISource &source, const std::set<char> &delimeters) {
   return (YNode::make<Anchor>(name, unparsed, parsed));
 }
 
-YNode parseAlias(ISource &source, const std::set<char> &delimeters) {
+YNode YAML_Parser::parseAlias(ISource &source,
+                              const std::set<char> &delimeters) {
   source.next();
   std::string name{extractToNext(source, {kLineFeed, ' '})};
   source.next();
@@ -278,8 +288,8 @@ YNode parseAlias(ISource &source, const std::set<char> &delimeters) {
   return (YNode::make<Alias>(name, parsed));
 }
 
-YNode parseArray(ISource &source, unsigned long indentLevel,
-                 const std::set<char> &delimeters) {
+YNode YAML_Parser::parseArray(ISource &source, unsigned long indentLevel,
+                              const std::set<char> &delimeters) {
   YNode yNode;
   source.next();
   if (source.current() == ' ') {
@@ -303,8 +313,8 @@ YNode parseArray(ISource &source, unsigned long indentLevel,
   return yNode;
 }
 
-YNode parseInlineArray(ISource &source, unsigned long indentLevel,
-                       const std::set<char> &delimeters) {
+YNode YAML_Parser::parseInlineArray(ISource &source, unsigned long indentLevel,
+                                    const std::set<char> &delimeters) {
   YNode yNode = YNode::make<Array>();
   if (source.current() != ']') {
     do {
@@ -322,15 +332,16 @@ YNode parseInlineArray(ISource &source, unsigned long indentLevel,
   source.next();
   return yNode;
 }
-DictionaryEntry parseKeyValue(ISource &source, unsigned long indentLevel,
-                              const std::set<char> &delimeters) {
+DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
+                                           unsigned long indentLevel,
+                                           const std::set<char> &delimeters) {
   std::string key{parseKey(source)};
   source.ignoreWS();
   return DictionaryEntry(key, parseDocument(source, indentLevel, delimeters));
 }
 
-YNode parseDictionary(ISource &source, unsigned long indentLevel,
-                      const std::set<char> &delimeters) {
+YNode YAML_Parser::parseDictionary(ISource &source, unsigned long indentLevel,
+                                   const std::set<char> &delimeters) {
   YNode yNode = YNode::make<Dictionary>();
   YRef<Dictionary>(yNode).setIndentation(indentLevel);
   while (source.more() &&
@@ -349,8 +360,9 @@ YNode parseDictionary(ISource &source, unsigned long indentLevel,
   return (yNode);
 }
 
-YNode parseInlineDictionary(ISource &source, unsigned long indentLevel,
-                            const std::set<char> &delimeters) {
+YNode YAML_Parser::parseInlineDictionary(ISource &source,
+                                         unsigned long indentLevel,
+                                         const std::set<char> &delimeters) {
   YNode yNode = YNode::make<Dictionary>();
   if (source.current() != '}') {
     do {
@@ -369,8 +381,8 @@ YNode parseInlineDictionary(ISource &source, unsigned long indentLevel,
   return (yNode);
 }
 
-YNode parseDocument(ISource &source, unsigned long indentLevel,
-                    const std::set<char> &delimeters) {
+YNode YAML_Parser::parseDocument(ISource &source, unsigned long indentLevel,
+                                 const std::set<char> &delimeters) {
   YNode yNode;
   source.ignoreWS();
 
