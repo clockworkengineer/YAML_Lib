@@ -28,7 +28,7 @@ struct Number : Variant {
     return std::get_if<T>(&yNodeNumber) != nullptr;
   }
   // Return numbers value int/long long/float/double/long double.
-  // Note: Can still return a integer value for a floating point.
+  // Note: Can still return an integer value for a floating point.
   template <typename T> [[nodiscard]] T value() const { return getAs<T>(); }
   // Set numbers value to int/long/long long/float/double/long double
   template <typename T> void set(T number) { *this = Number(number); }

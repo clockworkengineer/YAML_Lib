@@ -1,3 +1,5 @@
+#include <utility>
+
 #pragma once
 
 namespace YAML_Lib {
@@ -7,10 +9,10 @@ namespace YAML_Lib {
 struct Anchor : Variant {
   // Constructors/Destructors
   Anchor() : Variant(Type::anchor) {}
-  explicit Anchor(const std::string &name, const std::string &unparsed, YNode &parsed)
-      : Variant(Type::anchor), name(name), unparsed(unparsed), yNodeAnchor(std::move(parsed))  {}
-  Anchor(const Anchor &other) = default;
-  Anchor &operator=(const Anchor &other) = default;
+  explicit Anchor(std::string name, std::string unparsed, YNode &parsed)
+      : Variant(Type::anchor), name(std::move(name)), unparsed(std::move(unparsed)), yNodeAnchor(std::move(parsed))  {}
+  Anchor(const Anchor &other) = delete;
+  Anchor &operator=(const Anchor &other) = delete;
   Anchor(Anchor &&other) = default;
   Anchor &operator=(Anchor &&other) = default;
   ~Anchor() = default;

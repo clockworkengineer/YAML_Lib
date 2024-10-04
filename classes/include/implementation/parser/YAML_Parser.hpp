@@ -22,29 +22,29 @@ public:
 private:
 
   static std::string parseKey(ISource &source);
-  static YNode parseBlockString(ISource &source, const std::set<char> &delimeters);
+  static YNode parseBlockString(ISource &source, const std::set<char> &delimiters);
   static YNode parsePipedBlockString(ISource &source,
-                              const std::set<char> &delimeters);
-  static YNode parseString(ISource &source, const std::set<char> &delimeters);
-  static YNode parseQuotedString(ISource &source, const std::set<char> &delimeters);
-  static YNode parseComment(ISource &source, const std::set<char> &delimeters);
-  static YNode parseNumber(ISource &source, const std::set<char> &delimeters);
-  static YNode parseNone(ISource &source, const std::set<char> &delimeters);
-  static YNode parseBoolean(ISource &source, const std::set<char> &delimeters);
-  static YNode parseAnchor(ISource &source, const std::set<char> &delimeters);
-  static YNode parseAlias(ISource &source, const std::set<char> &delimeters);
+                              const std::set<char> &delimiters);
+  static YNode parseString(ISource &source, const std::set<char> &delimiters);
+  static YNode parseQuotedString(ISource &source, const std::set<char> &delimiters);
+  static YNode parseComment(ISource &source, [[maybe_unused]] const std::set<char> &delimiters);
+  static YNode parseNumber(ISource &source, const std::set<char> &delimiters);
+  static YNode parseNone(ISource &source, const std::set<char> &delimiters);
+  static YNode parseBoolean(ISource &source, const std::set<char> &delimiters);
+  static YNode parseAnchor(ISource &source, const std::set<char> &delimiters);
+  static YNode parseAlias(ISource &source, const std::set<char> &delimiters);
   static YNode parseArray(ISource &source, unsigned long indentLevel,
-                   const std::set<char> &delimeters);
+                   const std::set<char> &delimiters);
   static YNode parseInlineArray(ISource &source, unsigned long indentLevel,
-                         const std::set<char> &delimeters);
+                                [[maybe_unused]] const std::set<char> &delimiters);
   static DictionaryEntry parseKeyValue(ISource &source, unsigned long indentLevel,
-                                const std::set<char> &delimeters);
+                                const std::set<char> &delimiters);
   static YNode parseDictionary(ISource &source, unsigned long indentLevel,
-                        const std::set<char> &delimeters);
+                        const std::set<char> &delimiters);
   static YNode parseInlineDictionary(ISource &source, unsigned long indentLevel,
-                              const std::set<char> &delimeters);
-  static YNode parseDocument(ISource &source, unsigned long indentLevel,
-                      const std::set<char> &delimeters);
+                                     [[maybe_unused]] const std::set<char> &delimiters);
+  static YNode parseDocument(ISource &source, [[maybe_unused]] unsigned long indentLevel,
+                      const std::set<char> &delimiters);
 };
 
 } // namespace YAML_Lib

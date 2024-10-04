@@ -45,7 +45,7 @@ struct Dictionary : Variant {
   template <typename T> void add(T &&entry) {
     yNodeDictionary.emplace_back(std::forward<T>(entry));
   }
-  // Return true if an dictionary contains a given key
+  // Return true if a dictionary contains a given key
   [[nodiscard]] bool contains(const std::string &key) const {
     try {
       [[maybe_unused]] auto _ = findKey(yNodeDictionary, key);
@@ -54,7 +54,7 @@ struct Dictionary : Variant {
     }
     return true;
   }
-  // Return number of entries in an dictionary
+  // Return number of entries in a dictionary
   [[nodiscard]] int size() const {
     return static_cast<int>(yNodeDictionary.size());
   }

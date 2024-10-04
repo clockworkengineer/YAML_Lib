@@ -12,9 +12,9 @@ namespace YAML_Lib {
 
 YAML::YAML() : implementation(std::make_unique<YAML_Impl>()) {}
 
-YAML::~YAML() {}
+YAML::~YAML() = default;
 
-std::string YAML::version() const { return (YAML_Impl::version()); }
+std::string YAML::version() { return (YAML_Impl::version()); }
 unsigned int YAML::getNumberOfDocuments() const {
   return implementation->getNumberOfDocuments();
 }

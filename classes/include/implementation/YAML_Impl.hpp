@@ -33,7 +33,7 @@ public:
   void parse(ISource &source) { yamlTree = parser.parse(source); }
   // Create YAML text string from YNode tree
   void stringify(IDestination &destination) const {
-    stringifer.stringify(yamlTree, destination);
+    stringifier.stringify(yamlTree, destination);
   }
   // Get root of JSON tree
   [[nodiscard]] std::vector<YNode> &root() { return yamlTree; }
@@ -66,7 +66,7 @@ private:
   // YAML Parser
   YAML_Parser parser;
   // YAML Stringifier
-  YAML_Stringify stringifer;
+  YAML_Stringify stringifier;
   // YAML tree
   std::vector<YNode> yamlTree;
 };

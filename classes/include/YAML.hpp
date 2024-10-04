@@ -47,7 +47,7 @@ public:
   // Provide own destructor
   ~YAML();
   // Get YAML library version
-  [[nodiscard]] std::string version() const;
+  [[nodiscard]] static std::string version() ;
   // Get YAML library version
   [[nodiscard]] unsigned int getNumberOfDocuments() const;
   // Parse YAML into tree
@@ -56,37 +56,12 @@ public:
   // Create YAML text string from YNode tree (no whitespace)
   void stringify(IDestination &destination) const;
   void stringify(IDestination &&destination) const;
-  // // Create YAML text string from YNode tree (pretty printed)
-  // void print(IDestination &destination) const;
-  // void print(IDestination &&destination) const;
-  // // Strip whitespace from YAML string
-  // void strip(ISource &source, IDestination &destination) const;
-  // void strip(ISource &source, IDestination &&destination) const;
-  // void strip(ISource &&source, IDestination &destination) const;
-  // void strip(ISource &&source, IDestination &&destination) const;
-  // // Traverse YAML tree
-  // void traverse(IAction &action);
-  // void traverse(IAction &action) const;
-  // // Set print ident value
-  // void setIndent(long indent) const;
   // Get root of YAML tree
   [[nodiscard]] std::vector<YNode> &root();
   [[nodiscard]] const std::vector<YNode> &root() const;
   // Get vector of YAML document
   [[nodiscard]] YNode &document(unsigned long index);
   [[nodiscard]] const YNode &document(unsigned long index) const;
-  // // Search for YAML dictionary entry with a given key
-  // YNode &operator[](const std::string &key);
-  // const YNode &operator[](const std::string &key) const;
-  // // Get YAML array entry at index
-  // YNode &operator[](std::size_t index);
-  // const YNode &operator[](std::size_t index) const;
-  // // Read/Write YAML from file
-  // static std::string fromFile(const std::string &fileName);
-  // static void toFile(const std::string &fileName, const std::string
-  // &jsonString, Format format = Format::utf8);
-  // // Get YAML file format
-  // static Format getFileFormat(const std::string &fileName);
 
   static std::string fromFile(const std::string &yamlFileName) {
     std::ifstream yamlFile{yamlFileName, std::ios_base::binary};

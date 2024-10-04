@@ -18,8 +18,8 @@ struct Variant
     return(yNodeType);
   }
   // Get/Set indentation
-  unsigned long getIndentation() const { return indentation; }
-  void setIndentation(unsigned long indentation) { this->indentation = indentation; }
+  [[nodiscard]] unsigned long getIndentation() const { return indentation; }
+  void setIndentation(unsigned long indent) { this->indentation = indent; }
 private:
   Type yNodeType;
   // Array indentation

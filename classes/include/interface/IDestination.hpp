@@ -28,7 +28,7 @@ public:
   // ============================
   virtual void add(char ch) = 0;
   // ============================
-  // Clear the curent destination
+  // Clear the current destination
   // ===========================
   virtual void clear() = 0;
 };

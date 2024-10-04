@@ -35,7 +35,7 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
       if (strs.size() > 1) {
         std::string last = strs.back();
         strs.pop_back();
-        for (auto line : strs) {
+        for (const auto& line : strs) {
           if (YRef<String>(yNode).getIndentation() > 1) {
             destination.add(
                 std::string(YRef<String>(yNode).getIndentation() - 1, ' '));
