@@ -11,9 +11,6 @@
 
 namespace YAML_Lib {
 
-// YNode parseDocument(ISource &source, unsigned long indentation,
-//                     const std::set<char> &delimeters);
-
 void moveToNext(ISource &source, const std::set<char> &delimeters) {
   if (!delimeters.empty()) {
     while (source.more() && !delimeters.contains(source.current())) {
@@ -71,13 +68,6 @@ std::string translateEscapes(const std::string &yamlString) {
   }
   return (translated);
 }
-bool isArray(ISource &source) {
-  if (source.match("- ")) {
-    source.backup(2);
-    return (true);
-  }
-  return (false);
-}
 bool isValidKey(const std::string &key) {
   if (!key.empty()) {
     if (!std::isalpha(key[0])) {
@@ -106,6 +96,50 @@ bool isKey(ISource &source) {
   source.backup(key.size());
   return false;
 }
+
+bool isArray(ISource &source) {
+  if (source.match("- ")) {
+    source.backup(2);
+    return (true);
+  }
+  return (false);
+}
+
+bool isBoolean(ISource &source) {
+  return source.current() == 'T' || source.current() == 'F' ||
+         source.current() == 'O' || source.current() == 'Y' ||
+         source.current() == 'N';
+}
+
+bool isQuotedString(ISource &source) {
+  return (source.current() == '\'') || (source.current() == '"');
+}
+
+bool isNumber(ISource &source) {
+  return (source.current() >= '0' && source.current() <= '9') ||
+         source.current() == '-' || source.current() == '+';
+}
+
+bool isNone(ISource &source) {
+  return source.current() == 'n' || source.current() == '~';
+}
+
+bool isBlockString(ISource &source) { return source.current() == '>'; }
+
+bool isPipedBlockString(ISource &source) { return source.current() == '|'; }
+
+bool isComment(ISource &source) { return source.current() == '#'; }
+
+bool isAnchor(ISource &source) { return source.current() == '&'; }
+
+bool isAlias(ISource &source) { return source.current() == '*'; }
+
+bool isInlineArray(ISource &source) { return source.current() == '['; }
+
+bool isInlineDictionary(ISource &source) { return source.current() == '{'; }
+
+bool isDictionary(ISource &source) { return isKey(source); }
+
 std::string YAML_Parser::parseKey(ISource &source) {
   std::string key{extractToNext(source, {':'})};
   if (source.more()) {
@@ -166,7 +200,7 @@ YNode YAML_Parser::parseString(ISource &source,
   } else {
     source.ignoreWS();
     while (source.more() && !isKey(source) && !isArray(source) &&
-           (source.current() != '#')) {
+           !isComment(source)) {
       yamlString += " ";
       yamlString += extractToNext(source, delimeters);
       if (source.more()) {
@@ -388,82 +422,79 @@ YNode YAML_Parser::parseDocument(ISource &source, unsigned long indentLevel,
 
   // Parse scalars
 
-  if (source.current() == 'T' || source.current() == 'F' ||
-      source.current() == 'O' || source.current() == 'Y' ||
-      source.current() == 'N') {
+  if (isBoolean(source)) {
     yNode = parseBoolean(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  if ((source.current() == '\'') || (source.current() == '"')) {
+  if (isQuotedString(source)) {
     yNode = parseQuotedString(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  if ((source.current() >= '0' && source.current() <= '9') ||
-      source.current() == '-' || source.current() == '+') {
+  if (isNumber(source)) {
     yNode = parseNumber(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  if (source.current() == 'n' || source.current() == '~') {
+  if (isNone(source)) {
     yNode = parseNone(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  if (source.current() == '>') {
+  if (isBlockString(source)) {
     yNode = parseBlockString(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  if (source.current() == '|') {
+  if (isPipedBlockString(source)) {
     yNode = parsePipedBlockString(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  if (source.current() == '#') {
+  if (isComment(source)) {
     yNode = parseComment(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  if (source.current() == '&') {
+  if (isAnchor(source)) {
     yNode = parseAnchor(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  if (source.current() == '*') {
+  if (isAlias(source)) {
     yNode = parseAlias(source, delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  if (source.current() == '-') {
+  if (isArray(source)) {
     yNode = parseArray(source, currentIndentLevel(source), delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  if (source.current() == '[') {
+  if (isInlineArray(source)) {
     yNode = parseInlineArray(source, currentIndentLevel(source), {','});
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  if (isKey(source)) {
+  if (isDictionary(source)) {
     yNode = parseDictionary(source, currentIndentLevel(source), delimeters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
-  if (source.current() == '{') {
+  if (isInlineDictionary(source)) {
     yNode = parseInlineDictionary(source, currentIndentLevel(source), {','});
     if (!yNode.isEmpty()) {
       return yNode;
