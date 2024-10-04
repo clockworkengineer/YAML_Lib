@@ -228,8 +228,8 @@ YNode YAML_Parser::parseQuotedString(ISource &source,
   return YNode::make<String>(yamlString, quote);
 }
 
-YNode YAML_Parser::parseComment(ISource &source,
-                                [[maybe_unused]] const std::set<char> &delimiters) {
+YNode YAML_Parser::parseComment(
+    ISource &source, [[maybe_unused]] const std::set<char> &delimiters) {
   source.next();
   std::string comment{extractToNext(source, {kLineFeed})};
   if (source.more()) {
@@ -241,10 +241,10 @@ YNode YAML_Parser::parseComment(ISource &source,
 YNode YAML_Parser::parseNumber(ISource &source,
                                const std::set<char> &delimiters) {
   YNode yNode;
-  std::string string{extractToNext(source, delimiters)};
-  unsigned long len = string.size();
-  rightTrimString(string);
-  if (Number number{string}; number.is<int>() || number.is<long>() ||
+  std::string numeric{extractToNext(source, delimiters)};
+  unsigned long len = numeric.size();
+  rightTrimString(numeric);
+  if (Number number{numeric}; number.is<int>() || number.is<long>() ||
                              number.is<long long>() || number.is<float>() ||
                              number.is<double>() || number.is<long double>()) {
     moveToNext(source, delimiters);
@@ -319,7 +319,7 @@ YNode YAML_Parser::parseArray(ISource &source, unsigned long indentLevel,
     yNode = YNode::make<Array>();
     YRef<Array>(yNode).setIndentation(indentLevel);
     do {
-      if (source.current() != '#') {
+      if (!isComment(source)) {
         YRef<Array>(yNode).add(parseDocument(source, indentLevel, delimiters));
       } else {
         parseComment(source, delimiters);
@@ -328,15 +328,16 @@ YNode YAML_Parser::parseArray(ISource &source, unsigned long indentLevel,
       if (indentLevel > currentIndentLevel(source)) {
         return yNode;
       }
-    } while (source.match("- ") || source.current() == '#');
+    } while (source.match("- ") || isComment(source));
   } else {
     source.backup(1);
   }
   return yNode;
 }
 
-YNode YAML_Parser::parseInlineArray(ISource &source, unsigned long indentLevel,
-                                    [[maybe_unused]] const std::set<char> &delimiters) {
+YNode YAML_Parser::parseInlineArray(
+    ISource &source, unsigned long indentLevel,
+    [[maybe_unused]] const std::set<char> &delimiters) {
   YNode yNode = YNode::make<Array>();
   if (source.current() != ']') {
     do {
@@ -367,8 +368,8 @@ YNode YAML_Parser::parseDictionary(ISource &source, unsigned long indentLevel,
   YNode yNode = YNode::make<Dictionary>();
   YRef<Dictionary>(yNode).setIndentation(indentLevel);
   while (source.more() &&
-         (std::isalpha(source.current()) || source.current() == '#')) {
-    if (source.current() != '#') {
+         (std::isalpha(source.current()) || isComment(source))) {
+    if (!isComment(source)) {
       YRef<Dictionary>(yNode).add(
           parseKeyValue(source, indentLevel, delimiters));
     } else {
@@ -382,9 +383,9 @@ YNode YAML_Parser::parseDictionary(ISource &source, unsigned long indentLevel,
   return (yNode);
 }
 
-YNode YAML_Parser::parseInlineDictionary(ISource &source,
-                                         unsigned long indentLevel,
-                                         [[maybe_unused]] const std::set<char> &delimiters) {
+YNode YAML_Parser::parseInlineDictionary(
+    ISource &source, unsigned long indentLevel,
+    [[maybe_unused]] const std::set<char> &delimiters) {
   YNode yNode = YNode::make<Dictionary>();
   if (source.current() != '}') {
     do {
@@ -403,7 +404,8 @@ YNode YAML_Parser::parseInlineDictionary(ISource &source,
   return (yNode);
 }
 
-YNode YAML_Parser::parseDocument(ISource &source, [[maybe_unused]] unsigned long indentLevel,
+YNode YAML_Parser::parseDocument(ISource &source,
+                                 [[maybe_unused]] unsigned long indentLevel,
                                  const std::set<char> &delimiters) {
   YNode yNode;
   source.ignoreWS();
@@ -511,7 +513,7 @@ std::vector<YNode> YAML_Parser::parse(ISource &source) {
           yNodeTree.push_back(YNode::make<Document>());
         }
         break;
-      } else if (source.current() == '#' && !inDocument) {
+      } else if (isComment(source) && !inDocument) {
         yNodeTree.push_back(parseComment(source, {}));
       } else {
         if (yNodeTree.empty()) {
