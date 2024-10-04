@@ -205,8 +205,8 @@ YNode YAML_Parser::parseString(ISource &source,
       yamlString += extractToNext(source, delimeters);
       if (source.more()) {
         source.next();
+        source.ignoreWS();
       }
-      source.ignoreWS();
     }
     return YNode::make<String>(yamlString, '\0');
   }
