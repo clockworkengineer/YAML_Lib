@@ -313,26 +313,22 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimeters &delimiters) {
 
 YNode YAML_Parser::parseArray(ISource &source, unsigned long indentLevel,
                               const Delimeters &delimiters) {
-  YNode yNode;
-  source.next();
-  if (source.current() == ' ') {
-    source.next();
-    yNode = YNode::make<Array>();
-    YRef<Array>(yNode).setIndentation(indentLevel);
-    do {
-      if (!isComment(source)) {
-        YRef<Array>(yNode).add(parseDocument(source, indentLevel, delimiters));
-      } else {
-        parseComment(source, delimiters);
-      }
-      source.ignoreWS();
-      if (indentLevel > currentIndentLevel(source)) {
-        return yNode;
-      }
-    } while (source.match("- ") || isComment(source));
-  } else {
-    source.backup(1);
-  }
+  YNode yNode = YNode::make<Array>();
+  YRef<Array>(yNode).setIndentation(indentLevel);
+  do {
+    if (isArray(source)) {
+      source.next();
+      source.next();
+      YRef<Array>(yNode).add(parseDocument(source, indentLevel, delimiters));
+    } else {
+      parseComment(source, delimiters);
+    }
+    source.ignoreWS();
+    if (indentLevel > currentIndentLevel(source)) {
+      return yNode;
+    }
+  } while (isArray(source) || isComment(source));
+
   return yNode;
 }
 
@@ -340,15 +336,13 @@ YNode YAML_Parser::parseInlineArray(
     ISource &source, unsigned long indentLevel,
     [[maybe_unused]] const Delimeters &delimiters) {
   YNode yNode = YNode::make<Array>();
-  if (source.current() != ']') {
-    do {
-      source.next();
-      source.ignoreWS();
-      YRef<Array>(yNode).add(
-          parseDocument(source, indentLevel, {kLineFeed, ',', ']'}));
-    } while (source.current() == ',');
+  do {
+    source.next();
     source.ignoreWS();
-  }
+    YRef<Array>(yNode).add(
+        parseDocument(source, indentLevel, {kLineFeed, ',', ']'}));
+  } while (source.current() == ',');
+  source.ignoreWS();
   if (source.current() != ']') {
     throw SyntaxError(source.getPosition(),
                       "Missing closing ']' in array definition.");
@@ -388,15 +382,13 @@ YNode YAML_Parser::parseInlineDictionary(
     ISource &source, unsigned long indentLevel,
     [[maybe_unused]] const Delimeters &delimiters) {
   YNode yNode = YNode::make<Dictionary>();
-  if (source.current() != '}') {
-    do {
-      source.next();
-      source.ignoreWS();
-      YRef<Dictionary>(yNode).add(
-          parseKeyValue(source, indentLevel, {kLineFeed, ',', '}'}));
+  do {
+    source.next();
+    source.ignoreWS();
+    YRef<Dictionary>(yNode).add(
+        parseKeyValue(source, indentLevel, {kLineFeed, ',', '}'}));
 
-    } while (source.current() == ',');
-  }
+  } while (source.current() == ',');
   if (source.current() != '}') {
     throw SyntaxError(source.getPosition(),
                       "Missing closing '}' in object definition.");
@@ -410,8 +402,6 @@ YNode YAML_Parser::parseDocument(ISource &source,
                                  const Delimeters &delimiters) {
   YNode yNode;
   source.ignoreWS();
-
-  // Parse scalars
 
   if (isBoolean(source)) {
     yNode = parseBoolean(source, delimiters);
