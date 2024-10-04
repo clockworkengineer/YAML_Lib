@@ -97,11 +97,14 @@ bool isKey(ISource &source) {
 }
 
 bool isArray(ISource &source) {
-  if (source.match("- ")) {
-    source.backup(2);
-    return (true);
+  auto first = source.current();
+  auto result{false};
+  if (source.more()) {
+    source.next();
+    result = (first == '-') && source.current() == ' ';
+    source.backup(1);
   }
-  return (false);
+  return (result);
 }
 
 bool isBoolean(ISource &source) {
