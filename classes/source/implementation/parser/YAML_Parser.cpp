@@ -193,8 +193,8 @@ YNode YAML_Parser::parseString(ISource &source,
     return YNode::make<String>(yamlString, '\0');
   } else {
     source.ignoreWS();
-    while (source.more() && !isKey(source) && !isArray(source) &&
-           !isComment(source)) {
+    while (source.more() &&
+           !(isKey(source) || isArray(source) || isComment(source))) {
       yamlString += " ";
       yamlString += extractToNext(source, delimiters);
       if (source.more()) {
@@ -245,8 +245,8 @@ YNode YAML_Parser::parseNumber(ISource &source,
   unsigned long len = numeric.size();
   rightTrimString(numeric);
   if (Number number{numeric}; number.is<int>() || number.is<long>() ||
-                             number.is<long long>() || number.is<float>() ||
-                             number.is<double>() || number.is<long double>()) {
+                              number.is<long long>() || number.is<float>() ||
+                              number.is<double>() || number.is<long double>()) {
     moveToNext(source, delimiters);
     yNode = YNode::make<Number>(number);
   } else {
