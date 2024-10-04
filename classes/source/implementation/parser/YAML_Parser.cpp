@@ -11,6 +11,13 @@
 
 namespace YAML_Lib {
 
+void rightTrimmString(std::string &s) {
+  s.erase(std::find_if(s.rbegin(), s.rend(),
+                       [](unsigned char ch) { return !std::isspace(ch); })
+              .base(),
+          s.end());
+}
+
 void moveToNext(ISource &source, const std::set<char> &delimeters) {
   if (!delimeters.empty()) {
     while (source.more() && !delimeters.contains(source.current())) {
@@ -86,11 +93,7 @@ bool isKey(ISource &source) {
   std::string key{extractToNext(source, {':', kLineFeed})};
   if (source.current() == ':') {
     source.backup(key.size());
-    if (!key.empty()) {
-      while (key.back() == ' ') {
-        key.pop_back();
-      }
-    }
+    rightTrimmString(key);
     return isValidKey(key);
   }
   source.backup(key.size());
@@ -145,11 +148,7 @@ std::string YAML_Parser::parseKey(ISource &source) {
   if (source.more()) {
     source.next();
   }
-  if (!key.empty()) {
-    while (key.back() == ' ') {
-      key.pop_back();
-    }
-  }
+  rightTrimmString(key);
   if (!isValidKey(key)) {
     throw Error("Invalid key '" + key + "' specified.");
   }
@@ -249,9 +248,7 @@ YNode YAML_Parser::parseNumber(ISource &source,
   YNode yNode;
   std::string string{extractToNext(source, delimeters)};
   unsigned long len = string.size();
-  while (string.back() == ' ') {
-    string.pop_back();
-  }
+  rightTrimmString(string);
   if (Number number{string}; number.is<int>() || number.is<long>() ||
                              number.is<long long>() || number.is<float>() ||
                              number.is<double>() || number.is<long double>()) {
@@ -268,9 +265,7 @@ YNode YAML_Parser::parseNone(ISource &source,
   YNode yNode;
   std::string none{extractToNext(source, delimeters)};
   int len = none.size();
-  while (none.back() == ' ') {
-    none.pop_back();
-  }
+  rightTrimmString(none);
   if (none == "null" || none == "~") {
     yNode = YNode::make<Null>();
   }
@@ -285,9 +280,7 @@ YNode YAML_Parser::parseBoolean(ISource &source,
   YNode yNode;
   std::string boolean{extractToNext(source, delimeters)};
   int len = boolean.size();
-  while (boolean.back() == ' ') {
-    boolean.pop_back();
-  }
+  rightTrimmString(boolean);
   if (boolean == "True" || boolean == "On" || boolean == "Yes") {
     yNode = YNode::make<Boolean>(true);
   } else if (boolean == "False" || boolean == "Off" || boolean == "No") {
