@@ -157,7 +157,7 @@ std::string YAML_Parser::parseKey(ISource &source) {
 YNode YAML_Parser::parseBlockString(ISource &source,
                                     const Delimeters &delimiters) {
   YNode yNode;
-  moveToNext(source, {kLineFeed});
+  moveToNext(source, delimiters);
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString{};
   while (indentLevel == currentIndentLevel(source)) {
@@ -339,8 +339,7 @@ YNode YAML_Parser::parseInlineArray(
   do {
     source.next();
     source.ignoreWS();
-    YRef<Array>(yNode).add(
-        parseDocument(source, indentLevel, {kLineFeed, ',', ']'}));
+    YRef<Array>(yNode).add(parseDocument(source, indentLevel, delimiters));
   } while (source.current() == ',');
   source.ignoreWS();
   if (source.current() != ']') {
@@ -385,8 +384,7 @@ YNode YAML_Parser::parseInlineDictionary(
   do {
     source.next();
     source.ignoreWS();
-    YRef<Dictionary>(yNode).add(
-        parseKeyValue(source, indentLevel, {kLineFeed, ',', '}'}));
+    YRef<Dictionary>(yNode).add(parseKeyValue(source, indentLevel, delimiters));
 
   } while (source.current() == ',');
   if (source.current() != '}') {
@@ -464,7 +462,8 @@ YNode YAML_Parser::parseDocument(ISource &source,
     }
   }
   if (isInlineArray(source)) {
-    yNode = parseInlineArray(source, currentIndentLevel(source), {','});
+    yNode = parseInlineArray(source, currentIndentLevel(source),
+                             {kLineFeed, ',', ']'});
     if (!yNode.isEmpty()) {
       return yNode;
     }
@@ -476,7 +475,8 @@ YNode YAML_Parser::parseDocument(ISource &source,
     }
   }
   if (isInlineDictionary(source)) {
-    yNode = parseInlineDictionary(source, currentIndentLevel(source), {','});
+    yNode = parseInlineDictionary(source, currentIndentLevel(source),
+                                  {kLineFeed, ',', '}'});
     if (!yNode.isEmpty()) {
       return yNode;
     }
