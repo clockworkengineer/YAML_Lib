@@ -9,7 +9,7 @@ struct String : Variant
 {
   // Constructors/Destructors
   String() : Variant(Type::string) {}
-  explicit String(std::string string, char quote ='"') : Variant(Type::string), yNodeString(std::move(string)), quote(quote) {}
+  explicit String(std::string string, char quote ='"', unsigned long indent=0) : Variant(Type::string, indent), yNodeString(std::move(string)), quote(quote) {}
   String(const String &other) = default;
   String &operator=(const String &other) = default;
   String(String &&other) = default;

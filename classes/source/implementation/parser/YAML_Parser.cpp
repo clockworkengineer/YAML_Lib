@@ -160,15 +160,14 @@ YNode YAML_Parser::parseBlockString(ISource &source,
   moveToNext(source, delimiters);
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString{};
-  while (indentLevel == currentIndentLevel(source)) {
+  do {
     yamlString += extractToNext(source, delimiters);
     moveToNext(source, delimiters);
     if (indentLevel == currentIndentLevel(source)) {
       yamlString += " ";
     }
-  }
-  yNode = YNode::make<String>(yamlString, '>');
-  YRef<String>(yNode).setIndentation(indentLevel);
+  } while (indentLevel == currentIndentLevel(source));
+  yNode = YNode::make<String>(yamlString, '>', indentLevel);
   return yNode;
 }
 
@@ -178,15 +177,14 @@ YNode YAML_Parser::parsePipedBlockString(ISource &source,
   moveToNext(source, delimiters);
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString;
-  while (indentLevel == currentIndentLevel(source)) {
+  do {
     yamlString += extractToNext(source, {kLineFeed});
     moveToNext(source, delimiters);
     if (indentLevel == currentIndentLevel(source)) {
       yamlString += kLineFeed;
     }
-  }
-  yNode = YNode::make<String>(yamlString, '|');
-  YRef<String>(yNode).setIndentation(indentLevel);
+  } while (indentLevel == currentIndentLevel(source));
+  yNode = YNode::make<String>(yamlString, '|', indentLevel);
   return yNode;
 }
 
@@ -313,8 +311,7 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimeters &delimiters) {
 
 YNode YAML_Parser::parseArray(ISource &source, unsigned long indentLevel,
                               const Delimeters &delimiters) {
-  YNode yNode = YNode::make<Array>();
-  YRef<Array>(yNode).setIndentation(indentLevel);
+  YNode yNode = YNode::make<Array>(indentLevel);
   do {
     if (isArray(source)) {
       source.next();
@@ -359,8 +356,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
 
 YNode YAML_Parser::parseDictionary(ISource &source, unsigned long indentLevel,
                                    const Delimeters &delimiters) {
-  YNode yNode = YNode::make<Dictionary>();
-  YRef<Dictionary>(yNode).setIndentation(indentLevel);
+  YNode yNode = YNode::make<Dictionary>(indentLevel);
   while (source.more() &&
          (std::isalpha(source.current()) || isComment(source))) {
     if (!isComment(source)) {
@@ -517,5 +513,4 @@ std::vector<YNode> YAML_Parser::parse(ISource &source) {
   }
   return yNodeTree;
 }
-
 } // namespace YAML_Lib
