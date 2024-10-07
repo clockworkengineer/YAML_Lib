@@ -145,9 +145,9 @@ bool isDictionary(ISource &source) { return isKey(source); }
 
 std::string extractBlockString(ISource &source,
                                const YAML_Parser::Delimeters &delimiters,
-                               char eol = ' ') {
+                               char eol,
+                               unsigned long indentLevel) {
   std::string yamlString{};
-  auto indentLevel = currentIndentLevel(source);
   do {
     yamlString += extractToNext(source, delimiters);
     moveToNext(source, delimiters);
@@ -176,7 +176,7 @@ YNode YAML_Parser::parseBlockString(ISource &source,
   moveToNext(source, delimiters);
   source.ignoreWS();
   auto indentLevel = currentIndentLevel(source);
-  std::string yamlString{extractBlockString(source, delimiters)};
+  std::string yamlString{extractBlockString(source, delimiters, ' ', indentLevel)};
   return YNode::make<String>(yamlString, '>', indentLevel);
 }
 
@@ -185,7 +185,7 @@ YNode YAML_Parser::parsePipedBlockString(ISource &source,
   moveToNext(source, delimiters);
   source.ignoreWS();
   auto indentLevel = currentIndentLevel(source);
-  std::string yamlString{extractBlockString(source, delimiters, kLineFeed)};
+  std::string yamlString{extractBlockString(source, delimiters, kLineFeed, indentLevel)};
   return YNode::make<String>(yamlString, '|', indentLevel);
 }
 
