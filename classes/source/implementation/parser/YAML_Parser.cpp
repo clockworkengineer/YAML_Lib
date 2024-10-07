@@ -73,7 +73,7 @@ std::string translateEscapes(const std::string &yamlString) {
 }
 bool isValidKey(const std::string &key) {
   if (!key.empty()) {
-    if (!std::isalpha(key[0])) {
+    if (!std::isalpha(key[0]) || key.back()==' ') {
       return (false);
     }
     for (auto ch : key) {
@@ -85,26 +85,28 @@ bool isValidKey(const std::string &key) {
   }
   return (false);
 }
+
 bool isKey(ISource &source) {
+  bool keyPresent{false};
   std::string key{extractToNext(source, {':', kLineFeed})};
+  auto keyLength = key.size();
   if (source.current() == ':') {
-    source.backup(key.size());
     rightTrimString(key);
-    return isValidKey(key);
+    keyPresent = isValidKey(key);
   }
-  source.backup(key.size());
-  return false;
+  source.backup(keyLength);
+  return keyPresent;
 }
 
 bool isArray(ISource &source) {
   auto first = source.current();
-  auto result{false};
+  auto arrayPresent{false};
   if (source.more()) {
     source.next();
-    result = (first == '-') && source.current() == ' ';
+    arrayPresent = (first == '-') && source.current() == ' ';
     source.backup(1);
   }
-  return (result);
+  return (arrayPresent);
 }
 
 bool isBoolean(ISource &source) {
@@ -156,7 +158,6 @@ std::string YAML_Parser::parseKey(ISource &source) {
 
 YNode YAML_Parser::parseBlockString(ISource &source,
                                     const Delimeters &delimiters) {
-  YNode yNode;
   moveToNext(source, delimiters);
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString{};
@@ -167,13 +168,11 @@ YNode YAML_Parser::parseBlockString(ISource &source,
       yamlString += " ";
     }
   } while (indentLevel == currentIndentLevel(source));
-  yNode = YNode::make<String>(yamlString, '>', indentLevel);
-  return yNode;
+  return YNode::make<String>(yamlString, '>', indentLevel);
 }
 
 YNode YAML_Parser::parsePipedBlockString(ISource &source,
                                          const Delimeters &delimiters) {
-  YNode yNode;
   moveToNext(source, delimiters);
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString;
@@ -184,8 +183,7 @@ YNode YAML_Parser::parsePipedBlockString(ISource &source,
       yamlString += kLineFeed;
     }
   } while (indentLevel == currentIndentLevel(source));
-  yNode = YNode::make<String>(yamlString, '|', indentLevel);
-  return yNode;
+  return YNode::make<String>(yamlString, '|', indentLevel);
 }
 
 YNode YAML_Parser::parseString(ISource &source, const Delimeters &delimiters) {
