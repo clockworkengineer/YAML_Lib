@@ -132,7 +132,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE_THROWS_WITH(yaml.parse(source),
                         "IParser Error: Invalid key 'see?' specified.");
   }
-  SECTION("YAML parse regular string multi-line.",
+  SECTION("YAML parse regular multi-line string.",
           "[YAML][Stringify][literals]") {
     BufferSource source{
         "---\n Sammy Sosa completed another\n fine season with great "

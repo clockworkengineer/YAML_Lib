@@ -171,7 +171,7 @@ std::string YAML_Parser::parseKey(ISource &source) {
   return key;
 }
 
-YNode YAML_Parser::parseBlockString(ISource &source,
+YNode YAML_Parser::parseFoldedBlockString(ISource &source,
                                     const Delimeters &delimiters) {
   moveToNext(source, delimiters);
   source.ignoreWS();
@@ -180,7 +180,7 @@ YNode YAML_Parser::parseBlockString(ISource &source,
   return YNode::make<String>(yamlString, '>', indentLevel);
 }
 
-YNode YAML_Parser::parsePipedBlockString(ISource &source,
+YNode YAML_Parser::parseLiteralBlockString(ISource &source,
                                          const Delimeters &delimiters) {
   moveToNext(source, delimiters);
   source.ignoreWS();
@@ -425,13 +425,13 @@ YNode YAML_Parser::parseDocument(ISource &source,
     }
   }
   if (isBlockString(source)) {
-    yNode = parseBlockString(source, delimiters);
+    yNode = parseFoldedBlockString(source, delimiters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
   if (isPipedBlockString(source)) {
-    yNode = parsePipedBlockString(source, delimiters);
+    yNode = parseLiteralBlockString(source, delimiters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
