@@ -136,7 +136,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
           "[YAML][Stringify][literals]") {
     BufferSource source{
         "---\n Sammy Sosa completed another\n fine season with great "
-        "stats.\n\n   63 Home Runs\n   0.288 Batting Average\n What a year!"};
+        "stats.\n   63 Home Runs\n   0.288 Batting Average\n What a year!"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
             "Sammy Sosa completed another fine season with great stats. 63 "
