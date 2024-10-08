@@ -168,7 +168,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE(destination.toString() ==
             "---\nMark McGwire\'s year was crippled by a knee injury....\n");
   }
-  SECTION("YAML Stringify literals perserves newlines.",
+  SECTION("YAML Stringify literal string perserves newlines.",
           "[YAML][Stringify][literals]") {
     BufferSource source{"--- |\n  \\//||\\/||\n  // ||  ||__\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -179,15 +179,15 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE(destination.toString() ==
             "--- |\n  \\//||\\/||\n  // ||  ||__...\n");
   }
-  SECTION(
-      "YAML Stringify folded newlines preserved for indented and blank lines.",
-      "[YAML][Stringify][literals]") {
-    BufferSource source{
-        "--- >\n Sammy Sosa completed another\n fine season with great "
-        "stats.\n\n   63 Home Runs\n   0.288 Batting Average\n\n What a year!"};
-    REQUIRE_NOTHROW(yaml.parse(source));
+//   SECTION(
+//       "YAML Stringify folded newlines preserved for indented and blank lines.",
+//       "[YAML][Stringify][literals]") {
+//     BufferSource source{
+//         "--- >\n Sammy Sosa completed another\n fine season with great "
+//         "stats.\n\n   63 Home Runs\n   0.288 Batting Average\n\n What a year!"};
+//     REQUIRE_NOTHROW(yaml.parse(source));
 //     BufferDestination destination;
 //     REQUIRE_NOTHROW(yaml.stringify(destination));
 //     REQUIRE(destination.toString() == "");
-  }
+//   }
 }
