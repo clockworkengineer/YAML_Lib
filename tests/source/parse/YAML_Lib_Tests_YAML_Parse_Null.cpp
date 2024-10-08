@@ -1,6 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YAML parse of Null/~ .", "[YAML][Parse][Null/~]") {
+TEST_CASE("Check YAML parse of Null/~ .", "[YAML][Parse][Scalar][Null/~]") {
   const YAML yaml;
   SECTION("YAML parse of Null/~.", "[YAML][Parse][Null]") {
     BufferSource source{"---\nnull\n"};

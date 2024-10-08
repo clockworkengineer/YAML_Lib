@@ -1,43 +1,43 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YAML Parsing of boolean types.", "[YAML][Parse][Boolean]") {
+TEST_CASE("Check YAML Parsing of boolean types.", "[YAML][Parse][Scalar][Boolean]") {
   const YAML yaml;
-  SECTION("YAML parse a boolean (True).", "[YAML][Parse][Boolean]") {
+  SECTION("YAML parse a boolean (True).", "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{"---\nTrue\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Boolean>(yaml.document(0)[0]).value());
   }
-  SECTION("YAML parse a boolean (False).", "[YAML][Parse][Boolean]") {
+  SECTION("YAML parse a boolean (False).", "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{"---\nFalse\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[0]));
     REQUIRE_FALSE(YRef<Boolean>(yaml.document(0)[0]).value());
   }
-  SECTION("YAML parse a boolean (On).", "[YAML][Parse][Boolean]") {
+  SECTION("YAML parse a boolean (On).", "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{"---\nOn\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Boolean>(yaml.document(0)[0]).value());
   }
-  SECTION("YAML parse a boolean (Off).", "[YAML][Parse][Boolean]") {
+  SECTION("YAML parse a boolean (Off).", "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{"---\nOff\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[0]));
     REQUIRE_FALSE(YRef<Boolean>(yaml.document(0)[0]).value());
   }
-  SECTION("YAML parse a boolean (Yes).", "[YAML][Parse][Boolean]") {
+  SECTION("YAML parse a boolean (Yes).", "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{"---\nYes\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Boolean>(yaml.document(0)[0]).value());
   }
-  SECTION("YAML parse a boolean (No).", "[YAML][Parse][Boolean]") {
+  SECTION("YAML parse a boolean (No).", "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{"---\nNo\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
@@ -45,7 +45,7 @@ TEST_CASE("Check YAML Parsing of boolean types.", "[YAML][Parse][Boolean]") {
     REQUIRE_FALSE(YRef<Boolean>(yaml.document(0)[0]).value());
   }
   SECTION("YAML parse a boolean is not confused with string.",
-          "[YAML][Parse][Boolean]") {
+          "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{
         "---\n  - True Result\n  - False Result\n  - Yes Result\n  - No "
         "Result\n  - On Result\n  - Off Result\n "};
@@ -67,7 +67,7 @@ TEST_CASE("Check YAML Parsing of boolean types.", "[YAML][Parse][Boolean]") {
     REQUIRE(YRef<String>(yaml.document(0)[0][5]).value() == "Off Result");
   }
   SECTION("YAML parse a boolean (True) with trailing space.",
-          "[YAML][Parse][Boolean]") {
+          "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{"---\nTrue \n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
