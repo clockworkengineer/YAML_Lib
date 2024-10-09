@@ -143,22 +143,6 @@ bool isInlineDictionary(ISource &source) { return source.current() == '{'; }
 
 bool isDictionary(ISource &source) { return isKey(source); }
 
-std::string extractBlockString(ISource &source,
-                               const YAML_Parser::Delimeters &delimiters,
-                               char eol,
-                               unsigned long indentLevel) {
-  std::string yamlString{};
-  do {
-    yamlString += extractToNext(source, delimiters);
-    moveToNext(source, delimiters);
-    source.ignoreWS();
-    if (indentLevel == currentIndentLevel(source)) {
-      yamlString += eol;
-    }
-  } while (indentLevel == currentIndentLevel(source));
-  return yamlString;
-}
-
 std::string YAML_Parser::parseKey(ISource &source) {
   std::string key{extractToNext(source, {':'})};
   if (source.more()) {
@@ -176,7 +160,15 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
   moveToNext(source, delimiters);
   source.ignoreWS();
   auto indentLevel = currentIndentLevel(source);
-  std::string yamlString{extractBlockString(source, delimiters, ' ', indentLevel)};
+  std::string yamlString{};
+  do {
+    yamlString += extractToNext(source, delimiters);
+    moveToNext(source, delimiters);
+    source.ignoreWS();
+    if (indentLevel == currentIndentLevel(source)) {
+      yamlString += ' ';
+    }
+  } while (indentLevel == currentIndentLevel(source));
   return YNode::make<String>(yamlString, '>', indentLevel);
 }
 
@@ -185,7 +177,15 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
   moveToNext(source, delimiters);
   source.ignoreWS();
   auto indentLevel = currentIndentLevel(source);
-  std::string yamlString{extractBlockString(source, delimiters, kLineFeed, indentLevel)};
+  std::string yamlString{};
+  do {
+    yamlString += extractToNext(source, delimiters);
+    moveToNext(source, delimiters);
+    source.ignoreWS();
+    if (indentLevel == currentIndentLevel(source)) {
+      yamlString += kLineFeed;
+    }
+  } while (indentLevel == currentIndentLevel(source));
   return YNode::make<String>(yamlString, '|', indentLevel);
 }
 
