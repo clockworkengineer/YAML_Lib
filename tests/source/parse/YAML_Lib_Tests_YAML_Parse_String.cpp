@@ -161,12 +161,12 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "example: >\n  Several lines of text,\n  with some \" quotes"
         " of various 'types',\n  and also a blank line:\n\n  and some text "
         "with\n    extra indentation\n  on the next line,\n  plus another line "
-        "at the end.\n\n\n"};
+        "at the end.\n\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(YRef<String>(yaml.document(0)[0]["example"]).value() ==
             "Several lines of text, with some \" quotes of various \'types\', "
             "and also a blank line:\n\nand some text with \n    extra "
-            "indentation\non the next line, plus another line at the end.\n\n");
+            "indentation\non the next line, plus another line at the end.\n");
   }
 //   SECTION("YAML parse block string literal newlines preserved.",
 //           "[YAML][Stringify][Literal]") {

@@ -11,6 +11,15 @@
 
 namespace YAML_Lib {
 
+bool endsWithString(const std::string &str, const std::string &sub) {
+  int str_len = str.size();
+  int sub_len = sub.size();
+  if (str_len < sub_len)
+    return false;
+
+  return str.compare(str_len - sub_len, sub_len, sub) == 0;
+}
+
 void rightTrimString(std::string &s) {
   s.erase(std::find_if(s.rbegin(), s.rend(),
                        [](unsigned char ch) { return !std::isspace(ch); })
@@ -164,7 +173,8 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
   do {
     char filler{' '};
     if (indentLevel < currentIndentLevel(source)) {
-      if (yamlString.back() != '\n') yamlString += '\n';
+      if (yamlString.back() != '\n')
+        yamlString += '\n';
       yamlString += std::string((currentIndentLevel(source) - 1), ' ');
       filler = '\n';
     }
@@ -181,6 +191,9 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
       source.next();
     }
   } while (source.more() && indentLevel <= currentIndentLevel(source));
+  if (endsWithString(yamlString, "\n\n\n")) {
+    yamlString.pop_back();
+  }
   yamlString.pop_back();
   return YNode::make<String>(yamlString, '>', indentLevel);
 }
