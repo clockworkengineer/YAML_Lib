@@ -165,7 +165,8 @@ std::string YAML_Parser::parseKey(ISource &source) {
 }
 
 YNode YAML_Parser::parseFoldedBlockString(ISource &source,
-                                          const Delimeters &delimiters) {
+                                          const Delimeters &delimiters,
+                                          bool clip) {
   moveToNext(source, delimiters);
   source.ignoreWS();
   auto indentLevel = currentIndentLevel(source);
@@ -191,27 +192,50 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
       source.next();
     }
   } while (source.more() && indentLevel <= currentIndentLevel(source));
-  if (endsWithString(yamlString, "\n\n\n")) {
+  if (clip) {
+    if (endsWithString(yamlString, "\n\n\n")) {
+      yamlString.pop_back();
+    }
     yamlString.pop_back();
   }
-  yamlString.pop_back();
+
   return YNode::make<String>(yamlString, '>', indentLevel);
 }
 
 YNode YAML_Parser::parseLiteralBlockString(ISource &source,
-                                           const Delimeters &delimiters) {
+                                           const Delimeters &delimiters,
+                                           bool clip) {
   moveToNext(source, delimiters);
   source.ignoreWS();
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString{};
   do {
-    yamlString += extractToNext(source, delimiters);
-    moveToNext(source, delimiters);
-    source.ignoreWS();
-    if (indentLevel == currentIndentLevel(source)) {
-      yamlString += kLineFeed;
+    char filler{'\n'};
+    if (indentLevel < currentIndentLevel(source)) {
+      if (yamlString.back() != '\n')
+        yamlString += '\n';
+      yamlString += std::string((currentIndentLevel(source) - 1), ' ');
     }
-  } while (indentLevel == currentIndentLevel(source));
+    yamlString += extractToNext(source, delimiters);
+    yamlString += filler;
+    if (source.more()) {
+      source.next();
+    }
+    while (source.more() && source.isWS()) {
+      if (source.current() == '\n') {
+        yamlString.pop_back();
+        yamlString += "\n\n";
+      }
+      source.next();
+    }
+  } while (source.more() && indentLevel <= currentIndentLevel(source));
+  if (clip) {
+    if (endsWithString(yamlString, "\n\n\n")) {
+      yamlString.pop_back();
+    }
+    yamlString.pop_back();
+  }
+
   return YNode::make<String>(yamlString, '|', indentLevel);
 }
 
@@ -451,13 +475,13 @@ YNode YAML_Parser::parseDocument(ISource &source,
     }
   }
   if (isBlockString(source)) {
-    yNode = parseFoldedBlockString(source, delimiters);
+    yNode = parseFoldedBlockString(source, delimiters, true);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
   if (isPipedBlockString(source)) {
-    yNode = parseLiteralBlockString(source, delimiters);
+    yNode = parseLiteralBlockString(source, delimiters, true);
     if (!yNode.isEmpty()) {
       return yNode;
     }
