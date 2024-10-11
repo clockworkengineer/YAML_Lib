@@ -162,14 +162,13 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
   auto indentLevel = currentIndentLevel(source);
   std::string yamlString{};
   do {
-    if (indentLevel == currentIndentLevel(source)) {
-      yamlString += extractToNext(source, delimiters);
-      yamlString += ' ';
-    } else {
-      auto i = currentIndentLevel(source) - 1;
-      yamlString += std::string(i, ' ') + extractToNext(source, delimiters);
-      yamlString += '\n';
+    char filler{' '};
+    if (indentLevel < currentIndentLevel(source)) {
+      yamlString += std::string((currentIndentLevel(source) - 1), ' ');
+      filler = '\n';
     }
+    yamlString += extractToNext(source, delimiters);
+    yamlString += filler;
     if (source.more()) {
       source.next();
     }
