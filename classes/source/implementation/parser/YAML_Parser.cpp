@@ -164,6 +164,7 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
   do {
     char filler{' '};
     if (indentLevel < currentIndentLevel(source)) {
+      if (yamlString.back() != '\n') yamlString += '\n';
       yamlString += std::string((currentIndentLevel(source) - 1), ' ');
       filler = '\n';
     }

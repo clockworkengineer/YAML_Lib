@@ -144,7 +144,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
   }
   SECTION("YAML parse block string folded newlines preserved for indented and"
           "blank lines.",
-          "[YAML][Stringify][literals]") {
+          "[YAML][Stringify][Folded]") {
     BufferSource source{
         "--- >\n Sammy Sosa completed another\n fine season with great "
         "stats.\n\n   63 Home Runs\n   0.288 Batting Average\n\n What a year!"};
@@ -153,4 +153,29 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "Sammy Sosa completed another fine season with great stats.\n\n   "
             "63 Home Runs\n   0.288 Batting Average\n\nWhat a year!");
   }
+  SECTION("YAML parse block string example with folded newlines preserved for "
+          "indented and"
+          "blank lines.",
+          "[YAML][Stringify][folded]") {
+    BufferSource source{
+        "example: >\n  Several lines of text,\n  with some \" quotes"
+        " of various 'types',\n  and also a blank line:\n\n  and some text "
+        "with\n    extra indentation\n  on the next line,\n  plus another line "
+        "at the end.\n\n\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(YRef<String>(yaml.document(0)[0]["example"]).value() ==
+            "Several lines of text, with some \" quotes of various \'types\', "
+            "and also a blank line:\n\nand some text with \n    extra "
+            "indentation\non the next line, plus another line at the end.\n\n");
+  }
+//   SECTION("YAML parse block string literal newlines preserved.",
+//           "[YAML][Stringify][Literal]") {
+//     BufferSource source{
+//         "example: |\n  Several lines of text,\n  with some \" quotes"
+//         " of various 'types',\n  and also a blank line:\n\n  and some text "
+//         "with\n    extra indentation\n  on the next line,\n  plus another line "
+//         "at the end.\n\n\n"};
+//     REQUIRE_NOTHROW(yaml.parse(source));
+//     REQUIRE(YRef<String>(yaml.document(0)[0]["example"]).value() == "");
+//   }
 }
