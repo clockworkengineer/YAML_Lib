@@ -25,9 +25,9 @@ public:
 private:
   static std::string parseKey(ISource &source);
   static YNode parseFoldedBlockString(ISource &source,
-                                      const Delimeters &delimiters, bool clip);
+                                      const Delimeters &delimiters);
   static YNode parseLiteralBlockString(ISource &source,
-                                       const Delimeters &delimiters, bool clip);
+                                       const Delimeters &delimiters);
   static YNode parseString(ISource &source, const Delimeters &delimiters);
   static YNode parseQuotedString(ISource &source, const Delimeters &delimiters);
   static YNode parseComment(ISource &source,

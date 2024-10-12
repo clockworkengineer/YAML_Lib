@@ -165,8 +165,16 @@ std::string YAML_Parser::parseKey(ISource &source) {
 }
 
 YNode YAML_Parser::parseFoldedBlockString(ISource &source,
-                                          const Delimeters &delimiters,
-                                          bool clip) {
+                                          const Delimeters &delimiters) {
+  [[maybe_unused]] bool clip{true}, strip{false}, keep{false};
+  source.next();
+  if (source.current() == '-') {
+    clip = false;
+    strip = true;
+  } else if (source.current() == '+') {
+    clip = false;
+    keep = true;
+  }
   moveToNext(source, delimiters);
   source.ignoreWS();
   auto indentLevel = currentIndentLevel(source);
@@ -174,8 +182,9 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
   do {
     char filler{' '};
     if (indentLevel < currentIndentLevel(source)) {
-      if (yamlString.back() != '\n')
+      if (yamlString.back() != '\n') {
         yamlString += '\n';
+      }
       yamlString += std::string((currentIndentLevel(source) - 1), ' ');
       filler = '\n';
     }
@@ -203,8 +212,16 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
 }
 
 YNode YAML_Parser::parseLiteralBlockString(ISource &source,
-                                           const Delimeters &delimiters,
-                                           bool clip) {
+                                           const Delimeters &delimiters) {
+  [[maybe_unused]] bool clip{true}, strip{false}, keep{false};
+  source.next();
+  if (source.current() == '-') {
+    clip = false;
+    strip = true;
+  } else if (source.current() == '+') {
+    clip = false;
+    keep = true;
+  }
   moveToNext(source, delimiters);
   source.ignoreWS();
   auto indentLevel = currentIndentLevel(source);
@@ -212,8 +229,9 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
   do {
     char filler{'\n'};
     if (indentLevel < currentIndentLevel(source)) {
-      if (yamlString.back() != '\n')
+      if (yamlString.back() != '\n') {
         yamlString += '\n';
+      }
       yamlString += std::string((currentIndentLevel(source) - 1), ' ');
     }
     yamlString += extractToNext(source, delimiters);
@@ -475,13 +493,13 @@ YNode YAML_Parser::parseDocument(ISource &source,
     }
   }
   if (isBlockString(source)) {
-    yNode = parseFoldedBlockString(source, delimiters, true);
+    yNode = parseFoldedBlockString(source, delimiters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
   }
   if (isPipedBlockString(source)) {
-    yNode = parseLiteralBlockString(source, delimiters, true);
+    yNode = parseLiteralBlockString(source, delimiters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
