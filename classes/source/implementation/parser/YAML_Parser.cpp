@@ -252,11 +252,17 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
       source.next();
     }
   } while (source.more() && indentLevel <= currentIndentLevel(source));
-  if (clip) {
+  if (clip || strip) {
     if (endsWithString(yamlString, "\n\n\n")) {
       yamlString.pop_back();
     }
     yamlString.pop_back();
+  }
+  if (strip && yamlString.back() == '\n') {
+    yamlString.pop_back();
+  }
+  if (keep && source.more() && source.current() == '\n') {
+    yamlString += '\n';
   }
 
   return YNode::make<String>(yamlString, '|', indentLevel);

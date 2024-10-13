@@ -183,7 +183,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "and also a blank line:\n\nand some text with \n    extra "
             "indentation\non the next line, plus another line at the end.");
   }
-    SECTION("YAML parse block string example with folded newlines preserved for "
+  SECTION("YAML parse block string example with folded newlines preserved for "
           "indented and"
           "blank lines plus kepp all trailing newlines.",
           "[YAML][Stringify][folded]") {
@@ -193,10 +193,11 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "with\n    extra indentation\n  on the next line,\n  plus another line "
         "at the end.\n\n\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(YRef<String>(yaml.document(0)[0]["example"]).value() ==
-            "Several lines of text, with some \" quotes of various \'types\', "
-            "and also a blank line:\n\nand some text with \n    extra "
-            "indentation\non the next line, plus another line at the end.\n\n\n");
+    REQUIRE(
+        YRef<String>(yaml.document(0)[0]["example"]).value() ==
+        "Several lines of text, with some \" quotes of various \'types\', "
+        "and also a blank line:\n\nand some text with \n    extra "
+        "indentation\non the next line, plus another line at the end.\n\n\n");
   }
   SECTION("YAML parse block string literal newlines preserved.",
           "[YAML][Stringify][Literal]") {
@@ -211,5 +212,35 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "Several lines of text,\nwith some \" quotes of various "
         "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
         "indentation\non the next line,\nplus another line at the end.\n");
+  }
+  SECTION("YAML parse block string literal newlines preserved and last newline "
+          "stripped.",
+          "[YAML][Stringify][Literal]") {
+    BufferSource source{
+        "example: |-\n  Several lines of text,\n  with some \" quotes"
+        " of various 'types',\n  and also a blank line:\n\n  and some text "
+        "with\n    extra indentation\n  on the next line,\n  plus another line "
+        "at the end.\n\n\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(
+        YRef<String>(yaml.document(0)[0]["example"]).value() ==
+        "Several lines of text,\nwith some \" quotes of various "
+        "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
+        "indentation\non the next line,\nplus another line at the end.");
+  }
+  SECTION("YAML parse block string literal newlines preserved and plus kepp "
+          "all trailing newlines.",
+          "[YAML][Stringify][Literal]") {
+    BufferSource source{
+        "example: |+\n  Several lines of text,\n  with some \" quotes"
+        " of various 'types',\n  and also a blank line:\n\n  and some text "
+        "with\n    extra indentation\n  on the next line,\n  plus another line "
+        "at the end.\n\n\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(
+        YRef<String>(yaml.document(0)[0]["example"]).value() ==
+        "Several lines of text,\nwith some \" quotes of various "
+        "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
+        "indentation\non the next line,\nplus another line at the end.\n\n\n");
   }
 }
