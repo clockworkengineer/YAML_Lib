@@ -228,7 +228,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
         "indentation\non the next line,\nplus another line at the end.");
   }
-  SECTION("YAML parse block string literal newlines preserved and plus kepp "
+  SECTION("YAML parse block string literal newlines preserved and plus keep "
           "all trailing newlines.",
           "[YAML][Stringify][Literal]") {
     BufferSource source{
