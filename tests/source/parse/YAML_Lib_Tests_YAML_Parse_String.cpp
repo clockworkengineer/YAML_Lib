@@ -55,6 +55,15 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
     REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "test string \\n. ");
   }
+  // Single quoted strings '' -> '
+  SECTION("YAML parse an single quoted string with escaped single quotes.",
+          "[YAML][Parse][Scalar][String]") {
+    BufferSource source{"---\n 'test string ''.''. ' \n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "test string '.'. ");
+  }
   SECTION("YAML parse an unquoted string with that terminated by EOF.",
           "[YAML][Parse][Scalar][String]") {
     BufferSource source{"---\n test string."};
@@ -243,4 +252,14 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
         "indentation\non the next line,\nplus another line at the end.\n\n\n");
   }
+  //   SECTION("YAML parse block single quoted flow scalar",
+  //           "[YAML][Stringify][Flow Scalar]") {
+  //     BufferSource source{
+  //         "example: \'Several lines of text,\n  containing \'\'single "
+  //         "quotes\'\'. Escapes (like \\n) don\'\'t do anything.\n  \n
+  //         Newlines " "can be added by leaving a blank line.\n    Leading
+  //         whitespace on " "lines is ignored.\'"};
+  //     REQUIRE_NOTHROW(yaml.parse(source));
+  //     REQUIRE(YRef<String>(yaml.document(0)[0]["example"]).value() == "");
+  //   }
 }

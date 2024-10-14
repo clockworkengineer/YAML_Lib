@@ -292,18 +292,33 @@ YNode YAML_Parser::parseQuotedString(ISource &source,
   const char quote = source.current();
   std::string yamlString;
   source.next();
-  while (source.more() && source.current() != quote) {
-    if (source.current() == '\\') {
-      yamlString += "\\";
-      source.next();
+  if (quote == '"') {
+    while (source.more() && source.current() != '"') {
+      if (source.current() == '\\') {
+        yamlString += "\\";
+        source.next();
+      }
+      if (source.more()) {
+        yamlString += source.current();
+        source.next();
+      }
     }
-    if (source.more()) {
-      yamlString += source.current();
-      source.next();
-    }
-  }
-  if (quote != '\'') {
     yamlString = translateEscapes(yamlString);
+  } else {
+    while (source.more()) {
+      if (source.current() == '\'') {
+        source.next();
+        if (source.current() == '\'') {
+          yamlString += "\'";
+          source.next();
+        } else {
+          break;
+        }
+      } else {
+        yamlString += source.current();
+        source.next();
+      }
+    }
   }
   moveToNext(source, delimiters);
   source.ignoreWS();
