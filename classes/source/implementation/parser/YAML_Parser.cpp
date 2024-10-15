@@ -293,12 +293,28 @@ YNode YAML_Parser::parseQuotedString(ISource &source,
   std::string yamlString;
   source.next();
   if (quote == '"') {
-    while (source.more() && source.current() != '"') {
+    while (source.more()) {
       if (source.current() == '\\') {
         yamlString += "\\";
         source.next();
-      }
-      if (source.more()) {
+        yamlString += source.current();
+        source.next();
+      } else if (source.current() == '\n') {
+        yamlString += ' ';
+        source.next();
+        while (source.more() && source.current() == ' ') {
+          source.next();
+        }
+        if (source.current() == '\n') {
+          yamlString += "\n";
+        }
+        source.next();
+        while (source.more() && source.current() == ' ') {
+          source.next();
+        }
+      } else if (source.current() == '"') {
+        break;
+      } else {
         yamlString += source.current();
         source.next();
       }
@@ -316,16 +332,19 @@ YNode YAML_Parser::parseQuotedString(ISource &source,
         }
       } else if (source.current() == '\n') {
         yamlString += ' ';
-        while (source.more() && source.current() == ' ') {
-          source.next();
-        }
-        if (source.current() == '\n') {
-          yamlString += "\n";
-        }
         source.next();
         while (source.more() && source.current() == ' ') {
           source.next();
         }
+        if (source.current() == '\n') {
+          yamlString.pop_back();
+          yamlString += "\n";
+          source.next();
+          while (source.more() && source.current() == ' ') {
+            source.next();
+          }
+        }
+
       } else {
         yamlString += source.current();
         source.next();
