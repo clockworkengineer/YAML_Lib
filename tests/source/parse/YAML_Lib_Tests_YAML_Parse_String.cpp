@@ -282,4 +282,10 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "them from being converted to a space.\nNewlines can also be added "
             "by leaving a blank line. Leading whitespace on lines is ignored.");
   }
+//   SECTION("YAML parse block plain flow scalar",
+//           "[YAML][Stringify][Flow Scalar]") {
+//     BufferSource source{""};
+//     REQUIRE_NOTHROW(yaml.parse(source));
+//     REQUIRE(YRef<String>(yaml.document(0)[0]["example"]).value() == "");
+//   }
 }

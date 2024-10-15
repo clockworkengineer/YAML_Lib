@@ -11,7 +11,7 @@
 
 namespace YAML_Lib {
 
-bool endsWithString(const std::string &str, const std::string &sub) {
+bool  endsWith(const std::string &str, const std::string &sub) {
   int str_len = str.size();
   int sub_len = sub.size();
   if (str_len < sub_len)
@@ -20,7 +20,7 @@ bool endsWithString(const std::string &str, const std::string &sub) {
   return str.compare(str_len - sub_len, sub_len, sub) == 0;
 }
 
-void rightTrimString(std::string &s) {
+void rightTrim(std::string &s) {
   s.erase(std::find_if(s.rbegin(), s.rend(),
                        [](unsigned char ch) { return !std::isspace(ch); })
               .base(),
@@ -99,7 +99,7 @@ bool isKey(ISource &source) {
   std::string key{extractToNext(source, {':', kLineFeed})};
   auto keyLength = key.size();
   if (source.current() == ':') {
-    rightTrimString(key);
+    rightTrim(key);
     keyPresent = isValidKey(key);
   }
   source.backup(keyLength);
@@ -157,7 +157,7 @@ std::string YAML_Parser::parseKey(ISource &source) {
   if (source.more()) {
     source.next();
   }
-  rightTrimString(key);
+  rightTrim(key);
   if (!isValidKey(key)) {
     throw Error("Invalid key '" + key + "' specified.");
   }
@@ -202,7 +202,7 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
     }
   } while (source.more() && indentLevel <= currentIndentLevel(source));
   if (clip || strip) {
-    if (endsWithString(yamlString, "\n\n\n")) {
+    if ( endsWith(yamlString, "\n\n\n")) {
       yamlString.pop_back();
     }
     yamlString.pop_back();
@@ -253,7 +253,7 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
     }
   } while (source.more() && indentLevel <= currentIndentLevel(source));
   if (clip || strip) {
-    if (endsWithString(yamlString, "\n\n\n")) {
+    if ( endsWith(yamlString, "\n\n\n")) {
       yamlString.pop_back();
     }
     yamlString.pop_back();
@@ -370,7 +370,7 @@ YNode YAML_Parser::parseNumber(ISource &source, const Delimeters &delimiters) {
   YNode yNode;
   std::string numeric{extractToNext(source, delimiters)};
   unsigned long len = numeric.size();
-  rightTrimString(numeric);
+  rightTrim(numeric);
   if (Number number{numeric}; number.is<int>() || number.is<long>() ||
                               number.is<long long>() || number.is<float>() ||
                               number.is<double>() || number.is<long double>()) {
@@ -388,7 +388,7 @@ YNode YAML_Parser::parseNone(ISource &source, const Delimeters &delimiters) {
   YNode yNode;
   std::string none{extractToNext(source, delimiters)};
   auto len = none.size();
-  rightTrimString(none);
+  rightTrim(none);
   if (none == "null" || none == "~") {
     yNode = YNode::make<Null>();
   }
@@ -404,7 +404,7 @@ YNode YAML_Parser::parseBoolean(ISource &source, const Delimeters &delimiters) {
   const std::set<std::string> isTrue{"True", "On", "Yes"};
   const std::set<std::string> isFalse{"False", "Off", "No"};
   auto len = boolean.size();
-  rightTrimString(boolean);
+  rightTrim(boolean);
   if (isTrue.contains(boolean)) {
     yNode = YNode::make<Boolean>(true);
   } else if (isFalse.contains(boolean)) {
