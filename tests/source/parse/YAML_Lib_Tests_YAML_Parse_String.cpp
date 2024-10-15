@@ -265,15 +265,21 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "(like \\n) don\'t do anything.\nNewlines can be added by "
             "leaving a blank line. Leading whitespace on lines is ignored.");
   }
-  //   SECTION("YAML parse block double quoted flow scalar",
-  //           "[YAML][Stringify][Flow Scalar]") {
-  //     BufferSource source{
-  //         "example: \"Several lines of text,\n  containing \\\"double "
-  //         "quotes\\\". Escapes (like \\\\n) work.\\nIn addition,\n  newlines
-  //         can " "be escaped to prevent them from being converted to a
-  //         space.\n  \n  " "Newlines can also be added by leaving a blank
-  //         line.\\n\n    Leading " "whitespace on lines is ignored.\""};
-  //     REQUIRE_NOTHROW(yaml.parse(source));
-  //     REQUIRE(YRef<String>(yaml.document(0)[0]["example"]).value() == "");
-  //   }
+  SECTION("YAML parse block double quoted flow scalar",
+          "[YAML][Stringify][Flow Scalar]") {
+    BufferSource source{
+        "example: \"Several lines of text,\n  containing \\\"double "
+        "quotes\\\". Escapes (like \\\\n) work.\\nIn addition,\n  newlines"
+        " can be escaped to prevent them from being converted to a"
+        " space.\n  \n  "
+        "Newlines can also be added by leaving a blank"
+        " line.\n    Leading "
+        "whitespace on lines is ignored.\""};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(YRef<String>(yaml.document(0)[0]["example"]).value() ==
+            "Several lines of text, containing \"double quotes\". Escapes "
+            "(like \\n) work.\nIn addition, newlines can be escaped to prevent "
+            "them from being converted to a space.\nNewlines can also be added "
+            "by leaving a blank line. Leading whitespace on lines is ignored.");
+  }
 }

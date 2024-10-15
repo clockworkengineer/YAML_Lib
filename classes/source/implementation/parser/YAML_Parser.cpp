@@ -306,11 +306,12 @@ YNode YAML_Parser::parseQuotedString(ISource &source,
           source.next();
         }
         if (source.current() == '\n') {
+          yamlString.pop_back();
           yamlString += "\n";
-        }
-        source.next();
-        while (source.more() && source.current() == ' ') {
           source.next();
+          while (source.more() && source.current() == ' ') {
+            source.next();
+          }
         }
       } else if (source.current() == '"') {
         break;
@@ -344,7 +345,6 @@ YNode YAML_Parser::parseQuotedString(ISource &source,
             source.next();
           }
         }
-
       } else {
         yamlString += source.current();
         source.next();
