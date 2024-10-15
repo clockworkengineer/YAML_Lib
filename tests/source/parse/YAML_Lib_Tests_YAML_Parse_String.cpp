@@ -252,14 +252,17 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
         "indentation\non the next line,\nplus another line at the end.\n\n\n");
   }
-  //   SECTION("YAML parse block single quoted flow scalar",
-  //           "[YAML][Stringify][Flow Scalar]") {
-  //     BufferSource source{
-  //         "example: \'Several lines of text,\n  containing \'\'single "
-  //         "quotes\'\'. Escapes (like \\n) don\'\'t do anything.\n  \n
-  //         Newlines " "can be added by leaving a blank line.\n    Leading
-  //         whitespace on " "lines is ignored.\'"};
-  //     REQUIRE_NOTHROW(yaml.parse(source));
-  //     REQUIRE(YRef<String>(yaml.document(0)[0]["example"]).value() == "");
-  //   }
+  SECTION("YAML parse block single quoted flow scalar",
+          "[YAML][Stringify][Flow Scalar]") {
+    BufferSource source{
+        "example: \'Several lines of text,\n  containing \'\'single "
+        "quotes\'\'. Escapes (like \\n) don\'\'t do anything.\n  \n  Newlines "
+        "can be added by leaving a blank line.\n    Leading whitespace on "
+        "lines is ignored.\'"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(YRef<String>(yaml.document(0)[0]["example"]).value() ==
+            "Several lines of text, \ncontaining \'single quotes\'. Escapes "
+            "(like \\n) don\'t do anything. \n \nNewlines can be added by "
+            "leaving a blank line. \nLeading whitespace on lines is ignored.");
+  }
 }
