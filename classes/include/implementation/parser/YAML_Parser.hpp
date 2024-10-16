@@ -9,6 +9,7 @@ class YAML_Parser final : public IParser {
 
 public:
   using Delimeters = std::set<char>;
+  enum class BlockChomping : uint8_t { clip = 0, strip, keep };
 
   YAML_Parser() = default;
   YAML_Parser(const YAML_Parser &other) = delete;
