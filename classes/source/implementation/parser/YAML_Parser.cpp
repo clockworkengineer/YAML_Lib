@@ -268,7 +268,7 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
   return YNode::make<String>(yamlString, '|', indentLevel);
 }
 
-YNode YAML_Parser::parseString(ISource &source, const Delimeters &delimiters) {
+YNode YAML_Parser::parsePlainFlowString(ISource &source, const Delimeters &delimiters) {
   std::string yamlString{extractToNext(source, delimiters)};
   if (source.current() != kLineFeed) {
     return YNode::make<String>(yamlString, '\0');
@@ -301,7 +301,7 @@ YNode YAML_Parser::parseString(ISource &source, const Delimeters &delimiters) {
   }
 }
 
-YNode YAML_Parser::parseQuotedString(ISource &source,
+YNode YAML_Parser::parseQuotedFlowString(ISource &source,
                                      const Delimeters &delimiters) {
   const char quote = source.current();
   std::string yamlString;
@@ -546,7 +546,7 @@ YNode YAML_Parser::parseDocument(ISource &source,
     }
   }
   if (isQuotedString(source)) {
-    yNode = parseQuotedString(source, delimiters);
+    yNode = parseQuotedFlowString(source, delimiters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
@@ -619,7 +619,7 @@ YNode YAML_Parser::parseDocument(ISource &source,
       return yNode;
     }
   }
-  yNode = parseString(source, delimiters);
+  yNode = parsePlainFlowString(source, delimiters);
   if (!yNode.isEmpty()) {
     return yNode;
   }

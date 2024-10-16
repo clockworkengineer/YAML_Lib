@@ -28,8 +28,10 @@ private:
                                       const Delimeters &delimiters);
   static YNode parseLiteralBlockString(ISource &source,
                                        const Delimeters &delimiters);
-  static YNode parseString(ISource &source, const Delimeters &delimiters);
-  static YNode parseQuotedString(ISource &source, const Delimeters &delimiters);
+  static YNode parsePlainFlowString(ISource &source,
+                                    const Delimeters &delimiters);
+  static YNode parseQuotedFlowString(ISource &source,
+                                     const Delimeters &delimiters);
   static YNode parseComment(ISource &source,
                             [[maybe_unused]] const Delimeters &delimiters);
   static YNode parseNumber(ISource &source, const Delimeters &delimiters);
