@@ -152,6 +152,35 @@ bool isInlineDictionary(ISource &source) { return source.current() == '{'; }
 
 bool isDictionary(ISource &source) { return isKey(source); }
 
+std::string parseBlockString(ISource &source,
+                             const YAML_Parser::Delimeters &delimiters,
+                             char fillerDefault, unsigned long indentLevel) {
+  std::string yamlString{};
+  do {
+    char filler{fillerDefault};
+    if (indentLevel < currentIndentLevel(source)) {
+      if (yamlString.back() != '\n') {
+        yamlString += '\n';
+      }
+      yamlString += std::string((currentIndentLevel(source) - 1), ' ');
+      filler = '\n';
+    }
+    yamlString += extractToNext(source, delimiters);
+    yamlString += filler;
+    if (source.more()) {
+      source.next();
+    }
+    while (source.more() && source.isWS()) {
+      if (source.current() == '\n') {
+        yamlString.pop_back();
+        yamlString += "\n\n";
+      }
+      source.next();
+    }
+  } while (source.more() && indentLevel <= currentIndentLevel(source));
+
+  return yamlString;
+}
 std::string YAML_Parser::parseKey(ISource &source) {
   std::string key{extractToNext(source, {':'})};
   if (source.more()) {
@@ -178,29 +207,7 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
   moveToNext(source, delimiters);
   source.ignoreWS();
   auto indentLevel = currentIndentLevel(source);
-  std::string yamlString{};
-  do {
-    char filler{' '};
-    if (indentLevel < currentIndentLevel(source)) {
-      if (yamlString.back() != '\n') {
-        yamlString += '\n';
-      }
-      yamlString += std::string((currentIndentLevel(source) - 1), ' ');
-      filler = '\n';
-    }
-    yamlString += extractToNext(source, delimiters);
-    yamlString += filler;
-    if (source.more()) {
-      source.next();
-    }
-    while (source.more() && source.isWS()) {
-      if (source.current() == '\n') {
-        yamlString.pop_back();
-        yamlString += "\n\n";
-      }
-      source.next();
-    }
-  } while (source.more() && indentLevel <= currentIndentLevel(source));
+  std::string yamlString{parseBlockString(source, delimiters, ' ', indentLevel)};
   if (clip || strip) {
     if (endsWith(yamlString, "\n\n\n")) {
       yamlString.pop_back();
@@ -230,28 +237,7 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
   moveToNext(source, delimiters);
   source.ignoreWS();
   auto indentLevel = currentIndentLevel(source);
-  std::string yamlString{};
-  do {
-    char filler{'\n'};
-    if (indentLevel < currentIndentLevel(source)) {
-      if (yamlString.back() != '\n') {
-        yamlString += '\n';
-      }
-      yamlString += std::string((currentIndentLevel(source) - 1), ' ');
-    }
-    yamlString += extractToNext(source, delimiters);
-    yamlString += filler;
-    if (source.more()) {
-      source.next();
-    }
-    while (source.more() && source.isWS()) {
-      if (source.current() == '\n') {
-        yamlString.pop_back();
-        yamlString += "\n\n";
-      }
-      source.next();
-    }
-  } while (source.more() && indentLevel <= currentIndentLevel(source));
+  std::string yamlString{parseBlockString(source, delimiters, '\n', indentLevel)};
   if (clip || strip) {
     if (endsWith(yamlString, "\n\n\n")) {
       yamlString.pop_back();
@@ -264,11 +250,11 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
   if (keep && source.more() && source.current() == '\n') {
     yamlString += '\n';
   }
-
   return YNode::make<String>(yamlString, '|', indentLevel);
 }
 
-YNode YAML_Parser::parsePlainFlowString(ISource &source, const Delimeters &delimiters) {
+YNode YAML_Parser::parsePlainFlowString(ISource &source,
+                                        const Delimeters &delimiters) {
   std::string yamlString{extractToNext(source, delimiters)};
   if (source.current() != kLineFeed) {
     return YNode::make<String>(yamlString, '\0');
@@ -302,7 +288,7 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source, const Delimeters &delim
 }
 
 YNode YAML_Parser::parseQuotedFlowString(ISource &source,
-                                     const Delimeters &delimiters) {
+                                         const Delimeters &delimiters) {
   const char quote = source.current();
   std::string yamlString;
   source.next();
