@@ -252,7 +252,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
         "indentation\non the next line,\nplus another line at the end.\n\n\n");
   }
-  SECTION("YAML parse block single quoted flow scalar",
+  SECTION("YAML parse single quoted flow scalar",
           "[YAML][Stringify][Flow Scalar]") {
     BufferSource source{
         "example: \'Several lines of text,\n  containing \'\'single "
@@ -265,7 +265,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "(like \\n) don\'t do anything.\nNewlines can be added by "
             "leaving a blank line. Leading whitespace on lines is ignored.");
   }
-  SECTION("YAML parse block double quoted flow scalar",
+  SECTION("YAML parse double quoted flow scalar",
           "[YAML][Stringify][Flow Scalar]") {
     BufferSource source{
         "example: \"Several lines of text,\n  containing \\\"double "
@@ -282,10 +282,17 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "them from being converted to a space.\nNewlines can also be added "
             "by leaving a blank line. Leading whitespace on lines is ignored.");
   }
-//   SECTION("YAML parse block plain flow scalar",
-//           "[YAML][Stringify][Flow Scalar]") {
-//     BufferSource source{""};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//     REQUIRE(YRef<String>(yaml.document(0)[0]["example"]).value() == "");
-//   }
+  SECTION("YAML parse plain flow scalar", "[YAML][Stringify][Flow Scalar]") {
+    BufferSource source{
+        "example: Several lines of text,\n  with some \"quotes\" of various "
+        "\'types\'.\n  Escapes (like \\n) don\'t do anything.\n  \n  Newlines "
+        "can be added by leaving a blank line.\n    Additional leading "
+        "whitespace is ignored."};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(
+        YRef<String>(yaml.document(0)[0]["example"]).value() ==
+        "Several lines of text, with some \"quotes\" of various \'types\'. "
+        "Escapes (like \\n) don\'t do anything.\nNewlines can be added by "
+        "leaving a blank line. Additional leading whitespace is ignored.");
+  }
 }

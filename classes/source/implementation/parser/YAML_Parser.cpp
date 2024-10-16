@@ -11,7 +11,7 @@
 
 namespace YAML_Lib {
 
-bool  endsWith(const std::string &str, const std::string &sub) {
+bool endsWith(const std::string &str, const std::string &sub) {
   int str_len = str.size();
   int sub_len = sub.size();
   if (str_len < sub_len)
@@ -202,7 +202,7 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
     }
   } while (source.more() && indentLevel <= currentIndentLevel(source));
   if (clip || strip) {
-    if ( endsWith(yamlString, "\n\n\n")) {
+    if (endsWith(yamlString, "\n\n\n")) {
       yamlString.pop_back();
     }
     yamlString.pop_back();
@@ -253,7 +253,7 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
     }
   } while (source.more() && indentLevel <= currentIndentLevel(source));
   if (clip || strip) {
-    if ( endsWith(yamlString, "\n\n\n")) {
+    if (endsWith(yamlString, "\n\n\n")) {
       yamlString.pop_back();
     }
     yamlString.pop_back();
@@ -273,16 +273,28 @@ YNode YAML_Parser::parseString(ISource &source, const Delimeters &delimiters) {
   if (source.current() != kLineFeed) {
     return YNode::make<String>(yamlString, '\0');
   } else {
-    source.ignoreWS();
     while (source.more() &&
            !(isKey(source) || isArray(source) || isComment(source))) {
-      yamlString += " ";
-      yamlString += extractToNext(source, delimiters);
-      if (source.more()) {
+      if (source.current() == '\n') {
+        yamlString += ' ';
         source.next();
-        source.ignoreWS();
+        while (source.more() && source.current() == ' ') {
+          source.next();
+        }
+        if (source.current() == '\n') {
+          yamlString.pop_back();
+          yamlString += "\n";
+          source.next();
+          while (source.more() && source.current() == ' ') {
+            source.next();
+          }
+        }
+      } else {
+        yamlString += source.current();
+        source.next();
       }
     }
+    if (yamlString.back() == ' ') yamlString.pop_back();
     return YNode::make<String>(yamlString, '\0');
   }
 }
