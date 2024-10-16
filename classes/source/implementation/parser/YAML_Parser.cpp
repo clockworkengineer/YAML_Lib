@@ -294,7 +294,9 @@ YNode YAML_Parser::parseString(ISource &source, const Delimeters &delimiters) {
         source.next();
       }
     }
-    if (yamlString.back() == ' ') yamlString.pop_back();
+    if (yamlString.back() == ' ' || yamlString.back() == '\n') {
+      yamlString.pop_back();
+    };
     return YNode::make<String>(yamlString, '\0');
   }
 }

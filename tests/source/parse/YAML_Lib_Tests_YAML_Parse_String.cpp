@@ -71,6 +71,17 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
     REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "test string.");
   }
+  SECTION("Parse Array of plain flow scalars with blank line at end.",
+          "[YAML][Parse][Examples][File]") {
+    BufferSource yamlSource{
+        "---\n- Mark Joseph\n- James Stephen\n- Ken Griffey\n\n"};
+    REQUIRE_NOTHROW(yaml.parse(yamlSource));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]));
+    REQUIRE(YRef<Array>(yaml.document(0)[0]).size() == 3);
+    REQUIRE(YRef<String>(yaml.document(0)[0][0]).value() == "Mark Joseph");
+    REQUIRE(YRef<String>(yaml.document(0)[0][1]).value() == "James Stephen");
+    REQUIRE(YRef<String>(yaml.document(0)[0][2]).value() == "Ken Griffey");
+  }
   SECTION("YAML parse a string block folded ('\n' -> ' ') scalar.",
           "[YAML][Parse][Scalar][String]") {
     BufferSource source{"---\n >\n  this is not a normal string it\n  "
@@ -289,10 +300,9 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "can be added by leaving a blank line.\n    Additional leading "
         "whitespace is ignored."};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(
-        YRef<String>(yaml.document(0)[0]["example"]).value() ==
-        "Several lines of text, with some \"quotes\" of various \'types\'. "
-        "Escapes (like \\n) don\'t do anything.\nNewlines can be added by "
-        "leaving a blank line. Additional leading whitespace is ignored.");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["example"]).value() ==
+            "Several lines of text, with some \"quotes\" of various \'types\'. "
+            "Escapes (like \\n) don\'t do anything.\nNewlines can be added by "
+            "leaving a blank line. Additional leading whitespace is ignored.");
   }
 }
