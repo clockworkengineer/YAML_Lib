@@ -152,19 +152,20 @@ bool isInlineDictionary(ISource &source) { return source.current() == '{'; }
 
 bool isDictionary(ISource &source) { return isKey(source); }
 
-YAML_Parser::BlockChomping parseBlockChomping(ISource &source) {
+YAML_Parser::BlockChomping YAML_Parser::parseBlockChomping(ISource &source) {
   source.next();
   if (source.current() == '-') {
-    return YAML_Parser::BlockChomping::strip;
+    return BlockChomping::strip;
   } else if (source.current() == '+') {
-    return YAML_Parser::BlockChomping::keep;
+    return BlockChomping::keep;
   } else {
-    return YAML_Parser::BlockChomping::clip;
+    return BlockChomping::clip;
   }
 }
-std::string parseBlockString(ISource &source,
-                             const YAML_Parser::Delimeters &delimiters,
-                             char fillerDefault, unsigned long indentLevel) {
+std::string
+YAML_Parser::parseBlockString(ISource &source,
+                              const Delimeters &delimiters,
+                              char fillerDefault, unsigned long indentLevel) {
   std::string yamlString{};
   do {
     char filler{fillerDefault};

@@ -24,6 +24,12 @@ public:
   inline static std::map<std::string, std::string> yamlAliasMap{};
 
 private:
+  static BlockChomping parseBlockChomping(ISource &source);
+
+  static std::string parseBlockString(ISource &source,
+                                      const YAML_Parser::Delimeters &delimiters,
+                                      char fillerDefault,
+                                      unsigned long indentLevel);
   static std::string parseKey(ISource &source);
   static YNode parseFoldedBlockString(ISource &source,
                                       const Delimeters &delimiters);
