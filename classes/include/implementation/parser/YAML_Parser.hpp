@@ -29,7 +29,8 @@ private:
   static std::string parseBlockString(ISource &source,
                                       const YAML_Parser::Delimeters &delimiters,
                                       char fillerDefault,
-                                      unsigned long indentLevel);
+                                      unsigned long indentLevel, 
+                                      BlockChomping &chomping);
   static std::string parseKey(ISource &source);
   static YNode parseFoldedBlockString(ISource &source,
                                       const Delimeters &delimiters);
