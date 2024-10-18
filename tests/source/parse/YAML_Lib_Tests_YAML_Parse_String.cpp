@@ -152,8 +152,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE_THROWS_WITH(yaml.parse(source),
                         "IParser Error: Invalid key 'see?' specified.");
   }
-  SECTION("YAML parse regular multi-line string.",
-          "[YAML][Stringify][literals]") {
+  SECTION("YAML parse regular multi-line string.", "[YAML][Parse][literals]") {
     BufferSource source{
         "---\n Sammy Sosa completed another\n fine season with great "
         "stats.\n   63 Home Runs\n   0.288 Batting Average\n What a year!"};
@@ -164,7 +163,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
   }
   SECTION("YAML parse block string folded newlines preserved for indented and"
           "blank lines.",
-          "[YAML][Stringify][Folded]") {
+          "[YAML][Parse][Folded]") {
     BufferSource source{
         "--- >\n Sammy Sosa completed another\n fine season with great "
         "stats.\n\n   63 Home Runs\n   0.288 Batting Average\n\n What a year!"};
@@ -176,7 +175,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
   SECTION("YAML parse block string example with folded newlines preserved for "
           "indented and"
           "blank lines.",
-          "[YAML][Stringify][folded]") {
+          "[YAML][Parse][folded]") {
     BufferSource source{
         "example: >\n  Several lines of text,\n  with some \" quotes"
         " of various 'types',\n  and also a blank line:\n\n  and some text "
@@ -191,7 +190,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
   SECTION("YAML parse block string example with folded newlines preserved for "
           "indented and"
           "blank lines plus last newline stripped.",
-          "[YAML][Stringify][folded]") {
+          "[YAML][Parse][folded]") {
     BufferSource source{
         "example: >-\n  Several lines of text,\n  with some \" quotes"
         " of various 'types',\n  and also a blank line:\n\n  and some text "
@@ -206,7 +205,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
   SECTION("YAML parse block string example with folded newlines preserved for "
           "indented and"
           "blank lines plus kepp all trailing newlines.",
-          "[YAML][Stringify][folded]") {
+          "[YAML][Parse][folded]") {
     BufferSource source{
         "example: >+\n  Several lines of text,\n  with some \" quotes"
         " of various 'types',\n  and also a blank line:\n\n  and some text "
@@ -220,7 +219,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "indentation\non the next line, plus another line at the end.\n\n\n");
   }
   SECTION("YAML parse block string literal newlines preserved.",
-          "[YAML][Stringify][Literal]") {
+          "[YAML][Parse][Literal]") {
     BufferSource source{
         "example: |\n  Several lines of text,\n  with some \" quotes"
         " of various 'types',\n  and also a blank line:\n\n  and some text "
@@ -235,7 +234,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
   }
   SECTION("YAML parse block string literal newlines preserved and last newline "
           "stripped.",
-          "[YAML][Stringify][Literal]") {
+          "[YAML][Parse][Literal]") {
     BufferSource source{
         "example: |-\n  Several lines of text,\n  with some \" quotes"
         " of various 'types',\n  and also a blank line:\n\n  and some text "
@@ -250,7 +249,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
   }
   SECTION("YAML parse block string literal newlines preserved and plus keep "
           "all trailing newlines.",
-          "[YAML][Stringify][Literal]") {
+          "[YAML][Parse][Literal]") {
     BufferSource source{
         "example: |+\n  Several lines of text,\n  with some \" quotes"
         " of various 'types',\n  and also a blank line:\n\n  and some text "
@@ -264,7 +263,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "indentation\non the next line,\nplus another line at the end.\n\n\n");
   }
   SECTION("YAML parse single quoted flow scalar",
-          "[YAML][Stringify][Flow Scalar]") {
+          "[YAML][Parse][Flow Scalar]") {
     BufferSource source{
         "example: \'Several lines of text,\n  containing \'\'single "
         "quotes\'\'. Escapes (like \\n) don\'\'t do anything.\n  \n  Newlines "
@@ -277,7 +276,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "leaving a blank line. Leading whitespace on lines is ignored.");
   }
   SECTION("YAML parse double quoted flow scalar",
-          "[YAML][Stringify][Flow Scalar]") {
+          "[YAML][Parse][Flow Scalar]") {
     BufferSource source{
         "example: \"Several lines of text,\n  containing \\\"double "
         "quotes\\\". Escapes (like \\\\n) work.\\nIn addition,\n  newlines"
@@ -293,7 +292,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "them from being converted to a space.\nNewlines can also be added "
             "by leaving a blank line. Leading whitespace on lines is ignored.");
   }
-  SECTION("YAML parse plain flow scalar", "[YAML][Stringify][Flow Scalar]") {
+  SECTION("YAML parse plain flow scalar", "[YAML][Parse][Flow Scalar]") {
     BufferSource source{
         "example: Several lines of text,\n  with some \"quotes\" of various "
         "\'types\'.\n  Escapes (like \\n) don\'t do anything.\n  \n  Newlines "
@@ -304,5 +303,23 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "Several lines of text, with some \"quotes\" of various \'types\'. "
             "Escapes (like \\n) don\'t do anything.\nNewlines can be added by "
             "leaving a blank line. Additional leading whitespace is ignored.");
+  }
+  SECTION("YAML parse various qoted scalars", "[YAML][Parse][Quoted Scalars]") {
+    BufferSource source{
+        "unicode: \"Sosa did fine.\\u263A\"\ncontrol: "
+        "\"\\b1998\\t1999\\t2000\\n\"\nhexesc:  \"\\x13\\x10 is "
+        "\\r\\n\"\n\nsingle: \'\"Howdy!\" he cried.\'\nquoted: \' # not a "
+        "\'\'comment\'\'.\'\ntie-fighter: \'|\\-*-/|\'"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    //     REQUIRE(YRef<String>(yaml.document(0)[0]["unicode"]).value() == "");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["control"]).value() ==
+            "\b1998\t1999\t2000\n");
+    //     REQUIRE(YRef<String>(yaml.document(0)[0]["hexesc"]).value() ==
+    //     "\x13\x10 is \r\n");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["single"]).value() ==
+            "\"Howdy!\" he cried.");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["quoted"]).value() ==
+            " # not a 'comment'.");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["tie-fighter"]).value() == "|\\-*-/|");
   }
 }
