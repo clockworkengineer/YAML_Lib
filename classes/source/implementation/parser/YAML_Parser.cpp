@@ -8,6 +8,7 @@
 //
 
 #include "YAML_Impl.hpp"
+#include <functional>
 
 namespace YAML_Lib {
 
@@ -480,93 +481,70 @@ YNode YAML_Parser::parseInlineDictionary(
 YNode YAML_Parser::parseDocument(ISource &source,
                                  [[maybe_unused]] unsigned long indentLevel,
                                  const Delimeters &delimiters) {
+
+  using isAFunc = std::function<bool(void)>;
+  using ParseFunc = std::function<YNode(void)>;
+  std::vector<std::pair<isAFunc, ParseFunc>> parsers = {
+      {[&source]() { return isBoolean(source); },
+       [&source, &delimiters]() { return parseBoolean(source, delimiters); }},
+      {[&source]() { return isQuotedString(source); },
+       [&source, &delimiters]() {
+         return parseQuotedFlowString(source, delimiters);
+       }},
+      {[&source]() { return isNumber(source); },
+       [&source, &delimiters]() { return parseNumber(source, delimiters); }},
+      {[&source]() { return isNone(source); },
+       [&source, &delimiters]() { return parseNone(source, delimiters); }},
+      {[&source]() { return isBlockString(source); },
+       [&source, &delimiters]() {
+         return parseFoldedBlockString(source, delimiters);
+       }},
+      {[&source]() { return isPipedBlockString(source); },
+       [&source, &delimiters]() {
+         return parseLiteralBlockString(source, delimiters);
+       }},
+      {[&source]() { return isComment(source); },
+       [&source, &delimiters]() { return parseComment(source, delimiters); }},
+      {[&source]() { return isAnchor(source); },
+       [&source, &delimiters]() { return parseAnchor(source, delimiters); }},
+      {[&source]() { return isAlias(source); },
+       [&source, &delimiters]() { return parseAlias(source, delimiters); }},
+      {[&source]() { return isArray(source); },
+       [&source, &delimiters]() {
+         return parseArray(source, currentIndentLevel(source), delimiters);
+       }},
+      {[&source]() { return isInlineArray(source); },
+       [&source, &delimiters]() {
+         return parseInlineArray(source, currentIndentLevel(source),
+                                 {kLineFeed, ',', ']'});
+       }},
+      {[&source]() { return isDictionary(source); },
+       [&source, &delimiters]() {
+         return parseDictionary(source, currentIndentLevel(source), delimiters);
+       }},
+      {[&source]() { return isInlineDictionary(source); },
+       [&source, &delimiters]() {
+         return parseInlineDictionary(source, currentIndentLevel(source),
+                                      {kLineFeed, ',', '}'});
+       }},
+      {[&source]() { return true; },
+       [&source, &delimiters]() {
+         return parsePlainFlowString(source, delimiters);
+       }},
+  };
+
   YNode yNode;
   source.ignoreWS();
 
-  if (isBoolean(source)) {
-    yNode = parseBoolean(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
+  for (auto parser : parsers) {
+    if (parser.first()) {
+      yNode = parser.second();
+      if (!yNode.isEmpty()) {
+        return yNode;
+      }
     }
   }
-  if (isQuotedString(source)) {
-    yNode = parseQuotedFlowString(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isNumber(source)) {
-    yNode = parseNumber(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isNone(source)) {
-    yNode = parseNone(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isBlockString(source)) {
-    yNode = parseFoldedBlockString(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isPipedBlockString(source)) {
-    yNode = parseLiteralBlockString(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isComment(source)) {
-    yNode = parseComment(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isAnchor(source)) {
-    yNode = parseAnchor(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isAlias(source)) {
-    yNode = parseAlias(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isArray(source)) {
-    yNode = parseArray(source, currentIndentLevel(source), delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isInlineArray(source)) {
-    yNode = parseInlineArray(source, currentIndentLevel(source),
-                             {kLineFeed, ',', ']'});
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isDictionary(source)) {
-    yNode = parseDictionary(source, currentIndentLevel(source), delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isInlineDictionary(source)) {
-    yNode = parseInlineDictionary(source, currentIndentLevel(source),
-                                  {kLineFeed, ',', '}'});
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  yNode = parsePlainFlowString(source, delimiters);
-  if (!yNode.isEmpty()) {
-    return yNode;
-  }
+
   throw SyntaxError("Invalid YAML.");
 }
 

@@ -72,13 +72,5 @@ public:
   }
 
 private:
-  /// <summary>
-  /// Determine whether passed in character is vaid ASCII
-  /// </summary>
-  /// <param name="utf16Char">UTF16 character.</param>
-  /// <returns>true if valid ASCII.</returns>
-  [[nodiscard]] static bool isASCII(const char16_t utf16Char) {
-    return utf16Char > 0x001F && utf16Char < 0x0080;
-  }
 };
 } // namespace YAML_Lib
