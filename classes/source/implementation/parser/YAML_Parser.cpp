@@ -51,34 +51,34 @@ unsigned long currentIndentLevel(ISource &source) {
   return source.getPosition().second - 1;
 }
 
-std::string translateEscapes(const std::string &yamlString) {
-  std::string translated;
-  for (std::size_t idx = 0; idx < yamlString.size(); idx++) {
-    if (yamlString[idx] == '\\') {
-      idx++;
-      if (yamlString[idx] == 't') {
-        translated += "\t";
-      } else if (yamlString[idx] == 'n') {
-        translated += "\n";
-      } else if (yamlString[idx] == '"') {
-        translated += "\"";
-      } else if (yamlString[idx] == 'b') {
-        translated += "\b";
-      } else if (yamlString[idx] == 'r') {
-        translated += "\r";
-      } else if (yamlString[idx] == 'f') {
-        translated += "\f";
-      } else if (yamlString[idx] == '\\') {
-        translated += "\\";
-      } else {
-        translated += yamlString[idx];
-      }
-    } else {
-      translated += yamlString[idx];
-    }
-  }
-  return (translated);
-}
+// std::string translateEscapes(const std::string &yamlString) {
+//   std::string translated;
+//   for (std::size_t idx = 0; idx < yamlString.size(); idx++) {
+//     if (yamlString[idx] == '\\') {
+//       idx++;
+//       if (yamlString[idx] == 't') {
+//         translated += "\t";
+//       } else if (yamlString[idx] == 'n') {
+//         translated += "\n";
+//       } else if (yamlString[idx] == '"') {
+//         translated += "\"";
+//       } else if (yamlString[idx] == 'b') {
+//         translated += "\b";
+//       } else if (yamlString[idx] == 'r') {
+//         translated += "\r";
+//       } else if (yamlString[idx] == 'f') {
+//         translated += "\f";
+//       } else if (yamlString[idx] == '\\') {
+//         translated += "\\";
+//       } else {
+//         translated += yamlString[idx];
+//       }
+//     } else {
+//       translated += yamlString[idx];
+//     }
+//   }
+//   return (translated);
+// }
 bool isValidKey(const std::string &key) {
   if (!key.empty()) {
     if (!std::isalpha(key[0]) || key.back() == ' ') {
@@ -306,7 +306,7 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
         source.next();
       }
     }
-    yamlString = translateEscapes(yamlString);
+    yamlString = translator.from(yamlString);
   } else {
     while (source.more()) {
       if (source.current() == '\'') {

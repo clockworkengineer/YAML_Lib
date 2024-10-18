@@ -2,6 +2,7 @@
 
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
+#include "YAML_Translator.hpp"
 
 namespace YAML_Lib {
 
@@ -62,6 +63,9 @@ private:
   static YNode parseDocument(ISource &source,
                              [[maybe_unused]] unsigned long indentLevel,
                              const Delimeters &delimiters);
+
+  inline static YAML_Translator translator;
+
 };
 
 } // namespace YAML_Lib

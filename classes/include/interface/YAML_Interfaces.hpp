@@ -4,3 +4,4 @@
 #include "IDestination.hpp"
 #include "IParser.hpp"
 #include "IStringify.hpp"
+#include "ITranslator.hpp"

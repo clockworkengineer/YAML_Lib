@@ -34,12 +34,14 @@ set(YAML_INCLUDES
   ./classes/include/interface/IDestination.hpp
   ./classes/include/interface/IParser.hpp
   ./classes/include/interface/IStringify.hpp
+  ./classes/include/interface/ITranslator.hpp
   ./classes/include/interface/YAML_Interfaces.hpp
   ./classes/include/implementation/common/YAML_Error.hpp
   ./classes/include/implementation/io/YAML_Sources.hpp
   ./classes/include/implementation/io/YAML_Destinations.hpp
   ./classes/include/implementation/stringify/YAML_Stringify.hpp
   ./classes/include/implementation/parser/YAML_Parser.hpp
+  ./classes/include/implementation/translator/YAML_Translator.hpp
   ./classes/include/implementation/variants/YAML_Hole.hpp
   ./classes/include/implementation/variants/YAML_Array.hpp
   ./classes/include/implementation/variants/YAML_Boolean.hpp
@@ -53,6 +55,7 @@ set(YAML_INCLUDES
   ./classes/include/implementation/ynode/YAML_YNode_Creation.hpp
   ./classes/include/implementation/ynode/YAML_YNode_Index.hpp
   ./classes/include/implementation/ynode/YAML_YNode_Reference.hpp
+
   ./classes/include/implementation/YAML_Impl.hpp
   ./classes/include/implementation/YAML_Core.hpp
 )
@@ -69,6 +72,7 @@ target_include_directories(${YAML_LIBRARY_NAME} PUBLIC
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/ynode
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/parser
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/stringify
+  ${PROJECT_SOURCE_DIR}/classes/include/implementation/translator
   ${PROJECT_SOURCE_DIR}/classes/include/interface
   ${PROJECT_BINARY_DIR})
 

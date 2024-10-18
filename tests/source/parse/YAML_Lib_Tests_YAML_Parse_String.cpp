@@ -314,12 +314,13 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     //     REQUIRE(YRef<String>(yaml.document(0)[0]["unicode"]).value() == "");
     REQUIRE(YRef<String>(yaml.document(0)[0]["control"]).value() ==
             "\b1998\t1999\t2000\n");
-    //     REQUIRE(YRef<String>(yaml.document(0)[0]["hexesc"]).value() ==
-    //     "\x13\x10 is \r\n");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["hexesc"]).value() ==
+            "\x13\x10 is \r\n");
     REQUIRE(YRef<String>(yaml.document(0)[0]["single"]).value() ==
             "\"Howdy!\" he cried.");
     REQUIRE(YRef<String>(yaml.document(0)[0]["quoted"]).value() ==
             " # not a 'comment'.");
-    REQUIRE(YRef<String>(yaml.document(0)[0]["tie-fighter"]).value() == "|\\-*-/|");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["tie-fighter"]).value() ==
+            "|\\-*-/|");
   }
 }
