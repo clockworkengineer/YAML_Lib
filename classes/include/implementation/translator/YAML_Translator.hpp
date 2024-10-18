@@ -47,6 +47,15 @@ public:
           hex[0] = yamlString[++idx];
           hex[1] = yamlString[++idx];
           translated += std::stoi(hex, &end, 16);
+        } else if (yamlString[idx] == 'u') {
+          char hex[3];
+          std::size_t end;
+          hex[0] = yamlString[++idx];
+          hex[1] = yamlString[++idx];
+          translated += std::stoi(hex, &end, 16);
+          hex[0] = yamlString[++idx];
+          hex[1] = yamlString[++idx];
+          translated += std::stoi(hex, &end, 16);
         } else {
           translated += yamlString[idx];
         }
