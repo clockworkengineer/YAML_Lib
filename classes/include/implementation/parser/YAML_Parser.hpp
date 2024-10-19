@@ -30,7 +30,6 @@ private:
   static std::string parseBlockString(ISource &source,
                                       const YAML_Parser::Delimeters &delimiters,
                                       char fillerDefault,
-                                      unsigned long indentLevel, 
                                       BlockChomping &chomping);
   static std::string parseKey(ISource &source);
   static YNode parseFoldedBlockString(ISource &source,
@@ -48,24 +47,20 @@ private:
   static YNode parseBoolean(ISource &source, const Delimeters &delimiters);
   static YNode parseAnchor(ISource &source, const Delimeters &delimiters);
   static YNode parseAlias(ISource &source, const Delimeters &delimiters);
-  static YNode parseArray(ISource &source, unsigned long indentLevel,
-                          const Delimeters &delimiters);
-  static YNode parseInlineArray(ISource &source, unsigned long indentLevel,
+  static YNode parseArray(ISource &source, const Delimeters &delimiters);
+  static YNode parseInlineArray(ISource &source,
                                 [[maybe_unused]] const Delimeters &delimiters);
   static DictionaryEntry parseKeyValue(ISource &source,
-                                       unsigned long indentLevel,
+
                                        const Delimeters &delimiters);
-  static YNode parseDictionary(ISource &source, unsigned long indentLevel,
-                               const Delimeters &delimiters);
+  static YNode parseDictionary(ISource &source, const Delimeters &delimiters);
   static YNode
-  parseInlineDictionary(ISource &source, unsigned long indentLevel,
+  parseInlineDictionary(ISource &source,
                         [[maybe_unused]] const Delimeters &delimiters);
   static YNode parseDocument(ISource &source,
-                             [[maybe_unused]] unsigned long indentLevel,
-                             const Delimeters &delimiters);
+                             [[maybe_unused]] const Delimeters &delimiters);
 
   inline static YAML_Translator translator;
-
 };
 
 } // namespace YAML_Lib
