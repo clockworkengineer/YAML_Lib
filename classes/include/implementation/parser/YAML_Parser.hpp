@@ -25,6 +25,34 @@ public:
   inline static std::map<std::string, std::string> yamlAliasMap{};
 
 private:
+  static bool isValidKey(const std::string &key);
+
+  static bool isKey(ISource &source);
+
+  static bool isArray(ISource &source);
+
+  static bool isBoolean(ISource &source);
+
+  static bool isQuotedString(ISource &source);
+  static bool isNumber(ISource &source);
+
+  static bool isNone(ISource &source);
+
+  static bool isBlockString(ISource &source);
+
+  static bool isPipedBlockString(ISource &source);
+
+  static bool isComment(ISource &source);
+
+  static bool isAnchor(ISource &source);
+  static bool isAlias(ISource &source);
+
+  static bool isInlineArray(ISource &source);
+
+  static bool isInlineDictionary(ISource &source);
+
+  static bool isDictionary(ISource &source);
+
   static BlockChomping parseBlockChomping(ISource &source);
 
   static std::string parseBlockString(ISource &source,

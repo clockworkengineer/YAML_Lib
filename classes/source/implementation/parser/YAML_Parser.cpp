@@ -52,7 +52,7 @@ unsigned long currentIndentLevel(ISource &source) {
   return source.getPosition().second - 1;
 }
 
-bool isValidKey(const std::string &key) {
+bool YAML_Parser::isValidKey(const std::string &key) {
   if (!key.empty()) {
     if (!std::isalpha(key[0]) || key.back() == ' ') {
       return (false);
@@ -67,7 +67,7 @@ bool isValidKey(const std::string &key) {
   return (false);
 }
 
-bool isKey(ISource &source) {
+bool YAML_Parser::isKey(ISource &source) {
   bool keyPresent{false};
   std::string key{extractToNext(source, {':', kLineFeed})};
   auto keyLength = key.size();
@@ -79,7 +79,7 @@ bool isKey(ISource &source) {
   return keyPresent;
 }
 
-bool isArray(ISource &source) {
+bool YAML_Parser::isArray(ISource &source) {
   auto first = source.current();
   auto arrayPresent{false};
   if (source.more()) {
@@ -90,40 +90,40 @@ bool isArray(ISource &source) {
   return (arrayPresent);
 }
 
-bool isBoolean(ISource &source) {
+bool YAML_Parser::isBoolean(ISource &source) {
   return source.current() == 'T' || source.current() == 'F' ||
          source.current() == 'O' || source.current() == 'Y' ||
          source.current() == 'N';
 }
 
-bool isQuotedString(ISource &source) {
+bool YAML_Parser::isQuotedString(ISource &source) {
   return (source.current() == '\'') || (source.current() == '"');
 }
 
-bool isNumber(ISource &source) {
+bool YAML_Parser::isNumber(ISource &source) {
   return (source.current() >= '0' && source.current() <= '9') ||
          source.current() == '-' || source.current() == '+';
 }
 
-bool isNone(ISource &source) {
+bool YAML_Parser::isNone(ISource &source) {
   return source.current() == 'n' || source.current() == '~';
 }
 
-bool isBlockString(ISource &source) { return source.current() == '>'; }
+bool YAML_Parser::isBlockString(ISource &source) { return source.current() == '>'; }
 
-bool isPipedBlockString(ISource &source) { return source.current() == '|'; }
+bool YAML_Parser::isPipedBlockString(ISource &source) { return source.current() == '|'; }
 
-bool isComment(ISource &source) { return source.current() == '#'; }
+bool YAML_Parser::isComment(ISource &source) { return source.current() == '#'; }
 
-bool isAnchor(ISource &source) { return source.current() == '&'; }
+bool YAML_Parser::isAnchor(ISource &source) { return source.current() == '&'; }
 
-bool isAlias(ISource &source) { return source.current() == '*'; }
+bool YAML_Parser::isAlias(ISource &source) { return source.current() == '*'; }
 
-bool isInlineArray(ISource &source) { return source.current() == '['; }
+bool YAML_Parser::isInlineArray(ISource &source) { return source.current() == '['; }
 
-bool isInlineDictionary(ISource &source) { return source.current() == '{'; }
+bool YAML_Parser::isInlineDictionary(ISource &source) { return source.current() == '{'; }
 
-bool isDictionary(ISource &source) { return isKey(source); }
+bool YAML_Parser::isDictionary(ISource &source) { return isKey(source); }
 
 YAML_Parser::BlockChomping YAML_Parser::parseBlockChomping(ISource &source) {
   source.next();
@@ -178,6 +178,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
   }
   return yamlString;
 }
+
 std::string YAML_Parser::parseKey(ISource &source) {
   std::string key{extractToNext(source, {':'})};
   if (source.more()) {
