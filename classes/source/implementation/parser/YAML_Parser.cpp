@@ -8,7 +8,6 @@
 //
 
 #include "YAML_Impl.hpp"
-#include <functional>
 
 namespace YAML_Lib {
 
@@ -109,9 +108,13 @@ bool YAML_Parser::isNone(ISource &source) {
   return source.current() == 'n' || source.current() == '~';
 }
 
-bool YAML_Parser::isBlockString(ISource &source) { return source.current() == '>'; }
+bool YAML_Parser::isBlockString(ISource &source) {
+  return source.current() == '>';
+}
 
-bool YAML_Parser::isPipedBlockString(ISource &source) { return source.current() == '|'; }
+bool YAML_Parser::isPipedBlockString(ISource &source) {
+  return source.current() == '|';
+}
 
 bool YAML_Parser::isComment(ISource &source) { return source.current() == '#'; }
 
@@ -119,9 +122,13 @@ bool YAML_Parser::isAnchor(ISource &source) { return source.current() == '&'; }
 
 bool YAML_Parser::isAlias(ISource &source) { return source.current() == '*'; }
 
-bool YAML_Parser::isInlineArray(ISource &source) { return source.current() == '['; }
+bool YAML_Parser::isInlineArray(ISource &source) {
+  return source.current() == '[';
+}
 
-bool YAML_Parser::isInlineDictionary(ISource &source) { return source.current() == '{'; }
+bool YAML_Parser::isInlineDictionary(ISource &source) {
+  return source.current() == '{';
+}
 
 bool YAML_Parser::isDictionary(ISource &source) { return isKey(source); }
 
@@ -188,6 +195,7 @@ std::string YAML_Parser::parseKey(ISource &source) {
   if (!isValidKey(key)) {
     throw Error("Invalid key '" + key + "' specified.");
   }
+  source.ignoreWS();
   return key;
 }
 
@@ -434,7 +442,6 @@ YNode YAML_Parser::parseInlineArray(
 DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
                                            const Delimeters &delimiters) {
   std::string key{parseKey(source)};
-  source.ignoreWS();
   return DictionaryEntry(key, parseDocument(source, delimiters));
 }
 
@@ -562,6 +569,7 @@ YNode YAML_Parser::parseDocument(ISource &source,
   if (!yNode.isEmpty()) {
     return yNode;
   }
+  
   throw SyntaxError("Invalid YAML.");
 }
 
