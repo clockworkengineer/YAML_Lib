@@ -484,77 +484,34 @@ YNode YAML_Parser::parseInlineDictionary(
 YNode YAML_Parser::parseDocument(ISource &source,
                                  const Delimeters &delimiters) {
 
+  using IsAFunc = std::function<bool(ISource &)>;
+  using ParseFunc = std::function<YNode(ISource &, const Delimeters &)>;
+  std::vector<std::pair<IsAFunc, ParseFunc>> parsers{
+      {isBoolean, parseBoolean},
+      {isQuotedString, parseQuotedFlowString},
+      {isNumber, parseNumber},
+      {isNone, parseNone},
+      {isBlockString, parseFoldedBlockString},
+      {isPipedBlockString, parseLiteralBlockString},
+      {isComment, parseComment},
+      {isAnchor, parseAnchor},
+      {isAlias, parseAlias},
+      {isArray, parseArray},
+      {isDictionary, parseDictionary}};
+
   YNode yNode;
   source.ignoreWS();
 
-  if (isBoolean(source)) {
-    yNode = parseBoolean(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isQuotedString(source)) {
-    yNode = parseQuotedFlowString(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isNumber(source)) {
-    yNode = parseNumber(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isNone(source)) {
-    yNode = parseNone(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isBlockString(source)) {
-    yNode = parseFoldedBlockString(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isPipedBlockString(source)) {
-    yNode = parseLiteralBlockString(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isComment(source)) {
-    yNode = parseComment(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isAnchor(source)) {
-    yNode = parseAnchor(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isAlias(source)) {
-    yNode = parseAlias(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isArray(source)) {
-    yNode = parseArray(source, delimiters);
-    if (!yNode.isEmpty()) {
-      return yNode;
+  for (auto parser : parsers) {
+    if (parser.first(source)) {
+      yNode = parser.second(source, delimiters);
+      if (!yNode.isEmpty()) {
+        return yNode;
+      }
     }
   }
   if (isInlineArray(source)) {
     yNode = parseInlineArray(source, {kLineFeed, ',', ']'});
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isDictionary(source)) {
-    yNode = parseDictionary(source, delimiters);
     if (!yNode.isEmpty()) {
       return yNode;
     }
