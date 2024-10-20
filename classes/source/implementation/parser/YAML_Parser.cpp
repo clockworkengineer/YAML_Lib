@@ -126,6 +126,8 @@ bool YAML_Parser::isInlineArray(ISource &source) {
   return source.current() == '[';
 }
 
+bool YAML_Parser::isDefault(ISource &source) { return true; }
+
 bool YAML_Parser::isInlineDictionary(ISource &source) {
   return source.current() == '{';
 }
@@ -426,8 +428,7 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
 YNode YAML_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimeters &delimiters) {
   Delimeters inLineArrayDelimeters = {delimiters};
-  inLineArrayDelimeters.insert(',');
-  inLineArrayDelimeters.insert(']');
+  inLineArrayDelimeters.insert({',', ']'});
   YNode yNode = YNode::make<Array>();
   do {
     source.next();
@@ -470,8 +471,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
 YNode YAML_Parser::parseInlineDictionary(
     ISource &source, [[maybe_unused]] const Delimeters &delimiters) {
   Delimeters inLineDictionaryDelimeters = {delimiters};
-  inLineDictionaryDelimeters.insert(',');
-  inLineDictionaryDelimeters.insert('}');
+  inLineDictionaryDelimeters.insert({',', '}'});
   YNode yNode = YNode::make<Dictionary>();
   do {
     source.next();
@@ -491,23 +491,6 @@ YNode YAML_Parser::parseInlineDictionary(
 YNode YAML_Parser::parseDocument(ISource &source,
                                  const Delimeters &delimiters) {
 
-  using IsAFunc = std::function<bool(ISource &)>;
-  using ParseFunc = std::function<YNode(ISource &, const Delimeters &)>;
-  std::vector<std::pair<IsAFunc, ParseFunc>> parsers{
-      {isBoolean, parseBoolean},
-      {isQuotedString, parseQuotedFlowString},
-      {isNumber, parseNumber},
-      {isNone, parseNone},
-      {isBlockString, parseFoldedBlockString},
-      {isPipedBlockString, parseLiteralBlockString},
-      {isComment, parseComment},
-      {isAnchor, parseAnchor},
-      {isAlias, parseAlias},
-      {isArray, parseArray},
-      {isDictionary, parseDictionary},
-      {isInlineArray, parseInlineArray},
-      {isInlineDictionary, parseInlineDictionary}};
-
   YNode yNode;
   source.ignoreWS();
 
@@ -518,10 +501,6 @@ YNode YAML_Parser::parseDocument(ISource &source,
         return yNode;
       }
     }
-  }
-  yNode = parsePlainFlowString(source, delimiters);
-  if (!yNode.isEmpty()) {
-    return yNode;
   }
 
   throw SyntaxError("Invalid YAML.");

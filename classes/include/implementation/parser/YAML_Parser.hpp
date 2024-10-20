@@ -53,6 +53,8 @@ private:
 
   static bool isDictionary(ISource &source);
 
+  static bool isDefault(ISource &source);
+
   static BlockChomping parseBlockChomping(ISource &source);
 
   static std::string parseBlockString(ISource &source,
@@ -89,6 +91,24 @@ private:
                              [[maybe_unused]] const Delimeters &delimiters);
 
   inline static YAML_Translator translator;
+
+  using IsAFunc = std::function<bool(ISource &)>;
+  using ParseFunc = std::function<YNode(ISource &, const Delimeters &)>;
+  inline static std::vector<std::pair<IsAFunc, ParseFunc>> parsers{
+      {isBoolean, parseBoolean},
+      {isQuotedString, parseQuotedFlowString},
+      {isNumber, parseNumber},
+      {isNone, parseNone},
+      {isBlockString, parseFoldedBlockString},
+      {isPipedBlockString, parseLiteralBlockString},
+      {isComment, parseComment},
+      {isAnchor, parseAnchor},
+      {isAlias, parseAlias},
+      {isArray, parseArray},
+      {isDictionary, parseDictionary},
+      {isInlineArray, parseInlineArray},
+      {isInlineDictionary, parseInlineDictionary},
+      {isDefault, parsePlainFlowString}};
 };
 
 } // namespace YAML_Lib
