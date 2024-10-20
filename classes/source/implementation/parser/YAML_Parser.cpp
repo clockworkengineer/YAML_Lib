@@ -425,11 +425,14 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
 
 YNode YAML_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimeters &delimiters) {
+  Delimeters inLineArrayDelimeters = {delimiters};
+  inLineArrayDelimeters.insert(',');
+  inLineArrayDelimeters.insert(']');
   YNode yNode = YNode::make<Array>();
   do {
     source.next();
     source.ignoreWS();
-    YRef<Array>(yNode).add(parseDocument(source, delimiters));
+    YRef<Array>(yNode).add(parseDocument(source, inLineArrayDelimeters));
   } while (source.current() == ',');
   source.ignoreWS();
   if (source.current() != ']') {
@@ -466,11 +469,15 @@ YNode YAML_Parser::parseDictionary(ISource &source,
 
 YNode YAML_Parser::parseInlineDictionary(
     ISource &source, [[maybe_unused]] const Delimeters &delimiters) {
+  Delimeters inLineDictionaryDelimeters = {delimiters};
+  inLineDictionaryDelimeters.insert(',');
+  inLineDictionaryDelimeters.insert('}');
   YNode yNode = YNode::make<Dictionary>();
   do {
     source.next();
     source.ignoreWS();
-    YRef<Dictionary>(yNode).add(parseKeyValue(source, delimiters));
+    YRef<Dictionary>(yNode).add(
+        parseKeyValue(source, inLineDictionaryDelimeters));
 
   } while (source.current() == ',');
   if (source.current() != '}') {
@@ -497,7 +504,9 @@ YNode YAML_Parser::parseDocument(ISource &source,
       {isAnchor, parseAnchor},
       {isAlias, parseAlias},
       {isArray, parseArray},
-      {isDictionary, parseDictionary}};
+      {isDictionary, parseDictionary},
+      {isInlineArray, parseInlineArray},
+      {isInlineDictionary, parseInlineDictionary}};
 
   YNode yNode;
   source.ignoreWS();
@@ -510,23 +519,11 @@ YNode YAML_Parser::parseDocument(ISource &source,
       }
     }
   }
-  if (isInlineArray(source)) {
-    yNode = parseInlineArray(source, {kLineFeed, ',', ']'});
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
-  if (isInlineDictionary(source)) {
-    yNode = parseInlineDictionary(source, {kLineFeed, ',', '}'});
-    if (!yNode.isEmpty()) {
-      return yNode;
-    }
-  }
   yNode = parsePlainFlowString(source, delimiters);
   if (!yNode.isEmpty()) {
     return yNode;
   }
-  
+
   throw SyntaxError("Invalid YAML.");
 }
 
