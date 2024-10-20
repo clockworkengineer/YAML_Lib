@@ -33,6 +33,7 @@ void moveToNext(ISource &source, const YAML_Parser::Delimeters &delimiters) {
       source.next();
     }
   }
+  source.ignoreWS();
 }
 
 std::string extractToNext(ISource &source,
@@ -205,7 +206,6 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
                                           const Delimeters &delimiters) {
   BlockChomping chomping{parseBlockChomping(source)};
   moveToNext(source, delimiters);
-  source.ignoreWS();
   auto blockIndent = currentIndentLevel(source);
   std::string yamlString{parseBlockString(source, delimiters, ' ', chomping)};
   return YNode::make<String>(yamlString, '>', blockIndent);
@@ -215,7 +215,6 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
                                            const Delimeters &delimiters) {
   BlockChomping chomping{parseBlockChomping(source)};
   moveToNext(source, delimiters);
-  source.ignoreWS();
   auto blockIndent = currentIndentLevel(source);
   std::string yamlString{parseBlockString(source, delimiters, '\n', chomping)};
   return YNode::make<String>(yamlString, '|', blockIndent);
@@ -320,7 +319,6 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
     }
   }
   moveToNext(source, delimiters);
-  source.ignoreWS();
   return YNode::make<String>(yamlString, quote);
 }
 
@@ -343,7 +341,6 @@ YNode YAML_Parser::parseNumber(ISource &source, const Delimeters &delimiters) {
                               number.is<long long>() || number.is<float>() ||
                               number.is<double>() || number.is<long double>()) {
     moveToNext(source, delimiters);
-    source.ignoreWS();
     yNode = YNode::make<Number>(number);
   }
   if (yNode.isEmpty()) {
@@ -514,12 +511,10 @@ std::vector<YNode> YAML_Parser::parse(ISource &source) {
       if (source.match("---")) {
         inDocument = true;
         moveToNext(source, {kLineFeed, '|', '>'});
-        source.ignoreWS();
         yNodeTree.push_back(YNode::make<Document>());
         // End of document
       } else if (source.match("...")) {
         moveToNext(source, {kLineFeed});
-        source.ignoreWS();
         if (!inDocument) {
           yNodeTree.push_back(YNode::make<Document>());
         }
