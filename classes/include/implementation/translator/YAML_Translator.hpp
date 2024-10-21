@@ -18,7 +18,7 @@ public:
   YAML_Translator &operator=(const YAML_Translator &other) = delete;
   YAML_Translator(YAML_Translator &&other) = delete;
   YAML_Translator &operator=(YAML_Translator &&other) = delete;
-  ~YAML_Translator() = default;
+  ~YAML_Translator() override = default;
 
   // Convert to/from YAML escaped characters
   [[nodiscard]] std::string
@@ -46,16 +46,16 @@ public:
           std::size_t end;
           hex[0] = yamlString[++idx];
           hex[1] = yamlString[++idx];
-          translated += std::stoi(hex, &end, 16);
+          translated += static_cast<char>(std::stoi(hex, &end, 16));
         } else if (yamlString[idx] == 'u') {
           char hex[3];
           std::size_t end;
           hex[0] = yamlString[++idx];
           hex[1] = yamlString[++idx];
-          translated += std::stoi(hex, &end, 16);
+          translated += static_cast<char>(std::stoi(hex, &end, 16));
           hex[0] = yamlString[++idx];
           hex[1] = yamlString[++idx];
-          translated += std::stoi(hex, &end, 16);
+          translated += static_cast<char>(std::stoi(hex, &end, 16));
         } else {
           translated += yamlString[idx];
         }

@@ -30,12 +30,12 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
     if (quote == '\'' || quote == '"') {
       destination.add(quote + YRef<String>(yNode).toString() + quote);
     } else {
-      std::vector<std::string> strs{
+      std::vector<std::string> splitStrings{
           splitString(YRef<String>(yNode).toString(), kLineFeed)};
-      if (strs.size() > 1) {
-        std::string last = strs.back();
-        strs.pop_back();
-        for (const auto& line : strs) {
+      if (splitStrings.size() > 1) {
+        std::string last = splitStrings.back();
+        splitStrings.pop_back();
+        for (const auto& line : splitStrings) {
           if (YRef<String>(yNode).getIndentation() > 1) {
             destination.add(
                 std::string(YRef<String>(yNode).getIndentation() - 1, ' '));

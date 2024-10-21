@@ -12,8 +12,8 @@
 namespace YAML_Lib {
 
 bool endsWith(const std::string &str, const std::string &sub) {
-  int str_len = str.size();
-  int sub_len = sub.size();
+  auto str_len = str.size();
+  auto sub_len = sub.size();
   if (str_len < sub_len)
     return false;
 
@@ -127,7 +127,8 @@ bool YAML_Parser::isInlineArray(ISource &source) {
   return source.current() == '[';
 }
 
-bool YAML_Parser::isDefault(ISource &source) { return true; }
+bool YAML_Parser::isDefault([[
+    maybe_unused]]ISource &source) { return true; }
 
 bool YAML_Parser::isInlineDictionary(ISource &source) {
   return source.current() == '{';
@@ -249,7 +250,7 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
     }
     if (yamlString.back() == ' ' || yamlString.back() == '\n') {
       yamlString.pop_back();
-    };
+    }
     return YNode::make<String>(yamlString, '\0');
   }
 }
@@ -424,13 +425,13 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
 
 YNode YAML_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimeters &delimiters) {
-  Delimeters inLineArrayDelimeters = {delimiters};
-  inLineArrayDelimeters.insert({',', ']'});
+  Delimeters inLineArrayDelimiters = {delimiters};
+  inLineArrayDelimiters.insert({',', ']'});
   YNode yNode = YNode::make<Array>();
   do {
     source.next();
     source.ignoreWS();
-    YRef<Array>(yNode).add(parseDocument(source, inLineArrayDelimeters));
+    YRef<Array>(yNode).add(parseDocument(source, inLineArrayDelimiters));
   } while (source.current() == ',');
   source.ignoreWS();
   if (source.current() != ']') {
@@ -467,14 +468,14 @@ YNode YAML_Parser::parseDictionary(ISource &source,
 
 YNode YAML_Parser::parseInlineDictionary(
     ISource &source, [[maybe_unused]] const Delimeters &delimiters) {
-  Delimeters inLineDictionaryDelimeters = {delimiters};
-  inLineDictionaryDelimeters.insert({',', '}'});
+  Delimeters inLineDictionaryDelimiters = {delimiters};
+  inLineDictionaryDelimiters.insert({',', '}'});
   YNode yNode = YNode::make<Dictionary>();
   do {
     source.next();
     source.ignoreWS();
     YRef<Dictionary>(yNode).add(
-        parseKeyValue(source, inLineDictionaryDelimeters));
+        parseKeyValue(source, inLineDictionaryDelimiters));
 
   } while (source.current() == ',');
   if (source.current() != '}') {
@@ -491,7 +492,7 @@ YNode YAML_Parser::parseDocument(ISource &source,
   YNode yNode;
   source.ignoreWS();
 
-  for (auto parser : parsers) {
+  for (const auto& parser : parsers) {
     if (parser.first(source)) {
       yNode = parser.second(source, delimiters);
       if (!yNode.isEmpty()) {
