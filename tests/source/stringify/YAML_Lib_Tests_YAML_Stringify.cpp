@@ -32,14 +32,14 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\n65000...\n");
+    REQUIRE(destination.toString() == "---\n65000\n...\n");
   }
   SECTION("YAML Stringify document one string.", "[YAML][Stringify][String]") {
     BufferSource source{"---\n\" test string \""};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\n\" test string \"...\n");
+    REQUIRE(destination.toString() == "---\n\" test string \"\n...\n");
   }
   SECTION("YAML Stringify document one boolean.",
           "[YAML][Stringify][Boolean]") {
@@ -47,7 +47,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\nTrue...\n");
+    REQUIRE(destination.toString() == "---\nTrue\n...\n");
   }
   SECTION("YAML Stringify document dictionary key value pair.",
           "[YAML][Stringify][Dictionary]") {
@@ -166,7 +166,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() ==
-            "---\nMark McGwire\'s year was crippled by a knee injury....\n");
+            "---\nMark McGwire\'s year was crippled by a knee injury.\n...\n");
   }
   SECTION("YAML Stringify literal string perserves newlines.",
           "[YAML][Stringify][literals]") {
@@ -177,7 +177,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() ==
-            "--- |\n  \\//||\\/||\n  // ||  ||__...\n");
+            "--- |\n  \\//||\\/||\n  // ||  ||__\n...\n");
   }
 //   SECTION(
 //       "YAML Stringify folded newlines preserved for indented and blank lines.",

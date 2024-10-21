@@ -1,19 +1,18 @@
 #pragma once
 
 namespace YAML_Lib {
-  
+
 // ====================================================================
 // Interface for writing destination stream during YAML stringification
 // ====================================================================
-class IDestination
-{
+class IDestination {
 public:
   // ==================
   // IDestination Error
   // ==================
-  struct Error final : std::runtime_error
-  {
-    explicit Error(const std::string &message) : std::runtime_error("IDestination Error: " + message) {}
+  struct Error final : std::runtime_error {
+    explicit Error(const std::string &message)
+        : std::runtime_error("IDestination Error: " + message) {}
   };
   // ========================
   // Constructors/destructors
@@ -31,5 +30,9 @@ public:
   // Clear the current destination
   // ===========================
   virtual void clear() = 0;
+  // =================================
+  // Return the last character written
+  // =================================
+  virtual char last()  = 0;
 };
-}// namespace YAML_Lib
+} // namespace YAML_Lib

@@ -35,7 +35,7 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
       if (splitStrings.size() > 1) {
         std::string last = splitStrings.back();
         splitStrings.pop_back();
-        for (const auto& line : splitStrings) {
+        for (const auto &line : splitStrings) {
           if (YRef<String>(yNode).getIndentation() > 1) {
             destination.add(
                 std::string(YRef<String>(yNode).getIndentation() - 1, ' '));
@@ -120,6 +120,9 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
     }
     for (const auto &entry : YRef<Document>(yNode).value()) {
       stringifyYAML(destination, entry);
+    }
+    if (destination.last() != '\n') {
+      destination.add('\n');
     }
     destination.add("...\n");
   } else {
