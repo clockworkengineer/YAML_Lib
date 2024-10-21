@@ -26,6 +26,8 @@ set(YAML_SOURCES
   ./classes/source/implementation/stringify/YAML_Stringify.cpp
 )
 
+list(APPEND YAML_SOURCES "./classes/source/implementation/converter/${PLATFORM}/YAML_Converter.cpp")
+
 # YAML includes
 set(YAML_INCLUDES
   YAML_Config.hpp
@@ -55,7 +57,6 @@ set(YAML_INCLUDES
   ./classes/include/implementation/ynode/YAML_YNode_Creation.hpp
   ./classes/include/implementation/ynode/YAML_YNode_Index.hpp
   ./classes/include/implementation/ynode/YAML_YNode_Reference.hpp
-
   ./classes/include/implementation/YAML_Impl.hpp
   ./classes/include/implementation/YAML_Core.hpp
 )
@@ -66,6 +67,7 @@ target_include_directories(${YAML_LIBRARY_NAME} PUBLIC
   ${PROJECT_SOURCE_DIR}/classes/include
   ${PROJECT_SOURCE_DIR}/classes/include/implementation
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/common
+  ${PROJECT_SOURCE_DIR}/classes/include/implementation/converter
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/io
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/parser
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/variants
