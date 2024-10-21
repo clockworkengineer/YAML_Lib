@@ -2,6 +2,7 @@
 #pragma once
 
 #include "ITranslator.hpp"
+#include "YAML_Converter.hpp"
 
 namespace YAML_Lib {
 
@@ -50,12 +51,18 @@ public:
         } else if (yamlString[idx] == 'u') {
           char hex[3];
           std::size_t end;
+          [[maybe_unused]] char16_t utf16;
+          std::u16string utf16string;
+          std::string utf8string;
           hex[0] = yamlString[++idx];
           hex[1] = yamlString[++idx];
-          translated += static_cast<char>(std::stoi(hex, &end, 16));
+          utf16 = (static_cast<char>(std::stoi(hex, &end, 16)) << 8);
           hex[0] = yamlString[++idx];
           hex[1] = yamlString[++idx];
-          translated += static_cast<char>(std::stoi(hex, &end, 16));
+          utf16 |= static_cast<char>(std::stoi(hex, &end, 16));
+          utf16string.push_back(utf16);
+          translated += toUtf8(utf16string);
+          continue;
         } else {
           translated += yamlString[idx];
         }

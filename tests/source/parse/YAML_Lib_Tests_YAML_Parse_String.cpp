@@ -311,7 +311,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "\\r\\n\"\n\nsingle: \'\"Howdy!\" he cried.\'\nquoted: \' # not a "
         "\'\'comment\'\'.\'\ntie-fighter: \'|\\-*-/|\'"};
     REQUIRE_NOTHROW(yaml.parse(source));
-        REQUIRE(YRef<String>(yaml.document(0)[0]["unicode"]).value() == "");
+        REQUIRE(YRef<String>(yaml.document(0)[0]["unicode"]).value() == "Sosa did fine.☺");
     REQUIRE(YRef<String>(yaml.document(0)[0]["control"]).value() ==
             "\b1998\t1999\t2000\n");
     REQUIRE(YRef<String>(yaml.document(0)[0]["hexesc"]).value() ==
