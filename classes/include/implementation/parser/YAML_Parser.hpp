@@ -55,6 +55,8 @@ private:
 
   static bool isDefault(ISource &source);
 
+  static void foldCarriageReturns(ISource &source, std::string &yamlString);
+
   static BlockChomping parseBlockChomping(ISource &source);
 
   static std::string parseBlockString(ISource &source,

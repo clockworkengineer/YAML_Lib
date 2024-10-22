@@ -135,6 +135,23 @@ bool YAML_Parser::isInlineDictionary(ISource &source) {
 
 bool YAML_Parser::isDictionary(ISource &source) { return isKey(source); }
 
+void YAML_Parser::foldCarriageReturns(ISource &source,
+                                      std::string &yamlString) {
+  yamlString += ' ';
+  source.next();
+  while (source.more() && source.current() == ' ') {
+    source.next();
+  }
+  if (source.current() == '\n') {
+    yamlString.pop_back();
+    yamlString += "\n";
+    source.next();
+    while (source.more() && source.current() == ' ') {
+      source.next();
+    }
+  }
+}
+
 YAML_Parser::BlockChomping YAML_Parser::parseBlockChomping(ISource &source) {
   source.next();
   if (source.current() == '-') {
@@ -229,19 +246,7 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
     while (source.more() &&
            !(isKey(source) || isArray(source) || isComment(source))) {
       if (source.current() == '\n') {
-        yamlString += ' ';
-        source.next();
-        while (source.more() && source.current() == ' ') {
-          source.next();
-        }
-        if (source.current() == '\n') {
-          yamlString.pop_back();
-          yamlString += "\n";
-          source.next();
-          while (source.more() && source.current() == ' ') {
-            source.next();
-          }
-        }
+        foldCarriageReturns(source, yamlString);
       } else {
         yamlString += source.current();
         source.next();
@@ -261,28 +266,14 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
   std::string yamlString;
   source.next();
   if (quote == '"') {
-    while (source.more()) {
+    while (source.more() && source.current() != '"') {
       if (source.current() == '\\') {
         yamlString += "\\";
         source.next();
         yamlString += source.current();
         source.next();
       } else if (source.current() == '\n') {
-        yamlString += ' ';
-        source.next();
-        while (source.more() && source.current() == ' ') {
-          source.next();
-        }
-        if (source.current() == '\n') {
-          yamlString.pop_back();
-          yamlString += "\n";
-          source.next();
-          while (source.more() && source.current() == ' ') {
-            source.next();
-          }
-        }
-      } else if (source.current() == '"') {
-        break;
+        foldCarriageReturns(source, yamlString);
       } else {
         yamlString += source.current();
         source.next();
@@ -300,19 +291,7 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
           break;
         }
       } else if (source.current() == '\n') {
-        yamlString += ' ';
-        source.next();
-        while (source.more() && source.current() == ' ') {
-          source.next();
-        }
-        if (source.current() == '\n') {
-          yamlString.pop_back();
-          yamlString += "\n";
-          source.next();
-          while (source.more() && source.current() == ' ') {
-            source.next();
-          }
-        }
+        foldCarriageReturns(source, yamlString);
       } else {
         yamlString += source.current();
         source.next();
