@@ -191,6 +191,19 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE(
         destination.toString() ==
         "--- |\n Sammy Sosa completed another fine season with great stats.\n "
-        "\n    63 Home Runs\n    0.288 Batting Average\n \n What a year!\n...\n");
+        "\n    63 Home Runs\n    0.288 Batting Average\n \n What a "
+        "year!\n...\n");
+  }
+  SECTION("YAML stringiy various qoted scalars",
+          "[YAML][Parse][Quoted Scalars]") {
+    BufferSource source{
+        "unicode: \"Sosa did fine.\\u263A\"\ncontrol: "
+        "\"\\b1998\\t1999\\t2000\\n\"\nhexesc:  \"\\x13\\x10 is "
+        "\\r\\n\"\n\nsingle: \'\"Howdy!\" he cried.\'\nquoted: \' # not a "
+        "\'\'comment\'\'.\'\ntie-fighter: \'|\\-*-/|\'"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "");
   }
 }

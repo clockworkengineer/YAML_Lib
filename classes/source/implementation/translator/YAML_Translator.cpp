@@ -42,7 +42,7 @@ char16_t decodeUTF16(std::string::const_iterator &current,
 }
 /// <summary>
 /// Convert "\x00" escape sequences in a string to their correct sequence
-///  of UTF-8 characters.
+/// of UTF-8 characters.
 /// </summary>
 /// <param name="current">Current character position.</param>
 /// <param name="numberOfCharacters">Number of characters left in source

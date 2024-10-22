@@ -8,6 +8,7 @@
 //
 
 #include "YAML_Stringify.hpp"
+#include "YAML_Translator.hpp"
 
 namespace YAML_Lib {
 
@@ -23,12 +24,18 @@ std::vector<std::string> splitString(const std::string &target,
 }
 
 void stringifyYAML(IDestination &destination, const YNode &yNode) {
+  YAML_Translator translator;
   if (isA<Number>(yNode)) {
     destination.add(YRef<Number>(yNode).toString());
   } else if (isA<String>(yNode)) {
     char quote = YRef<String>(yNode).getQuote();
     if (quote == '\'' || quote == '"') {
-      destination.add(quote + YRef<String>(yNode).toString() + quote);
+      if (quote == '"') {
+        destination.add(quote + translator.to(YRef<String>(yNode).toString()) +
+                        quote);
+      } else {
+        destination.add(quote + YRef<String>(yNode).toString() + quote);
+      }
     } else {
       std::vector<std::string> splitStrings{
           splitString(YRef<String>(yNode).toString(), kLineFeed)};
