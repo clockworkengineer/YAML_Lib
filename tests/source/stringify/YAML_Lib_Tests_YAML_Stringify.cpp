@@ -204,6 +204,10 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "");
+    REQUIRE(destination.toString() ==
+            "---\nunicode: \"Sosa did fine.\\u263A\"\ncontrol: "
+            "\"\\b1998\\t1999\\t2000\\n\"\nhexesc: \"\\u0013\\u0010 is "
+            "\\r\\n\"\nsingle: \'\"Howdy!\" he cried.\'\nquoted: \' # not a "
+            "\'comment\'.\'\ntie-fighter: \'|\\-*-/|\'\n...\n");
   }
 }
