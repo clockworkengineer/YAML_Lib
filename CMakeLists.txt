@@ -24,6 +24,7 @@ set(YAML_SOURCES
   ./classes/source/implementation/YAML_Impl.cpp
   ./classes/source/implementation/parser/YAML_Parser.cpp
   ./classes/source/implementation/stringify/YAML_Stringify.cpp
+  ./classes/source/implementation/translator/YAML_Translator.cpp
 )
 
 list(APPEND YAML_SOURCES "./classes/source/implementation/converter/${PLATFORM}/YAML_Converter.cpp")

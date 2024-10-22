@@ -90,7 +90,7 @@ private:
   static YNode parseDocument(ISource &source,
                              [[maybe_unused]] const Delimeters &delimiters);
 
-  inline static YAML_Translator translator;
+  // inline static YAML_Translator translator {};
 
   using IsAFunc = std::function<bool(ISource &)>;
   using ParseFunc = std::function<YNode(ISource &, const Delimeters &)>;

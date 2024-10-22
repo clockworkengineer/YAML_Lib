@@ -127,8 +127,7 @@ bool YAML_Parser::isInlineArray(ISource &source) {
   return source.current() == '[';
 }
 
-bool YAML_Parser::isDefault([[
-    maybe_unused]]ISource &source) { return true; }
+bool YAML_Parser::isDefault([[maybe_unused]] ISource &source) { return true; }
 
 bool YAML_Parser::isInlineDictionary(ISource &source) {
   return source.current() == '{';
@@ -257,6 +256,7 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
 
 YNode YAML_Parser::parseQuotedFlowString(ISource &source,
                                          const Delimeters &delimiters) {
+  YAML_Translator translator;
   const char quote = source.current();
   std::string yamlString;
   source.next();
@@ -492,7 +492,7 @@ YNode YAML_Parser::parseDocument(ISource &source,
   YNode yNode;
   source.ignoreWS();
 
-  for (const auto& parser : parsers) {
+  for (const auto &parser : parsers) {
     if (parser.first(source)) {
       yNode = parser.second(source, delimiters);
       if (!yNode.isEmpty()) {
