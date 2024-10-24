@@ -170,7 +170,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
                 .value() == "a pear tree");
   }
 
-  SECTION("YAML parse flat diction of integers and verify.",
+  SECTION("YAML parse flat dictionary of integers and verify.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\nfoo: { thing1: 1, thing2: 2, thing3: 3 }\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -190,7 +190,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE(YRef<Number>(yaml.document(0)[0]["foo"]["thing3"]).value<int>() ==
             3);
   }
-  SECTION("YAML parse flat diction of quoted strings and verify.",
+  SECTION("YAML parse flat dictionary of quoted strings and verify.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{
         "---\nfoo: { thing1: \"one\", thing2: \"two\", thing3: \"three\" }\n"};
@@ -249,4 +249,20 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     BufferSource source{"Sammy Sosa: {\n    hr: 63,\n    avg: 0.288\n  }\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
+
+  //   SECTION("YAML parse dictionary with duplicate keys.",
+  //           "[YAML][Parse][Dictionary]") {
+  //     BufferSource source{
+  //         "---\nthing1: \"one\"\n thing1: \"two\"\n thing3: \"three\"\n"};
+  //     REQUIRE_THROWS_WITH(yaml.parse(source), "IParser Error: Dictionary
+  //     already contains key 'thing1'.");
+  //   }
+
+  //   SECTION("YAML parse dictionarys with duplicate keys in two documents.",
+  //           "[YAML][Parse][Dictionary]") {
+  //     BufferSource source{"---\ntime: 20:03:20\nplayer: Sammy Sosa\naction: "
+  //                         "strike (miss)\n\n---\ntime: 20:03:47\nplayer:
+  //                         Sammy " "Sosa\naction: grand slam\n"};
+  //     REQUIRE_NOTHROW(yaml.parse(source));
+  //   }
 }

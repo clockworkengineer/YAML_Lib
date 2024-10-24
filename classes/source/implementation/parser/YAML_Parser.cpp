@@ -430,12 +430,16 @@ YNode YAML_Parser::parseDictionary(ISource &source,
                                    const Delimeters &delimiters) {
   unsigned long dictionaryIndent = currentIndentLevel(source);
   YNode yNode = YNode::make<Dictionary>(dictionaryIndent);
-  while (source.more() &&
-         (std::isalpha(source.current()) || isComment(source))) {
-    if (!isComment(source)) {
+  while (source.more()) {
+    if (isKey(source)) {
       YRef<Dictionary>(yNode).add(parseKeyValue(source, delimiters));
-    } else {
+    } else if (isComment(source)) {
       parseComment(source, delimiters);
+    } else {
+      if (dictionaryIndent == currentIndentLevel(source)) {
+        throw Error("Missing key/value pair from indentation level.");
+      }
+      break;
     }
     source.ignoreWS();
     if (dictionaryIndent > currentIndentLevel(source)) {

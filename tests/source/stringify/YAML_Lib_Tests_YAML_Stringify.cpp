@@ -210,4 +210,18 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
             "\\r\\n\"\nsingle: \'\"Howdy!\" he cried.\'\nquoted: \' # not a "
             "\'comment\'.\'\ntie-fighter: \'|\\-*-/|\'\n...\n");
   }
+
+  //   SECTION("YAML parse dictionarys  in two documents and stringify back.",
+  //           "[YAML][Parse][Dictionary]") {
+  //     BufferSource source{"---\ntime: 20:03:20\nplayer: Sammy Sosa\naction: "
+  //                         "strike (miss)\n\n---\ntime: 20:03:47\nplayer:
+  //                         Sammy " "Sosa\naction: grand slam\n"};
+  //     REQUIRE_NOTHROW(yaml.parse(source));
+  //     BufferDestination destination;
+  //     REQUIRE_NOTHROW(yaml.stringify(destination));
+  //     REQUIRE(destination.toString() ==
+  //             "---\ntime: 20:03:20\nplayer: Sammy Sosa\naction: strike "
+  //             "(miss)\n---\ntime: 20:03:47\nplayer: Sammy Sosa\naction: grand
+  //             " "slam\n...\n");
+  //   }
 }
