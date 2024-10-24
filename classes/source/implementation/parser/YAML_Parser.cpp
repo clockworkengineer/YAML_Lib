@@ -385,19 +385,21 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimeters &delimiters) {
 YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
   unsigned long arrayIndent = currentIndentLevel(source);
   YNode yNode = YNode::make<Array>(arrayIndent);
-  do {
+  while (source.more()) {
     if (isArray(source)) {
       source.next();
       source.next();
       YRef<Array>(yNode).add(parseDocument(source, delimiters));
-    } else {
+    } else if (isComment(source)){
       parseComment(source, delimiters);
+    } else {
+      break;
     }
     source.ignoreWS();
     if (arrayIndent > currentIndentLevel(source)) {
       return yNode;
     }
-  } while (isArray(source) || isComment(source));
+  }
 
   return yNode;
 }
