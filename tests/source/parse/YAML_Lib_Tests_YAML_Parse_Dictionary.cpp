@@ -266,4 +266,12 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
                         "Sosa\naction: grand slam\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
+  SECTION("YAML parse dictionarys with duplicate keys in two "
+          "documents(terminating one with end).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\ntime: 20:03:20\nplayer: Sammy Sosa\naction: "
+                        "strike (miss)\n\n...\ntime: 20:03:47\nplayer: Sammy "
+                        "Sosa\naction: grand slam\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
 }

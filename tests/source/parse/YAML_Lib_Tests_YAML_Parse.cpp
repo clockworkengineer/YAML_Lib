@@ -52,4 +52,11 @@ TEST_CASE("Check YAML parse start document.", "[YAML][Parse][Start]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
   }
+
+  SECTION("YAML parse document that is spli in two documents by an end.",
+          "[YAML][Parse][Comments]") {
+    BufferSource source{"---\ntime : 1\n...\ntime: 2"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 2);
+  }
 }

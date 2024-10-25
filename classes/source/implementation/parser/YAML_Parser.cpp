@@ -135,6 +135,22 @@ bool YAML_Parser::isInlineDictionary(ISource &source) {
 
 bool YAML_Parser::isDictionary(ISource &source) { return isKey(source); }
 
+bool YAML_Parser::isDocumentStart(ISource &source) {
+  bool isStart{source.match("---")};
+  if (isStart) {
+    source.backup(3);
+  }
+  return isStart;
+}
+
+bool YAML_Parser::isDocumentEnd(ISource &source) {
+  bool isEnd{source.match("...")};
+  if (isEnd) {
+    source.backup(3);
+  }
+  return isEnd;
+}
+
 void YAML_Parser::foldCarriageReturns(ISource &source,
                                       std::string &yamlString) {
   yamlString += ' ';
@@ -207,7 +223,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
 }
 
 std::string YAML_Parser::parseKey(ISource &source) {
-  std::string key{extractToNext(source, {':'})};
+  std::string key{extractToNext(source, {kLineFeed, ':'})};
   if (source.more()) {
     source.next();
   }
@@ -244,7 +260,8 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
     return YNode::make<String>(yamlString, '\0');
   } else {
     while (source.more() &&
-           !(isKey(source) || isArray(source) || isComment(source))) {
+           !(isKey(source) || isArray(source) || isComment(source) ||
+             isDocumentStart(source) || isDocumentEnd(source))) {
       if (source.current() == '\n') {
         foldCarriageReturns(source, yamlString);
       } else {
@@ -442,6 +459,8 @@ YNode YAML_Parser::parseDictionary(ISource &source,
       YRef<Dictionary>(yNode).add(std::move(entry));
     } else if (isComment(source)) {
       parseComment(source, delimiters);
+    } else if (isDocumentStart(source) || isDocumentEnd(source)) {
+      break;
     } else {
       if (dictionaryIndent == currentIndentLevel(source)) {
         throw Error("Missing key/value pair from indentation level.");
