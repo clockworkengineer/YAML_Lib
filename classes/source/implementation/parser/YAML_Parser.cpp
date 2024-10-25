@@ -229,7 +229,7 @@ std::string YAML_Parser::parseKey(ISource &source) {
   }
   rightTrim(key);
   if (!isValidKey(key)) {
-    throw Error("Invalid key '" + key + "' specified.");
+    throw SyntaxError(source.getPosition(),"Invalid key '" + key + "' specified.");
   }
   source.ignoreWS();
   return key;
@@ -453,8 +453,9 @@ YNode YAML_Parser::parseDictionary(ISource &source,
     if (isKey(source)) {
       auto entry = parseKeyValue(source, delimiters);
       if (YRef<Dictionary>(yNode).contains(entry.getKey())) {
-        throw Error("Dictionary already contains key '" + entry.getKey() +
-                    "'.");
+        throw SyntaxError(source.getPosition(),
+                          "Dictionary already contains key '" + entry.getKey() +
+                              "'.");
       }
       YRef<Dictionary>(yNode).add(std::move(entry));
     } else if (isComment(source)) {
@@ -463,7 +464,8 @@ YNode YAML_Parser::parseDictionary(ISource &source,
       break;
     } else {
       if (dictionaryIndent == currentIndentLevel(source)) {
-        throw Error("Missing key/value pair from indentation level.");
+        throw SyntaxError(source.getPosition(),
+                          "Missing key/value pair from indentation level.");
       }
       break;
     }
@@ -497,7 +499,6 @@ YNode YAML_Parser::parseInlineDictionary(
 
 YNode YAML_Parser::parseDocument(ISource &source,
                                  const Delimeters &delimiters) {
-
   YNode yNode;
   source.ignoreWS();
   for (const auto &parser : parsers) {
@@ -508,7 +509,7 @@ YNode YAML_Parser::parseDocument(ISource &source,
       }
     }
   }
-  throw SyntaxError("Invalid YAML encountered.");
+  throw SyntaxError(source.getPosition(),"Invalid YAML encountered.");
 }
 
 std::vector<YNode> YAML_Parser::parse(ISource &source) {

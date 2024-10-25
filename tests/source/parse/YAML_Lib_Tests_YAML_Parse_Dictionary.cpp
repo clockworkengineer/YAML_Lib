@@ -256,7 +256,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
         "---\nthing1: \"one\"\n thing1: \"two\"\n thing3: \"three\"\n"};
     REQUIRE_THROWS_WITH(
         yaml.parse(source),
-        "IParser Error: Dictionary already contains key 'thing1'.");
+        "YAML Syntax Error [Line: 4 Column: 3]: Dictionary already contains key 'thing1'.");
   }
 
   SECTION("YAML parse dictionarys with duplicate keys in two documents.",
