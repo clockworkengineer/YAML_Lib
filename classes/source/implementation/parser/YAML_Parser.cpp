@@ -261,7 +261,7 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
   } else {
     while (source.more() &&
            !(isKey(source) || isArray(source) || isComment(source) ||
-             isDocumentStart(source) ||  isDocumentEnd(source))) {
+             isDocumentStart(source) || isDocumentEnd(source))) {
       if (source.current() == '\n') {
         foldCarriageReturns(source, yamlString);
       } else {
@@ -515,32 +515,30 @@ YNode YAML_Parser::parseDocument(ISource &source,
 
 std::vector<YNode> YAML_Parser::parse(ISource &source) {
   std::vector<YNode> yNodeTree;
-  while (source.more()) {
-    for (bool inDocument = false; source.more();) {
-      // Start of document
-      if (isDocumentStart(source)) {
-        inDocument = true;
-        moveToNext(source, {kLineFeed, '|', '>'});
+  for (bool inDocument = false; source.more();) {
+    // Start of document
+    if (isDocumentStart(source)) {
+      inDocument = true;
+      moveToNext(source, {kLineFeed, '|', '>'});
+      yNodeTree.push_back(YNode::make<Document>());
+      // End of document
+    } else if (isDocumentEnd(source)) {
+      moveToNext(source, {kLineFeed});
+      if (!inDocument) {
         yNodeTree.push_back(YNode::make<Document>());
-        // End of document
-      } else if (isDocumentEnd(source)) {
-        moveToNext(source, {kLineFeed});
-        if (!inDocument) {
-          yNodeTree.push_back(YNode::make<Document>());
-        }
-        inDocument=false;
-      } else if (isComment(source) && !inDocument) {
-        yNodeTree.push_back(parseComment(source, {}));
-      } else {
-        if (!inDocument) {
-          yNodeTree.push_back(YNode::make<Document>());
-        }
-        inDocument=true;
-        YRef<Document>(yNodeTree.back())
-            .add(parseDocument(source, {kLineFeed}));
       }
+      inDocument = false;
+    } else if (isComment(source) && !inDocument) {
+      yNodeTree.push_back(parseComment(source, {}));
+    } else {
+      if (!inDocument) {
+        yNodeTree.push_back(YNode::make<Document>());
+      }
+      inDocument = true;
+      YRef<Document>(yNodeTree.back()).add(parseDocument(source, {kLineFeed}));
     }
   }
+
   return yNodeTree;
 }
 } // namespace YAML_Lib
