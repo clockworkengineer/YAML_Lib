@@ -414,7 +414,7 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
     }
     source.ignoreWS();
     if (arrayIndent > currentIndentLevel(source)) {
-      return yNode;
+      break;
     }
   }
 
@@ -500,7 +500,6 @@ YNode YAML_Parser::parseDocument(ISource &source,
 
   YNode yNode;
   source.ignoreWS();
-
   for (const auto &parser : parsers) {
     if (parser.first(source)) {
       yNode = parser.second(source, delimiters);
@@ -509,8 +508,7 @@ YNode YAML_Parser::parseDocument(ISource &source,
       }
     }
   }
-
-  throw SyntaxError("Invalid YAML.");
+  throw SyntaxError("Invalid YAML encountered.");
 }
 
 std::vector<YNode> YAML_Parser::parse(ISource &source) {
@@ -528,8 +526,10 @@ std::vector<YNode> YAML_Parser::parse(ISource &source) {
         yNodeTree.push_back(YNode::make<Document>());
       }
       inDocument = false;
+      // Inter document comment
     } else if (isComment(source) && !inDocument) {
       yNodeTree.push_back(parseComment(source, {}));
+      // Parse document contents
     } else {
       if (!inDocument) {
         yNodeTree.push_back(YNode::make<Document>());
