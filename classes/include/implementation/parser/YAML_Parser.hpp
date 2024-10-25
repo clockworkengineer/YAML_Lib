@@ -25,6 +25,9 @@ public:
   inline static std::map<std::string, std::string> yamlAliasMap{};
 
 private:
+
+  // YAML parser
+  
   static bool isValidKey(const std::string &key);
 
   static bool isKey(ISource &source);
@@ -58,7 +61,7 @@ private:
   static bool isDocumentStart(ISource &source);
 
   static bool isDocumentEnd(ISource &source);
-  
+
   static void foldCarriageReturns(ISource &source, std::string &yamlString);
 
   static BlockChomping parseBlockChomping(ISource &source);
@@ -96,7 +99,7 @@ private:
   static YNode parseDocument(ISource &source,
                              [[maybe_unused]] const Delimeters &delimiters);
 
-  // inline static YAML_Translator translator {};
+  // YAML parser routing table
 
   using IsAFunc = std::function<bool(ISource &)>;
   using ParseFunc = std::function<YNode(ISource &, const Delimeters &)>;

@@ -518,18 +518,17 @@ std::vector<YNode> YAML_Parser::parse(ISource &source) {
   while (source.more()) {
     for (bool inDocument = false; source.more();) {
       // Start of document
-      if (source.match("---")) {
+      if (isDocumentStart(source)) {
         inDocument = true;
         moveToNext(source, {kLineFeed, '|', '>'});
         yNodeTree.push_back(YNode::make<Document>());
         // End of document
-      } else if (source.match("...")) {
+      } else if (isDocumentEnd(source)) {
         moveToNext(source, {kLineFeed});
         if (!inDocument) {
           yNodeTree.push_back(YNode::make<Document>());
         }
         inDocument=false;
-        break;
       } else if (isComment(source) && !inDocument) {
         yNodeTree.push_back(parseComment(source, {}));
       } else {
