@@ -390,7 +390,7 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
       source.next();
       source.next();
       YRef<Array>(yNode).add(parseDocument(source, delimiters));
-    } else if (isComment(source)){
+    } else if (isComment(source)) {
       parseComment(source, delimiters);
     } else {
       break;
@@ -434,7 +434,12 @@ YNode YAML_Parser::parseDictionary(ISource &source,
   YNode yNode = YNode::make<Dictionary>(dictionaryIndent);
   while (source.more()) {
     if (isKey(source)) {
-      YRef<Dictionary>(yNode).add(parseKeyValue(source, delimiters));
+      auto entry = parseKeyValue(source, delimiters);
+      if (YRef<Dictionary>(yNode).contains(entry.getKey())) {
+        throw Error("Dictionary already contains key '" + entry.getKey() +
+                    "'.");
+      }
+      YRef<Dictionary>(yNode).add(std::move(entry));
     } else if (isComment(source)) {
       parseComment(source, delimiters);
     } else {

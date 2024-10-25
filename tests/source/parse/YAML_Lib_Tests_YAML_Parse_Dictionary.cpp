@@ -250,19 +250,20 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_NOTHROW(yaml.parse(source));
   }
 
-  //   SECTION("YAML parse dictionary with duplicate keys.",
-  //           "[YAML][Parse][Dictionary]") {
-  //     BufferSource source{
-  //         "---\nthing1: \"one\"\n thing1: \"two\"\n thing3: \"three\"\n"};
-  //     REQUIRE_THROWS_WITH(yaml.parse(source), "IParser Error: Dictionary
-  //     already contains key 'thing1'.");
-  //   }
+  SECTION("YAML parse dictionary with duplicate keys.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{
+        "---\nthing1: \"one\"\n thing1: \"two\"\n thing3: \"three\"\n"};
+    REQUIRE_THROWS_WITH(
+        yaml.parse(source),
+        "IParser Error: Dictionary already contains key 'thing1'.");
+  }
 
-  //   SECTION("YAML parse dictionarys with duplicate keys in two documents.",
-  //           "[YAML][Parse][Dictionary]") {
-  //     BufferSource source{"---\ntime: 20:03:20\nplayer: Sammy Sosa\naction: "
-  //                         "strike (miss)\n\n---\ntime: 20:03:47\nplayer:
-  //                         Sammy " "Sosa\naction: grand slam\n"};
-  //     REQUIRE_NOTHROW(yaml.parse(source));
-  //   }
+  SECTION("YAML parse dictionarys with duplicate keys in two documents.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\ntime: 20:03:20\nplayer: Sammy Sosa\naction: "
+                        "strike (miss)\n\n---\ntime: 20:03:47\nplayer: Sammy "
+                        "Sosa\naction: grand slam\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
 }
