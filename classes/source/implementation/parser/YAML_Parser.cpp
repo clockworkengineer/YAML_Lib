@@ -261,7 +261,7 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
   } else {
     while (source.more() &&
            !(isKey(source) || isArray(source) || isComment(source) ||
-             isDocumentStart(source) || isDocumentEnd(source))) {
+             isDocumentStart(source) ||  isDocumentEnd(source))) {
       if (source.current() == '\n') {
         foldCarriageReturns(source, yamlString);
       } else {
@@ -528,13 +528,15 @@ std::vector<YNode> YAML_Parser::parse(ISource &source) {
         if (!inDocument) {
           yNodeTree.push_back(YNode::make<Document>());
         }
+        inDocument=false;
         break;
       } else if (isComment(source) && !inDocument) {
         yNodeTree.push_back(parseComment(source, {}));
       } else {
-        if (yNodeTree.empty()) {
+        if (!inDocument) {
           yNodeTree.push_back(YNode::make<Document>());
         }
+        inDocument=true;
         YRef<Document>(yNodeTree.back())
             .add(parseDocument(source, {kLineFeed}));
       }
