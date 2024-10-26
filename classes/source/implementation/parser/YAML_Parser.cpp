@@ -229,7 +229,8 @@ std::string YAML_Parser::parseKey(ISource &source) {
   }
   rightTrim(key);
   if (!isValidKey(key)) {
-    throw SyntaxError(source.getPosition(),"Invalid key '" + key + "' specified.");
+    throw SyntaxError(source.getPosition(),
+                      "Invalid key '" + key + "' specified.");
   }
   source.ignoreWS();
   return key;
@@ -509,7 +510,7 @@ YNode YAML_Parser::parseDocument(ISource &source,
       }
     }
   }
-  throw SyntaxError(source.getPosition(),"Invalid YAML encountered.");
+  throw SyntaxError(source.getPosition(), "Invalid YAML encountered.");
 }
 
 std::vector<YNode> YAML_Parser::parse(ISource &source) {

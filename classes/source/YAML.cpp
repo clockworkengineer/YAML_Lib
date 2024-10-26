@@ -28,7 +28,11 @@ void YAML::stringify(IDestination &&destination) const {
 }
 std::vector<YNode> &YAML::root() { return implementation->root(); }
 const std::vector<YNode> &YAML::root() const { return implementation->root(); }
-YNode &YAML::document(unsigned long index) { return implementation->document(index); }
-const YNode &YAML::document(unsigned long index) const { return implementation->document(index); }
+YNode &YAML::document(unsigned long index) {
+  return implementation->document(index);
+}
+const YNode &YAML::document(unsigned long index) const {
+  return implementation->document(index);
+}
 
 } // namespace YAML_Lib

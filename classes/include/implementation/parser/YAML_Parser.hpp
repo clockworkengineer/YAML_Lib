@@ -25,9 +25,7 @@ public:
   inline static std::map<std::string, std::string> yamlAliasMap{};
 
 private:
-
   // YAML parser
-  
   static bool isValidKey(const std::string &key);
 
   static bool isKey(ISource &source);
@@ -98,9 +96,7 @@ private:
                         [[maybe_unused]] const Delimeters &delimiters);
   static YNode parseDocument(ISource &source,
                              [[maybe_unused]] const Delimeters &delimiters);
-
   // YAML parser routing table
-
   using IsAFunc = std::function<bool(ISource &)>;
   using ParseFunc = std::function<YNode(ISource &, const Delimeters &)>;
   inline static std::vector<std::pair<IsAFunc, ParseFunc>> parsers{
