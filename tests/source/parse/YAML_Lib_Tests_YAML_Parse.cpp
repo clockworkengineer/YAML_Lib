@@ -53,10 +53,22 @@ TEST_CASE("Check YAML parse start document.", "[YAML][Parse][Start]") {
     REQUIRE(yaml.getNumberOfDocuments() == 1);
   }
 
-  SECTION("YAML parse document that is spli in two documents by an end.",
-          "[YAML][Parse][Comments]") {
+  SECTION("YAML parse document that is split in two documents by an end.",
+          "[YAML][Parse][Split]") {
     BufferSource source{"---\ntime : 1\n...\ntime: 2"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 2);
+  }
+
+  SECTION("YAML parse document with misc entries.", "[YAML][Parse][Comments]") {
+    BufferSource source{"null:\nbooleans: [ true, false ]\nstring: \'012345\'"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("null"));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("booleans"));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("string"));
+    REQUIRE_FALSE(!isA<Null>(yaml.document(0)[0]["null"]));
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["string"]));
   }
 }

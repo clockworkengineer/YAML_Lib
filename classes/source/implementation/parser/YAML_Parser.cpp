@@ -442,8 +442,13 @@ YNode YAML_Parser::parseInlineArray(
 }
 DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
                                            const Delimeters &delimiters) {
+  unsigned long keyIndent = currentIndentLevel(source);
   std::string key{parseKey(source)};
-  return DictionaryEntry(key, parseDocument(source, delimiters));
+  if (currentIndentLevel(source) > keyIndent) {
+    return DictionaryEntry(key, parseDocument(source, delimiters));
+  } else {
+    return DictionaryEntry(key, YNode::make<Null>());
+  }
 }
 
 YNode YAML_Parser::parseDictionary(ISource &source,
