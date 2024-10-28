@@ -60,12 +60,12 @@ TEST_CASE("Check YAML Parsing of comments.", "[YAML][parse][Comment]") {
     REQUIRE(YRef<String>(yaml.root()[0][0]["bar"]).value() ==
             "this is not a normal string it spans more than one line see?");
   }
-  // SECTION("YAML parse of comment one same line as a string.",
-  //         "[YAML][parse][Comment]") {
-  //   BufferSource source{"---\n   - One String\n"};
-  //   REQUIRE_NOTHROW(yaml.parse(source));
-  //   REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]));
-  //   REQUIRE_FALSE(!isA<String>(yaml.root()[0][0][0]));
-  //   // REQUIRE(YRef<String>(yaml.root()[0][0][0]).value() == "One String");
-  // }
+  SECTION("YAML parse of comment one same line as a string.",
+          "[YAML][parse][Comment]") {
+    BufferSource source{"---\n   - One String   # Comment \n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]));
+    REQUIRE_FALSE(!isA<String>(yaml.root()[0][0][0]));
+    REQUIRE(YRef<String>(yaml.root()[0][0][0]).value() == "One String");
+  }
 }

@@ -52,6 +52,10 @@ unsigned long currentIndentLevel(ISource &source) {
   return source.getPosition().second;
 }
 
+unsigned long currentLineNo(ISource &source) {
+  return source.getPosition().first;
+}
+
 bool YAML_Parser::isValidKey(const std::string &key) {
   if (!key.empty()) {
     if (!std::isalpha(key[0]) || key.back() == ' ') {
@@ -232,7 +236,7 @@ std::string YAML_Parser::parseKey(ISource &source) {
     throw SyntaxError(source.getPosition(),
                       "Invalid key '" + key + "' specified.");
   }
-  source.ignoreWS();
+  // source.ignoreWS();
   return key;
 }
 
@@ -444,6 +448,13 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
                                            const Delimeters &delimiters) {
   unsigned long keyIndent = currentIndentLevel(source);
   std::string key{parseKey(source)};
+  while (source.more() && source.current() == ' ') {
+    source.next();
+  }
+  if (isKey(source)) {
+    throw SyntaxError("Only an inline/compact dictionary is allowed.");
+  }
+  source.ignoreWS();
   if (currentIndentLevel(source) > keyIndent) {
     return DictionaryEntry(key, parseDocument(source, delimiters));
   } else {

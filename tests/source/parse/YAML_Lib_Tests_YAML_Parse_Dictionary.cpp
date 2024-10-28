@@ -108,12 +108,11 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("outertwo"));
     REQUIRE(YRef<Number>(yaml.document(0)[0]["outertwo"]).value<int>() == 99);
   }
-  //   SECTION("YAML parse dictionary with key value pair nesting on the same
-  //   line.",
-  //           "[YAML][Parse][Dictionary]") {
-  //     BufferSource source{"---\n outer: inner: 'true'\n"};
-  //     REQUIRE_THROWS_WITH(yaml.parse(source), "");
-  //   }
+    SECTION("YAML parse dictionary with key value pair nesting on the same line.",
+            "[YAML][Parse][Dictionary]") {
+      BufferSource source{"---\n outer: inner: 'true'\n"};
+      REQUIRE_THROWS_WITH(yaml.parse(source), "YAML Syntax Error: Only an inline/compact dictionary is allowed.");
+    }
   SECTION("YAML parse dictionary with key value pair with key starting with t.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n two: true\n"};
