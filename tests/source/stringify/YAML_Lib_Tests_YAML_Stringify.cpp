@@ -210,8 +210,16 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
             "\\r\\n\"\nsingle: \'\"Howdy!\" he cried.\'\nquoted: \' # not a "
             "\'comment\'.\'\ntie-fighter: \'|\\-*-/|\'\n...\n");
   }
-
-  //   SECTION("YAML parse dictionarys  in two documents and stringify back.",
+  SECTION("YAML parse dictionary with null for value entry and  stringify back",
+          "[YAML][Parse][Null]") {
+    BufferSource source{"null:\nbooleans: [ true, false ]\nstring: \'012345\'"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\nnull: null\nbooleans: \n- true\n- "
+                                      "false \nstring: \'012345\'\n...\n");
+  }
+  //   SECTION("YAML parse dictionarys in two documents and stringify back.",
   //           "[YAML][Parse][Dictionary]") {
   //     BufferSource source{"---\ntime: 20:03:20\nplayer: Sammy Sosa\naction: "
   //                         "strike (miss)\n\n---\ntime: 20:03:47\nplayer:
