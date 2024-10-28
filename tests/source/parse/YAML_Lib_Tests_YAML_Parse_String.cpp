@@ -128,7 +128,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
                         "spans more than\n  one line\nsee?"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Syntax Error [Line: 6 Column: 2]: Missing key/value pair from indentation level.");
+                        "YAML Syntax Error [Line: 6 Column: 1]: Missing key/value pair from indentation level.");
   }
   SECTION(
       "YAML parse a literal string block that is terminated to key value pair.",
@@ -150,7 +150,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     BufferSource source{"---\nbar: |\n  this is not a normal string it\n  "
                         "spans more than\n  one line\nsee?"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Syntax Error [Line: 6 Column: 2]: Missing key/value pair from indentation level.");
+                        "YAML Syntax Error [Line: 6 Column: 1]: Missing key/value pair from indentation level.");
   }
   SECTION("YAML parse regular multi-line string.", "[YAML][Parse][literals]") {
     BufferSource source{

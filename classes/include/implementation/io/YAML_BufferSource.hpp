@@ -28,12 +28,13 @@ public:
     if (current() == kLineFeed) {
       lineNo++;
       column = 1;
+    } else {
+      column++;
     }
     if (!more()) {
       throw Error("Tried to read past and of buffer.");
     }
     bufferPosition++;
-    column++;
   }
   [[nodiscard]] bool more() const override {
     return bufferPosition < buffer.size();

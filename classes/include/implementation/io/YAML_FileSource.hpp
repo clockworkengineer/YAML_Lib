@@ -25,6 +25,8 @@ public:
     if (current() == kLineFeed) {
       lineNo++;
       column = 1;
+    } else {
+      column++;
     }
     if (!more()) {
       throw Error("Tried to read past end of file.");
@@ -36,7 +38,6 @@ public:
         source.unget();
       }
     }
-    column++;
   }
   bool more() const override { return source.peek() != EOF; }
   void reset() override {

@@ -49,7 +49,7 @@ std::string extractToNext(ISource &source,
 }
 
 unsigned long currentIndentLevel(ISource &source) {
-  return source.getPosition().second - 1;
+  return source.getPosition().second;
 }
 
 bool YAML_Parser::isValidKey(const std::string &key) {
