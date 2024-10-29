@@ -236,7 +236,6 @@ std::string YAML_Parser::parseKey(ISource &source) {
     throw SyntaxError(source.getPosition(),
                       "Invalid key '" + key + "' specified.");
   }
-  // source.ignoreWS();
   return key;
 }
 
@@ -244,6 +243,10 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
                                           const Delimeters &delimiters) {
   BlockChomping chomping{parseBlockChomping(source)};
   moveToNext(source, delimiters);
+  if (source.current() == '#') {
+    parseComment(source, delimiters);
+    source.ignoreWS();
+  }
   auto blockIndent = currentIndentLevel(source);
   std::string yamlString{parseBlockString(source, delimiters, ' ', chomping)};
   return YNode::make<String>(yamlString, '>', blockIndent);
@@ -253,6 +256,10 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
                                            const Delimeters &delimiters) {
   BlockChomping chomping{parseBlockChomping(source)};
   moveToNext(source, delimiters);
+  if (source.current() == '#') {
+    parseComment(source, delimiters);
+    source.ignoreWS();
+  }
   auto blockIndent = currentIndentLevel(source);
   std::string yamlString{parseBlockString(source, delimiters, '\n', chomping)};
   return YNode::make<String>(yamlString, '|', blockIndent);
@@ -262,6 +269,7 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
                                         const Delimeters &delimiters) {
   std::string yamlString{extractToNext(source, delimiters)};
   if (source.current() != kLineFeed) {
+    rightTrim(yamlString);
     return YNode::make<String>(yamlString, '\0');
   } else {
     while (source.more() &&
@@ -553,7 +561,8 @@ std::vector<YNode> YAML_Parser::parse(ISource &source) {
         yNodeTree.push_back(YNode::make<Document>());
       }
       inDocument = true;
-      YRef<Document>(yNodeTree.back()).add(parseDocument(source, {kLineFeed}));
+      YRef<Document>(yNodeTree.back())
+          .add(parseDocument(source, {kLineFeed, '#'}));
     }
   }
 
