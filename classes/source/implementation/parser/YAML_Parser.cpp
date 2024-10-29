@@ -436,9 +436,10 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
 
 YNode YAML_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimeters &delimiters) {
+  unsigned long arrayIndent = currentIndentLevel(source);
   Delimeters inLineArrayDelimiters = {delimiters};
   inLineArrayDelimiters.insert({',', ']'});
-  YNode yNode = YNode::make<Array>();
+  YNode yNode = YNode::make<Array>(arrayIndent);
   do {
     source.next();
     source.ignoreWS();
@@ -506,7 +507,8 @@ YNode YAML_Parser::parseInlineDictionary(
     ISource &source, [[maybe_unused]] const Delimeters &delimiters) {
   Delimeters inLineDictionaryDelimiters = {delimiters};
   inLineDictionaryDelimiters.insert({',', '}'});
-  YNode yNode = YNode::make<Dictionary>();
+  unsigned long dictionaryIndent = currentIndentLevel(source);
+  YNode yNode = YNode::make<Dictionary>(dictionaryIndent);
   do {
     source.next();
     source.ignoreWS();

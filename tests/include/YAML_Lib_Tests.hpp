@@ -26,6 +26,6 @@ const std::string prefixPath(const std::string &yamlFileName);
        "testfile016.yaml", "testfile017.yaml", "testfile018.yaml",             \
        "testfile019.yaml", "testfile020.yaml", "testfile021.yaml",             \
        "testfile022.yaml", "testfile023.yaml", "testfile024.yaml",             \
-       "testfile025.yaml"}))
+       "testfile025.yaml", "testfile026.yaml"}))
 
 using namespace YAML_Lib;
