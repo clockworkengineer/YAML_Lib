@@ -23,11 +23,11 @@ std::vector<std::string> splitString(const std::string &target,
   return splitStrings;
 }
 
-unsigned long calcIndent(IDestination &destination, unsigned long indent) {
+std::string calcIndent(IDestination &destination, unsigned long indent) {
   if (destination.last()!='\n'){
-    return (0);
+    return "";
   }
-  return indent;
+  return std::string(indent, ' ');
 }
 
 void stringifyYAML(IDestination &destination, const YNode &yNode,
@@ -51,14 +51,14 @@ void stringifyYAML(IDestination &destination, const YNode &yNode,
         std::string last = splitStrings.back();
         splitStrings.pop_back();
         for (const auto &line : splitStrings) {
-          destination.add(std::string(calcIndent(destination,indent), ' '));
+          destination.add(calcIndent(destination, indent));
           destination.add(line);
           destination.add("\n");
         }
-        destination.add(std::string(calcIndent(destination,indent), ' '));
+        destination.add(calcIndent(destination, indent));
         destination.add(last);
       } else {
-        destination.add(std::string(calcIndent(destination,indent), ' '));
+        destination.add(calcIndent(destination, indent));
         destination.add(YRef<String>(yNode).toString());
       }
     }
@@ -76,7 +76,7 @@ void stringifyYAML(IDestination &destination, const YNode &yNode,
     destination.add(YRef<Hole>(yNode).toString());
   } else if (isA<Dictionary>(yNode)) {
     for (auto &entry : YRef<Dictionary>(yNode).value()) {
-      destination.add(std::string(calcIndent(destination,indent), ' '));
+      destination.add(calcIndent(destination, indent));
       destination.add(YRef<String>(entry.getKeyYNode()).toString());
       destination.add(": ");
       if (isA<String>(entry.getYNode())) {
@@ -96,7 +96,7 @@ void stringifyYAML(IDestination &destination, const YNode &yNode,
   } else if (isA<Array>(yNode)) {
     if (!YRef<Array>(yNode).value().empty()) {
       for (const auto &entry : YRef<Array>(yNode).value()) {
-        destination.add(std::string(calcIndent(destination,indent), ' '));
+        destination.add(calcIndent(destination, indent));
         destination.add("- ");
         stringifyYAML(destination, entry, indent + 2);
         destination.add("\n");
