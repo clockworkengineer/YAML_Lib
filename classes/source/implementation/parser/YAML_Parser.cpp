@@ -88,7 +88,8 @@ bool YAML_Parser::isArray(ISource &source) {
   auto arrayPresent{false};
   if (source.more()) {
     source.next();
-    arrayPresent = (first == '-') && (source.current() == ' ' || source.current() == '\n');
+    arrayPresent =
+        (first == '-') && (source.current() == ' ' || source.current() == '\n');
     source.backup(1);
   }
   return (arrayPresent);
@@ -462,8 +463,14 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   }
   if (isKey(source)) {
     throw SyntaxError("Only an inline/compact dictionary is allowed.");
+  } else if (isComment(source)) {
+    parseComment(source, delimiters);
   }
   source.ignoreWS();
+  while (isComment(source)) {
+    parseComment(source, delimiters);
+    source.ignoreWS();
+  }
   if (currentIndentLevel(source) > keyIndent) {
     return DictionaryEntry(key, parseDocument(source, delimiters));
   } else {

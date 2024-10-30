@@ -256,4 +256,17 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
             "---\n- name: Mark Joseph\n  hr: 87\n  avg: 0.278\n- name: James "
             "Stephen\n  hr: 63\n  avg: 0.288\n...\n");
   }
+
+  SECTION("YAML parse dictionary with nested array and stringify.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{
+        "---\nhr: # 1998 hr ranking\n  - Mark McGwire\n  - Sammy Sosa\nrbi:\n  "
+        "# 1998 rbi ranking\n  - Sammy Sosa\n  - Ken Griffey"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() ==
+            "---\nhr: \n  - Mark McGwire\n  - Sammy Sosa\nrbi: \n  - Sammy "
+            "Sosa\n  - Ken Griffey\n...\n");
+  }
 }

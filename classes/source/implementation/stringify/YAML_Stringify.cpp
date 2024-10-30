@@ -88,7 +88,8 @@ void stringifyYAML(IDestination &destination, const YNode &yNode,
         destination.add("\n");
       }
       stringifyYAML(destination, entry.getYNode(), indent + 2);
-      if (!isA<Array>(entry.getYNode()) && !isA<Dictionary>(entry.getYNode())) {
+      if (!isA<Array>(entry.getYNode()) && !isA<Dictionary>(entry.getYNode()) &&
+          !isA<Comment>(entry.getYNode())) {
         destination.add("\n");
       }
     }
