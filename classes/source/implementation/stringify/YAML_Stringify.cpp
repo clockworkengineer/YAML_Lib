@@ -37,13 +37,12 @@ void stringifyYAML(IDestination &destination, const YNode &yNode,
     destination.add(YRef<Number>(yNode).toString());
   } else if (isA<String>(yNode)) {
     char quote = YRef<String>(yNode).getQuote();
-    if (quote == '\'' || quote == '"') {
+    if (std::string yamlString{YRef<String>(yNode).toString()};
+        quote == '\'' || quote == '"') {
       if (quote == '"') {
-        destination.add(quote + translator.to(YRef<String>(yNode).toString()) +
-                        quote);
-      } else {
-        destination.add(quote + YRef<String>(yNode).toString() + quote);
+        yamlString = translator.to(yamlString);
       }
+      destination.add(quote + yamlString + quote);
     } else {
       std::vector<std::string> splitStrings{
           splitString(YRef<String>(yNode).toString(), kLineFeed)};
@@ -99,7 +98,9 @@ void stringifyYAML(IDestination &destination, const YNode &yNode,
         destination.add(calcIndent(destination, indent));
         destination.add("- ");
         stringifyYAML(destination, entry, indent + 2);
-        destination.add("\n");
+        if (destination.last() != '\n') {
+          destination.add("\n");
+        }
       }
     }
   } else if (isA<Document>(yNode)) {

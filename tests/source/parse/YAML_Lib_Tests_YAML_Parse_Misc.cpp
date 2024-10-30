@@ -20,11 +20,12 @@ TEST_CASE("Check YAML parsing of a list of example YAML files.",
     REQUIRE_NOTHROW(yaml.parse(yamlSource));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    BufferSource source {destination.toString()};
+    BufferSource source{destination.toString()};
     try {
       yaml.parse(source);
-    } catch (std::exception &e){
-      std::cout << testFile << '\n';
+      std::cout << "Correct " <<  testFile << '\n';
+    } catch (std::exception &e) {
+      std::cout << "Error " << testFile << '\n';
     }
     // REQUIRE_NOTHROW(yaml.parse(source));
   }

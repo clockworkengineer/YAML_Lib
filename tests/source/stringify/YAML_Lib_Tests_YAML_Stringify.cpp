@@ -231,7 +231,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
             "grandslam\n...\n");
   }
 
-  SECTION("YAML parse dictionaries indented YAML and stringifu back",
+  SECTION("YAML parse dictionaries indented YAML and stringify back",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"spec:\n  replicas: 3             \n  template:\n    "
                         "spec:\n      containers:\n        - name: api\n       "
@@ -242,6 +242,18 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE(destination.toString() ==
             "---\nspec: \n  replicas: 3\n  template: \n    spec: \n      "
             "containers: \n        - name: api\n          image: "
-            "my-app/api-server:latest\n\n...\n");
+            "my-app/api-server:latest\n...\n");
+  }
+
+  SECTION("YAML parse array with nested dictionaries and stringify.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"-\n  name: Mark Joseph\n  hr: 87\n  avg: 0.278\n-\n  "
+                        "name: James Stephen\n  hr: 63\n  avg: 0.288"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() ==
+            "---\n- name: Mark Joseph\n  hr: 87\n  avg: 0.278\n- name: James "
+            "Stephen\n  hr: 63\n  avg: 0.288\n...\n");
   }
 }

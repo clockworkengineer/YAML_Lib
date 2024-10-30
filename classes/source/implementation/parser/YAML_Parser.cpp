@@ -88,7 +88,7 @@ bool YAML_Parser::isArray(ISource &source) {
   auto arrayPresent{false};
   if (source.more()) {
     source.next();
-    arrayPresent = (first == '-') && source.current() == ' ';
+    arrayPresent = (first == '-') && (source.current() == ' ' || source.current() == '\n');
     source.backup(1);
   }
   return (arrayPresent);
