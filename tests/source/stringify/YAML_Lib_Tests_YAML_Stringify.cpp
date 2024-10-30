@@ -218,7 +218,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
                                       " - false\nstring: \'012345\'\n...\n");
   }
   SECTION("YAML parse dictionaries in two documents and stringify back.",
-          "[YAML][Parse][Dictionary]") {
+          "[YAML][Stringify][Comments]") {
     BufferSource source{"---\ntime: 20:03:20\nplayer: Sammy Sosa\naction: "
                         "strike (miss)\n\n---\ntime: 20:03:47\nplayer: Sammy "
                         "Sosa\naction: grandslam\n"};
@@ -232,7 +232,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
   }
 
   SECTION("YAML parse dictionaries indented YAML and stringify back",
-          "[YAML][Parse][Dictionary]") {
+          "[YAML][Stringify][Comments]") {
     BufferSource source{"spec:\n  replicas: 3             \n  template:\n    "
                         "spec:\n      containers:\n        - name: api\n       "
                         "   image: my-app/api-server:latest"};
@@ -246,7 +246,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
   }
 
   SECTION("YAML parse array with nested dictionaries and stringify.",
-          "[YAML][Parse][Dictionary]") {
+          "[YAML][Stringify][Comments]") {
     BufferSource source{"-\n  name: Mark Joseph\n  hr: 87\n  avg: 0.278\n-\n  "
                         "name: James Stephen\n  hr: 63\n  avg: 0.288"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -258,7 +258,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
   }
 
   SECTION("YAML parse dictionary with nested array and stringify.",
-          "[YAML][Parse][Dictionary]") {
+          "[YAML][Stringify][Comments]") {
     BufferSource source{
         "---\nhr: # 1998 hr ranking\n  - Mark McGwire\n  - Sammy Sosa\nrbi:\n  "
         "# 1998 rbi ranking\n  - Sammy Sosa\n  - Ken Griffey"};
@@ -268,5 +268,16 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE(destination.toString() ==
             "---\nhr: \n  - Mark McGwire\n  - Sammy Sosa\nrbi: \n  - Sammy "
             "Sosa\n  - Ken Griffey\n...\n");
+  }
+
+    SECTION("YAML parse dictionary with nested array plus comments and stringify.",
+          "[YAML][Stringify][Comments]") {
+    BufferSource source{
+        "key: #comment 1\n   - value line 1\n   #comment 2\n   - value line 2\n   #comment 3\n   - value line 3"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() ==
+            "---\nkey: \n  - value line 1\n  - value line 2\n  - value line 3\n...\n");
   }
 }
