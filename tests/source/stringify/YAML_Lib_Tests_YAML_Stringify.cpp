@@ -246,7 +246,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
   }
 
   SECTION("YAML parse array with nested dictionaries and stringify.",
-          "[YAML][Stringify][Comments]") {
+          "[YAML][Stringify][Dictionary]") {
     BufferSource source{"-\n  name: Mark Joseph\n  hr: 87\n  avg: 0.278\n-\n  "
                         "name: James Stephen\n  hr: 63\n  avg: 0.288"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -258,7 +258,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
   }
 
   SECTION("YAML parse dictionary with nested array and stringify.",
-          "[YAML][Stringify][Comments]") {
+          "[YAML][Stringify][Dictionary]") {
     BufferSource source{
         "---\nhr: # 1998 hr ranking\n  - Mark McGwire\n  - Sammy Sosa\nrbi:\n  "
         "# 1998 rbi ranking\n  - Sammy Sosa\n  - Ken Griffey"};
@@ -270,14 +270,15 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
             "Sosa\n  - Ken Griffey\n...\n");
   }
 
-    SECTION("YAML parse dictionary with nested array plus comments and stringify.",
-          "[YAML][Stringify][Comments]") {
-    BufferSource source{
-        "key: #comment 1\n   - value line 1\n   #comment 2\n   - value line 2\n   #comment 3\n   - value line 3"};
+  SECTION(
+      "YAML parse dictionary with nested array plus comments and stringify.",
+      "[YAML][Stringify][Comments]") {
+    BufferSource source{"key: #comment 1\n   - value line 1\n   #comment 2\n   "
+                        "- value line 2\n   #comment 3\n   - value line 3"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() ==
-            "---\nkey: \n  - value line 1\n  - value line 2\n  - value line 3\n...\n");
+    REQUIRE(destination.toString() == "---\nkey: \n  - value line 1\n  - value "
+                                      "line 2\n  - value line 3\n...\n");
   }
 }
