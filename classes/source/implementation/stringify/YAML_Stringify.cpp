@@ -23,7 +23,15 @@ std::vector<std::string> splitString(const std::string &target,
   return splitStrings;
 }
 
-void stringifyYAML(IDestination &destination, const YNode &yNode) {
+unsigned long calcIndent(IDestination &destination, unsigned long indent) {
+  if (destination.last()!='\n'){
+    return (0);
+  }
+  return indent;
+}
+
+void stringifyYAML(IDestination &destination, const YNode &yNode,
+                   unsigned long indent) {
   YAML_Translator translator;
   if (isA<Number>(yNode)) {
     destination.add(YRef<Number>(yNode).toString());
@@ -43,30 +51,21 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
         std::string last = splitStrings.back();
         splitStrings.pop_back();
         for (const auto &line : splitStrings) {
-          if (YRef<String>(yNode).getIndentation() > 1) {
-            destination.add(
-                std::string(YRef<String>(yNode).getIndentation() - 1, ' '));
-          }
+          destination.add(std::string(calcIndent(destination,indent), ' '));
           destination.add(line);
           destination.add("\n");
         }
-        if (YRef<String>(yNode).getIndentation() > 1) {
-          destination.add(
-              std::string(YRef<String>(yNode).getIndentation() - 1, ' '));
-        }
+        destination.add(std::string(calcIndent(destination,indent), ' '));
         destination.add(last);
       } else {
-        if (YRef<String>(yNode).getIndentation() > 1) {
-          destination.add(
-              std::string(YRef<String>(yNode).getIndentation() - 1, ' '));
-        }
+        destination.add(std::string(calcIndent(destination,indent), ' '));
         destination.add(YRef<String>(yNode).toString());
       }
     }
   } else if (isA<Anchor>(yNode)) {
-    stringifyYAML(destination, YRef<Anchor>(yNode).value());
+    stringifyYAML(destination, YRef<Anchor>(yNode).value(), indent + 2);
   } else if (isA<Alias>(yNode)) {
-    stringifyYAML(destination, YRef<Alias>(yNode).value());
+    stringifyYAML(destination, YRef<Alias>(yNode).value(), indent + 2);
   } else if (isA<Comment>(yNode)) {
     destination.add("#" + YRef<Comment>(yNode).value() + "\n");
   } else if (isA<Boolean>(yNode)) {
@@ -76,11 +75,8 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
   } else if (isA<Hole>(yNode)) {
     destination.add(YRef<Hole>(yNode).toString());
   } else if (isA<Dictionary>(yNode)) {
-    auto indent = YRef<Dictionary>(yNode).getIndentation();
     for (auto &entry : YRef<Dictionary>(yNode).value()) {
-      if (indent > 1) {
-        destination.add(std::string(indent - 1, ' '));
-      }
+      destination.add(std::string(calcIndent(destination,indent), ' '));
       destination.add(YRef<String>(entry.getKeyYNode()).toString());
       destination.add(": ");
       if (isA<String>(entry.getYNode())) {
@@ -92,7 +88,7 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
       if (isA<Array>(entry.getYNode()) || isA<Dictionary>(entry.getYNode())) {
         destination.add("\n");
       }
-      stringifyYAML(destination, entry.getYNode());
+      stringifyYAML(destination, entry.getYNode(), indent + 2);
       if (!isA<Array>(entry.getYNode()) && !isA<Dictionary>(entry.getYNode())) {
         destination.add("\n");
       }
@@ -100,12 +96,9 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
   } else if (isA<Array>(yNode)) {
     if (!YRef<Array>(yNode).value().empty()) {
       for (const auto &entry : YRef<Array>(yNode).value()) {
-        if (YRef<Array>(yNode).getIndentation() > 1) {
-          destination.add(
-              std::string(YRef<Array>(yNode).getIndentation() - 1, ' '));
-        }
+        destination.add(std::string(calcIndent(destination,indent), ' '));
         destination.add("- ");
-        stringifyYAML(destination, entry);
+        stringifyYAML(destination, entry, indent + 2);
         destination.add("\n");
       }
     }
@@ -126,7 +119,7 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
       destination.add("\n");
     }
     for (const auto &entry : YRef<Document>(yNode).value()) {
-      stringifyYAML(destination, entry);
+      stringifyYAML(destination, entry, 0);
     }
     if (destination.last() != '\n') {
       destination.add('\n');
@@ -139,7 +132,7 @@ void stringifyYAML(IDestination &destination, const YNode &yNode) {
 void YAML_Stringify::stringify(const std::vector<YNode> &yamlTree,
                                IDestination &destination) const {
   for (auto &document : yamlTree) {
-    stringifyYAML(destination, document);
+    stringifyYAML(destination, document, 0);
   }
 }
 

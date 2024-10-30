@@ -56,7 +56,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() ==
-            "---\n doe: 'a deer, a female deer'\n...\n");
+            "---\ndoe: 'a deer, a female deer'\n...\n");
   }
   SECTION("YAML Stringify document dictionary two key value pairs.",
           "[YAML][Stringify][Dictionary]") {
@@ -66,7 +66,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() ==
-            "---\n doe: 'a deer, a female deer'\n ray: 'a drop of golden "
+            "---\ndoe: 'a deer, a female deer'\nray: 'a drop of golden "
             "sun'\n...\n");
   }
   SECTION("YAML Parse array with one string elements and restringify.",
@@ -75,7 +75,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\n   - \"One\"\n...\n");
+    REQUIRE(destination.toString() == "---\n- \"One\"\n...\n");
   }
   SECTION("YAML Parse array with multiple string elements and restringify.",
           "[YAML][Parse][Array]") {
@@ -84,8 +84,8 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\n  - \"One\"\n  - \"Two\"\n  "
-                                      "- \"Three\"\n  - \"Four\"\n...\n");
+    REQUIRE(destination.toString() == "---\n- \"One\"\n- \"Two\"\n"
+                                      "- \"Three\"\n- \"Four\"\n...\n");
   }
   SECTION("YAML Stringify document with comments before start.",
           "[YAML][Stringify][Comments]") {
@@ -176,8 +176,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
             "\\//||\\/||\n// ||  ||__");
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() ==
-            "--- |\n  \\//||\\/||\n  // ||  ||__\n...\n");
+    REQUIRE(destination.toString() == "--- |\n\\//||\\/||\n// ||  ||__\n...\n");
   }
   SECTION(
       "YAML Stringify folded newlines preserved for indented and blank lines.",
@@ -190,9 +189,8 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(
         destination.toString() ==
-        "--- |\n Sammy Sosa completed another fine season with great stats.\n "
-        "\n    63 Home Runs\n    0.288 Batting Average\n \n What a "
-        "year!\n...\n");
+        "--- |\nSammy Sosa completed another fine season with great stats.\n\n "
+        "  63 Home Runs\n   0.288 Batting Average\n\nWhat a year!\n...\n");
   }
   SECTION("YAML stringiy various qoted scalars",
           "[YAML][Parse][Quoted Scalars]") {
@@ -216,9 +214,8 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() ==
-            "---\nnull: null\nbooleans: \n          - true\n          - "
-            "false\nstring: \'012345\'\n...\n");
+    REQUIRE(destination.toString() == "---\nnull: null\nbooleans: \n  - true\n "
+                                      " - false\nstring: \'012345\'\n...\n");
   }
   SECTION("YAML parse dictionaries in two documents and stringify back.",
           "[YAML][Parse][Dictionary]") {
@@ -232,5 +229,19 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
             "---\ntime: 20:03:20\nplayer: Sammy Sosa\naction: strike "
             "(miss)\n...\n---\ntime: 20:03:47\nplayer: Sammy Sosa\naction: "
             "grandslam\n...\n");
+  }
+
+  SECTION("YAML parse dictionaries indented YAML and stringifu back",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"spec:\n  replicas: 3             \n  template:\n    "
+                        "spec:\n      containers:\n        - name: api\n       "
+                        "   image: my-app/api-server:latest"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() ==
+            "---\nspec: \n  replicas: 3\n  template: \n    spec: \n      "
+            "containers: \n        - name: api\n          image: "
+            "my-app/api-server:latest\n\n...\n");
   }
 }
