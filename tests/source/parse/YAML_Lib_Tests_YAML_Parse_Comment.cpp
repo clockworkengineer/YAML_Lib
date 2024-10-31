@@ -79,4 +79,15 @@ TEST_CASE("Check YAML Parsing of comments.", "[YAML][parse][Comment]") {
     REQUIRE_FALSE(!isA<String>(yaml.root()[0][0][0]));
     REQUIRE(YRef<String>(yaml.root()[0][0][0]).value() == "One String");
   }
+  SECTION("YAML parse of comments one same line array elemens.",
+          "[YAML][parse][Comment]") {
+    BufferSource source{"---\n   - One String   # Comment \n   - Two String   "
+                        "# Comment \n   - Three String   # Comment \n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]));
+    REQUIRE_FALSE(!isA<String>(yaml.root()[0][0][0]));
+    REQUIRE(YRef<String>(yaml.root()[0][0][0]).value() == "One String");
+    REQUIRE(YRef<String>(yaml.root()[0][0][1]).value() == "Two String");
+    REQUIRE(YRef<String>(yaml.root()[0][0][2]).value() == "Three String");
+  }
 }

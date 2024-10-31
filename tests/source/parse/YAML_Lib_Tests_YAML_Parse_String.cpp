@@ -128,7 +128,8 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
                         "spans more than\n  one line\nsee?"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Syntax Error [Line: 6 Column: 1]: Missing key/value pair from indentation level.");
+                        "YAML Syntax Error [Line: 6 Column: 1]: Missing "
+                        "key/value pair from indentation level.");
   }
   SECTION(
       "YAML parse a literal string block that is terminated to key value pair.",
@@ -150,7 +151,8 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     BufferSource source{"---\nbar: |\n  this is not a normal string it\n  "
                         "spans more than\n  one line\nsee?"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Syntax Error [Line: 6 Column: 1]: Missing key/value pair from indentation level.");
+                        "YAML Syntax Error [Line: 6 Column: 1]: Missing "
+                        "key/value pair from indentation level.");
   }
   SECTION("YAML parse regular multi-line string.", "[YAML][Parse][literals]") {
     BufferSource source{
@@ -311,7 +313,8 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "\\r\\n\"\n\nsingle: \'\"Howdy!\" he cried.\'\nquoted: \' # not a "
         "\'\'comment\'\'.\'\ntie-fighter: \'|\\-*-/|\'"};
     REQUIRE_NOTHROW(yaml.parse(source));
-        REQUIRE(YRef<String>(yaml.document(0)[0]["unicode"]).value() == "Sosa did fine.☺");
+    REQUIRE(YRef<String>(yaml.document(0)[0]["unicode"]).value() ==
+            "Sosa did fine.☺");
     REQUIRE(YRef<String>(yaml.document(0)[0]["control"]).value() ==
             "\b1998\t1999\t2000\n");
     REQUIRE(YRef<String>(yaml.document(0)[0]["hexesc"]).value() ==
@@ -322,5 +325,28 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             " # not a 'comment'.");
     REQUIRE(YRef<String>(yaml.document(0)[0]["tie-fighter"]).value() ==
             "|\\-*-/|");
+  }
+  SECTION("YAML parse array of block block strings literal newlines preserved.",
+          "[YAML][Parse][Literal]") {
+    BufferSource source{
+        "- | \n  Several lines of text,\n  with some \" quotes"
+        " of various 'types',\n  and also a blank line:\n\n  and some text "
+        "with\n    extra indentation\n  on the next line,\n  plus another line "
+        "at the end.\n"
+        "- | \n  Several lines of text,\n  with some \" quotes"
+        " of various 'types',\n  and also a blank line:\n\n  and some text "
+        "with\n    extra indentation\n  on the next line,\n  plus another line "
+        "at the end.\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(
+        YRef<String>(yaml.document(0)[0][0]).value() ==
+        "Several lines of text,\nwith some \" quotes of various "
+        "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
+        "indentation\non the next line,\nplus another line at the end.");
+    REQUIRE(
+        YRef<String>(yaml.document(0)[0][1]).value() ==
+        "Several lines of text,\nwith some \" quotes of various "
+        "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
+        "indentation\non the next line,\nplus another line at the end.");
   }
 }
