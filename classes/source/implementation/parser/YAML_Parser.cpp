@@ -48,14 +48,6 @@ std::string extractToNext(ISource &source,
   return (extracted);
 }
 
-unsigned long currentIndentLevel(ISource &source) {
-  return source.getPosition().second;
-}
-
-unsigned long currentLineNo(ISource &source) {
-  return source.getPosition().first;
-}
-
 bool YAML_Parser::isValidKey(const std::string &key) {
   if (!key.empty()) {
     if (!std::isalpha(key[0]) || key.back() == ' ') {
@@ -187,15 +179,15 @@ std::string YAML_Parser::parseBlockString(ISource &source,
                                           const Delimeters &delimiters,
                                           char fillerDefault,
                                           BlockChomping &chomping) {
-  unsigned long blockIndent = currentIndentLevel(source);
+  unsigned long blockIndent = source.getIndentation();
   std::string yamlString{};
   do {
     char filler{fillerDefault};
-    if (blockIndent < currentIndentLevel(source)) {
+    if (blockIndent < source.getIndentation()) {
       if (yamlString.back() != '\n') {
         yamlString += '\n';
       }
-      yamlString += std::string((currentIndentLevel(source) - 1), ' ');
+      yamlString += std::string((source.getIndentation() - 1), ' ');
       filler = '\n';
     }
     yamlString += extractToNext(source, delimiters);
@@ -210,7 +202,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
       }
       source.next();
     }
-  } while (source.more() && blockIndent <= currentIndentLevel(source));
+  } while (source.more() && blockIndent <= source.getIndentation());
   if (chomping == BlockChomping::clip || chomping == BlockChomping::strip) {
     if (endsWith(yamlString, "\n\n\n")) {
       yamlString.pop_back();
@@ -248,7 +240,7 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
     parseComment(source, delimiters);
     source.ignoreWS();
   }
-  auto blockIndent = currentIndentLevel(source);
+  auto blockIndent = source.getIndentation();
   std::string yamlString{parseBlockString(source, delimiters, ' ', chomping)};
   return YNode::make<String>(yamlString, '>', blockIndent);
 }
@@ -261,7 +253,7 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
     parseComment(source, delimiters);
     source.ignoreWS();
   }
-  auto blockIndent = currentIndentLevel(source);
+  auto blockIndent = source.getIndentation();
   std::string yamlString{parseBlockString(source, delimiters, '\n', chomping)};
   return YNode::make<String>(yamlString, '|', blockIndent);
 }
@@ -414,7 +406,7 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimeters &delimiters) {
 }
 
 YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
-  unsigned long arrayIndent = currentIndentLevel(source);
+  unsigned long arrayIndent = source.getIndentation();
   YNode yNode = YNode::make<Array>(arrayIndent);
   while (source.more()) {
     if (isArray(source)) {
@@ -427,7 +419,7 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
       break;
     }
     source.ignoreWS();
-    if (arrayIndent > currentIndentLevel(source)) {
+    if (arrayIndent > source.getIndentation()) {
       break;
     }
   }
@@ -437,7 +429,7 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
 
 YNode YAML_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimeters &delimiters) {
-  unsigned long arrayIndent = currentIndentLevel(source);
+  unsigned long arrayIndent = source.getIndentation();
   Delimeters inLineArrayDelimiters = {delimiters};
   inLineArrayDelimiters.insert({',', ']'});
   YNode yNode = YNode::make<Array>(arrayIndent);
@@ -456,7 +448,7 @@ YNode YAML_Parser::parseInlineArray(
 }
 DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
                                            const Delimeters &delimiters) {
-  unsigned long keyIndent = currentIndentLevel(source);
+  unsigned long keyIndent = source.getIndentation();
   std::string key{parseKey(source)};
   while (source.more() && source.current() == ' ') {
     source.next();
@@ -471,7 +463,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
     parseComment(source, delimiters);
     source.ignoreWS();
   }
-  if (currentIndentLevel(source) > keyIndent) {
+  if (source.getIndentation() > keyIndent) {
     return DictionaryEntry(key, parseDocument(source, delimiters));
   } else {
     return DictionaryEntry(key, YNode::make<Null>());
@@ -480,7 +472,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
 
 YNode YAML_Parser::parseDictionary(ISource &source,
                                    const Delimeters &delimiters) {
-  unsigned long dictionaryIndent = currentIndentLevel(source);
+  unsigned long dictionaryIndent = source.getIndentation();
   YNode yNode = YNode::make<Dictionary>(dictionaryIndent);
   while (source.more()) {
     if (isKey(source)) {
@@ -496,14 +488,14 @@ YNode YAML_Parser::parseDictionary(ISource &source,
     } else if (isDocumentStart(source) || isDocumentEnd(source)) {
       break;
     } else {
-      if (dictionaryIndent == currentIndentLevel(source)) {
+      if (dictionaryIndent == source.getIndentation()) {
         throw SyntaxError(source.getPosition(),
                           "Missing key/value pair from indentation level.");
       }
       break;
     }
     source.ignoreWS();
-    if (dictionaryIndent > currentIndentLevel(source)) {
+    if (dictionaryIndent > source.getIndentation()) {
       return yNode;
     }
   }
@@ -514,7 +506,7 @@ YNode YAML_Parser::parseInlineDictionary(
     ISource &source, [[maybe_unused]] const Delimeters &delimiters) {
   Delimeters inLineDictionaryDelimiters = {delimiters};
   inLineDictionaryDelimiters.insert({',', '}'});
-  unsigned long dictionaryIndent = currentIndentLevel(source);
+  unsigned long dictionaryIndent = source.getIndentation();
   YNode yNode = YNode::make<Dictionary>(dictionaryIndent);
   do {
     source.next();

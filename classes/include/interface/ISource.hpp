@@ -53,7 +53,7 @@ public:
   // ===================================
   [[nodiscard]] bool isWS() const {
     auto ch = current();
-    return ch == ' ' || ch == '\n';
+    return ch == ' ' || ch == '\n' || ch == '\t';
   }
   // ==================================
   // Ignore whitespace on source stream
@@ -63,6 +63,10 @@ public:
       next();
     }
   }
+  // ======================
+  // Get source indentation
+  // ======================
+  [[nodiscard]] unsigned long getIndentation() { return column; }
   // ===============================================================
   // Is current string a match at the current source stream position
   // ===============================================================
