@@ -27,6 +27,12 @@ void rightTrim(std::string &s) {
           s.end());
 }
 
+void leftTrim(std::string &s) {
+  s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+            return !std::isspace(ch);
+          }));
+}
+
 void moveToNextIndent(ISource &source) {
   while (source.more() && (source.isWS() || source.current() == kLineFeed)) {
     source.next();
@@ -82,34 +88,35 @@ bool YAML_Parser::isKey(ISource &source) {
 }
 
 bool YAML_Parser::isArray(ISource &source) {
-  auto first = source.current();
+  auto ch = source.current();
   auto arrayPresent{false};
-  if (source.more()) {
+  if (source.more() && ch == '-') {
     source.next();
-    arrayPresent =
-        (first == '-') && (source.current() == ' ' || source.current() == '\n');
+    ch = source.current();
+    arrayPresent =  ch == ' ' || ch == kLineFeed;
     source.backup(1);
   }
   return (arrayPresent);
 }
 
 bool YAML_Parser::isBoolean(ISource &source) {
-  return source.current() == 'T' || source.current() == 'F' ||
-         source.current() == 'O' || source.current() == 'Y' ||
-         source.current() == 'N';
+  auto ch = source.current();
+  return ch == 'T' || ch == 'F' || ch == 'O' || ch == 'Y' || ch == 'N';
 }
 
 bool YAML_Parser::isQuotedString(ISource &source) {
-  return (source.current() == '\'') || (source.current() == '"');
+  auto ch = source.current();
+  return (ch == '\'') || (ch == '"');
 }
 
 bool YAML_Parser::isNumber(ISource &source) {
-  return (source.current() >= '0' && source.current() <= '9') ||
-         source.current() == '-' || source.current() == '+';
+  auto ch = source.current();
+  return (ch >= '0' && ch <= '9') || ch == '-' || ch == '+';
 }
 
 bool YAML_Parser::isNone(ISource &source) {
-  return source.current() == 'n' || source.current() == '~';
+  auto second = source.current();
+  return second == 'n' || second == '~';
 }
 
 bool YAML_Parser::isBlockString(ISource &source) {
@@ -159,9 +166,9 @@ void YAML_Parser::foldCarriageReturns(ISource &source,
   yamlString += ' ';
   source.next();
   source.ignoreWS();
-  if (source.current() == '\n') {
+  if (source.current() == kLineFeed) {
     yamlString.pop_back();
-    yamlString += "\n";
+    yamlString += kLineFeed;
     source.next();
     source.ignoreWS();
   }
@@ -169,9 +176,10 @@ void YAML_Parser::foldCarriageReturns(ISource &source,
 
 YAML_Parser::BlockChomping YAML_Parser::parseBlockChomping(ISource &source) {
   source.next();
-  if (source.current() == '-') {
+  auto ch = source.current();
+  if (ch == '-') {
     return BlockChomping::strip;
-  } else if (source.current() == '+') {
+  } else if (ch == '+') {
     return BlockChomping::keep;
   } else {
     return BlockChomping::clip;
@@ -186,11 +194,11 @@ std::string YAML_Parser::parseBlockString(ISource &source,
   do {
     char filler{fillerDefault};
     if (blockIndent < source.getIndentation()) {
-      if (yamlString.back() != '\n') {
-        yamlString += '\n';
+      if (yamlString.back() != kLineFeed) {
+        yamlString += kLineFeed;
       }
       yamlString += std::string((source.getIndentation() - 1), ' ');
-      filler = '\n';
+      filler = kLineFeed;
     }
     yamlString += extractToNext(source, delimiters);
     yamlString += filler;
@@ -198,7 +206,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
       source.next();
     }
     while (source.more() && (source.isWS() || source.current() == kLineFeed)) {
-      if (source.current() == '\n') {
+      if (source.current() == kLineFeed) {
         yamlString.pop_back();
         yamlString += "\n\n";
       }
@@ -211,12 +219,12 @@ std::string YAML_Parser::parseBlockString(ISource &source,
     }
     yamlString.pop_back();
   }
-  if (chomping == BlockChomping::strip && yamlString.back() == '\n') {
+  if (chomping == BlockChomping::strip && yamlString.back() == kLineFeed) {
     yamlString.pop_back();
   }
   if (chomping == BlockChomping::keep && source.more() &&
-      source.current() == '\n') {
-    yamlString += '\n';
+      source.current() == kLineFeed) {
+    yamlString += kLineFeed;
   }
   return yamlString;
 }
@@ -256,7 +264,8 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
     moveToNextIndent(source);
   }
   auto blockIndent = source.getIndentation();
-  std::string yamlString{parseBlockString(source, delimiters, '\n', chomping)};
+  std::string yamlString{
+      parseBlockString(source, delimiters, kLineFeed, chomping)};
   return YNode::make<String>(yamlString, '|', blockIndent);
 }
 
@@ -270,14 +279,14 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
     while (source.more() &&
            !(isKey(source) || isArray(source) || isComment(source) ||
              isDocumentStart(source) || isDocumentEnd(source))) {
-      if (source.current() == '\n') {
+      if (source.current() == kLineFeed) {
         foldCarriageReturns(source, yamlString);
       } else {
         yamlString += source.current();
         source.next();
       }
     }
-    if (yamlString.back() == ' ' || yamlString.back() == '\n') {
+    if (yamlString.back() == ' ' || yamlString.back() == kLineFeed) {
       yamlString.pop_back();
     }
     return YNode::make<String>(yamlString, '\0');
@@ -297,7 +306,7 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
         source.next();
         yamlString += source.current();
         source.next();
-      } else if (source.current() == '\n') {
+      } else if (source.current() == kLineFeed) {
         foldCarriageReturns(source, yamlString);
       } else {
         yamlString += source.current();
@@ -310,12 +319,12 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
       if (source.current() == '\'') {
         source.next();
         if (source.current() == '\'') {
-          yamlString += "\'";
+          yamlString += '\'';
           source.next();
         } else {
           break;
         }
-      } else if (source.current() == '\n') {
+      } else if (source.current() == kLineFeed) {
         foldCarriageReturns(source, yamlString);
       } else {
         yamlString += source.current();
