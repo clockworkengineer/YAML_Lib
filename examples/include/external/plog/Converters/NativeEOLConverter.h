@@ -29,7 +29,7 @@ namespace plog
             {
                 wchar_t ch = str[i];
 
-                if (ch == L'\n')
+                if (ch == LkLineFeed)
                 {
                     output.push_back(L'\r');
                 }

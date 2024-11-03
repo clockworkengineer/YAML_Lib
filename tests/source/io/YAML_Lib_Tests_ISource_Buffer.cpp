@@ -32,7 +32,7 @@ TEST_CASE("Check ISource (Buffer) interface.", "[YAML][ISource][Buffer]") {
     source.next();
     source.next();
     REQUIRE_FALSE(!source.more());
-    REQUIRE(static_cast<char>(source.current()) == '\n');
+    REQUIRE(static_cast<char>(source.current()) == kLineFeed);
   }
   SECTION("Create BufferSource move past last character, check it and the "
           "bytes moved.",

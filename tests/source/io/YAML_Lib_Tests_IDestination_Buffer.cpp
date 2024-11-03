@@ -44,7 +44,7 @@ TEST_CASE("Check IDestination (Buffer) interface.",
     buffer.add("65767\n");
     buffer.add("22222\n");
     buffer.add("33333\n");
-    REQUIRE(buffer.last() == '\n');
+    REQUIRE(buffer.last() == kLineFeed);
     REQUIRE(buffer.size() == 18);
     REQUIRE(buffer.toString() == "65767\n22222\n33333\n");
   }

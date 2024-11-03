@@ -19,7 +19,7 @@ public:
   ~FileDestination() override = default;
 
   void add(const char ch) override {
-    if (ch == '\n') {
+    if (ch == kLineFeed) {
       destination.write("\r\n", 2);
       fileSize += 2;
     } else {

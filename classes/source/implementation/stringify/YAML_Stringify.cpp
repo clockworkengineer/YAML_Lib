@@ -24,7 +24,7 @@ std::vector<std::string> splitString(const std::string &target,
 }
 
 std::string calcIndent(IDestination &destination, unsigned long indent) {
-  if (destination.last() == '\n') {
+  if (destination.last() == kLineFeed) {
     return std::string(indent, ' ');
   }
   return "";
@@ -99,7 +99,7 @@ void stringifyYAML(IDestination &destination, const YNode &yNode,
         destination.add(calcIndent(destination, indent));
         destination.add("- ");
         stringifyYAML(destination, entry, indent + 2);
-        if (destination.last() != '\n') {
+        if (destination.last() != kLineFeed) {
           destination.add("\n");
         }
       }
@@ -123,8 +123,8 @@ void stringifyYAML(IDestination &destination, const YNode &yNode,
     for (const auto &entry : YRef<Document>(yNode).value()) {
       stringifyYAML(destination, entry, 0);
     }
-    if (destination.last() != '\n') {
-      destination.add('\n');
+    if (destination.last() != kLineFeed) {
+      destination.add(kLineFeed);
     }
     destination.add("...\n");
   } else {

@@ -82,7 +82,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE(YRef<String>(yaml.document(0)[0][1]).value() == "James Stephen");
     REQUIRE(YRef<String>(yaml.document(0)[0][2]).value() == "Ken Griffey");
   }
-  SECTION("YAML parse a string block folded ('\n' -> ' ') scalar.",
+  SECTION("YAML parse a string block folded (kLineFeed -> ' ') scalar.",
           "[YAML][Parse][Scalar][String]") {
     BufferSource source{"---\n >\n  this is not a normal string it\n  "
                         "spans more than\n  one line\n  see?"};
