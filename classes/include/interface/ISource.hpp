@@ -53,7 +53,7 @@ public:
   // ===================================
   [[nodiscard]] bool isWS() const {
     auto ch = current();
-    return ch == ' ' || ch == '\n' || ch == '\t';
+    return ch == ' ' || ch == '\t';
   }
   // ==================================
   // Ignore whitespace on source stream

@@ -27,13 +27,19 @@ void rightTrim(std::string &s) {
           s.end());
 }
 
+void moveToNextIndent(ISource &source) {
+  while (source.more() && (source.isWS() || source.current() == kLineFeed)) {
+    source.next();
+  }
+}
+
 void moveToNext(ISource &source, const YAML_Parser::Delimeters &delimiters) {
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
       source.next();
     }
   }
-  source.ignoreWS();
+  moveToNextIndent(source);
 }
 
 std::string extractToNext(ISource &source,
@@ -152,16 +158,12 @@ void YAML_Parser::foldCarriageReturns(ISource &source,
                                       std::string &yamlString) {
   yamlString += ' ';
   source.next();
-  while (source.more() && source.current() == ' ') {
-    source.next();
-  }
+  source.ignoreWS();
   if (source.current() == '\n') {
     yamlString.pop_back();
     yamlString += "\n";
     source.next();
-    while (source.more() && source.current() == ' ') {
-      source.next();
-    }
+    source.ignoreWS();
   }
 }
 
@@ -195,7 +197,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
     if (source.more()) {
       source.next();
     }
-    while (source.more() && source.isWS()) {
+    while (source.more() && (source.isWS() || source.current() == kLineFeed)) {
       if (source.current() == '\n') {
         yamlString.pop_back();
         yamlString += "\n\n";
@@ -238,7 +240,7 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
   moveToNext(source, delimiters);
   if (source.current() == '#') {
     parseComment(source, delimiters);
-    source.ignoreWS();
+    moveToNextIndent(source);
   }
   auto blockIndent = source.getIndentation();
   std::string yamlString{parseBlockString(source, delimiters, ' ', chomping)};
@@ -251,7 +253,7 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
   moveToNext(source, delimiters);
   if (source.current() == '#') {
     parseComment(source, delimiters);
-    source.ignoreWS();
+    moveToNextIndent(source);
   }
   auto blockIndent = source.getIndentation();
   std::string yamlString{parseBlockString(source, delimiters, '\n', chomping)};
@@ -418,7 +420,7 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
     } else {
       break;
     }
-    source.ignoreWS();
+    moveToNextIndent(source);
     if (arrayIndent > source.getIndentation()) {
       break;
     }
@@ -435,10 +437,10 @@ YNode YAML_Parser::parseInlineArray(
   YNode yNode = YNode::make<Array>(arrayIndent);
   do {
     source.next();
-    source.ignoreWS();
+    moveToNextIndent(source);
     YRef<Array>(yNode).add(parseDocument(source, inLineArrayDelimiters));
   } while (source.current() == ',');
-  source.ignoreWS();
+  moveToNextIndent(source);
   if (source.current() != ']') {
     throw SyntaxError(source.getPosition(),
                       "Missing closing ']' in array definition.");
@@ -450,18 +452,16 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
                                            const Delimeters &delimiters) {
   unsigned long keyIndent = source.getIndentation();
   std::string key{parseKey(source)};
-  while (source.more() && source.current() == ' ') {
-    source.next();
-  }
+  source.ignoreWS();
   if (isKey(source)) {
     throw SyntaxError("Only an inline/compact dictionary is allowed.");
   } else if (isComment(source)) {
     parseComment(source, delimiters);
   }
-  source.ignoreWS();
+  moveToNextIndent(source);
   while (isComment(source)) {
     parseComment(source, delimiters);
-    source.ignoreWS();
+    moveToNextIndent(source);
   }
   if (source.getIndentation() > keyIndent) {
     return DictionaryEntry(key, parseDocument(source, delimiters));
@@ -494,7 +494,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
       }
       break;
     }
-    source.ignoreWS();
+    moveToNextIndent(source);
     if (dictionaryIndent > source.getIndentation()) {
       return yNode;
     }
@@ -510,7 +510,7 @@ YNode YAML_Parser::parseInlineDictionary(
   YNode yNode = YNode::make<Dictionary>(dictionaryIndent);
   do {
     source.next();
-    source.ignoreWS();
+    moveToNextIndent(source);
     YRef<Dictionary>(yNode).add(
         parseKeyValue(source, inLineDictionaryDelimiters));
 
@@ -526,7 +526,7 @@ YNode YAML_Parser::parseInlineDictionary(
 YNode YAML_Parser::parseDocument(ISource &source,
                                  const Delimeters &delimiters) {
   YNode yNode;
-  source.ignoreWS();
+  moveToNextIndent(source);
   for (const auto &parser : parsers) {
     if (parser.first(source)) {
       yNode = parser.second(source, delimiters);
