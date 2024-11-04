@@ -2,7 +2,7 @@
 //
 // Class: YAML_Stringify
 //
-// Description: High level entry points in YAML class implementation layer.
+// Description: Default YAML stringifier.
 //
 // Dependencies: C++20 - Language standard features used.
 //

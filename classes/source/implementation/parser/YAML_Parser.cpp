@@ -2,7 +2,7 @@
 //
 // Class: YAML_Parser
 //
-// Description: High level entry points in YAML class implementation layer.
+// Description: Default YAML parser.
 //
 // Dependencies: C++20 - Language standard features used.
 //
@@ -93,7 +93,7 @@ bool YAML_Parser::isArray(ISource &source) {
   if (source.more() && ch == '-') {
     source.next();
     ch = source.current();
-    arrayPresent =  ch == ' ' || ch == kLineFeed;
+    arrayPresent = ch == ' ' || ch == kLineFeed;
     source.backup(1);
   }
   return (arrayPresent);
@@ -464,8 +464,6 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   source.ignoreWS();
   if (isKey(source)) {
     throw SyntaxError("Only an inline/compact dictionary is allowed.");
-  } else if (isComment(source)) {
-    parseComment(source, delimiters);
   }
   moveToNextIndent(source);
   while (isComment(source)) {

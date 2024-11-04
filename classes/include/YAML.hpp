@@ -5,6 +5,7 @@
 #include <cwctype>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <map>
 #include <memory>
 #include <set>
@@ -16,7 +17,6 @@
 #include <utility>
 #include <variant>
 #include <vector>
-#include <functional>
 
 #include "YAML_Config.hpp"
 #include "YAML_Interfaces.hpp"
@@ -40,7 +40,8 @@ public:
   // Dictionary initializer list
   using Dictionaryintializer =
       std::initializer_list<std::pair<std::string, IntializerListTypes>>;
-  explicit YAML(IStringify *stringify=nullptr, IParser *parser= nullptr);
+  // Pass any user defined parser/stringifier here
+  explicit YAML(IStringify *stringify = nullptr, IParser *parser = nullptr);
   YAML(const YAML &other) = delete;
   YAML &operator=(const YAML &other) = delete;
   YAML(YAML &&other) = delete;
@@ -48,7 +49,7 @@ public:
   // Provide own destructor
   ~YAML();
   // Get YAML library version
-  [[nodiscard]] static std::string version() ;
+  [[nodiscard]] static std::string version();
   // Get YAML library version
   [[nodiscard]] unsigned int getNumberOfDocuments() const;
   // Parse YAML into tree
