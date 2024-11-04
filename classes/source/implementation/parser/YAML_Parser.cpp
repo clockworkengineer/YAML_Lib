@@ -62,11 +62,11 @@ std::string extractToNext(ISource &source,
 
 bool YAML_Parser::isValidKey(const std::string &key) {
   if (!key.empty()) {
-    if (!std::isalpha(key[0]) || key.back() == ' ') {
+    if (!std::isalpha(key[0]) || key.back() == kSpace) {
       return (false);
     }
     for (auto ch : key) {
-      if ((ch != '-') && !(std::isalpha(ch) || std::isdigit(ch) || ch == ' ')) {
+      if ((ch != '-') && !(std::isalpha(ch) || std::isdigit(ch) || ch == kSpace)) {
         return (false);
       }
     }
@@ -93,7 +93,7 @@ bool YAML_Parser::isArray(ISource &source) {
   if (source.more() && ch == '-') {
     source.next();
     ch = source.current();
-    arrayPresent = ch == ' ' || ch == kLineFeed;
+    arrayPresent = ch == kSpace || ch == kLineFeed;
     source.backup(1);
   }
   return (arrayPresent);
@@ -163,7 +163,7 @@ bool YAML_Parser::isDocumentEnd(ISource &source) {
 
 void YAML_Parser::foldCarriageReturns(ISource &source,
                                       std::string &yamlString) {
-  yamlString += ' ';
+  yamlString += kSpace;
   source.next();
   source.ignoreWS();
   if (source.current() == kLineFeed) {
@@ -197,7 +197,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
       if (yamlString.back() != kLineFeed) {
         yamlString += kLineFeed;
       }
-      yamlString += std::string((source.getIndentation() - 1), ' ');
+      yamlString += std::string((source.getIndentation() - 1), kSpace);
       filler = kLineFeed;
     }
     yamlString += extractToNext(source, delimiters);
@@ -251,7 +251,7 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
     moveToNextIndent(source);
   }
   auto blockIndent = source.getIndentation();
-  std::string yamlString{parseBlockString(source, delimiters, ' ', chomping)};
+  std::string yamlString{parseBlockString(source, delimiters, kSpace, chomping)};
   return YNode::make<String>(yamlString, '>', blockIndent);
 }
 
@@ -286,7 +286,7 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
         source.next();
       }
     }
-    if (yamlString.back() == ' ' || yamlString.back() == kLineFeed) {
+    if (yamlString.back() == kSpace || yamlString.back() == kLineFeed) {
       yamlString.pop_back();
     }
     return YNode::make<String>(yamlString, '\0');
@@ -397,7 +397,7 @@ YNode YAML_Parser::parseBoolean(ISource &source, const Delimeters &delimiters) {
 
 YNode YAML_Parser::parseAnchor(ISource &source, const Delimeters &delimiters) {
   source.next();
-  std::string name{extractToNext(source, {kLineFeed, ' '})};
+  std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.next();
   std::string unparsed{extractToNext(source, {kLineFeed})};
   YAML_Parser::yamlAliasMap[name] = unparsed;
@@ -408,7 +408,7 @@ YNode YAML_Parser::parseAnchor(ISource &source, const Delimeters &delimiters) {
 
 YNode YAML_Parser::parseAlias(ISource &source, const Delimeters &delimiters) {
   source.next();
-  std::string name{extractToNext(source, {kLineFeed, ' '})};
+  std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.next();
   std::string unparsed{YAML_Parser::yamlAliasMap[name]};
   BufferSource anchor{unparsed};

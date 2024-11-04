@@ -13,13 +13,18 @@ public:
   YAML_Stringify(YAML_Stringify &&other) = delete;
   YAML_Stringify &operator=(YAML_Stringify &&other) = delete;
   ~YAML_Stringify() override = default;
-  // ====================
   // Stringify YNode tree
-  // ====================
   void stringify(const std::vector<YNode> &yamlTree,
                  IDestination &destination) const override;
+  // Indentation increment
+  void setIndentation(unsigned long indentation) {
+    yamlIndentation = indentation;
+  }
 
 private:
+  void stringifyYAML(IDestination &destination, const YNode &yNode,
+                     unsigned long indent) const;
+  unsigned long yamlIndentation{2};
 };
 
 } // namespace YAML_Lib

@@ -7,6 +7,7 @@ namespace YAML_Lib {
 // ========================
 constexpr char kCarriageReturn{0x0D};
 constexpr char kLineFeed{0x0A};
+constexpr char kSpace{0x20};
 
 // =======================================================
 // Interface for reading source stream during YAML parsing
@@ -53,7 +54,7 @@ public:
   // ===================================
   [[nodiscard]] bool isWS() const {
     auto ch = current();
-    return ch == ' ' || ch == '\t';
+    return ch == kSpace || ch == '\t';
   }
   // ==================================
   // Ignore whitespace on source stream
