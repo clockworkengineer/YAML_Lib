@@ -11,7 +11,7 @@ namespace YAML_Lib {
 class YAML_Impl {
 public:
   // Constructors/Destructors
-  YAML_Impl() = default;
+  YAML_Impl(IStringify *stringify, IParser *parser);
   YAML_Impl(const YAML_Impl &other) = delete;
   YAML_Impl &operator=(const YAML_Impl &other) = delete;
   YAML_Impl(YAML_Impl &&other) = delete;
@@ -29,13 +29,11 @@ public:
     }
     return numberOfDocuments;
   }
-  // Parse YAML into YNode tree
-  void parse(ISource &source) { yamlTree = parser.parse(source); }
+    // Parse YAML into YNode tree
+  void parse(ISource &source);
   // Create YAML text string from YNode tree
-  void stringify(IDestination &destination) const {
-    stringifier.stringify(yamlTree, destination);
-  }
-  // Get root of JSON tree
+  void stringify(IDestination &destination) const;
+  // Get root of YAML tree
   [[nodiscard]] std::vector<YNode> &root() { return yamlTree; }
   [[nodiscard]] const std::vector<YNode> &root() const { return yamlTree; }
   // Get document
@@ -63,10 +61,14 @@ public:
   }
 
 private:
-  // YAML Parser
-  YAML_Parser parser;
-  // YAML Stringifier
-  YAML_Stringify stringifier;
+  // // YAML Parser
+  // YAML_Parser parser;
+  // // YAML Stringifier
+  // YAML_Stringify stringifier;
+  // Pointer to YAML parser interface
+  inline static std::unique_ptr<IParser> yamlParser;
+  // Pointer to YAML stringify interface
+  inline static std::unique_ptr<IStringify> yamlStringify;
   // YAML tree
   std::vector<YNode> yamlTree;
 };

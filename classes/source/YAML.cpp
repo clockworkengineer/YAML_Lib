@@ -1,7 +1,9 @@
 //
 // Class: YAML
 //
-// Description:
+// Description: Perform YAML parse/stringify to/from a buffer or
+// file. For an in-depth description of the YAML specification refer
+// to its RFC at https://yaml.org/spec/1.2.2/.
 //
 // Dependencies: C++20 - Language standard features used.
 //
@@ -10,7 +12,8 @@
 
 namespace YAML_Lib {
 
-YAML::YAML() : implementation(std::make_unique<YAML_Impl>()) {}
+YAML::YAML(IStringify *stringify, IParser *parser)
+    : implementation(std::make_unique<YAML_Impl>(stringify, parser)) {}
 
 YAML::~YAML() = default;
 

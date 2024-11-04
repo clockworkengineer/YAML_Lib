@@ -40,7 +40,7 @@ public:
   // Dictionary initializer list
   using Dictionaryintializer =
       std::initializer_list<std::pair<std::string, IntializerListTypes>>;
-  YAML();
+  explicit YAML(IStringify *stringify=nullptr, IParser *parser= nullptr);
   YAML(const YAML &other) = delete;
   YAML &operator=(const YAML &other) = delete;
   YAML(YAML &&other) = delete;

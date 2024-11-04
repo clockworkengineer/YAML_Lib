@@ -1,6 +1,6 @@
 
 //
-// Class: YAML_Impl
+// Class: YAML_Parser
 //
 // Description: High level entry points in YAML class implementation layer.
 //
