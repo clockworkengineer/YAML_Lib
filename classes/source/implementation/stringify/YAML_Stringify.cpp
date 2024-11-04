@@ -15,11 +15,13 @@ namespace YAML_Lib {
 std::vector<std::string> splitString(const std::string &target,
                                      const char delimiter) {
   std::stringstream sourceStream(target);
-  std::string splitOffItem;
   std::vector<std::string> splitStrings;
-  while (std::getline(sourceStream, splitOffItem, delimiter)) {
+  for (std::string splitOffItem{};
+       std::getline(sourceStream, splitOffItem, delimiter);) {
     splitStrings.push_back(splitOffItem);
+    splitStrings.back().push_back(delimiter);
   }
+  splitStrings.back().pop_back();
   return splitStrings;
 }
 
@@ -45,18 +47,11 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
       }
       destination.add(quote + yamlString + quote);
     } else {
-      auto splitStrings{splitString(YRef<String>(yNode).toString(), kLineFeed)};
-      std::string lastLine = splitStrings.back();
-      splitStrings.pop_back();
-      if (!splitStrings.empty()) {
-        for (const auto &line : splitStrings) {
-          destination.add(calcIndent(destination, indent));
-          destination.add(line);
-          destination.add(kLineFeed);
-        }
+      for (const auto &line :
+           splitString(YRef<String>(yNode).toString(), kLineFeed)) {
+        destination.add(calcIndent(destination, indent));
+        destination.add(line);
       }
-      destination.add(calcIndent(destination, indent));
-      destination.add(lastLine);
     }
   } else if (isA<Anchor>(yNode)) {
     stringifyYAML(destination, YRef<Anchor>(yNode).value(),
@@ -74,6 +69,7 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
     destination.add(YRef<Hole>(yNode).toString());
   } else if (isA<Dictionary>(yNode)) {
     for (auto &entry : YRef<Dictionary>(yNode).value()) {
+      auto yNodeString = YRef<String>(entry.getKeyYNode());
       destination.add(calcIndent(destination, indent) +
                       YRef<String>(entry.getKeyYNode()).toString() + ": ");
       if (isA<String>(entry.getYNode())) {
