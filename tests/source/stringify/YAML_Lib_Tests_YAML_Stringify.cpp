@@ -269,7 +269,6 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
             "---\nhr: \n  - Mark McGwire\n  - Sammy Sosa\nrbi: \n  - Sammy "
             "Sosa\n  - Ken Griffey\n...\n");
   }
-
   SECTION(
       "YAML parse dictionary with nested array plus comments and stringify.",
       "[YAML][Stringify][Comments]") {
@@ -280,5 +279,17 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() == "---\nkey: \n  - value line 1\n  - value "
                                       "line 2\n  - value line 3\n...\n");
+  }
+  SECTION("YAML parse an array of character art (one) and  stringify.",
+          "[YAML][Stringify][Piped]") {
+    BufferSource source{
+        "---\n- |\n \\//||\\/||\n // ||  ||__\n..."};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]));
+    REQUIRE(YRef<Array>(yaml.document(0)[0]).size() == 1);
+    REQUIRE(YRef<String>(yaml.document(0)[0][0]).value() == "\\//||\\/||\n// ||  ||__");
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\n- |\n  \\//||\\/||\n  // ||  ||__\n...\n");
   }
 }
