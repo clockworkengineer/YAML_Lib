@@ -282,14 +282,63 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
   }
   SECTION("YAML parse an array of character art (one) and  stringify.",
           "[YAML][Stringify][Piped]") {
-    BufferSource source{
-        "---\n- |\n \\//||\\/||\n // ||  ||__\n..."};
+    BufferSource source{"---\n- |\n \\//||\\/||\n // ||  ||__\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]));
     REQUIRE(YRef<Array>(yaml.document(0)[0]).size() == 1);
-    REQUIRE(YRef<String>(yaml.document(0)[0][0]).value() == "\\//||\\/||\n// ||  ||__");
+    REQUIRE(YRef<String>(yaml.document(0)[0][0]).value() ==
+            "\\//||\\/||\n// ||  ||__");
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\n- |\n  \\//||\\/||\n  // ||  ||__\n...\n");
+    REQUIRE(destination.toString() ==
+            "---\n- |\n  \\//||\\/||\n  // ||  ||__\n...\n");
+  }
+  SECTION("YAML parse a boolean (True) and stringify.",
+          "[YAML][Stringify][Boolean]") {
+    BufferSource source{"---\nTrue\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\nTrue\n...\n");
+  }
+  SECTION("YAML parse a boolean (False) and stringify.",
+          "[YAML][Stringify][Boolean]") {
+    BufferSource source{"---\nFalse\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\nFalse\n...\n");
+  }
+  SECTION("YAML parse a boolean (On) and stringify.",
+          "[YAML][Stringify][Boolean]") {
+    BufferSource source{"---\nOn\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\nOn\n...\n");
+  }
+  SECTION("YAML parse a boolean (Off) and stringify.",
+          "[YAML][Stringify][Boolean]") {
+    BufferSource source{"---\nOff\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\nOff\n...\n");
+  }
+  SECTION("YAML parse a boolean (Yes) and stringify.",
+          "[YAML][Stringify][Boolean]") {
+    BufferSource source{"---\nYes\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\nYes\n...\n");
+  }
+  SECTION("YAML parse a boolean (No) and stringify.",
+          "[YAML][Stringify][Boolean]") {
+    BufferSource source{"---\nNo\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\nNo\n...\n");
   }
 }

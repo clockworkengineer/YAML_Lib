@@ -31,6 +31,7 @@ set(TEST_SOURCES
         source/parse/YAML_Lib_Tests_YAML_Parse_Comment.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Misc.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Null.cpp
+        source/parse/YAML_Lib_Tests_YAML_Parse_Sequence_Mapping.cpp
         source/stringify/YAML_Lib_Tests_YAML_Stringify.cpp
         source/io/YAML_Lib_Tests_ISource_Buffer.cpp
         source/io/YAML_Lib_Tests_IDestination_Buffer.cpp

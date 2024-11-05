@@ -380,14 +380,12 @@ YNode YAML_Parser::parseNone(ISource &source, const Delimeters &delimiters) {
 YNode YAML_Parser::parseBoolean(ISource &source, const Delimeters &delimiters) {
   YNode yNode;
   std::string boolean{extractToNext(source, delimiters)};
-  const std::set<std::string> isTrue{"True", "On", "Yes"};
-  const std::set<std::string> isFalse{"False", "Off", "No"};
   auto len = boolean.size();
   rightTrim(boolean);
-  if (isTrue.contains(boolean)) {
-    yNode = YNode::make<Boolean>(true);
-  } else if (isFalse.contains(boolean)) {
-    yNode = YNode::make<Boolean>(false);
+  if (Boolean::isTrue.contains(boolean)) {
+    yNode = YNode::make<Boolean>(true, boolean);
+  } else if (Boolean::isFalse.contains(boolean)) {
+    yNode = YNode::make<Boolean>(false, boolean);
   }
   if (yNode.isEmpty()) {
     source.backup(len);

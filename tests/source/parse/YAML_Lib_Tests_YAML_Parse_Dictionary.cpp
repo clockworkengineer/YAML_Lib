@@ -108,11 +108,13 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("outertwo"));
     REQUIRE(YRef<Number>(yaml.document(0)[0]["outertwo"]).value<int>() == 99);
   }
-    SECTION("YAML parse dictionary with key value pair nesting on the same line.",
-            "[YAML][Parse][Dictionary]") {
-      BufferSource source{"---\n outer: inner: 'true'\n"};
-      REQUIRE_THROWS_WITH(yaml.parse(source), "YAML Syntax Error: Only an inline/compact dictionary is allowed.");
-    }
+  SECTION("YAML parse dictionary with key value pair nesting on the same line.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n outer: inner: 'true'\n"};
+    REQUIRE_THROWS_WITH(
+        yaml.parse(source),
+        "YAML Syntax Error: Only an inline/compact dictionary is allowed.");
+  }
   SECTION("YAML parse dictionary with key value pair with key starting with t.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n two: true\n"};
@@ -253,9 +255,9 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
           "[YAML][Parse][Dictionary]") {
     BufferSource source{
         "---\nthing1: \"one\"\n thing1: \"two\"\n thing3: \"three\"\n"};
-    REQUIRE_THROWS_WITH(
-        yaml.parse(source),
-        "YAML Syntax Error [Line: 4 Column: 2]: Dictionary already contains key 'thing1'.");
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        "YAML Syntax Error [Line: 4 Column: 2]: Dictionary "
+                        "already contains key 'thing1'.");
   }
 
   SECTION("YAML parse dictionarys with duplicate keys in two documents.",
@@ -272,5 +274,15 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
                         "strike (miss)\n\n...\ntime: 20:03:47\nplayer: Sammy "
                         "Sosa\naction: grand slam\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
+  }
+  SECTION("YAML parse dictionarys with non string keys (boolean).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\nTrue: On\nFalse: Off\n..."};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("True"));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("False"));
+    REQUIRE(YRef<Boolean>(yaml.document(0)[0]["True"]).value() == true);
+    REQUIRE(YRef<Boolean>(yaml.document(0)[0]["False"]).value() == false);
   }
 }

@@ -14,14 +14,18 @@ namespace YAML_Lib {
 
 std::vector<std::string> splitString(const std::string &target,
                                      const char delimiter) {
-  std::stringstream sourceStream(target);
+
   std::vector<std::string> splitStrings;
-  for (std::string splitOffItem{};
-       std::getline(sourceStream, splitOffItem, delimiter);) {
-    splitStrings.push_back(splitOffItem);
-    splitStrings.back().push_back(delimiter);
+  if (!target.empty()) {
+    std::stringstream sourceStream(target);
+
+    for (std::string splitOffItem{};
+         std::getline(sourceStream, splitOffItem, delimiter);) {
+      splitStrings.push_back(splitOffItem);
+      splitStrings.back().push_back(delimiter);
+    }
+    splitStrings.back().pop_back();
   }
-  splitStrings.back().pop_back();
   return splitStrings;
 }
 

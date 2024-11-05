@@ -7,7 +7,7 @@ namespace YAML_Lib {
 template<typename T> YNode::YNode(T value)
 {
   if constexpr (std::is_same_v<T, bool>) {
-    *this = YNode::make<Boolean>(value);
+    *this = YNode::make<Boolean>(value, value? "True" : "False");
   } else if constexpr (std::is_arithmetic_v<T>) {
     *this = YNode::make<Number>(value);
   } else if constexpr (std::is_same_v<T, std::nullptr_t>) {
