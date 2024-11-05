@@ -25,13 +25,22 @@ std::vector<std::string> splitString(const std::string &target,
   return splitStrings;
 }
 
-std::string calcIndent(IDestination &destination, unsigned long indent) {
+std::string calculateIndent(IDestination &destination, unsigned long indent) {
   if (destination.last() == kLineFeed) {
     return std::string(indent, kSpace);
   }
   return "";
 }
 
+void stringifyAnyBlockStyle(IDestination &destination, const YNode &yNode) {
+  if (isA<String>(yNode)) {
+    auto quote = YRef<String>(yNode).getQuote();
+    if (quote == '>' || quote == '|') {
+      destination.add("|");
+      destination.add(kLineFeed);
+    }
+  }
+}
 void YAML_Stringify::stringifyYAML(IDestination &destination,
                                    const YNode &yNode,
                                    unsigned long indent) const {
@@ -49,7 +58,7 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
     } else {
       for (const auto &line :
            splitString(YRef<String>(yNode).toString(), kLineFeed)) {
-        destination.add(calcIndent(destination, indent));
+        destination.add(calculateIndent(destination, indent));
         destination.add(line);
       }
     }
@@ -68,36 +77,27 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
   } else if (isA<Hole>(yNode)) {
     destination.add(YRef<Hole>(yNode).toString());
   } else if (isA<Dictionary>(yNode)) {
-    for (auto &entry : YRef<Dictionary>(yNode).value()) {
-      destination.add(calcIndent(destination, indent) +
-                      YRef<String>(entry.getKeyYNode()).toString() + ": ");
-      if (isA<String>(entry.getYNode())) {
-        auto quote = YRef<String>(entry.getYNode()).getQuote();
-        if (quote == '>' || quote == '|') {
-          destination.add("|");
-          destination.add(kLineFeed);
-        }
-      }
-      if (isA<Array>(entry.getYNode()) || isA<Dictionary>(entry.getYNode())) {
+    for (const auto &entryYNode : YRef<Dictionary>(yNode).value()) {
+      destination.add(calculateIndent(destination, indent) +
+                      YRef<String>(entryYNode.getKeyYNode()).toString() + ": ");
+      stringifyAnyBlockStyle(destination, entryYNode.getYNode());
+      if (isA<Array>(entryYNode.getYNode()) ||
+          isA<Dictionary>(entryYNode.getYNode())) {
         destination.add(kLineFeed);
       }
-      stringifyYAML(destination, entry.getYNode(), indent + yamlIndentation);
-      if (!isA<Array>(entry.getYNode()) && !isA<Dictionary>(entry.getYNode()) &&
-          !isA<Comment>(entry.getYNode())) {
+      stringifyYAML(destination, entryYNode.getYNode(),
+                    indent + yamlIndentation);
+      if (!isA<Array>(entryYNode.getYNode()) &&
+          !isA<Dictionary>(entryYNode.getYNode()) &&
+          !isA<Comment>(entryYNode.getYNode())) {
         destination.add(kLineFeed);
       }
     }
   } else if (isA<Array>(yNode)) {
-    for (const auto &entry : YRef<Array>(yNode).value()) {
-      destination.add(calcIndent(destination, indent) + "- ");
-      if (isA<String>(entry)) {
-        auto quote = YRef<String>(entry).getQuote();
-        if (quote == '>' || quote == '|') {
-          destination.add("|");
-          destination.add(kLineFeed);
-        }
-      }
-      stringifyYAML(destination, entry, indent + yamlIndentation);
+    for (const auto &entryYNode : YRef<Array>(yNode).value()) {
+      destination.add(calculateIndent(destination, indent) + "- ");
+      stringifyAnyBlockStyle(destination, entryYNode);
+      stringifyYAML(destination, entryYNode, indent + yamlIndentation);
       if (destination.last() != kLineFeed) {
         destination.add(kLineFeed);
       }
@@ -105,16 +105,13 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
   } else if (isA<Document>(yNode)) {
     destination.add("---");
     if (!YRef<Document>(yNode).value().empty()) {
-      if (isA<String>(YRef<Document>(yNode)[0])) {
-        auto quote = YRef<String>(YRef<Document>(yNode)[0]).getQuote();
-        if (quote == '>' || quote == '|') {
-          destination.add("|");
-        }
+      stringifyAnyBlockStyle(destination, YRef<Document>(yNode)[0]);
+      if (destination.last() != kLineFeed) {
+        destination.add(kLineFeed);
       }
     }
-    destination.add(kLineFeed);
-    for (const auto &entry : YRef<Document>(yNode).value()) {
-      stringifyYAML(destination, entry, 0);
+    for (const auto &entryYNode : YRef<Document>(yNode).value()) {
+      stringifyYAML(destination, entryYNode, 0);
     }
     if (destination.last() != kLineFeed) {
       destination.add(kLineFeed);
@@ -127,7 +124,7 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
 }
 void YAML_Stringify::stringify(const std::vector<YNode> &yamlTree,
                                IDestination &destination) const {
-  for (auto &document : yamlTree) {
+  for (const auto &document : yamlTree) {
     stringifyYAML(destination, document, 0);
   }
 }
