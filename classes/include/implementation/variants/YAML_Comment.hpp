@@ -6,8 +6,8 @@ struct Comment final : Variant
 {
   // Constructors/Destructors
   explicit Comment(std::string comment = "") : Variant(Type::comment), yamlComment(std::move(comment)) {}
-  Comment(const Comment &other) = delete;
-  Comment &operator=(const Comment &other) = delete;
+  Comment(const Comment &other)  = default;
+  Comment &operator=(const Comment &other)  = default;
   Comment(Comment &&other) = default;
   Comment &operator=(Comment &&other) = default;
   ~Comment() = default;
