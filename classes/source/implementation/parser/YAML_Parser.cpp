@@ -63,8 +63,9 @@ std::string extractToNext(ISource &source,
 bool YAML_Parser::isValidKey(const std::string &key) {
   try {
     BufferSource keyYAML{key + kLineFeed};
-    YNode keyYNode = parseDocument(keyYAML, {kLineFeed}) ;
-    if (isA<String>(keyYNode)||isA<Null>(keyYNode)) {
+    YNode keyYNode = parseDocument(keyYAML, {kLineFeed});
+    if (isA<String>(keyYNode) || isA<Null>(keyYNode) ||
+        isA<Boolean>(keyYNode)) {
       return true;
     }
     return false;
@@ -241,7 +242,16 @@ std::string YAML_Parser::parseKey(ISource &source) {
     throw SyntaxError(source.getPosition(),
                       "Invalid key '" + key + "' specified.");
   }
-  return key;
+  BufferSource keyYAML{key + kLineFeed};
+  YNode keyYNode = parseDocument(keyYAML, {kLineFeed});
+  if (isA<String>(keyYNode)) {
+    return YRef<String>(keyYNode).value();
+  } else if (isA<Null>(keyYNode)) {
+    return "null";
+  } else if (isA<Boolean>(keyYNode)) {
+    return YRef<Boolean>(keyYNode).toString();
+  }
+  return "";
 }
 
 YNode YAML_Parser::parseFoldedBlockString(ISource &source,
