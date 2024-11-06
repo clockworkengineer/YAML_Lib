@@ -285,4 +285,10 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE(YRef<Boolean>(yaml.document(0)[0]["True"]).value() == true);
     REQUIRE(YRef<Boolean>(yaml.document(0)[0]["False"]).value() == false);
   }
+//   SECTION("YAML parse dictionarys with non string keys (array).",
+//           "[YAML][Parse][Dictionary]") {
+//     BufferSource source{"---\n[one, two]: 'test'\n...\n"};
+//     REQUIRE_NOTHROW(yaml.parse(source));
+//     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+//   }
 }

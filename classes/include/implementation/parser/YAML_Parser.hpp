@@ -109,10 +109,10 @@ private:
       {isComment, parseComment},
       {isAnchor, parseAnchor},
       {isAlias, parseAlias},
-      {isArray, parseArray},
-      {isDictionary, parseDictionary},
       {isInlineArray, parseInlineArray},
+      {isArray, parseArray},
       {isInlineDictionary, parseInlineDictionary},
+      {isDictionary, parseDictionary},
       {isDefault, parsePlainFlowString}};
 };
 

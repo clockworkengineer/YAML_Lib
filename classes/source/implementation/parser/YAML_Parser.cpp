@@ -39,6 +39,15 @@ void moveToNextIndent(ISource &source) {
   }
 }
 
+bool YAML_Parser::isValidKey(const std::string &key) {
+  try {
+    BufferSource keyYAML{key + kLineFeed};
+    parseDocument(keyYAML, {kLineFeed});
+    return true;
+  } catch (std::exception &e) {
+    return false;
+  }
+}
 void moveToNext(ISource &source, const YAML_Parser::Delimeters &delimiters) {
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
@@ -60,28 +69,33 @@ std::string extractToNext(ISource &source,
   return (extracted);
 }
 
-bool YAML_Parser::isValidKey(const std::string &key) {
-  if (!key.empty()) {
-    if (!std::isalpha(key[0]) || key.back() == kSpace) {
-      return (false);
-    }
-    for (auto ch : key) {
-      if ((ch != '-') && !(std::isalpha(ch) || std::isdigit(ch) || ch == kSpace)) {
-        return (false);
-      }
-    }
-    return (true);
-  }
-  return (false);
-}
+// bool YAML_Parser::isValidKey(const std::string &key) {
+//   if (!key.empty()) {
+//     if (!std::isalpha(key[0]) || key.back() == kSpace) {
+//       return (false);
+//     }
+//     for (auto ch : key) {
+//       if ((ch != '-') && !(std::isalpha(ch) || std::isdigit(ch) || ch ==
+//       kSpace)) {
+//         return (false);
+//       }
+//     }
+//     return (true);
+//   }
+//   return (false);
+// }
 
 bool YAML_Parser::isKey(ISource &source) {
   bool keyPresent{false};
-  std::string key{extractToNext(source, {':', kLineFeed})};
+  std::string key{extractToNext(source, {':', kLineFeed, ','})};
   auto keyLength = key.size();
   if (source.current() == ':') {
-    rightTrim(key);
-    keyPresent = isValidKey(key);
+    source.next();
+    if ((source.current() == ' ')||(source.current()==kLineFeed)) {
+      rightTrim(key);
+      keyPresent = isValidKey(key);
+    }
+    keyLength++;
   }
   source.backup(keyLength);
   return keyPresent;
@@ -251,7 +265,8 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
     moveToNextIndent(source);
   }
   auto blockIndent = source.getIndentation();
-  std::string yamlString{parseBlockString(source, delimiters, kSpace, chomping)};
+  std::string yamlString{
+      parseBlockString(source, delimiters, kSpace, chomping)};
   return YNode::make<String>(yamlString, '>', blockIndent);
 }
 
