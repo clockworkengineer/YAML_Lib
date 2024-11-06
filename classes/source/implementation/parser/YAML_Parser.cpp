@@ -39,15 +39,6 @@ void moveToNextIndent(ISource &source) {
   }
 }
 
-bool YAML_Parser::isValidKey(const std::string &key) {
-  try {
-    BufferSource keyYAML{key + kLineFeed};
-    parseDocument(keyYAML, {kLineFeed});
-    return true;
-  } catch (std::exception &e) {
-    return false;
-  }
-}
 void moveToNext(ISource &source, const YAML_Parser::Delimeters &delimiters) {
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
@@ -69,21 +60,18 @@ std::string extractToNext(ISource &source,
   return (extracted);
 }
 
-// bool YAML_Parser::isValidKey(const std::string &key) {
-//   if (!key.empty()) {
-//     if (!std::isalpha(key[0]) || key.back() == kSpace) {
-//       return (false);
-//     }
-//     for (auto ch : key) {
-//       if ((ch != '-') && !(std::isalpha(ch) || std::isdigit(ch) || ch ==
-//       kSpace)) {
-//         return (false);
-//       }
-//     }
-//     return (true);
-//   }
-//   return (false);
-// }
+bool YAML_Parser::isValidKey(const std::string &key) {
+  try {
+    BufferSource keyYAML{key + kLineFeed};
+    YNode keyYNode = parseDocument(keyYAML, {kLineFeed}) ;
+    if (isA<String>(keyYNode)) {
+      return true;
+    }
+    return false;
+  } catch (std::exception &e) {
+    return false;
+  }
+}
 
 bool YAML_Parser::isKey(ISource &source) {
   bool keyPresent{false};
@@ -91,7 +79,7 @@ bool YAML_Parser::isKey(ISource &source) {
   auto keyLength = key.size();
   if (source.current() == ':') {
     source.next();
-    if ((source.current() == ' ')||(source.current()==kLineFeed)) {
+    if ((source.current() == ' ') || (source.current() == kLineFeed)) {
       rightTrim(key);
       keyPresent = isValidKey(key);
     }

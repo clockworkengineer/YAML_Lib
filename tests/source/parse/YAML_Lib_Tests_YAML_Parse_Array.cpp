@@ -92,7 +92,9 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
 
     BufferSource source{"---\nitems: [1, 2, 3, 4, 5 ]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]["items"]));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     REQUIRE(YRef<Array>(yaml.document(0)[0]["items"]).size() == 5);
     REQUIRE(YRef<Number>(yaml.document(0)[0]["items"][0]).value<int>() == 1);
     REQUIRE(YRef<Number>(yaml.document(0)[0]["items"][1]).value<int>() == 2);
@@ -103,8 +105,10 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
 
   SECTION("YAML parse flat array of strings and verify.",
           "[YAML][Parse][Array]") {
-    BufferSource source{"---\nnames: [\"one\", \"two\", \"three\", \"four\", \"five\" ]\n"};
+    BufferSource source{
+        "---\nnames: [\"one\", \"two\", \"three\", \"four\", \"five\" ]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]["names"]));
     REQUIRE(YRef<Array>(yaml.document(0)[0]["names"]).size() == 5);
     REQUIRE(YRef<String>(yaml.document(0)[0]["names"][0]).value() == "one");
@@ -160,8 +164,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(YRef<Boolean>(yaml.document(0)[0]["names"][4]).value() == true);
   }
 
-  SECTION("YAML parse flat array of null and verify.",
-          "[YAML][Parse][Array]") {
+  SECTION("YAML parse flat array of null and verify.", "[YAML][Parse][Array]") {
     BufferSource source{"---\nnames: [ ~, ~, none, none, none]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]["names"]));
@@ -172,5 +175,4 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE_FALSE(!isA<Null>(yaml.document(0)[0]["names"][0]));
     REQUIRE_FALSE(!isA<Null>(yaml.document(0)[0]["names"][0]));
   }
-
 }
