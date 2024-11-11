@@ -272,7 +272,9 @@ std::string YAML_Parser::parseKey(ISource &source) {
   } else if (isA<Number>(keyYNode)) {
     return YRef<Number>(keyYNode).toString();
   } else if (isA<Array>(keyYNode)) {
-    return "[]";
+    BufferDestination destination;
+    // stringifyToKeyString(destination, keyYNode, 0);
+    return destination.toString();
   }
   return "";
 }

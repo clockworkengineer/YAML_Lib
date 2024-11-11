@@ -112,7 +112,6 @@ private:
       {isComment, parseComment},
       {isAnchor, parseAnchor},
       {isAlias, parseAlias},
-
       {isDefault, parsePlainFlowString}};
 };
 
