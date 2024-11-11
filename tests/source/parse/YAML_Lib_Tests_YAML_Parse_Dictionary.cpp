@@ -285,10 +285,30 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE(YRef<Boolean>(yaml.document(0)[0]["True"]).value() == true);
     REQUIRE(YRef<Boolean>(yaml.document(0)[0]["False"]).value() == false);
   }
-//   SECTION("YAML parse dictionarys with non string keys (array).",
-//           "[YAML][Parse][Dictionary]") {
-//     BufferSource source{"---\n[one, two]: 'test'\n...\n"};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
-//   }
+  SECTION("YAML parse dictionarys with non string key (null).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\nnull: 1\n..."};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("null"));
+    REQUIRE(YRef<Number>(yaml.document(0)[0]["null"]).value<int>() == 1);
+  }
+  SECTION("YAML parse dictionarys with non string key (number).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n666: 1\n..."};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("666"));
+    REQUIRE(YRef<Number>(yaml.document(0)[0]["666"]).value<int>() == 1);
+  }
+
+  SECTION("YAML parse dictionarys with non string keys (array).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n[one, two]: 'test'\n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\n[one, two]: 'test'\n...\n");
+  }
 }

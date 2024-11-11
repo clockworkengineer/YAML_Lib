@@ -88,8 +88,7 @@ private:
   static YNode parseInlineArray(ISource &source,
                                 [[maybe_unused]] const Delimeters &delimiters);
   static DictionaryEntry parseKeyValue(ISource &source,
-
-                                       const Delimeters &delimiters);
+                                       const Delimeters &delimiters, bool inlineDictionary);
   static YNode parseDictionary(ISource &source, const Delimeters &delimiters);
   static YNode
   parseInlineDictionary(ISource &source,
@@ -100,6 +99,10 @@ private:
   using IsAFunc = std::function<bool(ISource &)>;
   using ParseFunc = std::function<YNode(ISource &, const Delimeters &)>;
   inline static std::vector<std::pair<IsAFunc, ParseFunc>> parsers{
+      {isArray, parseArray},
+      {isDictionary, parseDictionary},
+      {isInlineDictionary, parseInlineDictionary},
+      {isInlineArray, parseInlineArray},
       {isBoolean, parseBoolean},
       {isQuotedString, parseQuotedFlowString},
       {isNumber, parseNumber},
@@ -109,10 +112,7 @@ private:
       {isComment, parseComment},
       {isAnchor, parseAnchor},
       {isAlias, parseAlias},
-      {isInlineArray, parseInlineArray},
-      {isArray, parseArray},
-      {isInlineDictionary, parseInlineDictionary},
-      {isDictionary, parseDictionary},
+
       {isDefault, parsePlainFlowString}};
 };
 
