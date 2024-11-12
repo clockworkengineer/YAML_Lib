@@ -14,6 +14,10 @@ struct DictionaryEntry {
       : key(YNode::make<String>(key)), yNode(std::move(yNode)) {}
   DictionaryEntry(const std::string &key, YNode &&yNode)
       : key(YNode::make<String>(key)), yNode(std::move(yNode)) {}
+  DictionaryEntry(YNode &keyYNode, YNode &yNode)
+      : key(std::move(keyYNode)), yNode(std::move(yNode)) {}
+  DictionaryEntry(YNode &keyYNode, YNode &&yNode)
+      : key(std::move(keyYNode)), yNode(std::move(yNode)) {}
   [[nodiscard]] std::string &getKey() {
     return static_cast<String &>(key.getVariant()).value();
   }
@@ -35,7 +39,7 @@ struct Dictionary : Variant {
   using Entry = DictionaryEntry;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
-  Dictionary(unsigned long indent=0) : Variant(Type::dictionary, indent) {}
+  Dictionary(unsigned long indent = 0) : Variant(Type::dictionary, indent) {}
   Dictionary(const Dictionary &other) = default;
   Dictionary &operator=(const Dictionary &other) = default;
   Dictionary(Dictionary &&other) = default;
@@ -73,27 +77,29 @@ private:
   // Search for a given entry given a key and dictionary list
   [[nodiscard]] static Entries::iterator findKey(Entries &dictionary,
                                                  const std::string &key);
-  [[nodiscard]] static Entries::const_iterator findKey(const Entries &dictionary,
-                                                       const std::string &key);
+  [[nodiscard]] static Entries::const_iterator
+  findKey(const Entries &dictionary, const std::string &key);
 
   // Dictionary entries list
   Entries yNodeDictionary;
 };
 
-inline Dictionary::Entries::iterator Dictionary::findKey(Entries &dictionary,
-                                                 const std::string &key) {
-  auto it = std::ranges::find_if(
-      dictionary, [&key](Entry &entry) -> bool { return entry.getKey() == key; });
+inline Dictionary::Entries::iterator
+Dictionary::findKey(Entries &dictionary, const std::string &key) {
+  auto it = std::ranges::find_if(dictionary, [&key](Entry &entry) -> bool {
+    return entry.getKey() == key;
+  });
   if (it == dictionary.end()) {
     throw Dictionary::Error("Invalid key used to access dictionary.");
   }
   return it;
 }
-inline Dictionary::Entries::const_iterator Dictionary::findKey(const Entries &dictionary,
-                                                       const std::string &key) {
-  auto it = std::ranges::find_if(dictionary, [&key](const Entry &entry) -> bool {
-    return entry.getKey() == key;
-  });
+inline Dictionary::Entries::const_iterator
+Dictionary::findKey(const Entries &dictionary, const std::string &key) {
+  auto it =
+      std::ranges::find_if(dictionary, [&key](const Entry &entry) -> bool {
+        return entry.getKey() == key;
+      });
   if (it == dictionary.end()) {
     throw Dictionary::Error("Invalid key used to access dictionary.");
   }
