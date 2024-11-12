@@ -269,17 +269,19 @@ YNode YAML_Parser::parseKey(ISource &source) {
     keyString = YRef<String>(keyYNode).value();
     quote = YRef<String>(keyYNode).getQuote();
   } else if (isA<Null>(keyYNode)) {
-    keyString = "null";
+    keyString = "";
   } else if (isA<Boolean>(keyYNode)) {
     keyString = YRef<Boolean>(keyYNode).toString();
   } else if (isA<Number>(keyYNode)) {
     keyString = YRef<Number>(keyYNode).toString();
   } else if (isA<Array>(keyYNode)) {
     BufferDestination destination;
+    YAML_Stringify::setInlineMode(true);
     YAML_Stringify::stringifyToString(destination, keyYNode, 0);
     keyString = destination.toString();
+    YAML_Stringify::setInlineMode(false);
   }
-  return YNode::make<String>(keyString, quote);
+  return YNode::make<String>(keyString, quote, 0);
 }
 
 YNode YAML_Parser::parseFoldedBlockString(ISource &source,
@@ -528,8 +530,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
     }
   }
   if (source.getIndentation() > keyIndent) {
-    return DictionaryEntry(YRef<String>(keyYNode).value(),
-                           parseDocument(source, delimiters));
+    return DictionaryEntry(keyYNode, parseDocument(source, delimiters));
   } else {
     return DictionaryEntry(YRef<String>(keyYNode).value(), YNode::make<Null>());
   }

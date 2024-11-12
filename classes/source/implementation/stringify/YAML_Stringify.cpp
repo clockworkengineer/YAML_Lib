@@ -81,8 +81,15 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
     destination.add(YRef<Hole>(yNode).toString());
   } else if (isA<Dictionary>(yNode)) {
     for (const auto &entryYNode : YRef<Dictionary>(yNode).value()) {
-      destination.add(calculateIndent(destination, indent) +
-                      YRef<String>(entryYNode.getKeyYNode()).toString() + ": ");
+      destination.add(calculateIndent(destination, indent));
+      char quote = YRef<String>(entryYNode.getKeyYNode()).getQuote();
+      if (quote == '\'' || quote == '"') {
+        destination.add(
+            quote + YRef<String>(entryYNode.getKeyYNode()).toString() + quote);
+      } else {
+        destination.add(YRef<String>(entryYNode.getKeyYNode()).toString());
+      }
+      destination.add(": ");
       stringifyAnyBlockStyle(destination, entryYNode.getYNode());
       if (isA<Array>(entryYNode.getYNode()) ||
           isA<Dictionary>(entryYNode.getYNode())) {
@@ -114,7 +121,6 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
           stringifyYAML(destination, entryYNode, indent);
           if (commaCount-- > 0) {
             destination.add(", ");
- 
           }
         }
       }

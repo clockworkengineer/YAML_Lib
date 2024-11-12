@@ -214,7 +214,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\nnull: null\nbooleans: \n  - true\n "
+    REQUIRE(destination.toString() == "---\n\"\": null\nbooleans: \n  - true\n "
                                       " - false\nstring: \'012345\'\n...\n");
   }
   SECTION("YAML parse dictionaries in two documents and stringify back.",

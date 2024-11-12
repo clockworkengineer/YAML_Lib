@@ -275,60 +275,63 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
                         "Sosa\naction: grand slam\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-//   SECTION("YAML parse dictionarys with non string keys (boolean).",
-//           "[YAML][Parse][Dictionary]") {
-//     BufferSource source{"---\nTrue: On\nFalse: Off\n..."};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
-//     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("True"));
-//     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("False"));
-//     REQUIRE(YRef<Boolean>(yaml.document(0)[0]["True"]).value() == true);
-//     REQUIRE(YRef<Boolean>(yaml.document(0)[0]["False"]).value() == false);
-//     BufferDestination destination;
-//     REQUIRE_NOTHROW(yaml.stringify(destination));
-//     REQUIRE(destination.toString() == "");
-//   }
-//   SECTION("YAML parse dictionarys with non string key (null).",
-//           "[YAML][Parse][Dictionary]") {
-//     BufferSource source{"---\nnull: 1\n..."};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
-//     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("null"));
-//     REQUIRE(YRef<Number>(yaml.document(0)[0]["null"]).value<int>() == 1);
-//     BufferDestination destination;
-//     REQUIRE_NOTHROW(yaml.stringify(destination));
-//     REQUIRE(destination.toString() == "");
-//   }
-//   SECTION("YAML parse dictionarys with non string key (number).",
-//           "[YAML][Parse][Dictionary]") {
-//     BufferSource source{"---\n666: 1\n..."};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
-//     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("666"));
-//     REQUIRE(YRef<Number>(yaml.document(0)[0]["666"]).value<int>() == 1);
-//     BufferDestination destination;
-//     REQUIRE_NOTHROW(yaml.stringify(destination));
-//     REQUIRE(destination.toString() == "");
-//   }
-
-//   SECTION("YAML parse dictionarys with non string keys (inline array).",
-//           "[YAML][Parse][Dictionary]") {
-//     BufferSource source{"---\n[one, two]: 'test'\n...\n"};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
-//     BufferDestination destination;
-//     REQUIRE_NOTHROW(yaml.stringify(destination));
-//     REQUIRE(destination.toString() == "---\n\"[one, two]\": 'test'\n...\n");
-//   }
-  //     SECTION("YAML parse dictionarys with non string keys (inline array).",
+  //   SECTION("YAML parse dictionarys with non string keys (boolean).",
   //           "[YAML][Parse][Dictionary]") {
-  //     BufferSource source{"---\n[one, two]: 'test1'\n[three, four]:
-  //     'test2'\n...\n"}; REQUIRE_NOTHROW(yaml.parse(source));
+  //     BufferSource source{"---\nTrue: On\nFalse: Off\n..."};
+  //     REQUIRE_NOTHROW(yaml.parse(source));
   //     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+  //     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("True"));
+  //     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("False"));
+  //     REQUIRE(YRef<Boolean>(yaml.document(0)[0]["True"]).value() == true);
+  //     REQUIRE(YRef<Boolean>(yaml.document(0)[0]["False"]).value() == false);
   //     BufferDestination destination;
   //     REQUIRE_NOTHROW(yaml.stringify(destination));
   //     REQUIRE(destination.toString() == "");
   //   }
+  SECTION("YAML parse dictionarys with non string key (null).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\nnull: 1\n..."};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains(""));
+    REQUIRE(YRef<Number>(yaml.document(0)[0][""]).value<int>() == 1);
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\n\"\": 1\n...\n");
+  }
+  SECTION("YAML parse dictionarys with non string key (number).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n666: 1\n..."};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("666"));
+    REQUIRE(YRef<Number>(yaml.document(0)[0]["666"]).value<int>() == 1);
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\n\"666\": 1\n...\n");
+  }
+
+  SECTION("YAML parse dictionarys with non string keys (inline array).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n[one, two]: 'test'\n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\n\"[one, two]\": 'test'\n...\n");
+  }
+  SECTION("YAML parse dictionarys with non string keys (inline array).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{
+        "---\n[one, two]: 'test1'\n[three, four]: 'test2'\n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(
+        destination.toString() ==
+        "---\n\"[one, two]\": \'test1\'\n\"[three, four]\": \'test2\'\n...\n");
+  }
   //     SECTION("YAML parse dictionarys with non string keys (inline
   //     dictionary).",
   //           "[YAML][Parse][Dictionary]") {
