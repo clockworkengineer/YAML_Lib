@@ -279,7 +279,7 @@ YNode YAML_Parser::parseKey(ISource &source) {
   } else if (isA<Null>(keyYNode)) {
     keyString = "";
   } else if (isA<Boolean>(keyYNode)) {
-    keyString = YRef<Boolean>(keyYNode).toString();
+    keyString = YRef<Boolean>(keyYNode).value() ? "true" : "false";
   } else if (isA<Number>(keyYNode)) {
     keyString = YRef<Number>(keyYNode).toString();
   } else if (isA<Array>(keyYNode)) {
@@ -294,6 +294,8 @@ YNode YAML_Parser::parseKey(ISource &source) {
     YAML_Stringify::stringifyToString(destination, keyYNode, 0);
     keyString = destination.toString();
     YAML_Stringify::setInlineMode(false);
+  } else {
+    throw SyntaxError ("Invalid key specified.");
   }
   return YNode::make<String>(keyString, quote, 0);
 }

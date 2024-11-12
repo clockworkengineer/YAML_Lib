@@ -286,7 +286,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
       REQUIRE(YRef<Boolean>(yaml.document(0)[0]["false"]).value() == false);
       BufferDestination destination;
       REQUIRE_NOTHROW(yaml.stringify(destination));
-      REQUIRE(destination.toString() == "");
+      REQUIRE(destination.toString() == "---\n\"true\": On\n\"false\": Off\n...\n");
     }
   SECTION("YAML parse dictionarys with non string key (null).",
           "[YAML][Parse][Dictionary]") {
