@@ -62,6 +62,8 @@ private:
 
   static void foldCarriageReturns(ISource &source, std::string &yamlString);
 
+  static std::string extractKey(ISource &source);
+
   static BlockChomping parseBlockChomping(ISource &source);
 
   static std::string parseBlockString(ISource &source,

@@ -275,19 +275,19 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
                         "Sosa\naction: grand slam\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-//     SECTION("YAML parse dictionarys with non string keys (boolean).",
-//             "[YAML][Parse][Dictionary]") {
-//       BufferSource source{"---\nTrue: On\nFalse: Off\n..."};
-//       REQUIRE_NOTHROW(yaml.parse(source));
-//       REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
-//       REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("True"));
-//       REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("False"));
-//       REQUIRE(YRef<Boolean>(yaml.document(0)[0]["True"]).value() == true);
-//       REQUIRE(YRef<Boolean>(yaml.document(0)[0]["False"]).value() == false);
-//       BufferDestination destination;
-//       REQUIRE_NOTHROW(yaml.stringify(destination));
-//       REQUIRE(destination.toString() == "");
-//     }
+    SECTION("YAML parse dictionarys with non string keys (boolean).",
+            "[YAML][Parse][Dictionary]") {
+      BufferSource source{"---\nTrue: On\nFalse: Off\n..."};
+      REQUIRE_NOTHROW(yaml.parse(source));
+      REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+      REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("true"));
+      REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("false"));
+      REQUIRE(YRef<Boolean>(yaml.document(0)[0]["true"]).value() == true);
+      REQUIRE(YRef<Boolean>(yaml.document(0)[0]["false"]).value() == false);
+      BufferDestination destination;
+      REQUIRE_NOTHROW(yaml.stringify(destination));
+      REQUIRE(destination.toString() == "");
+    }
   SECTION("YAML parse dictionarys with non string key (null).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\nnull: 1\n..."};
@@ -341,4 +341,5 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() == "---\n\"{one: 1, two: 2}\": \'test\'\n...\n");
   }
+
 }

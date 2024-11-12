@@ -60,6 +60,7 @@ std::string extractToNext(ISource &source,
   return (extracted);
 }
 
+
 bool isValid(char ch) {
   if ((ch == '{') || (ch == '[') || (ch == '}') || (ch == ']') || (ch == '&') ||
       (ch == '*') || (ch == '#')) {
@@ -83,8 +84,7 @@ bool YAML_Parser::isValidKey(const std::string &key) {
   }
 }
 
-bool YAML_Parser::isKey(ISource &source) {
-  bool keyPresent{false};
+std::string YAML_Parser::extractKey(ISource &source) {
   std::string key;
   if (isInlineArray(source)) {
     key = extractToNext(source, {':', kLineFeed});
@@ -98,6 +98,12 @@ bool YAML_Parser::isKey(ISource &source) {
   } else {
     key = extractToNext(source, {':', ',', kLineFeed});
   }
+  return key;
+}
+
+bool YAML_Parser::isKey(ISource &source) {
+  bool keyPresent{false};
+  std::string key { extractKey(source)};
   auto keyLength = key.size();
   if (source.current() == ':') {
     source.next();
@@ -254,19 +260,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
 }
 
 YNode YAML_Parser::parseKey(ISource &source) {
-  std::string key;
- if (isInlineArray(source)) {
-    key = extractToNext(source, {':', kLineFeed});
-  } else if (isInlineDictionary(source)) {
-    key = extractToNext(source, {'}', kLineFeed});
-    if (source.current() == '}') {
-      key += '}';
-      source.next();
-      source.ignoreWS();
-    }
-  } else {
-    key = extractToNext(source, {':', ',', kLineFeed});
-  }
+  std::string key { extractKey(source)};
   if (source.more()) {
     source.next();
   }
@@ -538,11 +532,9 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   YNode keyYNode = parseKey(source);
   source.ignoreWS();
   if (!isInlineDictionary(source) && !(inlineDictionary)) {
-    auto ch = source.current();
     if (isKey(source)) {
       throw SyntaxError("Only an inline/compact dictionary is allowed.");
     }
-    ch++;
     moveToNextIndent(source);
     while (isComment(source)) {
       parseComment(source, delimiters);
