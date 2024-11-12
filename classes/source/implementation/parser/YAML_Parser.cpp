@@ -74,7 +74,7 @@ bool YAML_Parser::isValidKey(const std::string &key) {
     YNode keyYNode = parseDocument(keyYAML, {kLineFeed});
     if (isA<String>(keyYNode) || isA<Null>(keyYNode) ||
         isA<Boolean>(keyYNode) || isA<Number>(keyYNode) ||
-        isA<Array>(keyYNode)) {
+        isA<Array>(keyYNode) || isA<Dictionary>(keyYNode)) {
       return true;
     }
     return false;
@@ -86,8 +86,15 @@ bool YAML_Parser::isValidKey(const std::string &key) {
 bool YAML_Parser::isKey(ISource &source) {
   bool keyPresent{false};
   std::string key;
-  if (isInlineArray(source) || isInlineDictionary(source)) {
+  if (isInlineArray(source)) {
     key = extractToNext(source, {':', kLineFeed});
+  } else if (isInlineDictionary(source)) {
+    key = extractToNext(source, {'}', kLineFeed});
+    if (source.current() == '}') {
+      key += '}';
+      source.next();
+      source.ignoreWS();
+    }
   } else {
     key = extractToNext(source, {':', ',', kLineFeed});
   }
@@ -248,8 +255,15 @@ std::string YAML_Parser::parseBlockString(ISource &source,
 
 YNode YAML_Parser::parseKey(ISource &source) {
   std::string key;
-  if (isInlineArray(source) || isInlineDictionary(source)) {
+ if (isInlineArray(source)) {
     key = extractToNext(source, {':', kLineFeed});
+  } else if (isInlineDictionary(source)) {
+    key = extractToNext(source, {'}', kLineFeed});
+    if (source.current() == '}') {
+      key += '}';
+      source.next();
+      source.ignoreWS();
+    }
   } else {
     key = extractToNext(source, {':', ',', kLineFeed});
   }
@@ -275,6 +289,12 @@ YNode YAML_Parser::parseKey(ISource &source) {
   } else if (isA<Number>(keyYNode)) {
     keyString = YRef<Number>(keyYNode).toString();
   } else if (isA<Array>(keyYNode)) {
+    BufferDestination destination;
+    YAML_Stringify::setInlineMode(true);
+    YAML_Stringify::stringifyToString(destination, keyYNode, 0);
+    keyString = destination.toString();
+    YAML_Stringify::setInlineMode(false);
+  } else if (isA<Dictionary>(keyYNode)) {
     BufferDestination destination;
     YAML_Stringify::setInlineMode(true);
     YAML_Stringify::stringifyToString(destination, keyYNode, 0);

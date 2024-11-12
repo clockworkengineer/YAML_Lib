@@ -80,28 +80,51 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
   } else if (isA<Hole>(yNode)) {
     destination.add(YRef<Hole>(yNode).toString());
   } else if (isA<Dictionary>(yNode)) {
-    for (const auto &entryYNode : YRef<Dictionary>(yNode).value()) {
-      destination.add(calculateIndent(destination, indent));
-      char quote = YRef<String>(entryYNode.getKeyYNode()).getQuote();
-      if (quote == '\'' || quote == '"') {
-        destination.add(
-            quote + YRef<String>(entryYNode.getKeyYNode()).toString() + quote);
-      } else {
-        destination.add(YRef<String>(entryYNode.getKeyYNode()).toString());
+    if (!inlineMode) {
+      for (const auto &entryYNode : YRef<Dictionary>(yNode).value()) {
+        destination.add(calculateIndent(destination, indent));
+        char quote = YRef<String>(entryYNode.getKeyYNode()).getQuote();
+        if (quote == '\'' || quote == '"') {
+          destination.add(quote +
+                          YRef<String>(entryYNode.getKeyYNode()).toString() +
+                          quote);
+        } else {
+          destination.add(YRef<String>(entryYNode.getKeyYNode()).toString());
+        }
+        destination.add(": ");
+        stringifyAnyBlockStyle(destination, entryYNode.getYNode());
+        if (isA<Array>(entryYNode.getYNode()) ||
+            isA<Dictionary>(entryYNode.getYNode())) {
+          destination.add(kLineFeed);
+        }
+        stringifyYAML(destination, entryYNode.getYNode(),
+                      indent + yamlIndentation);
+        if (!isA<Array>(entryYNode.getYNode()) &&
+            !isA<Dictionary>(entryYNode.getYNode()) &&
+            !isA<Comment>(entryYNode.getYNode())) {
+          destination.add(kLineFeed);
+        }
       }
-      destination.add(": ");
-      stringifyAnyBlockStyle(destination, entryYNode.getYNode());
-      if (isA<Array>(entryYNode.getYNode()) ||
-          isA<Dictionary>(entryYNode.getYNode())) {
-        destination.add(kLineFeed);
+
+    } else {
+      destination.add('{');
+      size_t commaCount = YRef<Dictionary>(yNode).value().size() - 1;
+      for (auto &entryYNode : YRef<Dictionary>(yNode).value()) {
+        char quote = YRef<String>(entryYNode.getKeyYNode()).getQuote();
+        if (quote == '\'' || quote == '"') {
+          destination.add(quote +
+                          YRef<String>(entryYNode.getKeyYNode()).toString() +
+                          quote);
+        } else {
+          destination.add(YRef<String>(entryYNode.getKeyYNode()).toString());
+        }
+        destination.add(": ");
+        stringifyYAML(destination, entryYNode.getYNode(), 0);
+        if (commaCount-- > 0) {
+          destination.add(", ");
+        }
       }
-      stringifyYAML(destination, entryYNode.getYNode(),
-                    indent + yamlIndentation);
-      if (!isA<Array>(entryYNode.getYNode()) &&
-          !isA<Dictionary>(entryYNode.getYNode()) &&
-          !isA<Comment>(entryYNode.getYNode())) {
-        destination.add(kLineFeed);
-      }
+      destination.add("}");
     }
   } else if (isA<Array>(yNode)) {
     if (!inlineMode) {
