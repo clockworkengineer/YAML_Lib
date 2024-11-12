@@ -246,7 +246,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
   return yamlString;
 }
 
-std::string YAML_Parser::parseKey(ISource &source) {
+YNode YAML_Parser::parseKey(ISource &source) {
   std::string key;
   if (isInlineArray(source) || isInlineDictionary(source)) {
     key = extractToNext(source, {':', kLineFeed});
@@ -262,21 +262,24 @@ std::string YAML_Parser::parseKey(ISource &source) {
                       "Invalid key '" + key + "' specified.");
   }
   BufferSource keyYAML{key + kLineFeed};
-  YNode keyYNode = parseDocument(keyYAML, {kLineFeed});
+  auto keyYNode = parseDocument(keyYAML, {kLineFeed});
+  std::string keyString;
+  char quote = '\"';
   if (isA<String>(keyYNode)) {
-    return YRef<String>(keyYNode).value();
+    keyString = YRef<String>(keyYNode).value();
+    quote = YRef<String>(keyYNode).getQuote();
   } else if (isA<Null>(keyYNode)) {
-    return "null";
+    keyString = "null";
   } else if (isA<Boolean>(keyYNode)) {
-    return YRef<Boolean>(keyYNode).toString();
+    keyString = YRef<Boolean>(keyYNode).toString();
   } else if (isA<Number>(keyYNode)) {
-    return YRef<Number>(keyYNode).toString();
+    keyString = YRef<Number>(keyYNode).toString();
   } else if (isA<Array>(keyYNode)) {
     BufferDestination destination;
-    // stringifyToKeyString(destination, keyYNode, 0);
-    return destination.toString();
+    YAML_Stringify::stringifyToString(destination, keyYNode, 0);
+    keyString = destination.toString();
   }
-  return "";
+  return YNode::make<String>(keyString, quote);
 }
 
 YNode YAML_Parser::parseFoldedBlockString(ISource &source,
@@ -510,7 +513,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
                                            const Delimeters &delimiters,
                                            bool inlineDictionary) {
   unsigned long keyIndent = source.getIndentation();
-  std::string key{parseKey(source)};
+  YNode keyYNode = parseKey(source);
   source.ignoreWS();
   if (!isInlineDictionary(source) && !(inlineDictionary)) {
     auto ch = source.current();
@@ -525,9 +528,10 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
     }
   }
   if (source.getIndentation() > keyIndent) {
-    return DictionaryEntry(key, parseDocument(source, delimiters));
+    return DictionaryEntry(YRef<String>(keyYNode).value(),
+                           parseDocument(source, delimiters));
   } else {
-    return DictionaryEntry(key, YNode::make<Null>());
+    return DictionaryEntry(YRef<String>(keyYNode).value(), YNode::make<Null>());
   }
 }
 

@@ -46,8 +46,7 @@ void stringifyAnyBlockStyle(IDestination &destination, const YNode &yNode) {
   }
 }
 void YAML_Stringify::stringifyYAML(IDestination &destination,
-                                   const YNode &yNode,
-                                   unsigned long indent) const {
+                                   const YNode &yNode, unsigned long indent) {
   YAML_Translator translator;
   if (isA<Number>(yNode)) {
     destination.add(YRef<Number>(yNode).toString());
@@ -98,13 +97,28 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
       }
     }
   } else if (isA<Array>(yNode)) {
-    for (const auto &entryYNode : YRef<Array>(yNode).value()) {
-      destination.add(calculateIndent(destination, indent) + "- ");
-      stringifyAnyBlockStyle(destination, entryYNode);
-      stringifyYAML(destination, entryYNode, indent + yamlIndentation);
-      if (destination.last() != kLineFeed) {
-        destination.add(kLineFeed);
+    if (!inlineMode) {
+      for (const auto &entryYNode : YRef<Array>(yNode).value()) {
+        destination.add(calculateIndent(destination, indent) + "- ");
+        stringifyAnyBlockStyle(destination, entryYNode);
+        stringifyYAML(destination, entryYNode, indent + yamlIndentation);
+        if (destination.last() != kLineFeed) {
+          destination.add(kLineFeed);
+        }
       }
+    } else {
+      destination.add('[');
+      if (!YRef<Array>(yNode).value().empty()) {
+        size_t commaCount = YRef<Array>(yNode).value().size() - 1;
+        for (auto &entryYNode : YRef<Array>(yNode).value()) {
+          stringifyYAML(destination, entryYNode, indent);
+          if (commaCount-- > 0) {
+            destination.add(", ");
+ 
+          }
+        }
+      }
+      destination.add("]");
     }
   } else if (isA<Document>(yNode)) {
     destination.add("---");

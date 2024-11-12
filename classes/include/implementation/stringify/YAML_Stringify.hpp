@@ -17,14 +17,20 @@ public:
   void stringify(const std::vector<YNode> &yamlTree,
                  IDestination &destination) const override;
   // Indentation increment
-  void setIndentation(unsigned long indentation) {
+  static void setIndentation(unsigned long indentation) {
     yamlIndentation = indentation;
   }
+  // Array/dictionaries displayed as inline
+  static void setInlineMode(bool mode) { inlineMode = mode; }
+  static void stringifyToString(IDestination &destination, const YNode &yNode,
+                                unsigned long indent)
+  { stringifyYAML(destination, yNode, indent); }
 
 private:
-  void stringifyYAML(IDestination &destination, const YNode &yNode,
-                     unsigned long indent) const;
-  unsigned long yamlIndentation{2};
+  static void stringifyYAML(IDestination &destination, const YNode &yNode,
+                            unsigned long indent);
+  inline static unsigned long yamlIndentation{2};
+  inline static bool inlineMode{false};
 };
 
 } // namespace YAML_Lib

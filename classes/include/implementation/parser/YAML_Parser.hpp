@@ -68,7 +68,7 @@ private:
                                       const YAML_Parser::Delimeters &delimiters,
                                       char fillerDefault,
                                       BlockChomping &chomping);
-  static std::string parseKey(ISource &source);
+  static YNode parseKey(ISource &source);
   static YNode parseFoldedBlockString(ISource &source,
                                       const Delimeters &delimiters);
   static YNode parseLiteralBlockString(ISource &source,
