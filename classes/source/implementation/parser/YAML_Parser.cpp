@@ -60,15 +60,6 @@ std::string extractToNext(ISource &source,
   return (extracted);
 }
 
-
-bool isValid(char ch) {
-  if ((ch == '{') || (ch == '[') || (ch == '}') || (ch == ']') || (ch == '&') ||
-      (ch == '*') || (ch == '#')) {
-    return false;
-  }
-  return true;
-}
-
 bool YAML_Parser::isValidKey(const std::string &key) {
   try {
     BufferSource keyYAML{key + kLineFeed};
@@ -103,7 +94,7 @@ std::string YAML_Parser::extractKey(ISource &source) {
 
 bool YAML_Parser::isKey(ISource &source) {
   bool keyPresent{false};
-  std::string key { extractKey(source)};
+  std::string key{extractKey(source)};
   auto keyLength = key.size();
   if (source.current() == ':') {
     source.next();
@@ -260,7 +251,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
 }
 
 YNode YAML_Parser::parseKey(ISource &source) {
-  std::string key { extractKey(source)};
+  std::string key{extractKey(source)};
   if (source.more()) {
     source.next();
   }
@@ -295,7 +286,7 @@ YNode YAML_Parser::parseKey(ISource &source) {
     keyString = destination.toString();
     YAML_Stringify::setInlineMode(false);
   } else {
-    throw SyntaxError ("Invalid key specified.");
+    throw SyntaxError("Invalid key specified.");
   }
   return YNode::make<String>(keyString, quote, 0);
 }
@@ -333,19 +324,9 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
   std::string yamlString{extractToNext(source, delimiters)};
   if (source.current() != kLineFeed) {
     rightTrim(yamlString);
-    for (auto ch : yamlString) {
-      if (!isValid(ch)) {
-        throw SyntaxError("Yummy");
-      }
-    }
     return YNode::make<String>(yamlString, '\0');
   } else {
-    for (auto ch : yamlString) {
-      if (!isValid(ch)) {
-        throw SyntaxError("Yummy");
-      }
-    }
-    while (source.more() && isValid(source.current()) &&
+    while (source.more() &&
            !(isKey(source) || isArray(source) || isComment(source) ||
              isDocumentStart(source) || isDocumentEnd(source))) {
       if (source.current() == kLineFeed) {
@@ -354,9 +335,6 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
         yamlString += source.current();
         source.next();
       }
-    }
-    if (!isValid(source.current())) {
-      SyntaxError("Yummy");
     }
     if (yamlString.back() == kSpace || yamlString.back() == kLineFeed) {
       yamlString.pop_back();

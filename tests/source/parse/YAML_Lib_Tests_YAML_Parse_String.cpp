@@ -349,4 +349,5 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
         "indentation\non the next line,\nplus another line at the end.");
   }
+
 }
