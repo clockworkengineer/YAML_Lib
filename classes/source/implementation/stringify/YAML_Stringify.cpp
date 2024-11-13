@@ -11,7 +11,12 @@
 #include "YAML_Translator.hpp"
 
 namespace YAML_Lib {
-
+/// <summary>
+/// 
+/// </summary>
+/// <param name="target"></param>
+/// <param name="delimiter"></param>
+/// <returns></returns>
 std::vector<std::string> splitString(const std::string &target,
                                      const char delimiter) {
 
@@ -28,14 +33,23 @@ std::vector<std::string> splitString(const std::string &target,
   }
   return splitStrings;
 }
-
+/// <summary>
+/// 
+/// </summary>
+/// <param name="destination"></param>
+/// <param name="indent"></param>
+/// <returns></returns>
 std::string calculateIndent(IDestination &destination, unsigned long indent) {
   if (destination.last() == kLineFeed) {
     return std::string(indent, kSpace);
   }
   return "";
 }
-
+/// <summary>
+/// 
+/// </summary>
+/// <param name="destination"></param>
+/// <param name="yNode"></param>
 void stringifyAnyBlockStyle(IDestination &destination, const YNode &yNode) {
   if (isA<String>(yNode)) {
     auto quote = YRef<String>(yNode).getQuote();
@@ -45,6 +59,12 @@ void stringifyAnyBlockStyle(IDestination &destination, const YNode &yNode) {
     }
   }
 }
+/// <summary>
+/// 
+/// </summary>
+/// <param name="destination"></param>
+/// <param name="yNode"></param>
+/// <param name="indent"></param>
 void YAML_Stringify::stringifyYAML(IDestination &destination,
                                    const YNode &yNode, unsigned long indent) {
   YAML_Translator translator;
@@ -169,6 +189,11 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
     throw Error("Unknown YNode type encountered during stringification.");
   }
 }
+/// <summary>
+/// 
+/// </summary>
+/// <param name="yamlTree"></param>
+/// <param name="destination"></param>
 void YAML_Stringify::stringify(const std::vector<YNode> &yamlTree,
                                IDestination &destination) const {
   for (const auto &document : yamlTree) {

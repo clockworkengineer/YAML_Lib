@@ -1,10 +1,13 @@
 
 #pragma once
 
-#include "ITranslator.hpp"
-#include "YAML_Converter.hpp"
+
 #include <vector>
 #include <unordered_map>
+#include <string>
+
+#include "ITranslator.hpp"
+#include "YAML_Converter.hpp"
 
 namespace YAML_Lib {
 
