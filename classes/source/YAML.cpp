@@ -13,18 +13,18 @@
 namespace YAML_Lib {
 
 /// <summary>
-/// 
+/// Create YAML object.
 /// </summary>
-/// <param name="stringify"></param>
-/// <param name="parser"></param>
+/// <param name="stringify">Pointer to stringifier interface.</param>
+/// <param name="parser">Pointer to pasrer interface.</param>
 YAML::YAML(IStringify *stringify, IParser *parser)
     : implementation(std::make_unique<YAML_Impl>(stringify, parser)) {}
 /// <summary>
-/// 
+/// Destory YAML object..
 /// </summary>
 YAML::~YAML() = default;
 /// <summary>
-/// 
+/// Fetch version string for current YAML_Lib.
 /// </summary>
 /// <returns></returns>
 std::string YAML::version() { return (YAML_Impl::version()); }
@@ -32,13 +32,13 @@ unsigned int YAML::getNumberOfDocuments() const {
   return implementation->getNumberOfDocuments();
 }
 /// <summary>
-/// 
+/// Parse YAML from source stream into and YNode tree.
 /// </summary>
 /// <param name="source"></param>
 void YAML::parse(ISource &source) const { implementation->parse(source); }
 void YAML::parse(ISource &&source) const { implementation->parse(source); }
 /// <summary>
-/// 
+/// Stringify YNode tree to destination stream (file/buffer/network).
 /// </summary>
 /// <param name="destination"></param>
 void YAML::stringify(IDestination &destination) const {
@@ -48,13 +48,13 @@ void YAML::stringify(IDestination &&destination) const {
   implementation->stringify(destination);
 }
 /// <summary>
-/// 
+/// Return root of YNode tree.
 /// </summary>
 /// <returns></returns>
 std::vector<YNode> &YAML::root() { return implementation->root(); }
 const std::vector<YNode> &YAML::root() const { return implementation->root(); }
 /// <summary>
-/// 
+/// Return YNode of index document within YAML tree.
 /// </summary>
 /// <param name="index"></param>
 /// <returns></returns>
