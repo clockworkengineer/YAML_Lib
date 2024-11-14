@@ -159,100 +159,102 @@ bool YAML_Parser::isArray(ISource &source) {
   return (arrayPresent);
 }
 /// <summary>
-/// 
+/// Has a possible boolean value been found in the source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns></returns>
+/// <returns>==true if a boolean value has been found.</returns>
 bool YAML_Parser::isBoolean(ISource &source) {
   auto ch = source.current();
   return ch == 'T' || ch == 'F' || ch == 'O' || ch == 'Y' || ch == 'N';
 }
 /// <summary>
-/// 
+/// Has a quoted string been found in the source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns></returns>
+/// <returns>==true then a quoted string has been found.</returns>
 bool YAML_Parser::isQuotedString(ISource &source) {
   auto ch = source.current();
   return (ch == '\'') || (ch == '"');
 }
 /// <summary>
-/// 
+/// Has a possible number been found in the source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns></returns>
+/// <returns>==true then a number has been found.</returns>
 bool YAML_Parser::isNumber(ISource &source) {
   auto ch = source.current();
   return (ch >= '0' && ch <= '9') || ch == '-' || ch == '+';
 }
 /// <summary>
-/// 
+/// Has a possible null value been found on the input stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns></returns>
+/// <returns>==true a null (none) value has been found.</returns>
 bool YAML_Parser::isNone(ISource &source) {
   auto second = source.current();
   return second == 'n' || second == '~';
 }
 /// <summary>
-/// 
+/// Has a folded block string been found on the input stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns></returns>
-bool YAML_Parser::isBlockString(ISource &source) {
+/// <returns>==true a founded block string has been found.</returns>
+bool YAML_Parser::isFoldedBlockString(ISource &source) {
   return source.current() == '>';
 }
 /// <summary>
-/// 
+/// Has a piped block string been found on the input stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns></returns>
+/// <returns>==true a piped block string has been found.</returns>
 bool YAML_Parser::isPipedBlockString(ISource &source) {
   return source.current() == '|';
 }
 /// <summary>
-/// 
+/// Has a comment been found on the source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns></returns>
+/// <returns>==true a comment has been found.</returns>
 bool YAML_Parser::isComment(ISource &source) { return source.current() == '#'; }
 /// <summary>
-/// 
+/// Has an anchor been found on the source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns></returns>
+/// <returns>==true an anchor has been found.</returns>
 bool YAML_Parser::isAnchor(ISource &source) { return source.current() == '&'; }
 /// <summary>
-/// 
+/// Has an alias been found on the input stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns></returns>
+/// <returns>==true an alias has been found.</returns>
 bool YAML_Parser::isAlias(ISource &source) { return source.current() == '*'; }
 /// <summary>
-/// 
+/// Has an inline array been found on the source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns></returns>
+/// <returns>==true an inline array has been found.</returns>
 bool YAML_Parser::isInlineArray(ISource &source) {
   return source.current() == '[';
 }
 /// <summary>
-/// 
+/// Has an inline dictionary been found on the source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns></returns>
-bool YAML_Parser::isDefault([[maybe_unused]] ISource &source) { return true; }
-
+/// <returns>==true a inline dictionary has been found./returns>
 bool YAML_Parser::isInlineDictionary(ISource &source) {
   return source.current() == '{';
 }
 /// <summary>
-/// 
+/// Has a dictionary been found on the source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns></returns>
+/// <returns>==true a dictionary has been found./returns>
 bool YAML_Parser::isDictionary(ISource &source) { return isKey(source); }
-
+/// <summary>
+/// Has document start been found on the source stream.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <returns>== true a start document has been found.</returns>
 bool YAML_Parser::isDocumentStart(ISource &source) {
   bool isStart{source.match("---")};
   if (isStart) {
@@ -261,10 +263,10 @@ bool YAML_Parser::isDocumentStart(ISource &source) {
   return isStart;
 }
 /// <summary>
-/// 
+/// Has document end been found on the source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns></returns>
+/// <returns>== true a end document has been found.</returns>
 bool YAML_Parser::isDocumentEnd(ISource &source) {
   bool isEnd{source.match("...")};
   if (isEnd) {
@@ -272,6 +274,12 @@ bool YAML_Parser::isDocumentEnd(ISource &source) {
   }
   return isEnd;
 }
+/// <summary>
+/// Last parser router table entry so return true.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <returns>true</returns>
+bool YAML_Parser::isDefault([[maybe_unused]] ISource &source) { return true; }
 /// <summary>
 /// 
 /// </summary>

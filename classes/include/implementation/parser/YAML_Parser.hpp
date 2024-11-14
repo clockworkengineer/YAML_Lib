@@ -39,7 +39,7 @@ private:
 
   static bool isNone(ISource &source);
 
-  static bool isBlockString(ISource &source);
+  static bool isFoldedBlockString(ISource &source);
 
   static bool isPipedBlockString(ISource &source);
 
@@ -109,7 +109,7 @@ private:
       {isQuotedString, parseQuotedFlowString},
       {isNumber, parseNumber},
       {isNone, parseNone},
-      {isBlockString, parseFoldedBlockString},
+      {isFoldedBlockString, parseFoldedBlockString},
       {isPipedBlockString, parseLiteralBlockString},
       {isComment, parseComment},
       {isAnchor, parseAnchor},
