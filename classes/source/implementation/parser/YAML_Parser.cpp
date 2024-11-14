@@ -11,52 +11,52 @@
 
 namespace YAML_Lib {
 /// <summary>
-/// 
+/// Returns true if str ends with substr.
 /// </summary>
-/// <param name="str"></param>
-/// <param name="sub"></param>
-/// <returns></returns>
-bool endsWith(const std::string &str, const std::string &sub) {
-  auto str_len = str.size();
-  auto sub_len = sub.size();
-  if (str_len < sub_len)
+/// <param name="str">Target string.</param>
+/// <param name="substr">Ends with string.</param>
+/// <returns>==true,then ends with substr.</returns>
+bool endsWith(const std::string &str, const std::string &substr) {
+  auto strLen = str.size();
+  auto substrLen = substr.size();
+  if (strLen < substrLen)
     return false;
 
-  return str.compare(str_len - sub_len, sub_len, sub) == 0;
+  return str.compare(strLen - substrLen, substrLen, substr) == 0;
 }
 /// <summary>
-/// 
+/// Remove any spaces at the end of str.
 /// </summary>
-/// <param name="s"></param>
-void rightTrim(std::string &s) {
-  s.erase(std::find_if(s.rbegin(), s.rend(),
+/// <param name="str">Target string.</param>
+void rightTrim(std::string &str) {
+  str.erase(std::find_if(str.rbegin(), str.rend(),
                        [](unsigned char ch) { return !std::isspace(ch); })
               .base(),
-          s.end());
+          str.end());
 }
 /// <summary>
-/// 
+/// Remove any spaces at the front of str.
 /// </summary>
-/// <param name="s"></param>
-void leftTrim(std::string &s) {
-  s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+/// <param name="str">Target string.</param>
+void leftTrim(std::string &str) {
+  str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](unsigned char ch) {
             return !std::isspace(ch);
           }));
 }
 /// <summary>
-/// 
+/// Move to the next non-whitespace character in source stream; jumping over new lines.
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 void moveToNextIndent(ISource &source) {
   while (source.more() && (source.isWS() || source.current() == kLineFeed)) {
     source.next();
   }
 }
 /// <summary>
-/// 
+/// Move to next delimeter on source stream in a setand then to next indent.
 /// </summary>
-/// <param name="source"></param>
-/// <param name="delimiters"></param>
+/// <param name="source">Source stream.</param>
+/// <param name="delimiters">Set of possible delimeter characters.</param>
 void moveToNext(ISource &source, const YAML_Parser::Delimeters &delimiters) {
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
@@ -66,9 +66,9 @@ void moveToNext(ISource &source, const YAML_Parser::Delimeters &delimiters) {
   moveToNextIndent(source);
 }
 /// <summary>
-/// 
+/// Extract charaters from source stream up to a delimeter.
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 std::string extractToNext(ISource &source,
@@ -85,8 +85,8 @@ std::string extractToNext(ISource &source,
 /// <summary>
 /// 
 /// </summary>
-/// <param name="key"></param>
-/// <returns></returns>
+/// <param name="key">YAML sequence to be converted to be used as key.</param>
+/// <returns>==true value is a valid key.</returns>
 bool YAML_Parser::isValidKey(const std::string &key) {
   try {
     BufferSource keyYAML{key + kLineFeed};
@@ -102,10 +102,10 @@ bool YAML_Parser::isValidKey(const std::string &key) {
   }
 }
 /// <summary>
-/// 
+/// Extract YAML used in possible key value from source stream.
 /// </summary>
-/// <param name="source"></param>
-/// <returns></returns>
+/// <param name="source">Source stream.</param>
+/// <returns>YAML for key value.</returns>
 std::string YAML_Parser::extractKey(ISource &source) {
   std::string key;
   if (isInlineArray(source)) {
@@ -123,10 +123,10 @@ std::string YAML_Parser::extractKey(ISource &source) {
   return key;
 }
 /// <summary>
-/// 
+/// Has a dictionary key been found in the source stream.
 /// </summary>
-/// <param name="source"></param>
-/// <returns></returns>
+/// <param name="source">Source stream.</param>
+/// <returns>== true if a dictionary key has been found.</returns>
 bool YAML_Parser::isKey(ISource &source) {
   bool keyPresent{false};
   std::string key{extractKey(source)};
@@ -143,10 +143,10 @@ bool YAML_Parser::isKey(ISource &source) {
   return keyPresent;
 }
 /// <summary>
-/// 
+/// Has an array element been found in the source stream.
 /// </summary>
-/// <param name="source"></param>
-/// <returns></returns>
+/// <param name="source">Source stream.</param>
+/// <returns>==true if an array element has been found.</returns>
 bool YAML_Parser::isArray(ISource &source) {
   auto ch = source.current();
   auto arrayPresent{false};
@@ -161,7 +161,7 @@ bool YAML_Parser::isArray(ISource &source) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 bool YAML_Parser::isBoolean(ISource &source) {
   auto ch = source.current();
@@ -170,7 +170,7 @@ bool YAML_Parser::isBoolean(ISource &source) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 bool YAML_Parser::isQuotedString(ISource &source) {
   auto ch = source.current();
@@ -179,7 +179,7 @@ bool YAML_Parser::isQuotedString(ISource &source) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 bool YAML_Parser::isNumber(ISource &source) {
   auto ch = source.current();
@@ -188,7 +188,7 @@ bool YAML_Parser::isNumber(ISource &source) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 bool YAML_Parser::isNone(ISource &source) {
   auto second = source.current();
@@ -197,7 +197,7 @@ bool YAML_Parser::isNone(ISource &source) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 bool YAML_Parser::isBlockString(ISource &source) {
   return source.current() == '>';
@@ -205,7 +205,7 @@ bool YAML_Parser::isBlockString(ISource &source) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 bool YAML_Parser::isPipedBlockString(ISource &source) {
   return source.current() == '|';
@@ -213,25 +213,25 @@ bool YAML_Parser::isPipedBlockString(ISource &source) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 bool YAML_Parser::isComment(ISource &source) { return source.current() == '#'; }
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 bool YAML_Parser::isAnchor(ISource &source) { return source.current() == '&'; }
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 bool YAML_Parser::isAlias(ISource &source) { return source.current() == '*'; }
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 bool YAML_Parser::isInlineArray(ISource &source) {
   return source.current() == '[';
@@ -239,7 +239,7 @@ bool YAML_Parser::isInlineArray(ISource &source) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 bool YAML_Parser::isDefault([[maybe_unused]] ISource &source) { return true; }
 
@@ -249,7 +249,7 @@ bool YAML_Parser::isInlineDictionary(ISource &source) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 bool YAML_Parser::isDictionary(ISource &source) { return isKey(source); }
 
@@ -263,7 +263,7 @@ bool YAML_Parser::isDocumentStart(ISource &source) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 bool YAML_Parser::isDocumentEnd(ISource &source) {
   bool isEnd{source.match("...")};
@@ -275,7 +275,7 @@ bool YAML_Parser::isDocumentEnd(ISource &source) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="yamlString"></param>
 void YAML_Parser::foldCarriageReturns(ISource &source,
                                       std::string &yamlString) {
@@ -292,7 +292,7 @@ void YAML_Parser::foldCarriageReturns(ISource &source,
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 YAML_Parser::BlockChomping YAML_Parser::parseBlockChomping(ISource &source) {
   source.next();
@@ -308,7 +308,7 @@ YAML_Parser::BlockChomping YAML_Parser::parseBlockChomping(ISource &source) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <param name="fillerDefault"></param>
 /// <param name="chomping"></param>
@@ -359,7 +359,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 YNode YAML_Parser::parseKey(ISource &source) {
   std::string key{extractKey(source)};
@@ -404,7 +404,7 @@ YNode YAML_Parser::parseKey(ISource &source) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parseFoldedBlockString(ISource &source,
@@ -423,7 +423,7 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parseLiteralBlockString(ISource &source,
@@ -442,7 +442,7 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parsePlainFlowString(ISource &source,
@@ -471,7 +471,7 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parseQuotedFlowString(ISource &source,
@@ -519,7 +519,7 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parseComment(ISource &source,
@@ -534,7 +534,7 @@ YNode YAML_Parser::parseComment(ISource &source,
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parseNumber(ISource &source, const Delimeters &delimiters) {
@@ -556,7 +556,7 @@ YNode YAML_Parser::parseNumber(ISource &source, const Delimeters &delimiters) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parseNone(ISource &source, const Delimeters &delimiters) {
@@ -575,7 +575,7 @@ YNode YAML_Parser::parseNone(ISource &source, const Delimeters &delimiters) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parseBoolean(ISource &source, const Delimeters &delimiters) {
@@ -596,7 +596,7 @@ YNode YAML_Parser::parseBoolean(ISource &source, const Delimeters &delimiters) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parseAnchor(ISource &source, const Delimeters &delimiters) {
@@ -612,7 +612,7 @@ YNode YAML_Parser::parseAnchor(ISource &source, const Delimeters &delimiters) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parseAlias(ISource &source, const Delimeters &delimiters) {
@@ -627,7 +627,7 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimeters &delimiters) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
@@ -654,7 +654,7 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parseInlineArray(
@@ -679,7 +679,7 @@ YNode YAML_Parser::parseInlineArray(
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <param name="inlineDictionary"></param>
 /// <returns></returns>
@@ -708,7 +708,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parseDictionary(ISource &source,
@@ -745,7 +745,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parseInlineDictionary(
@@ -771,7 +771,7 @@ YNode YAML_Parser::parseInlineDictionary(
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns></returns>
 YNode YAML_Parser::parseDocument(ISource &source,
@@ -791,7 +791,7 @@ YNode YAML_Parser::parseDocument(ISource &source,
 /// <summary>
 /// 
 /// </summary>
-/// <param name="source"></param>
+/// <param name="source">Source stream.</param>
 /// <returns></returns>
 std::vector<YNode> YAML_Parser::parse(ISource &source) {
   std::vector<YNode> yNodeTree;
