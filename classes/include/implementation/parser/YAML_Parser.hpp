@@ -60,7 +60,7 @@ private:
 
   static bool isDocumentEnd(ISource &source);
 
-  static void foldCarriageReturns(ISource &source, std::string &yamlString);
+  static void appendCharacterToString(ISource &source, std::string &yamlString);
 
   static std::string extractKey(ISource &source);
 
