@@ -536,11 +536,11 @@ YNode YAML_Parser::parseComment(ISource &source,
   return (YNode::make<Comment>(comment));
 }
 /// <summary>
-///
+/// Parse a numeric value on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters"></param>
-/// <returns></returns>
+/// <param name="delimiters">Delimeters used to parse number./param>
+/// <returns>Number YNode.</returns>
 YNode YAML_Parser::parseNumber(ISource &source, const Delimeters &delimiters) {
   YNode yNode;
   std::string numeric{extractToNext(source, delimiters)};
@@ -558,11 +558,11 @@ YNode YAML_Parser::parseNumber(ISource &source, const Delimeters &delimiters) {
   return yNode;
 }
 /// <summary>
-///
+/// Parse None/Null on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters"></param>
-/// <returns></returns>
+/// <param name="delimiters">Delimeters used to parse None.</param>
+/// <returns>None YNode.</returns>
 YNode YAML_Parser::parseNone(ISource &source, const Delimeters &delimiters) {
   YNode yNode;
   std::string none{extractToNext(source, delimiters)};
@@ -577,11 +577,11 @@ YNode YAML_Parser::parseNone(ISource &source, const Delimeters &delimiters) {
   return yNode;
 }
 /// <summary>
-///
+/// Parse boolean value on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters"></param>
-/// <returns></returns>
+/// <param name="delimiters">Delimeters used to parse boolean.</param>
+/// <returns>Boolean YNode.</returns>
 YNode YAML_Parser::parseBoolean(ISource &source, const Delimeters &delimiters) {
   YNode yNode;
   std::string boolean{extractToNext(source, delimiters)};
@@ -598,11 +598,11 @@ YNode YAML_Parser::parseBoolean(ISource &source, const Delimeters &delimiters) {
   return yNode;
 }
 /// <summary>
-///
+/// Parse anchor on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters"></param>
-/// <returns></returns>
+/// <param name="delimiters">Delimeters used to parse anchor.</param>
+/// <returns>Anchor YNode.</returns>
 YNode YAML_Parser::parseAnchor(ISource &source, const Delimeters &delimiters) {
   source.next();
   std::string name{extractToNext(source, {kLineFeed, kSpace})};
@@ -614,11 +614,11 @@ YNode YAML_Parser::parseAnchor(ISource &source, const Delimeters &delimiters) {
   return (YNode::make<Anchor>(name, unparsed, parsed));
 }
 /// <summary>
-///
+/// Parse alias on source stream and substitute alias.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters"></param>
-/// <returns></returns>
+/// <param name="delimiters">Delimeters used to parse alias.</param>
+/// <returns>Alias anchor.</returns>
 YNode YAML_Parser::parseAlias(ISource &source, const Delimeters &delimiters) {
   source.next();
   std::string name{extractToNext(source, {kLineFeed, kSpace})};
@@ -629,11 +629,11 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimeters &delimiters) {
   return (YNode::make<Alias>(name, parsed));
 }
 /// <summary>
-///
+/// Parse array on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters"></param>
-/// <returns></returns>
+/// <param name="delimiters">Delimeters used to parse array.</param>
+/// <returns>Array YNode.</returns>
 YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
   unsigned long arrayIndent = source.getIndentation();
   YNode yNode = YNode::make<Array>(arrayIndent);
@@ -656,11 +656,11 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
   return yNode;
 }
 /// <summary>
-///
+/// Parse inline array on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters"></param>
-/// <returns></returns>
+/// <param name="delimiters">Delimeters used to parse inline array.</param>
+/// <returns>Array YNode.</returns>
 YNode YAML_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimeters &delimiters) {
   unsigned long arrayIndent = source.getIndentation();
@@ -681,12 +681,12 @@ YNode YAML_Parser::parseInlineArray(
   return yNode;
 }
 /// <summary>
-///
+/// Parse dictionary key/value pair on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters"></param>
+/// <param name="delimiters">Delimeters used to parse key/value pair.</param>
 /// <param name="inlineDictionary"></param>
-/// <returns></returns>
+/// <returns>Dictionary entry for key/value.</returns>
 DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
                                            const Delimeters &delimiters,
                                            bool inlineDictionary) {
@@ -710,11 +710,11 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   }
 }
 /// <summary>
-///
+/// Parse a dictionary on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters"></param>
-/// <returns></returns>
+/// <param name="delimiters">Delimeters used to parse dictionary.</param>
+/// <returns>Dictionary YNode.</returns>
 YNode YAML_Parser::parseDictionary(ISource &source,
                                    const Delimeters &delimiters) {
   unsigned long dictionaryIndent = source.getIndentation();
@@ -747,11 +747,11 @@ YNode YAML_Parser::parseDictionary(ISource &source,
   return (yNode);
 }
 /// <summary>
-///
+/// Parse inline dictionary on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters"></param>
-/// <returns></returns>
+/// <param name="delimiters">Delimeters used to parse inline dictionary.</param>
+/// <returns>Dictionary YNode.</returns>
 YNode YAML_Parser::parseInlineDictionary(
     ISource &source, [[maybe_unused]] const Delimeters &delimiters) {
   Delimeters inLineDictionaryDelimiters = {delimiters};
@@ -773,11 +773,11 @@ YNode YAML_Parser::parseInlineDictionary(
   return (yNode);
 }
 /// <summary>
-///
+/// Parse YAML document on soure stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters"></param>
-/// <returns></returns>
+/// <param name="delimiters">Delimeters used to parse document.</param>
+/// <returns>Document root YNode.</returns>
 YNode YAML_Parser::parseDocument(ISource &source,
                                  const Delimeters &delimiters) {
   YNode yNode;
@@ -793,10 +793,10 @@ YNode YAML_Parser::parseDocument(ISource &source,
   throw SyntaxError(source.getPosition(), "Invalid YAML encountered.");
 }
 /// <summary>
-///
+/// Parse YAML documents on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns></returns>
+/// <returns>Array of YAML documents.</returns>
 std::vector<YNode> YAML_Parser::parse(ISource &source) {
   std::vector<YNode> yNodeTree;
   for (bool inDocument = false; source.more();) {
