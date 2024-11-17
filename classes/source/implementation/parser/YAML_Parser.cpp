@@ -83,6 +83,13 @@ std::string extractToNext(ISource &source,
   }
   return (extracted);
 }
+void checkForEnd(ISource &source, char end) {
+  if (source.current() != end) {
+    throw SyntaxError(source.getPosition(), std::string("Missing closing ") +
+                                                end + " in object definition.");
+  }
+  source.next();
+}
 /// <summary>
 /// Is YAML passed in constitute a valid dictionary key.
 /// </summary>
@@ -658,11 +665,7 @@ YNode YAML_Parser::parseInlineArray(
     YRef<Array>(yNode).add(parseDocument(source, inLineArrayDelimiters));
   } while (source.current() == ',');
   moveToNextIndent(source);
-  if (source.current() != ']') {
-    throw SyntaxError(source.getPosition(),
-                      "Missing closing ']' in array definition.");
-  }
-  source.next();
+  checkForEnd(source, ']');
   return yNode;
 }
 /// <summary>
@@ -749,11 +752,7 @@ YNode YAML_Parser::parseInlineDictionary(
         parseKeyValue(source, inLineDictionaryDelimiters, true));
 
   } while (source.current() == ',');
-  if (source.current() != '}') {
-    throw SyntaxError(source.getPosition(),
-                      "Missing closing '}' in object definition.");
-  }
-  source.next();
+  checkForEnd(source, '}');
   return (yNode);
 }
 /// <summary>
