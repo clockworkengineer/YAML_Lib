@@ -394,7 +394,7 @@ YNode YAML_Parser::parseKey(ISource &source) {
     keyString = YRef<Boolean>(keyYNode).value() ? "true" : "false";
   } else if (isA<Number>(keyYNode)) {
     keyString = YRef<Number>(keyYNode).toString();
-  } else if (isA<Array>(keyYNode)||isA<Dictionary>(keyYNode)) {
+  } else if (isA<Array>(keyYNode) || isA<Dictionary>(keyYNode)) {
     BufferDestination destination;
     YAML_Stringify::setInlineMode(true);
     YAML_Stringify::stringifyToString(destination, keyYNode, 0);
@@ -504,7 +504,7 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
       } else {
         appendCharacterToString(source, yamlString);
       }
-    } 
+    }
   }
   moveToNext(source, delimiters);
   return YNode::make<String>(yamlString, quote);
@@ -626,9 +626,8 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimeters &delimiters) {
 YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
   unsigned long arrayIndent = source.getIndentation();
   YNode yNode = YNode::make<Array>(arrayIndent);
-  while (source.more()) {
+  while (source.more() && (arrayIndent <= source.getIndentation())) {
     if (isArray(source)) {
-      source.next();
       source.next();
       YRef<Array>(yNode).add(parseDocument(source, delimiters));
     } else if (isComment(source)) {
@@ -637,9 +636,6 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimeters &delimiters) {
       break;
     }
     moveToNextIndent(source);
-    if (arrayIndent > source.getIndentation()) {
-      break;
-    }
   }
 
   return yNode;
@@ -692,11 +688,13 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
       moveToNextIndent(source);
     }
   }
+  YNode yNode;
   if (source.getIndentation() > keyIndent) {
-    return DictionaryEntry(keyYNode, parseDocument(source, delimiters));
+    yNode = parseDocument(source, delimiters);
   } else {
-    return DictionaryEntry(YRef<String>(keyYNode).value(), YNode::make<Null>());
+    yNode = YNode::make<Null>();
   }
+  return DictionaryEntry(keyYNode, yNode);
 }
 /// <summary>
 /// Parse a dictionary on source stream.
@@ -708,7 +706,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
                                    const Delimeters &delimiters) {
   unsigned long dictionaryIndent = source.getIndentation();
   YNode yNode = YNode::make<Dictionary>(dictionaryIndent);
-  while (source.more()) {
+  while (source.more() && (dictionaryIndent <= source.getIndentation())) {
     if (isKey(source)) {
       auto entry = parseKeyValue(source, delimiters, false);
       if (YRef<Dictionary>(yNode).contains(entry.getKey())) {
@@ -729,9 +727,6 @@ YNode YAML_Parser::parseDictionary(ISource &source,
       break;
     }
     moveToNextIndent(source);
-    if (dictionaryIndent > source.getIndentation()) {
-      return yNode;
-    }
   }
   return (yNode);
 }
