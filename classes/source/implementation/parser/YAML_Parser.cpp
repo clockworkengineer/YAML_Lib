@@ -92,12 +92,7 @@ bool YAML_Parser::isValidKey(const std::string &key) {
   try {
     BufferSource keyYAML{key + kLineFeed};
     YNode keyYNode = parseDocument(keyYAML, {kLineFeed});
-    if (isA<String>(keyYNode) || isA<Null>(keyYNode) ||
-        isA<Boolean>(keyYNode) || isA<Number>(keyYNode) ||
-        isA<Array>(keyYNode) || isA<Dictionary>(keyYNode)) {
-      return true;
-    }
-    return false;
+    return !keyYNode.isEmpty() && !isA<Comment>(keyYNode);
   } catch ([[maybe_unused]] std::exception &e) {
     return false;
   }
