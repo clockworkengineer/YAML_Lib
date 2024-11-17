@@ -67,7 +67,7 @@ void moveToNext(ISource &source, const YAML_Parser::Delimeters &delimiters) {
   moveToNextIndent(source);
 }
 /// <summary>
-/// Extract charaters from source stream up to a delimeter.
+/// Extract characters from source stream up to a delimeter.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
@@ -84,7 +84,7 @@ std::string extractToNext(ISource &source,
   return (extracted);
 }
 /// <summary>
-///
+/// Is YAML passed in constitute a valid dictionary key.
 /// </summary>
 /// <param name="key">YAML sequence to be converted to be used as key.</param>
 /// <returns>==true value is a valid key.</returns>
@@ -399,13 +399,7 @@ YNode YAML_Parser::parseKey(ISource &source) {
     keyString = YRef<Boolean>(keyYNode).value() ? "true" : "false";
   } else if (isA<Number>(keyYNode)) {
     keyString = YRef<Number>(keyYNode).toString();
-  } else if (isA<Array>(keyYNode)) {
-    BufferDestination destination;
-    YAML_Stringify::setInlineMode(true);
-    YAML_Stringify::stringifyToString(destination, keyYNode, 0);
-    keyString = destination.toString();
-    YAML_Stringify::setInlineMode(false);
-  } else if (isA<Dictionary>(keyYNode)) {
+  } else if (isA<Array>(keyYNode)||isA<Dictionary>(keyYNode)) {
     BufferDestination destination;
     YAML_Stringify::setInlineMode(true);
     YAML_Stringify::stringifyToString(destination, keyYNode, 0);
