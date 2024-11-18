@@ -115,6 +115,28 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
         yaml.parse(source),
         "YAML Syntax Error: Only an inline/compact dictionary is allowed.");
   }
+  SECTION("YAML parse dictionary with key value pair and inline dictionary on "
+          "the diffirent lines.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n outer: \n { inner: 'true'}\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("outer"));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.document(0)[0]["outer"]).contains("inner"));
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["outer"]["inner"]));
+  }
+    SECTION("YAML parse dictionary with key value pair and inline dictionary on "
+          "the same line.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n outer: { inner: 'true'}\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("outer"));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.document(0)[0]["outer"]).contains("inner"));
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["outer"]["inner"]));
+  }
   SECTION("YAML parse dictionary with key value pair with key starting with t.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n two: true\n"};
@@ -275,19 +297,20 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
                         "Sosa\naction: grand slam\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-    SECTION("YAML parse dictionarys with non string keys (boolean).",
-            "[YAML][Parse][Dictionary]") {
-      BufferSource source{"---\nTrue: On\nFalse: Off\n..."};
-      REQUIRE_NOTHROW(yaml.parse(source));
-      REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
-      REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("true"));
-      REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("false"));
-      REQUIRE(YRef<Boolean>(yaml.document(0)[0]["true"]).value() == true);
-      REQUIRE(YRef<Boolean>(yaml.document(0)[0]["false"]).value() == false);
-      BufferDestination destination;
-      REQUIRE_NOTHROW(yaml.stringify(destination));
-      REQUIRE(destination.toString() == "---\n\"true\": On\n\"false\": Off\n...\n");
-    }
+  SECTION("YAML parse dictionarys with non string keys (boolean).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\nTrue: On\nFalse: Off\n..."};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("true"));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("false"));
+    REQUIRE(YRef<Boolean>(yaml.document(0)[0]["true"]).value() == true);
+    REQUIRE(YRef<Boolean>(yaml.document(0)[0]["false"]).value() == false);
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() ==
+            "---\n\"true\": On\n\"false\": Off\n...\n");
+  }
   SECTION("YAML parse dictionarys with non string key (null).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\nnull: 1\n..."};
@@ -339,7 +362,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\n\"{one: 1, two: 2}\": \'test\'\n...\n");
+    REQUIRE(destination.toString() ==
+            "---\n\"{one: 1, two: 2}\": \'test\'\n...\n");
   }
-
 }

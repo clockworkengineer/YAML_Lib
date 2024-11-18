@@ -71,7 +71,7 @@ void moveToNext(ISource &source, const YAML_Parser::Delimeters &delimiters) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
-/// <returns></returns>
+/// <returns>Extracted characters.</returns>
 std::string extractToNext(ISource &source,
                           const YAML_Parser::Delimeters &delimiters) {
   std::string extracted;
@@ -83,10 +83,15 @@ std::string extractToNext(ISource &source,
   }
   return (extracted);
 }
+/// <summary>
+/// Check that end character has been found if not throw an exception.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <param name="end">End character.</param>
 void checkForEnd(ISource &source, char end) {
   if (source.current() != end) {
-    throw SyntaxError(source.getPosition(), std::string("Missing closing ") +
-                                                end + " in object definition.");
+    throw SyntaxError(source.getPosition(),
+                      std::string("Missing closing ") + end + ".");
   }
   source.next();
 }
@@ -681,15 +686,13 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   unsigned long keyIndent = source.getIndentation();
   YNode keyYNode = parseKey(source);
   source.ignoreWS();
-  if (!isInlineDictionary(source) && !(inlineDictionary)) {
-    if (isKey(source)) {
-      throw SyntaxError("Only an inline/compact dictionary is allowed.");
-    }
+  if (isKey(source)) {
+    throw SyntaxError("Only an inline/compact dictionary is allowed.");
+  }
+  moveToNextIndent(source);
+  while (isComment(source)) {
+    parseComment(source, delimiters);
     moveToNextIndent(source);
-    while (isComment(source)) {
-      parseComment(source, delimiters);
-      moveToNextIndent(source);
-    }
   }
   YNode yNode;
   if (source.getIndentation() > keyIndent) {
@@ -797,7 +800,7 @@ std::vector<YNode> YAML_Parser::parse(ISource &source) {
       inDocument = false;
       // Inter document comment
     } else if (isComment(source) && !inDocument) {
-      yNodeTree.push_back(parseComment(source, {}));
+      yNodeTree.push_back(parseComment(source, {kLineFeed}));
       // Parse document contents
     } else {
       if (!inDocument) {
