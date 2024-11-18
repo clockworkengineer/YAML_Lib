@@ -94,6 +94,7 @@ void checkForEnd(ISource &source, char end) {
                       std::string("Missing closing ") + end + ".");
   }
   source.next();
+  moveToNextIndent(source);
 }
 /// <summary>
 /// Is YAML passed in constitute a valid dictionary key.
@@ -105,7 +106,7 @@ bool YAML_Parser::isValidKey(const std::string &key) {
     BufferSource keyYAML{key + kLineFeed};
     YNode keyYNode = parseDocument(keyYAML, {kLineFeed});
     return !keyYNode.isEmpty() && !isA<Comment>(keyYNode);
-  } catch ([[maybe_unused]] std::exception &e) {
+  } catch ([[maybe_unused]] const std::exception &e) {
     return false;
   }
 }
@@ -669,7 +670,6 @@ YNode YAML_Parser::parseInlineArray(
     moveToNextIndent(source);
     YRef<Array>(yNode).add(parseDocument(source, inLineArrayDelimiters));
   } while (source.current() == ',');
-  moveToNextIndent(source);
   checkForEnd(source, ']');
   return yNode;
 }
@@ -695,7 +695,8 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
     moveToNextIndent(source);
   }
   YNode yNode;
-  if (source.getIndentation() > keyIndent) {
+  if ((source.getIndentation() > keyIndent) || isInlineArray(source) ||
+      isInlineDictionary(source) || inlineDictionary) {
     yNode = parseDocument(source, delimiters);
   } else {
     yNode = YNode::make<Null>();

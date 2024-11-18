@@ -126,7 +126,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
         !YRef<Dictionary>(yaml.document(0)[0]["outer"]).contains("inner"));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["outer"]["inner"]));
   }
-    SECTION("YAML parse dictionary with key value pair and inline dictionary on "
+  SECTION("YAML parse dictionary with key value pair and inline dictionary on "
           "the same line.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n outer: { inner: 'true'}\n"};
@@ -282,14 +282,14 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
                         "already contains key 'thing1'.");
   }
 
-  SECTION("YAML parse dictionarys with duplicate keys in two documents.",
+  SECTION("YAML parse dictionaries with duplicate keys in two documents.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\ntime: 20:03:20\nplayer: Sammy Sosa\naction: "
                         "strike (miss)\n\n---\ntime: 20:03:47\nplayer: Sammy "
                         "Sosa\naction: grand slam\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-  SECTION("YAML parse dictionarys with duplicate keys in two "
+  SECTION("YAML parse dictionaries with duplicate keys in two "
           "documents(terminating one with end).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\ntime: 20:03:20\nplayer: Sammy Sosa\naction: "
@@ -297,7 +297,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
                         "Sosa\naction: grand slam\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-  SECTION("YAML parse dictionarys with non string keys (boolean).",
+  SECTION("YAML parse dictionaries with non string keys (boolean).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\nTrue: On\nFalse: Off\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -311,7 +311,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE(destination.toString() ==
             "---\n\"true\": On\n\"false\": Off\n...\n");
   }
-  SECTION("YAML parse dictionarys with non string key (null).",
+  SECTION("YAML parse dictionaries with non string key (null).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\nnull: 1\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -322,7 +322,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() == "---\n\"\": 1\n...\n");
   }
-  SECTION("YAML parse dictionarys with non string key (number).",
+  SECTION("YAML parse dictionaries with non string key (number).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n666: 1\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -334,7 +334,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE(destination.toString() == "---\n\"666\": 1\n...\n");
   }
 
-  SECTION("YAML parse dictionarys with non string keys (inline array).",
+  SECTION("YAML parse dictionaries with non string keys (inline array).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n[one, two]: 'test'\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -343,7 +343,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() == "---\n\"[one, two]\": 'test'\n...\n");
   }
-  SECTION("YAML parse dictionarys with non string keys (inline array).",
+  SECTION("YAML parse dictionaries with non string keys (inline array).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{
         "---\n[one, two]: 'test1'\n[three, four]: 'test2'\n...\n"};
@@ -355,7 +355,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
         destination.toString() ==
         "---\n\"[one, two]\": \'test1\'\n\"[three, four]\": \'test2\'\n...\n");
   }
-  SECTION("YAML parse dictionarys with non string keys (inline dictionary).",
+  SECTION("YAML parse dictionaries with non string keys (inline dictionary).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n{one: 1, two: 2}: 'test'\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -365,4 +365,28 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE(destination.toString() ==
             "---\n\"{one: 1, two: 2}\": \'test\'\n...\n");
   }
+  SECTION("YAML parse inline dictionaries on more than line. "
+          "(inline dictionary).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{
+        "---\n{ one: 1, \n two : 2\n, \n three: 3, four: \n 4} \n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("one"));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("two"));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("three"));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("four"));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() ==
+            "---\none: 1\ntwo: 2\nthree: 3\nfour: 4\n...\n");
+  }
+
+  //   SECTION("YAML parse dictionaries with non string keys one more than one
+  //   line "
+  //           "(inline dictionary).",
+  //           "[YAML][Parse][Dictionary]") {
+  //     BufferSource source{"---\n{one: \n1, \ntwo: 2}: 'test'\n...\n"};
+  //     REQUIRE_THROWS_WITH(yaml.parse(source), "");
+  //   }
 }

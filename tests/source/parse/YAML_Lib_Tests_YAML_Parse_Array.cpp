@@ -175,4 +175,17 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE_FALSE(!isA<Null>(yaml.document(0)[0]["names"][0]));
     REQUIRE_FALSE(!isA<Null>(yaml.document(0)[0]["names"][0]));
   }
+  SECTION("YAML parse inline array on more than line. "
+          "(inline dictionary).",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\n[1\n,2,\n3,4,5,6\n] \n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]));
+    REQUIRE(YRef<Number>(yaml.document(0)[0][0]).value<int>() == 1);
+    REQUIRE(YRef<Number>(yaml.document(0)[0][1]).value<int>() == 2);
+    REQUIRE(YRef<Number>(yaml.document(0)[0][2]).value<int>() == 3);
+    REQUIRE(YRef<Number>(yaml.document(0)[0][3]).value<int>() == 4);
+    REQUIRE(YRef<Number>(yaml.document(0)[0][4]).value<int>() == 5);
+    REQUIRE(YRef<Number>(yaml.document(0)[0][5]).value<int>() == 6);
+  }
 }
