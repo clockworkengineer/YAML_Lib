@@ -97,6 +97,38 @@ void checkForEnd(ISource &source, char end) {
   moveToNextIndent(source);
 }
 /// <summary>
+/// Convert YAML key to a string YNode
+/// </summary>
+/// <param name="yamlString">YAML string.</param>
+YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
+  BufferSource keyYAML{yamlString + kLineFeed};
+  auto keyYNode = parseDocument(keyYAML, {kLineFeed});
+  std::string keyString;
+  char quote = '\"';
+  if (isA<String>(keyYNode)) {
+    keyString = YRef<String>(keyYNode).value();
+    quote = YRef<String>(keyYNode).getQuote();
+    if (keyString.empty()) {
+      quote = '"';
+    }
+  } else if (isA<Null>(keyYNode)) {
+    keyString = "";
+  } else if (isA<Boolean>(keyYNode)) {
+    keyString = YRef<Boolean>(keyYNode).value() ? "true" : "false";
+  } else if (isA<Number>(keyYNode)) {
+    keyString = YRef<Number>(keyYNode).toString();
+  } else if (isA<Array>(keyYNode) || isA<Dictionary>(keyYNode)) {
+    BufferDestination destination;
+    YAML_Stringify::setInlineMode(true);
+    YAML_Stringify::stringifyToString(destination, keyYNode, 0);
+    keyString = destination.toString();
+    YAML_Stringify::setInlineMode(false);
+  } else {
+    throw SyntaxError("Invalid YAML key specified.");
+  }
+  return YNode::make<String>(keyString, quote, 0);
+}
+/// <summary>
 /// Is YAML passed in constitute a valid dictionary key.
 /// </summary>
 /// <param name="key">YAML sequence to be converted to be used as key.</param>
@@ -394,32 +426,7 @@ YNode YAML_Parser::parseKey(ISource &source) {
     throw SyntaxError(source.getPosition(),
                       "Invalid key '" + key + "' specified.");
   }
-  BufferSource keyYAML{key + kLineFeed};
-  auto keyYNode = parseDocument(keyYAML, {kLineFeed});
-  std::string keyString;
-  char quote = '\"';
-  if (isA<String>(keyYNode)) {
-    keyString = YRef<String>(keyYNode).value();
-    quote = YRef<String>(keyYNode).getQuote();
-    if (keyString.empty()) {
-      quote = '"';
-    }
-  } else if (isA<Null>(keyYNode)) {
-    keyString = "";
-  } else if (isA<Boolean>(keyYNode)) {
-    keyString = YRef<Boolean>(keyYNode).value() ? "true" : "false";
-  } else if (isA<Number>(keyYNode)) {
-    keyString = YRef<Number>(keyYNode).toString();
-  } else if (isA<Array>(keyYNode) || isA<Dictionary>(keyYNode)) {
-    BufferDestination destination;
-    YAML_Stringify::setInlineMode(true);
-    YAML_Stringify::stringifyToString(destination, keyYNode, 0);
-    keyString = destination.toString();
-    YAML_Stringify::setInlineMode(false);
-  } else {
-    throw SyntaxError("Invalid key specified.");
-  }
-  return YNode::make<String>(keyString, quote, 0);
+  return convertYAMLToStringYNode(key);
 }
 /// <summary>
 /// Parse folded block string on source stream.
@@ -764,8 +771,9 @@ YNode YAML_Parser::parseInlineDictionary(
 
   } while (source.current() == ',');
   checkForEnd(source, '}');
-  if (source.current()==':') {
-    throw SyntaxError("Inline dictionary used as key is meant to be on one line.");
+  if (source.current() == ':') {
+    throw SyntaxError(
+        "Inline dictionary used as key is meant to be on one line.");
   }
   return (yNode);
 }
