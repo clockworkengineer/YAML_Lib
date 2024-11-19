@@ -764,6 +764,9 @@ YNode YAML_Parser::parseInlineDictionary(
 
   } while (source.current() == ',');
   checkForEnd(source, '}');
+  if (source.current()==':') {
+    throw SyntaxError("Inline dictionary used as key is meant to be on one line.");
+  }
   return (yNode);
 }
 /// <summary>
