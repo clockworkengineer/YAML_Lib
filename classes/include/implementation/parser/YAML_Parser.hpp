@@ -9,7 +9,7 @@ namespace YAML_Lib {
 class YAML_Parser final : public IParser {
 
 public:
-  using Delimeters = std::set<char>;
+  using Delimiters = std::set<char>;
   enum class BlockChomping : uint8_t { clip = 0, strip, keep };
 
   YAML_Parser() = default;
@@ -67,39 +67,39 @@ private:
   static BlockChomping parseBlockChomping(ISource &source);
 
   static std::string parseBlockString(ISource &source,
-                                      const YAML_Parser::Delimeters &delimiters,
+                                      const YAML_Parser::Delimiters &delimiters,
                                       char fillerDefault,
                                       BlockChomping &chomping);
   static YNode parseKey(ISource &source);
   static YNode parseFoldedBlockString(ISource &source,
-                                      const Delimeters &delimiters);
+                                      const Delimiters &delimiters);
   static YNode parseLiteralBlockString(ISource &source,
-                                       const Delimeters &delimiters);
+                                       const Delimiters &delimiters);
   static YNode parsePlainFlowString(ISource &source,
-                                    const Delimeters &delimiters);
+                                    const Delimiters &delimiters);
   static YNode parseQuotedFlowString(ISource &source,
-                                     const Delimeters &delimiters);
+                                     const Delimiters &delimiters);
   static YNode parseComment(ISource &source,
-                            [[maybe_unused]] const Delimeters &delimiters);
-  static YNode parseNumber(ISource &source, const Delimeters &delimiters);
-  static YNode parseNone(ISource &source, const Delimeters &delimiters);
-  static YNode parseBoolean(ISource &source, const Delimeters &delimiters);
-  static YNode parseAnchor(ISource &source, const Delimeters &delimiters);
-  static YNode parseAlias(ISource &source, const Delimeters &delimiters);
-  static YNode parseArray(ISource &source, const Delimeters &delimiters);
+                            [[maybe_unused]] const Delimiters &delimiters);
+  static YNode parseNumber(ISource &source, const Delimiters &delimiters);
+  static YNode parseNone(ISource &source, const Delimiters &delimiters);
+  static YNode parseBoolean(ISource &source, const Delimiters &delimiters);
+  static YNode parseAnchor(ISource &source, const Delimiters &delimiters);
+  static YNode parseAlias(ISource &source, const Delimiters &delimiters);
+  static YNode parseArray(ISource &source, const Delimiters &delimiters);
   static YNode parseInlineArray(ISource &source,
-                                [[maybe_unused]] const Delimeters &delimiters);
+                                [[maybe_unused]] const Delimiters &delimiters);
   static DictionaryEntry parseKeyValue(ISource &source,
-                                       const Delimeters &delimiters, bool inlineDictionary);
-  static YNode parseDictionary(ISource &source, const Delimeters &delimiters);
+                                       const Delimiters &delimiters, bool inlineDictionary);
+  static YNode parseDictionary(ISource &source, const Delimiters &delimiters);
   static YNode
   parseInlineDictionary(ISource &source,
-                        [[maybe_unused]] const Delimeters &delimiters);
+                        [[maybe_unused]] const Delimiters &delimiters);
   static YNode parseDocument(ISource &source,
-                             [[maybe_unused]] const Delimeters &delimiters);
+                             [[maybe_unused]] const Delimiters &delimiters);
   // YAML parser routing table
   using IsAFunc = std::function<bool(ISource &)>;
-  using ParseFunc = std::function<YNode(ISource &, const Delimeters &)>;
+  using ParseFunc = std::function<YNode(ISource &, const Delimiters &)>;
   inline static std::vector<std::pair<IsAFunc, ParseFunc>> parsers{
       {isArray, parseArray},
       {isDictionary, parseDictionary},
