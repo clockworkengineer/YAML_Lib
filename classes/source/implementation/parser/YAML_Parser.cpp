@@ -401,6 +401,9 @@ YNode YAML_Parser::parseKey(ISource &source) {
   if (isA<String>(keyYNode)) {
     keyString = YRef<String>(keyYNode).value();
     quote = YRef<String>(keyYNode).getQuote();
+    if (keyString.empty()) {
+      quote = '"';
+    }
   } else if (isA<Null>(keyYNode)) {
     keyString = "";
   } else if (isA<Boolean>(keyYNode)) {
@@ -686,7 +689,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   unsigned long keyIndent = source.getIndentation();
   YNode keyYNode = parseKey(source);
   source.ignoreWS();
-  if (isKey(source)) {
+  if (isKey(source) && !inlineDictionary) {
     throw SyntaxError("Only an inline/compact dictionary is allowed.");
   }
   moveToNextIndent(source);
@@ -711,6 +714,10 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
 /// <returns>Dictionary YNode.</returns>
 YNode YAML_Parser::parseDictionary(ISource &source,
                                    const Delimeters &delimiters) {
+
+  if (delimiters.contains('}')) {
+    return YNode();
+  }
   unsigned long dictionaryIndent = source.getIndentation();
   YNode yNode = YNode::make<Dictionary>(dictionaryIndent);
   while (source.more() && (dictionaryIndent <= source.getIndentation())) {

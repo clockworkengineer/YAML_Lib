@@ -369,7 +369,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
           "(inline dictionary).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{
-        "---\n{ one: 1, \n two : 2\n, \n three: 3, four: \n 4} \n...\n"};
+        "---\n{ one: \n1, \n two : 2\n, \n three: 3, four: \n 4} \n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("one"));
@@ -382,11 +382,33 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
             "---\none: 1\ntwo: 2\nthree: 3\nfour: 4\n...\n");
   }
 
-  //   SECTION("YAML parse dictionaries with non string keys one more than one
-  //   line "
-  //           "(inline dictionary).",
-  //           "[YAML][Parse][Dictionary]") {
+  SECTION("YAML parse dictionary with  no key value.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n: 'test'\n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains(""));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() == "---\n\"\": \'test\'\n...\n");
+  }
+
+  SECTION("YAML parse dictionary with no key value twice.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n: 'test'\n: 'test'\n...\n"};
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        "YAML Syntax Error [Line: 4 Column: 1]: Dictionary "
+                        "already contains key ''.");
+  }
+  //   SECTION(
+  //       "YAML parse dictionaries with non string keys are on more than one
+  //       line "
+  //       "(inline dictionary).",
+  //       "[YAML][Parse][Dictionary]") {
   //     BufferSource source{"---\n{one: \n1, \ntwo: 2}: 'test'\n...\n"};
-  //     REQUIRE_THROWS_WITH(yaml.parse(source), "");
+  //     yaml.parse(source);
+  //     BufferDestination destination;
+  //     REQUIRE_NOTHROW(yaml.stringify(destination));
+  //     REQUIRE(destination.toString() == "");
   //   }
 }
