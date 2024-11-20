@@ -13,12 +13,12 @@ namespace YAML_Lib {
 
 YAML_Impl::YAML_Impl(IStringify *stringify, IParser *parser) {
   if (parser == nullptr) {
-    yamlParser = std::make_unique<YAML_Parser>();
+    yamlParser = std::make_unique<YAML_Parser>(yamlTranslator);
   } else {
     yamlParser.reset(parser);
   }
   if (stringify == nullptr) {
-    yamlStringify = std::make_unique<YAML_Stringify>();
+    yamlStringify = std::make_unique<YAML_Stringify>(yamlTranslator);
   } else {
     yamlStringify.reset(stringify);
   }

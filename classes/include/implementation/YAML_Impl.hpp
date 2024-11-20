@@ -61,6 +61,8 @@ public:
   }
 
 private:
+  // YAML translator
+  YAML_Translator yamlTranslator;
   // Pointer to YAML parser interface
   inline static std::unique_ptr<IParser> yamlParser;
   // Pointer to YAML stringify interface

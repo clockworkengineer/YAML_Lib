@@ -12,7 +12,7 @@ public:
   using Delimiters = std::set<char>;
   enum class BlockChomping : uint8_t { clip = 0, strip, keep };
 
-  YAML_Parser() = default;
+  explicit YAML_Parser(ITranslator &translator) : translator(translator) {}
   YAML_Parser(const YAML_Parser &other) = delete;
   YAML_Parser &operator=(const YAML_Parser &other) = delete;
   YAML_Parser(YAML_Parser &&other) = delete;
@@ -120,6 +120,8 @@ private:
       {isAnchor, parseAnchor},
       {isAlias, parseAlias},
       {isDefault, parsePlainFlowString}};
+  // Translator
+  ITranslator &translator;
 };
 
 } // namespace YAML_Lib
