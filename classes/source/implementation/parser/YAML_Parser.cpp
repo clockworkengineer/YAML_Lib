@@ -618,12 +618,25 @@ YNode YAML_Parser::parseBoolean(ISource &source, const Delimiters &delimiters) {
 YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters) {
   source.next();
   std::string name{extractToNext(source, {kLineFeed, kSpace})};
-  source.next();
-  std::string unparsed{extractToNext(source, {kLineFeed})};
+  source.ignoreWS();
+  std::string unparsed{};
+  if (source.current() != kLineFeed) {
+    unparsed += extractToNext(source, {kLineFeed});
+    moveToNextIndent(source);
+  } else {
+    moveToNextIndent(source);
+    auto anchorIndent = source.getIndentation();
+    do {
+      std::string indent(source.getIndentation(), kSpace);
+      unparsed += indent + extractToNext(source, {kLineFeed}) + "\n";
+      moveToNextIndent(source);
+    } while (source.getIndentation() >= anchorIndent);
+  }
   YAML_Parser::yamlAliasMap[name] = unparsed;
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, delimiters);
-  return (YNode::make<Anchor>(name, unparsed, parsed));
+  // return (YNode::make<Anchor>(name, unparsed, parsed));
+  return parsed;
 }
 /// <summary>
 /// Parse alias on source stream and substitute alias.
@@ -638,7 +651,8 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters) {
   std::string unparsed{YAML_Parser::yamlAliasMap[name]};
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, delimiters);
-  return (YNode::make<Alias>(name, parsed));
+  //  return (YNode::make<Alias>(name, parsed));
+  return parsed;
 }
 /// <summary>
 /// Parse array on source stream.
@@ -705,6 +719,8 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
     moveToNextIndent(source);
   }
   YNode yNode;
+  int i = source.getIndentation();
+  i++;
   if ((source.getIndentation() > keyIndent) || isInlineArray(source) ||
       isInlineDictionary(source) || inlineDictionary) {
     yNode = parseDocument(source, delimiters);
@@ -755,8 +771,8 @@ YNode YAML_Parser::parseDictionary(ISource &source,
 /// Parse inline dictionary on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters">Delimiters used to parse inline dictionary.</param>
-/// <returns>Dictionary YNode.</returns>
+/// <param name="delimiters">Delimiters used to parse inline
+/// dictionary.</param> <returns>Dictionary YNode.</returns>
 YNode YAML_Parser::parseInlineDictionary(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters) {
   Delimiters inLineDictionaryDelimiters = {delimiters};
