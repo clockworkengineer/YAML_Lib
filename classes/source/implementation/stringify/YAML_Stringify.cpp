@@ -12,7 +12,7 @@
 
 namespace YAML_Lib {
 /// <summary>
-/// 
+///
 /// </summary>
 /// <param name="target"></param>
 /// <param name="delimiter"></param>
@@ -34,7 +34,7 @@ std::vector<std::string> splitString(const std::string &target,
   return splitStrings;
 }
 /// <summary>
-/// 
+///
 /// </summary>
 /// <param name="destination"></param>
 /// <param name="indent"></param>
@@ -46,7 +46,7 @@ std::string calculateIndent(IDestination &destination, unsigned long indent) {
   return "";
 }
 /// <summary>
-/// 
+///
 /// </summary>
 /// <param name="destination"></param>
 /// <param name="yNode"></param>
@@ -60,7 +60,7 @@ void stringifyAnyBlockStyle(IDestination &destination, const YNode &yNode) {
   }
 }
 /// <summary>
-/// 
+///
 /// </summary>
 /// <param name="destination"></param>
 /// <param name="yNode"></param>
@@ -86,11 +86,9 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
       }
     }
   } else if (isA<Anchor>(yNode)) {
-    stringifyYAML(destination, YRef<Anchor>(yNode).value(),
-                  indent + yamlIndentation);
+    stringifyYAML(destination, YRef<Anchor>(yNode).value(), indent);
   } else if (isA<Alias>(yNode)) {
-    stringifyYAML(destination, YRef<Alias>(yNode).value(),
-                  indent + yamlIndentation);
+    stringifyYAML(destination, YRef<Alias>(yNode).value(), indent);
   } else if (isA<Comment>(yNode)) {
     destination.add("#" + YRef<Comment>(yNode).value() + kLineFeed);
   } else if (isA<Boolean>(yNode)) {
@@ -114,14 +112,18 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
         destination.add(": ");
         stringifyAnyBlockStyle(destination, entryYNode.getYNode());
         if (isA<Array>(entryYNode.getYNode()) ||
-            isA<Dictionary>(entryYNode.getYNode())) {
+            isA<Dictionary>(entryYNode.getYNode()) ||
+            isA<Anchor>(entryYNode.getYNode()) ||
+            isA<Alias>(entryYNode.getYNode())) {
           destination.add(kLineFeed);
         }
         stringifyYAML(destination, entryYNode.getYNode(),
                       indent + yamlIndentation);
         if (!isA<Array>(entryYNode.getYNode()) &&
             !isA<Dictionary>(entryYNode.getYNode()) &&
-            !isA<Comment>(entryYNode.getYNode())) {
+            !isA<Comment>(entryYNode.getYNode()) &&
+            !isA<Anchor>(entryYNode.getYNode()) &&
+            !isA<Alias>(entryYNode.getYNode())) {
           destination.add(kLineFeed);
         }
       }
@@ -190,7 +192,7 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
   }
 }
 /// <summary>
-/// 
+///
 /// </summary>
 /// <param name="yamlTree"></param>
 /// <param name="destination"></param>
