@@ -97,6 +97,16 @@ void checkForEnd(ISource &source, char end) {
   moveToNextIndent(source);
 }
 /// <summary>
+/// Check for the end of a plain flow string on source stream.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <param name="end">== truw then and of string found.</param>
+bool YAML_Parser::endOfPlainFlowString(ISource &source) {
+
+  return isKey(source) || isArray(source) || isComment(source) ||
+           isDocumentStart(source) || isDocumentEnd(source);
+}
+/// <summary>
 /// Convert YAML key to a string YNode
 /// </summary>
 /// <param name="yamlString">YAML string.</param>
@@ -477,18 +487,15 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
   std::string yamlString{extractToNext(source, delimiters)};
   if (source.current() != kLineFeed) {
     rightTrim(yamlString);
-    return YNode::make<String>(yamlString, '\0');
   } else {
-    while (source.more() &&
-           !(isKey(source) || isArray(source) || isComment(source) ||
-             isDocumentStart(source) || isDocumentEnd(source))) {
+    while (source.more() && !endOfPlainFlowString(source)) {
       appendCharacterToString(source, yamlString);
     }
     if (yamlString.back() == kSpace || yamlString.back() == kLineFeed) {
       yamlString.pop_back();
     }
-    return YNode::make<String>(yamlString, '\0');
   }
+  return YNode::make<String>(yamlString, '\0');
 }
 /// <summary>
 /// Parse quoted flow string on source stream.
@@ -651,7 +658,7 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters) {
   std::string unparsed{YAML_Parser::yamlAliasMap[name]};
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, delimiters);
-   return (YNode::make<Alias>(name, parsed));
+  return (YNode::make<Alias>(name, parsed));
   // return parsed;
 }
 /// <summary>
@@ -705,12 +712,11 @@ YNode YAML_Parser::parseInlineArray(
 /// <param name="inlineDictionary"></param>
 /// <returns>Dictionary entry for key/value.</returns>
 DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
-                                           const Delimiters &delimiters,
-                                           bool inlineDictionary) {
+                                           const Delimiters &delimiters) {
   unsigned long keyIndent = source.getIndentation();
   YNode keyYNode = parseKey(source);
   source.ignoreWS();
-  if (isKey(source) && !inlineDictionary) {
+  if (isKey(source) && !delimiters.contains('}')) {
     throw SyntaxError("Only an inline/compact dictionary is allowed.");
   }
   moveToNextIndent(source);
@@ -719,10 +725,8 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
     moveToNextIndent(source);
   }
   YNode yNode;
-  int i = source.getIndentation();
-  i++;
   if ((source.getIndentation() > keyIndent) || isInlineArray(source) ||
-      isInlineDictionary(source) || inlineDictionary) {
+      isInlineDictionary(source) || delimiters.contains('}')) {
     yNode = parseDocument(source, delimiters);
   } else {
     yNode = YNode::make<Null>();
@@ -745,7 +749,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
   YNode yNode = YNode::make<Dictionary>(dictionaryIndent);
   while (source.more() && (dictionaryIndent <= source.getIndentation())) {
     if (isKey(source)) {
-      auto entry = parseKeyValue(source, delimiters, false);
+      auto entry = parseKeyValue(source, delimiters);
       if (YRef<Dictionary>(yNode).contains(entry.getKey())) {
         throw SyntaxError(source.getPosition(),
                           "Dictionary already contains key '" + entry.getKey() +
@@ -783,7 +787,7 @@ YNode YAML_Parser::parseInlineDictionary(
     source.next();
     moveToNextIndent(source);
     YRef<Dictionary>(yNode).add(
-        parseKeyValue(source, inLineDictionaryDelimiters, true));
+        parseKeyValue(source, inLineDictionaryDelimiters));
 
   } while (source.current() == ',');
   checkForEnd(source, '}');

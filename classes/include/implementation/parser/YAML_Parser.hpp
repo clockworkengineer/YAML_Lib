@@ -26,6 +26,9 @@ public:
 
 private:
   // YAML parser
+
+  static bool endOfPlainFlowString(ISource &source);
+
   static YNode convertYAMLToStringYNode(const std::string &yamlString);
 
   static bool isValidKey(const std::string &key);
@@ -92,8 +95,7 @@ private:
   static YNode parseInlineArray(ISource &source,
                                 [[maybe_unused]] const Delimiters &delimiters);
   static DictionaryEntry parseKeyValue(ISource &source,
-                                       const Delimiters &delimiters,
-                                       bool inlineDictionary);
+                                       const Delimiters &delimiters);
   static YNode parseDictionary(ISource &source, const Delimiters &delimiters);
   static YNode
   parseInlineDictionary(ISource &source,
