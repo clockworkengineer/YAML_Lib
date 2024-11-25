@@ -72,7 +72,9 @@ struct Dictionary : Variant {
   // Return reference to base of dictionary entries
   Entries &value() { return yNodeDictionary; }
   [[nodiscard]] const Entries &value() const { return yNodeDictionary; }
-
+   // Return string representation of value
+  [[nodiscard]] const std::string toString() const override { return ""; }
+  
 private:
   // Search for a given entry given a key and dictionary list
   [[nodiscard]] static Entries::iterator findKey(Entries &dictionary,

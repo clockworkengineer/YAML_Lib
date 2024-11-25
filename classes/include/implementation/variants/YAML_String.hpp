@@ -19,7 +19,7 @@ struct String : Variant
   [[nodiscard]] std::string &value() { return yNodeString; }
   [[nodiscard]] const std::string &value() const { return yNodeString; }
   // Return string representation of value
-  [[nodiscard]] std::string toString() const { return yNodeString; }
+  [[nodiscard]] const std::string toString() const override { return yNodeString; }
   // Return string type/quote of value
   [[nodiscard]] char getQuote() const { return quote; }
 

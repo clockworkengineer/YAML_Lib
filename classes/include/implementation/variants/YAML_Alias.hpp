@@ -20,7 +20,7 @@ struct Alias : Variant {
   [[nodiscard]] YNode &value() { return yNodeAlias; }
   [[nodiscard]] const YNode &value() const { return yNodeAlias; }
   // Return string representation of value
-  [[nodiscard]] std::string toString() const { return static_cast<const String &>(yNodeAlias.getVariant()).value();}
+  [[nodiscard]] const std::string toString() const override { return static_cast<const String &>(yNodeAlias.getVariant()).value();}
   // Return string name of alias
   [[nodiscard]] std::string getName() const { return name; }
 private:

@@ -18,11 +18,10 @@ struct Boolean : Variant
   [[nodiscard]] bool &value() { return yNodeBoolean; }
   [[nodiscard]] const bool &value() const { return yNodeBoolean; }
   // Return string representation of value
-  [[nodiscard]] const std::string &toString() const { return booleanString; }
+  [[nodiscard]] const std::string toString()  const override { return booleanString; }
   // Valid values for true/false
   inline static const std::set<std::string> isTrue{"True", "On", "Yes"};
   inline static const std::set<std::string> isFalse{"False", "Off", "No"};
-
 private:
   bool yNodeBoolean{};
   std::string booleanString;

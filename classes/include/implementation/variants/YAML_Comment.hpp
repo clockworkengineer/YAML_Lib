@@ -13,7 +13,8 @@ struct Comment final : Variant
   ~Comment() = default;
   // Return reference to comment
   [[nodiscard]] const std::string &value() const { return yamlComment; }
-
+   // Return string representation of value
+  [[nodiscard]] const std::string toString() const override { return ""; }
 private:
   std::string yamlComment;
 };

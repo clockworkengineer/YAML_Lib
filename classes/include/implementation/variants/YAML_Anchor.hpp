@@ -20,8 +20,7 @@ struct Anchor : Variant {
   [[nodiscard]] YNode &value() { return yNodeAnchor; }
   [[nodiscard]] const YNode &value() const { return yNodeAnchor; }
   // Return string representation of value
-  [[nodiscard]] std::string toString() const { return unparsed; }
-
+  [[nodiscard]] const std::string toString() const override { return unparsed; }
 private:
   std::string name;
   std::string unparsed;

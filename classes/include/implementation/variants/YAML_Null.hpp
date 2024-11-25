@@ -12,8 +12,8 @@ struct Null : Variant
   Null &operator=(Null &&other) = default;
   ~Null() = default;
   // Return null value
-  [[nodiscard]] static void *value() { return nullptr; }
+  [[nodiscard]]  void *value() { return nullptr; }
   // Return string representation of value
-  [[nodiscard]] static std::string toString() { return "null"; }
+  [[nodiscard]]  const std::string toString() const override { return "null"; }
 };
 }// namespace YAML_Lib

@@ -26,6 +26,8 @@ struct Array : Variant {
   // Return reference to array base
   Entries &value() { return yNodeArray; }
   [[nodiscard]] const Entries &value() const { return yNodeArray; }
+   // Return string representation of value
+  [[nodiscard]] const std::string toString() const override { return ""; }
   // Array indexing operators
   YNode &operator[](const std::size_t index) {
     if (index < yNodeArray.size()) {
