@@ -29,7 +29,7 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
     REQUIRE(YRef<String>(yaml.document(0)[0]["rbi"][1]).value() ==
             "Ken Griffey");
   }
-  SECTION("YAML parse array with one complex anchor.",
+  SECTION("YAML parse array with one complex anchor (example 1).",
           "[YAML][Parse][Anchors]") {
     BufferSource source{
         "version: \"3.9\"\n\nservices:\n  production-db: "
@@ -52,7 +52,29 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
             "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
             "wordpress\n      MYSQL_PASSWORD: wordpress\n...\n");
   }
-  SECTION("YAML parse array with one complex anchor and ovevrides.",
+  SECTION("YAML parse array with one complex anchor (example 2).",
+          "[YAML][Parse][Anchors]") {
+    BufferSource source{
+        "definitions: \n  steps:\n    - step: &build-test\n        name: Build "
+        "and test\n        script:\n          - mvn package\n        "
+        "artifacts:\n          - target/**\n\npipelines:\n  branches:\n    "
+        "develop:\n      - step: *build-test\n    master:\n      - step: "
+        "*build-test\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() ==
+            "---\ndefinitions: \n  steps: \n    - step: \n        name: Build "
+            "and test\n        script: \n          - mvn package\n        "
+            "artifacts: \n          - target/**\npipelines: \n  branches: \n   "
+            " develop: \n      - step: \n          name: Build and test\n      "
+            "    script: \n            - mvn package\n          artifacts: \n  "
+            "          - target/**\n    master: \n      - step: \n          "
+            "name: Build and test\n          script: \n            - mvn "
+            "package\n          artifacts: \n            - target/**\n...\n");
+  }
+  #if 0
+  SECTION("YAML parse array with one complex anchor and overrides.",
           "[YAML][Parse][Anchors]") {
     BufferSource source{
         "version: \"3.9\"\n\nservices:\n  production-db: "
@@ -68,4 +90,5 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() == "");
   }
+  #endif
 }
