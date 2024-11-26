@@ -33,6 +33,8 @@ private:
 
   static bool isValidKey(const std::string &key);
 
+  static bool isOverride(ISource &source);
+
   static bool isKey(ISource &source);
 
   static bool isArray(ISource &source);
@@ -91,6 +93,7 @@ private:
   static YNode parseBoolean(ISource &source, const Delimiters &delimiters);
   static YNode parseAnchor(ISource &source, const Delimiters &delimiters);
   static YNode parseAlias(ISource &source, const Delimiters &delimiters);
+  static YNode parseOverride(ISource &source, const Delimiters &delimiters);
   static YNode parseArray(ISource &source, const Delimiters &delimiters);
   static YNode parseInlineArray(ISource &source,
                                 [[maybe_unused]] const Delimiters &delimiters);
@@ -121,6 +124,7 @@ private:
       {isComment, parseComment},
       {isAnchor, parseAnchor},
       {isAlias, parseAlias},
+      {isOverride, parseOverride},
       {isDefault, parsePlainFlowString}};
   // Translator
   ITranslator &translator;

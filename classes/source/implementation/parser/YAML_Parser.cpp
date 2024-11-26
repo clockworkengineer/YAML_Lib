@@ -113,7 +113,7 @@ bool YAML_Parser::endOfPlainFlowString(ISource &source) {
 YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
   BufferSource keyYAML{yamlString + kLineFeed};
   auto keyYNode = parseDocument(keyYAML, {kLineFeed});
-  std::string keyString { YRef<Variant>(keyYNode).toKey() };
+  std::string keyString{YRef<Variant>(keyYNode).toKey()};
   char quote = '\"';
   if (isA<String>(keyYNode)) {
     quote = YRef<String>(keyYNode).getQuote();
@@ -130,6 +130,9 @@ YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
 /// <returns>==true value is a valid key.</returns>
 bool YAML_Parser::isValidKey(const std::string &key) {
   try {
+    if (key == "<<") {
+      return false;
+    }
     BufferSource keyYAML{key + kLineFeed};
     YNode keyYNode = parseDocument(keyYAML, {kLineFeed});
     return !keyYNode.isEmpty() && !isA<Comment>(keyYNode);
@@ -157,6 +160,18 @@ std::string YAML_Parser::extractKey(ISource &source) {
     key = extractToNext(source, {':', ',', kLineFeed});
   }
   return key;
+}
+/// <summary>
+/// Is YAML overrides on source stream.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <returns>==true value is an overrides.</returns>
+bool YAML_Parser::isOverride(ISource &source) {
+  bool isOverride{source.match("<<:")};
+  if (isOverride) {
+    source.backup(3);
+  }
+  return isOverride;
 }
 /// <summary>
 /// Has a dictionary key been found in the source stream.
@@ -323,7 +338,6 @@ bool YAML_Parser::isDefault([[maybe_unused]] ISource &source) { return true; }
 /// <param name="yamlString">YAML string appended too.</param>
 void YAML_Parser::appendCharacterToString(ISource &source,
                                           std::string &yamlString) {
-
   if (source.current() == kLineFeed) {
     source.next();
     source.ignoreWS();
@@ -636,6 +650,29 @@ YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters) {
 /// <param name="delimiters">Delimiters used to parse alias.</param>
 /// <returns>Alias anchor.</returns>
 YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters) {
+  source.next();
+  std::string name{extractToNext(source, {kLineFeed, kSpace})};
+  source.next();
+  std::string unparsed{YAML_Parser::yamlAliasMap[name]};
+  BufferSource anchor{unparsed};
+  YNode parsed = parseDocument(anchor, delimiters);
+  return (YNode::make<Alias>(name, parsed));
+}
+/// <summary>
+/// Parse alias on source stream, substitute alias and any overrides.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <param name="delimiters">Delimiters used to parse alias.</param>
+/// <returns>Alias anchor with overrides.</returns>
+YNode YAML_Parser::parseOverride(ISource &source,
+                                 const Delimiters &delimiters) {
+  source.next();
+  source.next();
+  source.next();
+  source.ignoreWS();
+  if (source.current()!='*') {
+    throw SyntaxError("Missing '*' from alias.");
+  }
   source.next();
   std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.next();

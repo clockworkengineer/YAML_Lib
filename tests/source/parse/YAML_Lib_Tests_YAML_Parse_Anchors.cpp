@@ -73,7 +73,7 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
             "name: Build and test\n          script: \n            - mvn "
             "package\n          artifacts: \n            - target/**\n...\n");
   }
-  #if 0
+  #if 1
   SECTION("YAML parse array with one complex anchor and overrides.",
           "[YAML][Parse][Anchors]") {
     BufferSource source{
