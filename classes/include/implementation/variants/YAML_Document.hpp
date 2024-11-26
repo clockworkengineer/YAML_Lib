@@ -21,8 +21,6 @@ struct Document : Variant
   // Return reference to document base
   Entries &value() { return yNodeDocument; }
   [[nodiscard]] const Entries &value() const { return yNodeDocument; }
-     // Return string representation of value
-  [[nodiscard]] const std::string toString() const override { return ""; }
   YNode &operator[](const std::size_t index)
   {
     if (index < yNodeDocument.size()) { return yNodeDocument[index]; }

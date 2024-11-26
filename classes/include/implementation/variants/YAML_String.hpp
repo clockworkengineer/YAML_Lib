@@ -20,6 +20,8 @@ struct String : Variant
   [[nodiscard]] const std::string &value() const { return yNodeString; }
   // Return string representation of value
   [[nodiscard]] const std::string toString() const override { return yNodeString; }
+    // Convert variant to a key
+  [[nodiscard]] const std::string toKey() const override { return yNodeString; }
   // Return string type/quote of value
   [[nodiscard]] char getQuote() const { return quote; }
 

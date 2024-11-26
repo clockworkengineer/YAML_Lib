@@ -13,7 +13,7 @@ struct Array : Variant {
   using Entry = YNode;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
-  explicit Array(unsigned long indent=0) : Variant(Type::array, indent) {}
+  explicit Array(unsigned long indent = 0) : Variant(Type::array, indent) {}
   Array(const Array &other) = default;
   Array &operator=(const Array &other) = default;
   Array(Array &&other) = default;
@@ -26,8 +26,21 @@ struct Array : Variant {
   // Return reference to array base
   Entries &value() { return yNodeArray; }
   [[nodiscard]] const Entries &value() const { return yNodeArray; }
-   // Return string representation of value
-  [[nodiscard]] const std::string toString() const override { return ""; }
+  // Convert variant to a key
+  [[nodiscard]] const std::string toKey() const override {
+    std::string array{'['};
+    if (!yNodeArray.empty()) {
+      size_t commaCount = yNodeArray.size() - 1;
+      for (auto &entryYNode : yNodeArray) {
+        array += entryYNode.getVariant().toString();
+        if (commaCount-- > 0) {
+          array += ", ";
+        }
+      }
+    }
+    array += "]";
+    return array;
+  }
   // Array indexing operators
   YNode &operator[](const std::size_t index) {
     if (index < yNodeArray.size()) {

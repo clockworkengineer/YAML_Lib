@@ -20,20 +20,12 @@ public:
   static void setIndentation(unsigned long indentation) {
     yamlIndentation = indentation;
   }
-  // Array/dictionaries displayed as inline
-  static void setInlineMode(bool mode) { inlineMode = mode; }
-  static void stringifyToString(IDestination &destination, const YNode &yNode,
-                                unsigned long indent)
-  { stringifyYAML(destination, yNode, indent); }
-
 private:
   // Stringify root
   static void stringifyYAML(IDestination &destination, const YNode &yNode,
                             unsigned long indent);
   // Current indentation level
   inline static unsigned long yamlIndentation{2};
-  // Stringify inline array/dictionary
-  inline static bool inlineMode{false};
   // Translator
   ITranslator &translator;
 };

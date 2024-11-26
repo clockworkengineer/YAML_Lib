@@ -72,9 +72,22 @@ struct Dictionary : Variant {
   // Return reference to base of dictionary entries
   Entries &value() { return yNodeDictionary; }
   [[nodiscard]] const Entries &value() const { return yNodeDictionary; }
-   // Return string representation of value
-  [[nodiscard]] const std::string toString() const override { return ""; }
-  
+  // Convert variant to a key
+  [[nodiscard]] const std::string toKey() const override {
+    std::string dictionary{'{'};
+    size_t commaCount = yNodeDictionary.size() - 1;
+    for (auto &entryYNode : yNodeDictionary) {
+      dictionary += entryYNode.getKeyYNode().getVariant().toString();
+      dictionary += ": ";
+      dictionary += entryYNode.getYNode().getVariant().toString();
+      if (commaCount-- > 0) {
+        dictionary += ", ";
+      }
+    }
+    dictionary += "}";
+    return dictionary;
+  }
+
 private:
   // Search for a given entry given a key and dictionary list
   [[nodiscard]] static Entries::iterator findKey(Entries &dictionary,

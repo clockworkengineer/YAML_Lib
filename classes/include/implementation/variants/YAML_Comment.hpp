@@ -14,7 +14,7 @@ struct Comment final : Variant
   // Return reference to comment
   [[nodiscard]] const std::string &value() const { return yamlComment; }
    // Return string representation of value
-  [[nodiscard]] const std::string toString() const override { return ""; }
+  [[nodiscard]] const std::string toString() const override { return "# "+yamlComment; }
 private:
   std::string yamlComment;
 };

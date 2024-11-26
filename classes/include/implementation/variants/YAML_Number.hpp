@@ -33,7 +33,13 @@ struct Number : Variant {
   // Set numbers value to int/long/long long/float/double/long double
   template <typename T> void set(T number) { *this = Number(number); }
   // Return string representation of value
-  [[nodiscard]] const std::string toString() const override { return getAs<std::string>(); }
+  [[nodiscard]] const std::string toString() const override {
+    return getAs<std::string>();
+  }
+  // Convert variant to a key
+  [[nodiscard]] const std::string toKey() const override {
+    return getAs<std::string>();
+  }
   // Set floating point to string conversion parameters
   static void setPrecision(const int precision) { numberPrecision = precision; }
   static void setNotation(const numberNotation notation) {
