@@ -23,6 +23,7 @@
 #include "YAML_Dictionary.hpp"
 #include "YAML_Anchor.hpp"
 #include "YAML_Alias.hpp"
+#include "YAML_Override.hpp"
 
 // YNode
 #include "YAML_YNode_Reference.hpp"

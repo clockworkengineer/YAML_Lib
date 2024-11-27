@@ -638,7 +638,7 @@ YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters) {
       moveToNextIndent(source);
     } while (source.getIndentation() >= anchorIndent);
   }
-  YAML_Parser::yamlAliasMap[name] = unparsed;
+  yamlAliasMap[name] = unparsed;
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, delimiters);
   return (YNode::make<Anchor>(name, unparsed, parsed));
@@ -653,7 +653,7 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters) {
   source.next();
   std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.next();
-  std::string unparsed{YAML_Parser::yamlAliasMap[name]};
+  std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, delimiters);
   return (YNode::make<Alias>(name, parsed));
@@ -676,10 +676,16 @@ YNode YAML_Parser::parseOverride(ISource &source,
   source.next();
   std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.next();
-  std::string unparsed{YAML_Parser::yamlAliasMap[name]};
+  std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, delimiters);
-  return (YNode::make<Alias>(name, parsed));
+  // if (isA<Dictionary>(parsed)) {
+  //   for (auto &entry : YRef<Dictionary>(parsed).value()){
+  //     auto str = entry.getKey();
+  //     str += ";";
+  //   }
+  // }
+  return (YNode::make<Override>(name, parsed));
 }
 /// <summary>
 /// Parse array on source stream.

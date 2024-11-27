@@ -89,6 +89,8 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
     stringifyYAML(destination, YRef<Anchor>(yNode).value(), indent);
   } else if (isA<Alias>(yNode)) {
     stringifyYAML(destination, YRef<Alias>(yNode).value(), indent);
+  } else if (isA<Override>(yNode)) {
+    stringifyYAML(destination, YRef<Override>(yNode).value(), indent);
   } else if (isA<Comment>(yNode)) {
     destination.add("#" + YRef<Comment>(yNode).value() + kLineFeed);
   } else if (isA<Boolean>(yNode)) {
@@ -98,43 +100,44 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
   } else if (isA<Hole>(yNode)) {
     destination.add(YRef<Hole>(yNode).toString());
   } else if (isA<Dictionary>(yNode)) {
-      for (const auto &entryYNode : YRef<Dictionary>(yNode).value()) {
-        destination.add(calculateIndent(destination, indent));
-        char quote = YRef<String>(entryYNode.getKeyYNode()).getQuote();
-        if (quote == '\'' || quote == '"') {
-          destination.add(quote +
-                          YRef<String>(entryYNode.getKeyYNode()).toString() +
-                          quote);
-        } else {
-          destination.add(YRef<String>(entryYNode.getKeyYNode()).toString());
-        }
-        destination.add(": ");
-        stringifyAnyBlockStyle(destination, entryYNode.getYNode());
-        if (isA<Array>(entryYNode.getYNode()) ||
-            isA<Dictionary>(entryYNode.getYNode()) ||
-            isA<Anchor>(entryYNode.getYNode()) ||
-            isA<Alias>(entryYNode.getYNode())) {
-          destination.add(kLineFeed);
-        }
-        stringifyYAML(destination, entryYNode.getYNode(),
-                      indent + yamlIndentation);
-        if (!isA<Array>(entryYNode.getYNode()) &&
-            !isA<Dictionary>(entryYNode.getYNode()) &&
-            !isA<Comment>(entryYNode.getYNode()) &&
-            !isA<Anchor>(entryYNode.getYNode()) &&
-            !isA<Alias>(entryYNode.getYNode())) {
-          destination.add(kLineFeed);
-        }
+    for (const auto &entryYNode : YRef<Dictionary>(yNode).value()) {
+      destination.add(calculateIndent(destination, indent));
+      char quote = YRef<String>(entryYNode.getKeyYNode()).getQuote();
+      if (quote == '\'' || quote == '"') {
+        destination.add(
+            quote + YRef<String>(entryYNode.getKeyYNode()).toString() + quote);
+      } else {
+        destination.add(YRef<String>(entryYNode.getKeyYNode()).toString());
       }
+      destination.add(": ");
+      stringifyAnyBlockStyle(destination, entryYNode.getYNode());
+      if (isA<Array>(entryYNode.getYNode()) ||
+          isA<Dictionary>(entryYNode.getYNode()) ||
+          isA<Anchor>(entryYNode.getYNode()) ||
+          isA<Alias>(entryYNode.getYNode()) ||
+          isA<Override>(entryYNode.getYNode())) {
+        destination.add(kLineFeed);
+      }
+      stringifyYAML(destination, entryYNode.getYNode(),
+                    indent + yamlIndentation);
+      if (!isA<Array>(entryYNode.getYNode()) &&
+          !isA<Dictionary>(entryYNode.getYNode()) &&
+          !isA<Comment>(entryYNode.getYNode()) &&
+          !isA<Anchor>(entryYNode.getYNode()) &&
+          !isA<Alias>(entryYNode.getYNode()) &&
+          !isA<Override>(entryYNode.getYNode())) {
+        destination.add(kLineFeed);
+      }
+    }
   } else if (isA<Array>(yNode)) {
-      for (const auto &entryYNode : YRef<Array>(yNode).value()) {
-        destination.add(calculateIndent(destination, indent) + "- ");
-        stringifyAnyBlockStyle(destination, entryYNode);
-        stringifyYAML(destination, entryYNode, indent + yamlIndentation);
-        if (destination.last() != kLineFeed) {
-          destination.add(kLineFeed);
-        }
+    for (const auto &entryYNode : YRef<Array>(yNode).value()) {
+      destination.add(calculateIndent(destination, indent) + "- ");
+      stringifyAnyBlockStyle(destination, entryYNode);
+      stringifyYAML(destination, entryYNode, indent + yamlIndentation);
+      if (destination.last() != kLineFeed) {
+        destination.add(kLineFeed);
       }
+    }
   } else if (isA<Document>(yNode)) {
     destination.add("---");
     if (!YRef<Document>(yNode).value().empty()) {

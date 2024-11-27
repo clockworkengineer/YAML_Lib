@@ -53,6 +53,7 @@ set(YAML_INCLUDES
   ./classes/include/implementation/variants/YAML_Document.hpp
   ./classes/include/implementation/variants/YAML_Null.hpp
   ./classes/include/implementation/variants/YAML_Number.hpp
+  ./classes/include/implementation/variants/YAML_Override.hpp
   ./classes/include/implementation/variants/YAML_Dictionary.hpp
   ./classes/include/implementation/variants/YAML_String.hpp
   ./classes/include/implementation/ynode/YAML_YNode.hpp

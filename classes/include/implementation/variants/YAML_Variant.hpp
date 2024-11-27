@@ -16,7 +16,8 @@ struct Variant {
     comment,
     document,
     anchor,
-    alias
+    alias,
+    override
   };
   // Constructors/Destructors
   explicit Variant(const Type nodeType = Type::base, unsigned long indent = 0)
