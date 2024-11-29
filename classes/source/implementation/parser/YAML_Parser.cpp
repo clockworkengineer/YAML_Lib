@@ -100,11 +100,17 @@ void checkForEnd(ISource &source, char end) {
 /// Check for the end of a plain flow string on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="end">== truw then and of string found.</param>
+/// <param name="end">== true  then and of string found.</param>
 bool YAML_Parser::endOfPlainFlowString(ISource &source) {
 
   return isKey(source) || isArray(source) || isComment(source) ||
          isDocumentStart(source) || isDocumentEnd(source);
+}
+/// <summary>
+/// Merge overrides in dictionary.
+/// </summary>
+YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
+  return std::move(overrideRoot);
 }
 /// <summary>
 /// Convert YAML key to a string YNode
@@ -670,7 +676,7 @@ YNode YAML_Parser::parseOverride(ISource &source,
   source.next();
   source.next();
   source.ignoreWS();
-  if (source.current()!='*') {
+  if (source.current() != '*') {
     throw SyntaxError("Missing '*' from alias.");
   }
   source.next();
@@ -679,12 +685,7 @@ YNode YAML_Parser::parseOverride(ISource &source,
   std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, delimiters);
-  // if (isA<Dictionary>(parsed)) {
-  //   for (auto &entry : YRef<Dictionary>(parsed).value()){
-  //     auto str = entry.getKey();
-  //     str += ";";
-  //   }
-  // }
+  YNode mergedOverrides = mergeOverrides(parsed);
   return (YNode::make<Override>(name, parsed));
 }
 /// <summary>

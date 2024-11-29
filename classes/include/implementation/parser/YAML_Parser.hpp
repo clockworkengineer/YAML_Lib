@@ -27,6 +27,8 @@ public:
 private:
   // YAML parser
 
+  static YNode mergeOverrides(YNode &overrideRoot);
+
   static bool endOfPlainFlowString(ISource &source);
 
   static YNode convertYAMLToStringYNode(const std::string &yamlString);

@@ -111,9 +111,23 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
         "*database-definition\n    environment:\n      <<: "
         "*environment-definition\n      MYSQL_PASSWORD: test-password"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    BufferDestination destination;
-    REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "");
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("services"));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]["services"]));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]["services"])
+                       .contains("production-db"));
+    REQUIRE_FALSE(
+        !YRef<Dictionary>(yaml.document(0)[0]["services"]).contains("test-db"));
+    REQUIRE_FALSE(!isA<Override>(yaml.document(0)[0]["services"]["test-db"]));
+    auto &over =
+        YRef<Override>(yaml.document(0)[0]["services"]["test-db"]).value();
+    REQUIRE_FALSE(!isA<Dictionary>(over));
+    REQUIRE_FALSE(!YRef<Dictionary>(over).contains("environment"));
+    REQUIRE_FALSE(!isA<Override>(over)["environment"]);
+    //     BufferDestination destination;
+    //     REQUIRE_NOTHROW(yaml.stringify(destination));
+    //     REQUIRE(destination.toString() == "");
   }
 #endif
 }
