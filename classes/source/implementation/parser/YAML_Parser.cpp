@@ -110,7 +110,22 @@ bool YAML_Parser::endOfPlainFlowString(ISource &source) {
 /// Merge overrides in dictionary.
 /// </summary>
 YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
-  return std::move(overrideRoot);
+  if (isA<Dictionary>(overrideRoot) &&
+      YRef<Dictionary>(overrideRoot).contains("<<")) {
+    auto &topLevel = YRef<Dictionary>(overrideRoot);
+    for (auto &entry : topLevel.value()) {
+      if (entry.getKey() != "<<") {
+        auto &dict=YRef<Dictionary>(topLevel["<<"]);
+        for (auto &inner : dict.value()) {
+          if (inner.getKey() == entry.getKey()) {
+            inner.getYNode() = mergeOverrides(inner.getYNode());
+          }
+        }
+      }
+    }
+  
+  }
+  return (std::move(overrideRoot));
 }
 /// <summary>
 /// Convert YAML key to a string YNode
@@ -136,9 +151,9 @@ YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
 /// <returns>==true value is a valid key.</returns>
 bool YAML_Parser::isValidKey(const std::string &key) {
   try {
-    if (key == "<<") {
-      return false;
-    }
+    // if (key == "<<") {
+    //   return false;
+    // }
     BufferSource keyYAML{key + kLineFeed};
     YNode keyYNode = parseDocument(keyYAML, {kLineFeed});
     return !keyYNode.isEmpty() && !isA<Comment>(keyYNode);
@@ -662,7 +677,7 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters) {
   std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, delimiters);
-  return (YNode::make<Alias>(name, parsed));
+  return (parsed);
 }
 /// <summary>
 /// Parse alias on source stream, substitute alias and any overrides.
@@ -685,8 +700,8 @@ YNode YAML_Parser::parseOverride(ISource &source,
   std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, delimiters);
-  YNode mergedOverrides = mergeOverrides(parsed);
-  return (YNode::make<Override>(name, parsed));
+  // YNode mergedOverrides = mergeOverrides(parsed);
+  return (parsed);
 }
 /// <summary>
 /// Parse array on source stream.
@@ -796,7 +811,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
     }
     moveToNextIndent(source);
   }
-  return (yNode);
+  return (mergeOverrides(yNode));
 }
 /// <summary>
 /// Parse inline dictionary on source stream.
