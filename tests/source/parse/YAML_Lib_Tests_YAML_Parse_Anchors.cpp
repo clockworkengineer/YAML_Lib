@@ -20,12 +20,9 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
         !isA<String>(YRef<Anchor>(yaml.document(0)[0]["hr"][1]).value()));
     REQUIRE(YRef<String>(YRef<Anchor>(yaml.document(0)[0]["hr"][1]).value())
                 .value() == "Sammy Sosa");
-    REQUIRE_FALSE(!isA<Alias>(yaml.document(0)[0]["rbi"][0]));
-    REQUIRE(YRef<String>(YRef<Alias>(yaml.document(0)[0]["rbi"][0]).value())
-                .value() == "Sammy Sosa");
-    REQUIRE(YRef<Alias>(yaml.document(0)[0]["rbi"][0]).toString() ==
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["rbi"][0]));
+    REQUIRE(YRef<String>(yaml.document(0)[0]["rbi"][0]).value() ==
             "Sammy Sosa");
-    REQUIRE(YRef<Alias>(yaml.document(0)[0]["rbi"][0]).getName() == "SS");
     REQUIRE(YRef<String>(yaml.document(0)[0]["rbi"][1]).value() ==
             "Ken Griffey");
   }
@@ -73,34 +70,7 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
             "name: Build and test\n          script: \n            - mvn "
             "package\n          artifacts: \n            - target/**\n...\n");
   }
-//   SECTION("YAML parse array with one complex anchor and overrides (example
-//   1).",
-//           "[YAML][Parse][Anchors]") {
-//     BufferSource source{
-//         "version: \"3.9\"\n\nservices:\n  production-db: "
-//         "&database-definition\n    image: mysql:5.7\n    volumes:\n      - "
-//         "db_data:/var/lib/mysql\n    restart: always\n    environment: "
-//         "&environment-definition\n      MYSQL_ROOT_PASSWORD: somewordpress\n
-//         " "   MYSQL_DATABASE: wordpress\n      MYSQL_USER: wordpress\n      "
-//         "MYSQL_PASSWORD: production-password\n  test-db:\n    <<: "
-//         "*database-definition\n"};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//     BufferDestination destination;
-//     REQUIRE_NOTHROW(yaml.stringify(destination));
-//     REQUIRE(
-//         destination.toString() ==
-//         "---\nversion: \"3.9\"\nservices: \n  production-db: \n    image: "
-//         "mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n    "
-//         "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
-//         "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
-//         "wordpress\n      MYSQL_PASSWORD: production-password\n  test-db: \n
-//         " " image: mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n
-//         " "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
-//         "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
-//         "wordpress\n      MYSQL_PASSWORD: production-password\n...\n");
-//   }
-#if 1
-  SECTION("YAML parse array with one complex anchor and overrides (example 2).",
+  SECTION("YAML parse array with one complex anchor and overrides (example 1).",
           "[YAML][Parse][Anchors]") {
     BufferSource source{
         "\nversion: \"3.9\"\n\nservices:\n  production-db: "
@@ -114,7 +84,35 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "");
+    REQUIRE(
+        destination.toString() ==
+        "---\nversion: \"3.9\"\nservices: \n  production-db: \n    image: "
+        "mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n    "
+        "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
+        "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
+        "wordpress\n      MYSQL_PASSWORD: production-password\n  test-db: \n   "
+        " image: mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n    "
+        "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
+        "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
+        "wordpress\n      MYSQL_PASSWORD: test-password\n...\n");
   }
-#endif
+  //   SECTION("YAML parse array with one complex anchor and overrides (example
+  //   2).",
+  //           "[YAML][Parse][Anchors]") {
+  //     BufferSource source{
+  //         "version: \"3.9\"\n\nservices:\n  production-db: "
+  //         "&database-definition\n    image: mysql:5.7\n    volumes:\n      -
+  //         " "db_data:/var/lib/mysql\n    restart: always\n    environment: "
+  //         "&environment-definition\n      MYSQL_ROOT_PASSWORD:
+  //         somewordpress\n   " "   MYSQL_DATABASE: wordpress\n MYSQL_USER:
+  //         wordpress\n      " "MYSQL_PASSWORD: production-password\n
+  //         test-db:\n    <<: "
+  //         "*database-definition\n    environment:\n      <<: "
+  //         "*environment-definition\n      MYSQL_PASSWORD: test-password\n "
+  //         "MYSQL_EXTRA: test"};
+  //     REQUIRE_NOTHROW(yaml.parse(source));
+  //     BufferDestination destination;
+  //     REQUIRE_NOTHROW(yaml.stringify(destination));
+  //     REQUIRE(destination.toString() == "");
+  //   }
 }
