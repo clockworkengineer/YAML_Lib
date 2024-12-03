@@ -112,18 +112,17 @@ bool YAML_Parser::endOfPlainFlowString(ISource &source) {
 YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
   if (isA<Dictionary>(overrideRoot) &&
       YRef<Dictionary>(overrideRoot).contains("<<")) {
-    auto &topLevel = YRef<Dictionary>(overrideRoot);
-    for (auto &entry : topLevel.value()) {
+    std::set<std::string> overwrite;
+    for (auto &entry : YRef<Dictionary>(overrideRoot).value()) {
       if (entry.getKey() != "<<") {
-        auto &dict=YRef<Dictionary>(topLevel["<<"]);
-        for (auto &inner : dict.value()) {
-          if (inner.getKey() == entry.getKey()) {
-            inner.getYNode() = mergeOverrides(inner.getYNode());
-          }
-        }
+        overwrite.insert(entry.getKey());
       }
     }
-  
+    auto &topLevel = YRef<Dictionary>(overrideRoot)["<<"];
+    for (auto &entry : overwrite) {
+       topLevel[entry]= mergeOverrides(YRef<Dictionary>(overrideRoot)[entry]);
+    }
+    overrideRoot = std::move(overrideRoot["<<"]);
   }
   return (std::move(overrideRoot));
 }
@@ -151,9 +150,6 @@ YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
 /// <returns>==true value is a valid key.</returns>
 bool YAML_Parser::isValidKey(const std::string &key) {
   try {
-    // if (key == "<<") {
-    //   return false;
-    // }
     BufferSource keyYAML{key + kLineFeed};
     YNode keyYNode = parseDocument(keyYAML, {kLineFeed});
     return !keyYNode.isEmpty() && !isA<Comment>(keyYNode);
