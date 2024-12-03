@@ -657,8 +657,7 @@ YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters) {
   }
   yamlAliasMap[name] = unparsed;
   BufferSource anchor{unparsed};
-  YNode parsed = parseDocument(anchor, delimiters);
-  return (YNode::make<Anchor>(name, unparsed, parsed));
+  return (parseDocument(anchor, delimiters));
 }
 /// <summary>
 /// Parse alias on source stream and substitute alias.
@@ -672,8 +671,7 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters) {
   source.next();
   std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
-  YNode parsed = parseDocument(anchor, delimiters);
-  return (parsed);
+  return (parseDocument(anchor, delimiters));
 }
 /// <summary>
 /// Parse alias on source stream, substitute alias and any overrides.
