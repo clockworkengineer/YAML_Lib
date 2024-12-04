@@ -131,6 +131,16 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "");
+    REQUIRE(destination.toString() ==
+            "---\nversion: \"3.9\"\nservices: \n  production-db: \n    image: "
+            "mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n    "
+            "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
+            "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
+            "wordpress\n      MYSQL_PASSWORD: production-password\n  test-db: "
+            "\n    image: mysql:5.7\n    volumes: \n      - "
+            "db_data:/var/lib/mysql\n    restart: always\n    environment: \n  "
+            "    MYSQL_ROOT_PASSWORD: somewordpress\n      MYSQL_DATABASE: "
+            "wordpress\n      MYSQL_USER: wordpress\n      MYSQL_PASSWORD: "
+            "test-password\n      MYSQL_EXTRA: test\n...\n");
   }
 }

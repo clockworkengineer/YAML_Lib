@@ -11,9 +11,9 @@ struct DictionaryError final : std::runtime_error {
 // Dictionary entry
 struct DictionaryEntry {
   DictionaryEntry(const std::string &key, YNode &yNode)
-      : key(YNode::make<String>(key)), yNode(std::move(yNode)) {}
+      : key(YNode::make<String>(key, '\0')), yNode(std::move(yNode)) {}
   DictionaryEntry(const std::string &key, YNode &&yNode)
-      : key(YNode::make<String>(key)), yNode(std::move(yNode)) {}
+      : key(YNode::make<String>(key, '\0')), yNode(std::move(yNode)) {}
   DictionaryEntry(YNode &keyYNode, YNode &yNode)
       : key(std::move(keyYNode)), yNode(std::move(yNode)) {}
   DictionaryEntry(YNode &keyYNode, YNode &&yNode)

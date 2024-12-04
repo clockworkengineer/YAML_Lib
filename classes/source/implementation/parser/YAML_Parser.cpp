@@ -120,11 +120,13 @@ YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
     }
     auto &topLevel = YRef<Dictionary>(overrideRoot)["<<"];
     for (auto &entry : overwrite) {
+      auto overrideEntry =
+          mergeOverrides(YRef<Dictionary>(overrideRoot)[entry]);
       if (YRef<Dictionary>(topLevel).contains(entry)) {
-        topLevel[entry] = mergeOverrides(YRef<Dictionary>(overrideRoot)[entry]);
+        topLevel[entry] = std::move(overrideEntry);
       } else {
         YRef<Dictionary>(topLevel).add(DictionaryEntry(
-            entry, mergeOverrides(YRef<Dictionary>(overrideRoot)[entry])));
+            entry, overrideEntry));
       }
     }
     overrideRoot = std::move(overrideRoot["<<"]);
@@ -771,7 +773,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   } else {
     yNode = YNode::make<Null>();
   }
-  return { keyYNode, yNode };
+  return {keyYNode, yNode};
 }
 /// <summary>
 /// Parse a dictionary on source stream.
@@ -783,7 +785,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
                                    const Delimiters &delimiters) {
 
   if (delimiters.contains('}')) {
-    return {} ;
+    return {};
   }
   unsigned long dictionaryIndent = source.getIndentation();
   YNode yNode = YNode::make<Dictionary>(dictionaryIndent);
