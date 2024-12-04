@@ -107,8 +107,8 @@ bool YAML_Parser::endOfPlainFlowString(ISource &source) {
          isDocumentStart(source) || isDocumentEnd(source);
 }
 /// <summary>
-/// Merge overrides/extensions in dictionary. Overrides will leave around
-/// "<<" keys. this function edits them into the YAML./
+/// Merge overrides/extensions in dictionary. Overrides will have
+/// "<<" keys; this function edits them into the YAML.
 /// </summary>
 YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
   if (isA<Dictionary>(overrideRoot) &&
