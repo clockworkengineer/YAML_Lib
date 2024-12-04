@@ -15,8 +15,6 @@ struct Variant {
     hole,
     comment,
     document,
-    anchor,
-    alias,
     override
   };
   // Constructors/Destructors

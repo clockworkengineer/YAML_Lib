@@ -21,8 +21,8 @@
 #include "YAML_Number.hpp"
 #include "YAML_String.hpp"
 #include "YAML_Dictionary.hpp"
-#include "YAML_Anchor.hpp"
-#include "YAML_Alias.hpp"
+// #include "YAML_Anchor.hpp"
+// #include "YAML_Alias.hpp"
 #include "YAML_Override.hpp"
 
 // YNode

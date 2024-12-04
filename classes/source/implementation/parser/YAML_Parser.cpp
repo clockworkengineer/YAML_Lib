@@ -107,25 +107,26 @@ bool YAML_Parser::endOfPlainFlowString(ISource &source) {
          isDocumentStart(source) || isDocumentEnd(source);
 }
 /// <summary>
-/// Merge overrides in dictionary.
+/// Merge overrides/extensions in dictionary. Overrides will leave around
+/// "<<" keys. this function edits them into the YAML./
 /// </summary>
 YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
   if (isA<Dictionary>(overrideRoot) &&
       YRef<Dictionary>(overrideRoot).contains("<<")) {
-    std::set<std::string> overwrite;
+    std::set<std::string> overrideKeys;
     for (auto &entry : YRef<Dictionary>(overrideRoot).value()) {
       if (entry.getKey() != "<<") {
-        overwrite.insert(entry.getKey());
+        overrideKeys.insert(entry.getKey());
       }
     }
-    auto &topLevel = YRef<Dictionary>(overrideRoot)["<<"];
-    for (auto &entry : overwrite) {
+    auto &innerLevel = YRef<Dictionary>(overrideRoot)["<<"];
+    for (auto &entry : overrideKeys) {
       auto overrideEntry =
           mergeOverrides(YRef<Dictionary>(overrideRoot)[entry]);
-      if (YRef<Dictionary>(topLevel).contains(entry)) {
-        topLevel[entry] = std::move(overrideEntry);
+      if (YRef<Dictionary>(innerLevel).contains(entry)) {
+        innerLevel[entry] = std::move(overrideEntry);
       } else {
-        YRef<Dictionary>(topLevel).add(DictionaryEntry(
+        YRef<Dictionary>(innerLevel).add(DictionaryEntry(
             entry, overrideEntry));
       }
     }
