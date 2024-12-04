@@ -120,7 +120,12 @@ YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
     }
     auto &topLevel = YRef<Dictionary>(overrideRoot)["<<"];
     for (auto &entry : overwrite) {
-       topLevel[entry]= mergeOverrides(YRef<Dictionary>(overrideRoot)[entry]);
+      if (YRef<Dictionary>(topLevel).contains(entry)) {
+        topLevel[entry] = mergeOverrides(YRef<Dictionary>(overrideRoot)[entry]);
+      } else {
+        YRef<Dictionary>(topLevel).add(DictionaryEntry(
+            entry, mergeOverrides(YRef<Dictionary>(overrideRoot)[entry])));
+      }
     }
     overrideRoot = std::move(overrideRoot["<<"]);
   }
@@ -694,7 +699,6 @@ YNode YAML_Parser::parseOverride(ISource &source,
   std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, delimiters);
-  // YNode mergedOverrides = mergeOverrides(parsed);
   return (parsed);
 }
 /// <summary>
