@@ -23,7 +23,7 @@ struct Number : Variant {
   Number(Number &&other) = default;
   Number &operator=(Number &&other) = default;
   ~Number() = default;
-  // Is number a int/long/long long/float/double/long double ?
+  // Is number an int/long/long long/float/double/long double ?
   template <typename T> [[nodiscard]] bool is() const {
     return std::get_if<T>(&yNodeNumber) != nullptr;
   }

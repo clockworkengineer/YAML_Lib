@@ -1,6 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
+TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
   const YAML yaml;
   SECTION("YAML parse dictionary with one key value pair.",
           "[YAML][Parse][Dictionary]") {
@@ -95,7 +95,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
     REQUIRE(YRef<String>(yaml.document(0)[0]["outer"]["inner"]).value() ==
             "true");
   }
-  SECTION("YAML parse dictionary with fhree key value pair with one nested.",
+  SECTION("YAML parse dictionary with three key value pair with one nested.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n outerone:\n  innerone: 'true'\n outertwo: 99\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -116,7 +116,7 @@ TEST_CASE("Check YAML Parsing of Dictionarys.", "[YAML][Parse][Dictionary]") {
         "YAML Syntax Error: Only an inline/compact dictionary is allowed.");
   }
   SECTION("YAML parse dictionary with key value pair and inline dictionary on "
-          "the diffirent lines.",
+          "the different lines.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n outer: \n { inner: 'true'}\n"};
     REQUIRE_NOTHROW(yaml.parse(source));

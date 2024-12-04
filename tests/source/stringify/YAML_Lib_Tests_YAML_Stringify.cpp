@@ -69,7 +69,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
             "---\ndoe: 'a deer, a female deer'\nray: 'a drop of golden "
             "sun'\n...\n");
   }
-  SECTION("YAML Parse array with one string elements and restringify.",
+  SECTION("YAML Parse array with one string elements and stringify.",
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n   - \"One\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -77,7 +77,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() == "---\n- \"One\"\n...\n");
   }
-  SECTION("YAML Parse array with multiple string elements and restringify.",
+  SECTION("YAML Parse array with multiple string elements and stringify.",
           "[YAML][Parse][Array]") {
     BufferSource source{
         "---\n  - \"One\"\n  - \"Two\"\n  - \"Three\"\n  - \"Four\"\n"};
@@ -158,7 +158,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
   //
   // It would be better to end with \n...\n instead of ....\n
   //
-  SECTION("YAML Stringify plain literals newlines treatd as space.",
+  SECTION("YAML Stringify plain literals newlines treated as space.",
           "[YAML][Stringify][literals]") {
     BufferSource source{
         "---\n  Mark McGwire\'s\n  year was crippled\n  by a knee injury."};
@@ -168,7 +168,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE(destination.toString() ==
             "---\nMark McGwire\'s year was crippled by a knee injury.\n...\n");
   }
-  SECTION("YAML Stringify literal string perserves newlines.",
+  SECTION("YAML Stringify literal string preserves newlines.",
           "[YAML][Stringify][literals]") {
     BufferSource source{"--- |\n  \\//||\\/||\n  // ||  ||__\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -192,7 +192,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
         "---|\nSammy Sosa completed another fine season with great stats.\n\n "
         "  63 Home Runs\n   0.288 Batting Average\n\nWhat a year!\n...\n");
   }
-  SECTION("YAML stringiy various qoted scalars",
+  SECTION("YAML stringify various quoted scalars",
           "[YAML][Parse][Quoted Scalars]") {
     BufferSource source{
         "unicode: \"Sosa did fine.\\u263A\"\ncontrol: "

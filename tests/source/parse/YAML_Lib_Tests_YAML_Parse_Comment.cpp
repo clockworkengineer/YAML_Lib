@@ -5,7 +5,7 @@
 //
 TEST_CASE("Check YAML Parsing of comments.", "[YAML][parse][Comment]") {
   const YAML yaml;
-  SECTION("YAML parse of comments (no doucments).", "[YAML][parse][Comment]") {
+  SECTION("YAML parse of comments (no documents).", "[YAML][parse][Comment]") {
     BufferSource source{"# Test Comment 1\n# Test Comment 2\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(YRef<Comment>(yaml.root()[0]).value() == " Test Comment 1");
@@ -79,7 +79,7 @@ TEST_CASE("Check YAML Parsing of comments.", "[YAML][parse][Comment]") {
     REQUIRE_FALSE(!isA<String>(yaml.root()[0][0][0]));
     REQUIRE(YRef<String>(yaml.root()[0][0][0]).value() == "One String");
   }
-  SECTION("YAML parse of comments one same line array elemens.",
+  SECTION("YAML parse of comments one same line array elements.",
           "[YAML][parse][Comment]") {
     BufferSource source{"---\n   - One String   # Comment \n   - Two String   "
                         "# Comment \n   - Three String   # Comment \n"};

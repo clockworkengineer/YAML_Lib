@@ -19,10 +19,10 @@ struct DictionaryEntry {
   DictionaryEntry(YNode &keyYNode, YNode &&yNode)
       : key(std::move(keyYNode)), yNode(std::move(yNode)) {}
   [[nodiscard]] std::string &getKey() {
-    return static_cast<String &>(key.getVariant()).value();
+    return dynamic_cast<String &>(key.getVariant()).value();
   }
   [[nodiscard]] const std::string &getKey() const {
-    return static_cast<const String &>(key.getVariant()).value();
+    return dynamic_cast<const String &>(key.getVariant()).value();
   }
   [[nodiscard]] YNode &getKeyYNode() { return key; }
   [[nodiscard]] const YNode &getKeyYNode() const { return key; }

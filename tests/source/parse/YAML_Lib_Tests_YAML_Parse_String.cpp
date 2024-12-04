@@ -28,7 +28,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE(YRef<String>(yaml.document(0)[0]).getQuote() == '\'');
   }
   SECTION(
-      "YAML parse a qouble quoted string with some common escape sequences in.",
+      "YAML parse a double quoted string with some common escape sequences in.",
       "[YAML][Parse][Scalar][String]") {
     BufferSource source{
         "---\n\"test string.\\t.\\n.\\b.\\r.\\f.\\\\.\\\".\"\n"};
@@ -306,7 +306,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "Escapes (like \\n) don\'t do anything.\nNewlines can be added by "
             "leaving a blank line. Additional leading whitespace is ignored.");
   }
-  SECTION("YAML parse various qoted scalars", "[YAML][Parse][Quoted Scalars]") {
+  SECTION("YAML parse various quoted scalars", "[YAML][Parse][Quoted Scalars]") {
     BufferSource source{
         "unicode: \"Sosa did fine.\\u263A\"\ncontrol: "
         "\"\\b1998\\t1999\\t2000\\n\"\nhexesc:  \"\\x13\\x10 is "

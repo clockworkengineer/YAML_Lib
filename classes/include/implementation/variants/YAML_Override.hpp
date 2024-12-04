@@ -20,9 +20,7 @@ struct Override : Variant {
   [[nodiscard]] YNode &value() { return yNodeOverride; }
   [[nodiscard]] const YNode &value() const { return yNodeOverride; }
   // Return string representation of value
-  [[nodiscard]] const std::string toString() const override { return static_cast<const String &>(yNodeOverride.getVariant()).value();}
-  // Return string name of alias
-  [[nodiscard]] std::string getName() const { return name; }
+  [[nodiscard]] const std::string toString() const override { return dynamic_cast<const String &>(yNodeOverride.getVariant()).value();}
 private:
   std::string name;
   YNode yNodeOverride;

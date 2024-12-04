@@ -59,7 +59,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
   // Initialise logging.
   plog::init(plog::debug, "YAML_Parse_Files.log");
   PLOG_INFO << "YAML_Parse_Files started ...";
-  PLOG_INFO << yl::YAML().version();
+  PLOG_INFO << YAML_Lib::YAML::version();
   // For each yaml parse it, stringify it and display unless its to large.
   for (auto &fileName : Utility::createYAMLFileList()) {
     try {

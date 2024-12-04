@@ -49,7 +49,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(YRef<Array>(yaml.document(0)[0]).size() == 1);
     REQUIRE(YRef<Number>(yaml.document(0)[0][0]).value<int>() == -1);
   }
-  SECTION("YAML parse array with one element and non space shitspace",
+  SECTION("YAML parse array with one element and non space whitespace",
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n  - 'One'\n  - 'Two'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));

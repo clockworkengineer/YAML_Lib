@@ -8,7 +8,7 @@ TEST_CASE("Check YAML Document API.", "[YAML][Document]") {
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Document>(yaml.document(0)));
   }
-  SECTION("Check YAML Document API doe non-existant document.",
+  SECTION("Check YAML Document API doe non-existent document.",
           "[YAML][Document]") {
     BufferSource source{"---\n   - 'One'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));

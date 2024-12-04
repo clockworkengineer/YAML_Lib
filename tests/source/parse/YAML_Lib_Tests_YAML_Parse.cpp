@@ -33,14 +33,14 @@ TEST_CASE("Check YAML parse start document.", "[YAML][Parse][Start]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 4);
   }
-  SECTION("YAML parse multiple document.", "[YAML][Parse][Mutliple]") {
+  SECTION("YAML parse multiple document.", "[YAML][Parse][Multiple]") {
     BufferSource source{
         "---\n...\n---\n...\n---\n...\n---\n...\n---\n...\n---\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 6);
   }
   SECTION("YAML parse multiple document formatting mixed up.",
-          "[YAML][Parse][Mutliple]") {
+          "[YAML][Parse][Multiple]") {
     BufferSource source{
         "---\n...\n---\n...\n---\n...\n...\n---\n...\n---\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
