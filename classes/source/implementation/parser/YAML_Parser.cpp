@@ -771,7 +771,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   } else {
     yNode = YNode::make<Null>();
   }
-  return DictionaryEntry(keyYNode, yNode);
+  return { keyYNode, yNode };
 }
 /// <summary>
 /// Parse a dictionary on source stream.
@@ -783,7 +783,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
                                    const Delimiters &delimiters) {
 
   if (delimiters.contains('}')) {
-    return YNode();
+    return {} ;
   }
   unsigned long dictionaryIndent = source.getIndentation();
   YNode yNode = YNode::make<Dictionary>(dictionaryIndent);

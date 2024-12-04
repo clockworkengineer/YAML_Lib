@@ -61,9 +61,8 @@ template <typename T> void checkYNode(const YNode &yNode) {
     }
   } else if constexpr (std::is_same_v<T, Override>) {
     if (!isA<T>(yNode)) {
-      throw YNode::Error("YNode not an ovveride.");
+      throw YNode::Error("YNode not an override.");
     }
-
   } else if constexpr (std::is_same_v<T, Dictionary>) {
     if (!isA<T>(yNode)) {
       throw YNode::Error("YNode not an dictionary.");

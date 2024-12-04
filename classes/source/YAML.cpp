@@ -16,11 +16,11 @@ namespace YAML_Lib {
 /// Create YAML object.
 /// </summary>
 /// <param name="stringify">Pointer to stringifier interface.</param>
-/// <param name="parser">Pointer to pasrer interface.</param>
-YAML::YAML(IStringify *stringify, IParser *parser)
+/// <param name="parser">Pointer to parser interface.</param>
+YAML::YAML([[maybe_unused]]IStringify *stringify, [[maybe_unused]]IParser *parser)
     : implementation(std::make_unique<YAML_Impl>(stringify, parser)) {}
 /// <summary>
-/// Destory YAML object..
+/// Destroy YAML object..
 /// </summary>
 YAML::~YAML() = default;
 /// <summary>

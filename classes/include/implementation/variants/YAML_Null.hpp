@@ -11,7 +11,7 @@ struct Null : Variant {
   Null &operator=(Null &&other) = default;
   ~Null() = default;
   // Return null value
-  [[nodiscard]] void *value() { return nullptr; }
+  [[nodiscard]] static void *value() { return nullptr; }
   // Return string representation of value
   [[nodiscard]] const std::string toString() const override { return "null"; }
   // Convert variant to a key

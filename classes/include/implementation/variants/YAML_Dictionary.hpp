@@ -39,7 +39,7 @@ struct Dictionary : Variant {
   using Entry = DictionaryEntry;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
-  Dictionary(unsigned long indent = 0) : Variant(Type::dictionary, indent) {}
+  explicit Dictionary(unsigned long indent = 0) : Variant(Type::dictionary, indent) {}
   Dictionary(const Dictionary &other) = default;
   Dictionary &operator=(const Dictionary &other) = default;
   Dictionary(Dictionary &&other) = default;

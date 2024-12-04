@@ -1,3 +1,5 @@
+#include <utility>
+
 #pragma once
 
 namespace YAML_Lib {
@@ -7,8 +9,8 @@ namespace YAML_Lib {
 struct Boolean : Variant {
   // Constructors/Destructors
   Boolean() : Variant(Type::boolean) {}
-  Boolean(const bool boolean, const std::string &value)
-      : Variant(Type::boolean), yNodeBoolean(boolean), booleanString(value) {}
+  Boolean(const bool boolean, std::string value)
+      : Variant(Type::boolean), yNodeBoolean(boolean), booleanString(std::move(value)) {}
   Boolean(const Boolean &other) = default;
   Boolean &operator=(const Boolean &other) = default;
   Boolean(Boolean &&other) = default;

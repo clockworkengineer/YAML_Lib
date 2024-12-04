@@ -11,8 +11,8 @@ struct Override : Variant {
   Override() : Variant(Type::override) {}
   explicit Override(std::string name, YNode &parsed )
       : Variant(Type::override), name(std::move(name)), yNodeOverride(std::move(parsed))  {}
-  Override(const Override &other)  = default;
-  Override &operator=(const Override &other)  = default;
+  Override(const Override &other)  = delete;
+  Override &operator=(const Override &other)  = delete;
   Override(Override &&other) = default;
   Override &operator=(Override &&other) = default;
   ~Override() = default;

@@ -11,8 +11,8 @@ struct Alias : Variant {
   Alias() : Variant(Type::alias) {}
   explicit Alias(std::string name, YNode &parsed )
       : Variant(Type::alias), name(std::move(name)), yNodeAlias(std::move(parsed))  {}
-  Alias(const Alias &other)  = default;
-  Alias &operator=(const Alias &other)  = default;
+  Alias(const Alias &other)  = delete;
+  Alias &operator=(const Alias &other)  = delete;
   Alias(Alias &&other) = default;
   Alias &operator=(Alias &&other) = default;
   ~Alias() = default;

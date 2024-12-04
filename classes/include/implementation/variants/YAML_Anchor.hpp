@@ -11,8 +11,8 @@ struct Anchor : Variant {
   Anchor() : Variant(Type::anchor) {}
   explicit Anchor(std::string name, std::string unparsed, YNode &parsed)
       : Variant(Type::anchor), name(std::move(name)), unparsed(std::move(unparsed)), yNodeAnchor(std::move(parsed))  {}
-  Anchor(const Anchor &other)  = default;
-  Anchor &operator=(const Anchor &other)  = default;
+  Anchor(const Anchor &other)  = delete;
+  Anchor &operator=(const Anchor &other)  = delete;
   Anchor(Anchor &&other) = default;
   Anchor &operator=(Anchor &&other) = default;
   ~Anchor() = default;
