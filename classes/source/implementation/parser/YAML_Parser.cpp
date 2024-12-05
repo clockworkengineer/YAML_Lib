@@ -102,7 +102,6 @@ void checkForEnd(ISource &source, char end) {
 /// <param name="source">Source stream.</param>
 /// <param name="end">== true  then and of string found.</param>
 bool YAML_Parser::endOfPlainFlowString(ISource &source) {
-
   return isKey(source) || isArray(source) || isComment(source) ||
          isDocumentStart(source) || isDocumentEnd(source);
 }
@@ -113,21 +112,20 @@ bool YAML_Parser::endOfPlainFlowString(ISource &source) {
 YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
   if (isA<Dictionary>(overrideRoot) &&
       YRef<Dictionary>(overrideRoot).contains("<<")) {
+    auto &dictionary = YRef<Dictionary>(overrideRoot);
     std::set<std::string> overrideKeys;
-    for (auto &entry : YRef<Dictionary>(overrideRoot).value()) {
+    for (auto &entry : dictionary.value()) {
       if (entry.getKey() != "<<") {
         overrideKeys.insert(entry.getKey());
       }
     }
-    auto &innerLevel = YRef<Dictionary>(overrideRoot)["<<"];
+    auto &innerDictionary = YRef<Dictionary>(dictionary["<<"]);
     for (auto &entry : overrideKeys) {
-      auto overrideEntry =
-          mergeOverrides(YRef<Dictionary>(overrideRoot)[entry]);
-      if (YRef<Dictionary>(innerLevel).contains(entry)) {
-        innerLevel[entry] = std::move(overrideEntry);
+      auto overrideEntry = mergeOverrides(dictionary[entry]);
+      if (innerDictionary.contains(entry)) {
+        innerDictionary[entry] = std::move(overrideEntry);
       } else {
-        YRef<Dictionary>(innerLevel).add(DictionaryEntry(
-            entry, overrideEntry));
+        innerDictionary.add(DictionaryEntry(entry, overrideEntry));
       }
     }
     overrideRoot = std::move(overrideRoot["<<"]);
@@ -152,7 +150,7 @@ YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
   return YNode::make<String>(keyString, quote, 0);
 }
 /// <summary>
-/// Is YAML passed in constitute a valid dictionary key.
+/// Does YAML passed in constitute a valid dictionary key.
 /// </summary>
 /// <param name="key">YAML sequence to be converted to be used as key.</param>
 /// <returns>==true value is a valid key.</returns>
@@ -752,7 +750,6 @@ YNode YAML_Parser::parseInlineArray(
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse key/value pair.</param>
-/// <param name="inlineDictionary"></param>
 /// <returns>Dictionary entry for key/value.</returns>
 DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
                                            const Delimiters &delimiters) {

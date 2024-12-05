@@ -85,8 +85,6 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
         destination.add(line);
       }
     }
-  } else if (isA<Override>(yNode)) {
-    stringifyYAML(destination, YRef<Override>(yNode).value(), indent);
   } else if (isA<Comment>(yNode)) {
     destination.add("#" + YRef<Comment>(yNode).value() + kLineFeed);
   } else if (isA<Boolean>(yNode)) {
@@ -108,16 +106,14 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
       destination.add(": ");
       stringifyAnyBlockStyle(destination, entryYNode.getYNode());
       if (isA<Array>(entryYNode.getYNode()) ||
-          isA<Dictionary>(entryYNode.getYNode()) ||
-          isA<Override>(entryYNode.getYNode())) {
+          isA<Dictionary>(entryYNode.getYNode())) {
         destination.add(kLineFeed);
       }
       stringifyYAML(destination, entryYNode.getYNode(),
                     indent + yamlIndentation);
       if (!isA<Array>(entryYNode.getYNode()) &&
           !isA<Dictionary>(entryYNode.getYNode()) &&
-          !isA<Comment>(entryYNode.getYNode()) &&
-          !isA<Override>(entryYNode.getYNode())) {
+          !isA<Comment>(entryYNode.getYNode())) {
         destination.add(kLineFeed);
       }
     }

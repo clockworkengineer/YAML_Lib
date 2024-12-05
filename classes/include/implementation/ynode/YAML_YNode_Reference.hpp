@@ -12,8 +12,6 @@ template <typename T> bool isA(const YNode &yNode) {
     return yNode.getVariant().getNodeType() == Variant::Type::number;
   } else if constexpr (std::is_same_v<T, Array>) {
     return yNode.getVariant().getNodeType() == Variant::Type::array;
-  } else if constexpr (std::is_same_v<T, Override>) {
-    return yNode.getVariant().getNodeType() == Variant::Type::override;
   } else if constexpr (std::is_same_v<T, Dictionary>) {
     return yNode.getVariant().getNodeType() == Variant::Type::dictionary;
   } else if constexpr (std::is_same_v<T, Boolean>) {
@@ -46,10 +44,6 @@ template <typename T> void checkYNode(const YNode &yNode) {
   } else if constexpr (std::is_same_v<T, Array>) {
     if (!isA<T>(yNode)) {
       throw YNode::Error("YNode not an array.");
-    }
-  } else if constexpr (std::is_same_v<T, Override>) {
-    if (!isA<T>(yNode)) {
-      throw YNode::Error("YNode not an override.");
     }
   } else if constexpr (std::is_same_v<T, Dictionary>) {
     if (!isA<T>(yNode)) {

@@ -14,8 +14,7 @@ struct Variant {
     null,
     hole,
     comment,
-    document,
-    override
+    document
   };
   // Constructors/Destructors
   explicit Variant(const Type nodeType = Type::base, [[maybe_unused]] unsigned long indent = 0)
