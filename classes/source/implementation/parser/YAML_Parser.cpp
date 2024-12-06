@@ -97,6 +97,18 @@ void checkForEnd(ISource &source, char end) {
   moveToNextIndent(source);
 }
 /// <summary>
+/// Parse any comments.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <param name="delimiters">Delimiters used in parsing.</param>
+void YAML_Parser::parseComments(ISource &source, const Delimiters &delimiters) {
+  moveToNext(source, delimiters);
+  while (source.current() == '#') {
+    parseComment(source, delimiters);
+    moveToNextIndent(source);
+  }
+}
+/// <summary>
 /// Check for the end of a plain flow string on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
@@ -170,17 +182,15 @@ bool YAML_Parser::isValidKey(const std::string &key) {
 /// <returns>YAML for key value.</returns>
 std::string YAML_Parser::extractKey(ISource &source) {
   std::string key;
-  if (isInlineArray(source)) {
-    key = extractToNext(source, {':', kLineFeed});
-  } else if (isInlineDictionary(source)) {
+  if (isInlineDictionary(source)) {
     key = extractToNext(source, {'}', kLineFeed});
     if (source.current() == '}') {
-      key += '}';
+      key += source.current();
       source.next();
       source.ignoreWS();
     }
   } else {
-    key = extractToNext(source, {':', ',', kLineFeed});
+    key = extractToNext(source, {':', kLineFeed});
   }
   return key;
 }
@@ -365,7 +375,7 @@ void YAML_Parser::appendCharacterToString(ISource &source,
     source.next();
     source.ignoreWS();
     if (source.current() == kLineFeed) {
-      yamlString += kLineFeed;
+      yamlString += source.current();
       source.next();
       source.ignoreWS();
     } else {
@@ -469,11 +479,7 @@ YNode YAML_Parser::parseKey(ISource &source) {
 YNode YAML_Parser::parseFoldedBlockString(ISource &source,
                                           const Delimiters &delimiters) {
   BlockChomping chomping{parseBlockChomping(source)};
-  moveToNext(source, delimiters);
-  if (source.current() == '#') {
-    parseComment(source, delimiters);
-    moveToNextIndent(source);
-  }
+  parseComments(source, delimiters);
   auto blockIndent = source.getIndentation();
   std::string yamlString{
       parseBlockString(source, delimiters, kSpace, chomping)};
@@ -488,11 +494,7 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
 YNode YAML_Parser::parseLiteralBlockString(ISource &source,
                                            const Delimiters &delimiters) {
   BlockChomping chomping{parseBlockChomping(source)};
-  moveToNext(source, delimiters);
-  if (source.current() == '#') {
-    parseComment(source, delimiters);
-    moveToNextIndent(source);
-  }
+  parseComments(source, delimiters);
   auto blockIndent = source.getIndentation();
   std::string yamlString{
       parseBlockString(source, delimiters, kLineFeed, chomping)};
