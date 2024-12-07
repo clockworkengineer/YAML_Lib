@@ -527,14 +527,14 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
 YNode YAML_Parser::parseQuotedFlowString(ISource &source,
                                          const Delimiters &delimiters) {
   YAML_Translator translator;
-  const char quote = source.current();
+  const char quote = source.append();
   std::string yamlString;
-  source.next();
   if (quote == '"') {
     while (source.more() && source.current() != quote) {
       if (source.current() == '\\') {
         yamlString += source.append();
         yamlString += source.append();
+      } else {
         appendCharacterToString(source, yamlString);
       }
     }
@@ -790,8 +790,8 @@ YNode YAML_Parser::parseDictionary(ISource &source,
       YRef<Dictionary>(yNode).add(std::move(entry));
     } else if (isComment(source)) {
       parseComment(source, delimiters);
-    // } else if (isDocumentStart(source) || isDocumentEnd(source)) {
-    //   break;
+    } else if (isDocumentStart(source) || isDocumentEnd(source)) {
+      break;
     } else {
       if (dictionaryIndent == source.getIndentation()) {
         throw SyntaxError(source.getPosition(),
