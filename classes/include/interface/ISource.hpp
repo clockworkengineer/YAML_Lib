@@ -93,6 +93,14 @@ public:
     backup(index);
     return false;
   }
+  // =====================================
+  // Return current character and move one
+  // =====================================
+  char append() {
+    auto ch = current();
+    next();
+    return(ch);
+  }
   // ==================================
   // Get current source stream position
   // ==================================

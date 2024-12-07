@@ -77,8 +77,7 @@ std::string extractToNext(ISource &source,
   std::string extracted;
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
-      extracted += source.current();
-      source.next();
+      extracted += source.append();
     }
   }
   return (extracted);
@@ -102,8 +101,7 @@ void checkForEnd(ISource &source, char end) {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used in parsing.</param>
 void YAML_Parser::parseComments(ISource &source, const Delimiters &delimiters) {
-  moveToNext(source, delimiters);
-  while (source.current() == '#') {
+  while (isComment(source)) {
     parseComment(source, delimiters);
     moveToNextIndent(source);
   }
@@ -185,8 +183,7 @@ std::string YAML_Parser::extractKey(ISource &source) {
   if (isInlineDictionary(source)) {
     key = extractToNext(source, {'}', kLineFeed});
     if (source.current() == '}') {
-      key += source.current();
-      source.next();
+      key += source.append();
       source.ignoreWS();
     }
   } else {
@@ -375,15 +372,13 @@ void YAML_Parser::appendCharacterToString(ISource &source,
     source.next();
     source.ignoreWS();
     if (source.current() == kLineFeed) {
-      yamlString += source.current();
-      source.next();
+      yamlString += source.append();
       source.ignoreWS();
     } else {
       yamlString += kSpace;
     }
   } else {
-    yamlString += source.current();
-    source.next();
+    yamlString += source.append();
   }
 }
 /// <summary>
@@ -479,6 +474,7 @@ YNode YAML_Parser::parseKey(ISource &source) {
 YNode YAML_Parser::parseFoldedBlockString(ISource &source,
                                           const Delimiters &delimiters) {
   BlockChomping chomping{parseBlockChomping(source)};
+  moveToNext(source, delimiters);
   parseComments(source, delimiters);
   auto blockIndent = source.getIndentation();
   std::string yamlString{
@@ -494,6 +490,7 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
 YNode YAML_Parser::parseLiteralBlockString(ISource &source,
                                            const Delimiters &delimiters) {
   BlockChomping chomping{parseBlockChomping(source)};
+  moveToNext(source, delimiters);
   parseComments(source, delimiters);
   auto blockIndent = source.getIndentation();
   std::string yamlString{
@@ -536,11 +533,8 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
   if (quote == '"') {
     while (source.more() && source.current() != quote) {
       if (source.current() == '\\') {
-        yamlString += source.current();
-        source.next();
-        yamlString += source.current();
-        source.next();
-      } else {
+        yamlString += source.append();
+        yamlString += source.append();
         appendCharacterToString(source, yamlString);
       }
     }
@@ -550,8 +544,7 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
       if (source.current() == quote) {
         source.next();
         if (source.current() == quote) {
-          yamlString += quote;
-          source.next();
+          yamlString += source.append();
         } else {
           break;
         }
@@ -762,10 +755,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
     throw SyntaxError("Only an inline/compact dictionary is allowed.");
   }
   moveToNextIndent(source);
-  while (isComment(source)) {
-    parseComment(source, delimiters);
-    moveToNextIndent(source);
-  }
+  parseComments(source, delimiters);
   YNode yNode;
   if ((source.getIndentation() > keyIndent) || isInlineArray(source) ||
       isInlineDictionary(source) || delimiters.contains('}')) {
@@ -800,8 +790,8 @@ YNode YAML_Parser::parseDictionary(ISource &source,
       YRef<Dictionary>(yNode).add(std::move(entry));
     } else if (isComment(source)) {
       parseComment(source, delimiters);
-    } else if (isDocumentStart(source) || isDocumentEnd(source)) {
-      break;
+    // } else if (isDocumentStart(source) || isDocumentEnd(source)) {
+    //   break;
     } else {
       if (dictionaryIndent == source.getIndentation()) {
         throw SyntaxError(source.getPosition(),
