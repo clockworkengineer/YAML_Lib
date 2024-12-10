@@ -33,10 +33,6 @@ public:
   // Move to next character
   // ======================
   virtual void next() = 0;
-  // ========================
-  // Backup length characters
-  // ========================
-  virtual void backup(unsigned long length) = 0;
   // =======================================
   // Are there still more characters to read
   // ========================================
@@ -98,8 +94,10 @@ public:
   // =====================================
   char append() {
     auto ch = current();
-    next();
-    return(ch);
+    if (more()) {
+      next();
+    }
+    return (ch);
   }
   // ==================================
   // Get current source stream position
@@ -107,12 +105,26 @@ public:
   [[nodiscard]] std::pair<long, long> getPosition() const {
     return std::make_pair(lineNo, column);
   }
+  // ====================
+  // Save/Restore context
+  // ====================
+  virtual void save() = 0;
+  virtual void restore() = 0;
 
 protected:
+  // ========================
+  // Backup length characters
+  // ========================
+  virtual void backup(unsigned long length) = 0;
   // ========================================
   // Current line and column on source stream
   // ========================================
   long lineNo = 1;
   long column = 1;
+  // =============
+  // Saved context
+  // =============
+  long saveLineNo{};
+  long saveColumn{};
 };
 } // namespace YAML_Lib

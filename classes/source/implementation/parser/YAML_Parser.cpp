@@ -197,9 +197,10 @@ std::string YAML_Parser::extractKey(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>==true value is an overrides.</returns>
 bool YAML_Parser::isOverride(ISource &source) {
+  source.save();
   bool isOverride{source.match("<<:")};
   if (isOverride) {
-    source.backup(3);
+    source.restore();
   }
   return isOverride;
 }
@@ -209,6 +210,7 @@ bool YAML_Parser::isOverride(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>== true if a dictionary key has been found.</returns>
 bool YAML_Parser::isKey(ISource &source) {
+  source.save();
   bool keyPresent{false};
   std::string key{extractKey(source)};
   auto keyLength = key.size();
@@ -220,7 +222,7 @@ bool YAML_Parser::isKey(ISource &source) {
     }
     keyLength++;
   }
-  source.backup(keyLength);
+  source.restore();
   return keyPresent;
 }
 /// <summary>
@@ -229,14 +231,15 @@ bool YAML_Parser::isKey(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>==true if an array element has been found.</returns>
 bool YAML_Parser::isArray(ISource &source) {
+  source.save();
   auto ch = source.current();
   auto arrayPresent{false};
   if (source.more() && ch == '-') {
     source.next();
     ch = source.current();
     arrayPresent = ch == kSpace || ch == kLineFeed;
-    source.backup(1);
   }
+  source.restore();
   return (arrayPresent);
 }
 /// <summary>
@@ -337,10 +340,9 @@ bool YAML_Parser::isDictionary(ISource &source) { return isKey(source); }
 /// <param name="source">Source stream.</param>
 /// <returns>== true a start document has been found.</returns>
 bool YAML_Parser::isDocumentStart(ISource &source) {
+  source.save();
   bool isStart{source.match("---")};
-  if (isStart) {
-    source.backup(3);
-  }
+  source.restore();
   return isStart;
 }
 /// <summary>
@@ -349,10 +351,9 @@ bool YAML_Parser::isDocumentStart(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>== true a end document has been found.</returns>
 bool YAML_Parser::isDocumentEnd(ISource &source) {
+  source.save();
   bool isEnd{source.match("...")};
-  if (isEnd) {
-    source.backup(3);
-  }
+  source.restore();
   return isEnd;
 }
 /// <summary>
@@ -579,8 +580,8 @@ YNode YAML_Parser::parseComment(ISource &source,
 /// <returns>Number YNode.</returns>
 YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters) {
   YNode yNode;
+  source.save();
   std::string numeric{extractToNext(source, delimiters)};
-  unsigned long len = numeric.size();
   rightTrim(numeric);
   if (Number number{numeric}; number.is<int>() || number.is<long>() ||
                               number.is<long long>() || number.is<float>() ||
@@ -589,7 +590,7 @@ YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters) {
     yNode = YNode::make<Number>(number);
   }
   if (yNode.isEmpty()) {
-    source.backup(len);
+    source.restore();
   }
   return yNode;
 }
@@ -601,14 +602,14 @@ YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters) {
 /// <returns>None YNode.</returns>
 YNode YAML_Parser::parseNone(ISource &source, const Delimiters &delimiters) {
   YNode yNode;
+  source.save();
   std::string none{extractToNext(source, delimiters)};
-  auto len = none.size();
   rightTrim(none);
   if (none == "null" || none == "~") {
     yNode = YNode::make<Null>();
   }
   if (yNode.isEmpty()) {
-    source.backup(len);
+    source.restore();
   }
   return yNode;
 }
@@ -620,8 +621,8 @@ YNode YAML_Parser::parseNone(ISource &source, const Delimiters &delimiters) {
 /// <returns>Boolean YNode.</returns>
 YNode YAML_Parser::parseBoolean(ISource &source, const Delimiters &delimiters) {
   YNode yNode;
+  source.save();
   std::string boolean{extractToNext(source, delimiters)};
-  auto len = boolean.size();
   rightTrim(boolean);
   if (Boolean::isTrue.contains(boolean)) {
     yNode = YNode::make<Boolean>(true, boolean);
@@ -629,7 +630,7 @@ YNode YAML_Parser::parseBoolean(ISource &source, const Delimiters &delimiters) {
     yNode = YNode::make<Boolean>(false, boolean);
   }
   if (yNode.isEmpty()) {
-    source.backup(len);
+    source.restore();
   }
   return yNode;
 }

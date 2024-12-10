@@ -46,6 +46,18 @@ public:
   }
   [[nodiscard]] std::size_t position() const override { return bufferPosition; }
 
+  void save() override {
+    saveBufferPosition = bufferPosition;
+    saveLineNo = lineNo;
+    saveColumn = column;
+  }
+  void restore() override {
+    bufferPosition = saveBufferPosition;
+    lineNo = saveLineNo;
+    column = saveColumn;
+  }
+
+protected:
   void backup(const unsigned long length) override {
     bufferPosition -= length;
     column -= length;
@@ -57,5 +69,7 @@ public:
 private:
   std::size_t bufferPosition = 0;
   std::string buffer;
+  // Saved context
+  std::size_t saveBufferPosition{};
 };
 } // namespace YAML_Lib

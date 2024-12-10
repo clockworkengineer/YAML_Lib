@@ -53,6 +53,18 @@ public:
     return std::filesystem::file_size(filename);
   }
 
+  void save() override {
+    saveLineNo = lineNo;
+    saveColumn = column;
+    saveBufferPosition = source.tellg();
+  }
+  void restore() override {
+    lineNo = saveLineNo;
+    column = saveColumn;
+    source.seekg(saveBufferPosition - source.tellg(), std::ios_base::cur);
+  }
+
+protected:
   void backup(const unsigned long length) override {
     source.clear();
     source.seekg(-static_cast<long>(length), std::ios_base::cur);
@@ -65,5 +77,7 @@ public:
 private:
   mutable std::ifstream source;
   std::string filename;
+  // Saved context
+  std::size_t saveBufferPosition{};
 };
 } // namespace YAML_Lib
