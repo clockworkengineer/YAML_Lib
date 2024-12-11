@@ -31,4 +31,20 @@ TEST_CASE("Check YAML parse mapping between sequences.",
             "York Yankees, Atlanta Braves]\": \n  - 2001-07-02\n  - "
             "2001-08-12\n  - 2001-08-14\n...\n");
   }
+  SECTION("YAML parse mapping between sequences (three key value pairs).",
+          "[YAML][Parse][Sequence Mapping]]") {
+    BufferSource source{
+        "? - Detroit Tigers\n  - Chicago cubs\n: - 2001-07-23\nNew York "
+        "Yankees: 2012-08-12\n? [ New York Yankees,\n    Atlanta Braves ]\n: [ "
+        "2001-07-02, 2001-08-12,\n    2001-08-14 ]"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    BufferDestination destination;
+    REQUIRE_NOTHROW(yaml.stringify(destination));
+    REQUIRE(destination.toString() ==
+            "---\n\"[Detroit Tigers, Chicago cubs]\": \n  - 2001-07-23\nNew "
+            "York Yankees: 2012-08-12\n\"[New York Yankees, Atlanta Braves]\": "
+            "\n  - 2001-07-02\n  - 2001-08-12\n  - 2001-08-14\n...\n");
+  }
 }
