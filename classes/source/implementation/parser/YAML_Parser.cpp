@@ -186,6 +186,9 @@ std::string YAML_Parser::extractKey(ISource &source) {
       key += source.append();
       source.ignoreWS();
     }
+  } else if (source.current() == '?') {
+    source.next();
+    key = extractToNext(source, {':'});
   } else {
     key = extractToNext(source, {':', kLineFeed});
   }
@@ -199,9 +202,7 @@ std::string YAML_Parser::extractKey(ISource &source) {
 bool YAML_Parser::isOverride(ISource &source) {
   source.save();
   bool isOverride{source.match("<<:")};
-  if (isOverride) {
-    source.restore();
-  }
+  source.restore();
   return isOverride;
 }
 /// <summary>
@@ -213,14 +214,12 @@ bool YAML_Parser::isKey(ISource &source) {
   source.save();
   bool keyPresent{false};
   std::string key{extractKey(source)};
-  auto keyLength = key.size();
   if (source.current() == ':') {
     source.next();
     if ((source.current() == ' ') || (source.current() == kLineFeed)) {
       rightTrim(key);
       keyPresent = isValidKey(key);
     }
-    keyLength++;
   }
   source.restore();
   return keyPresent;
