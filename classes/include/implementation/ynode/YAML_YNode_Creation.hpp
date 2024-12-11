@@ -18,7 +18,7 @@ template<typename T> YNode::YNode(T value)
     yNodeVariant = std::move(value);
   }
 }
-// Convert initializer list type to JMode
+// Convert an initializer list type to YNode
 inline static YNode typeToYNode(const YAML::IntializerListTypes &type)
 {
   if (const auto pValue = std::get_if<int>(&type)) { return YNode(*pValue); }

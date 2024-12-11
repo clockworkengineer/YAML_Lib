@@ -57,7 +57,7 @@ private:
   // Convert values to another specified type
   template <typename T> [[nodiscard]] T getAs() const;
   // Find the smallest type that can represent a number. Note: That if it cannot
-  // be held as an integer then floating point types are tried.
+  // be held as an integer, then floating point types are tried.
   void convertNumber(const std::string &number) {
     [[maybe_unused]] auto ok =
         stringToNumber<int>(number) || stringToNumber<long>(number) ||

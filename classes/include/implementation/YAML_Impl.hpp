@@ -19,7 +19,7 @@ public:
   ~YAML_Impl() = default;
   // Get YAML_Lib version
   static std::string version();
-  // Get number of document
+  // Get number of documents
   [[nodiscard]] unsigned long getNumberOfDocuments() const {
     unsigned long numberOfDocuments = 0;
     for (auto &yNode : yamlTree) {

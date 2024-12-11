@@ -8,7 +8,7 @@ struct Document : Variant
   using Entry = YNode;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
-  Document() : Variant(Type::document) {} // document treated as array so passes indexing checks
+  Document() : Variant(Type::document) {} // document treated as an array so passes indexing checks
   Document(const Document &other) = default;
   Document &operator=(const Document &other) = default;
   Document(Document &&other) = default;

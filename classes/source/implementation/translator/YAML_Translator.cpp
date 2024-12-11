@@ -158,7 +158,7 @@ std::string YAML_Translator::from(const std::string &escapedString) const {
       continue;
     }
     ++current;
-    // Check escape sequence if characters to process
+    // Check an escape sequence if characters to process
     if (current != escapedString.end()) {
       // Single character
       if (fromEscape.contains(*current)) {

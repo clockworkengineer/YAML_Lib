@@ -857,12 +857,12 @@ YNode YAML_Parser::parseDocument(ISource &source,
 std::vector<YNode> YAML_Parser::parse(ISource &source) {
   std::vector<YNode> yNodeTree;
   for (bool inDocument = false; source.more();) {
-    // Start of document
+    // Start of a document
     if (isDocumentStart(source)) {
       inDocument = true;
       moveToNext(source, {kLineFeed, '|', '>'});
       yNodeTree.push_back(YNode::make<Document>());
-      // End of document
+      // End of a document
     } else if (isDocumentEnd(source)) {
       moveToNext(source, {kLineFeed});
       if (!inDocument) {

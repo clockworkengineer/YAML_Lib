@@ -21,7 +21,7 @@ struct YNode
   ~YNode() = default;
   // Assignment operators
   template<typename T> YNode &operator=(T value) { return *this = YNode(value); }
-  // Has the variant been created
+  // Has the variant been created?
   [[nodiscard]] bool isEmpty() const { return yNodeVariant == nullptr; }
   // Indexing operators
   YNode &operator[](const std::string &key);

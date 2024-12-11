@@ -52,13 +52,13 @@ public:
   [[nodiscard]] static std::string version();
   // Get YAML library version
   [[nodiscard]] unsigned int getNumberOfDocuments() const;
-  // Parse YAML into tree
+  // Parse YAML into a tree
   void parse(ISource &source) const;
   void parse(ISource &&source) const;
   // Create YAML text string from YNode tree (no whitespace)
   void stringify(IDestination &destination) const;
   void stringify(IDestination &&destination) const;
-  // Get root of YAML tree
+  // Get the root of YAML tree
   [[nodiscard]] std::vector<YNode> &root();
   [[nodiscard]] const std::vector<YNode> &root() const;
   // Get vector of YAML document
