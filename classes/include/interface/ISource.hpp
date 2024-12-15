@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 namespace YAML_Lib {
 
 // ========================
@@ -124,7 +126,15 @@ protected:
   // =============
   // Saved context
   // =============
+  struct Context {
+    long lineNo{};
+    long column{};
+    std::size_t bufferPosition{};
+  };
+  bool saved{false};
   long saveLineNo{};
   long saveColumn{};
+  std::size_t saveBufferPosition{};
+  std::vector<Context> contexts;
 };
 } // namespace YAML_Lib

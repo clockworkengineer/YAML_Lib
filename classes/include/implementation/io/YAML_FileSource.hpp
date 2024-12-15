@@ -54,14 +54,14 @@ public:
   }
 
   void save() override {
-    saveLineNo = lineNo;
-    saveColumn = column;
-    saveBufferPosition = source.tellg();
+    contexts.emplace_back(lineNo, column, source.tellg());
   }
   void restore() override {
-    lineNo = saveLineNo;
-    column = saveColumn;
-    source.seekg(saveBufferPosition - source.tellg(), std::ios_base::cur);
+    Context context { contexts.back()};
+    contexts.pop_back();
+    lineNo = context.lineNo;
+    column = context.column;
+    source.seekg(context.bufferPosition - source.tellg(), std::ios_base::cur);
   }
 
 protected:
@@ -77,7 +77,5 @@ protected:
 private:
   mutable std::ifstream source;
   std::string filename;
-  // Saved context
-  std::size_t saveBufferPosition{};
 };
 } // namespace YAML_Lib
