@@ -61,7 +61,7 @@ public:
     contexts.pop_back();
     lineNo = context.lineNo;
     column = context.column;
-    source.seekg(context.bufferPosition - source.tellg(), std::ios_base::cur);
+    source.seekg(context.bufferPosition - source.tellg() - 1, std::ios_base::cur);
   }
 
 protected:
