@@ -148,6 +148,8 @@ YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
 /// <param name="yamlString">YAML string.</param>
 YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
   BufferSource keyYAML{yamlString + kLineFeed};
+  moveToNextIndent(keyYAML);
+  parseComments(keyYAML, {kLineFeed});
   auto keyYNode = parseDocument(keyYAML, {kLineFeed});
   std::string keyString{YRef<Variant>(keyYNode).toKey()};
   char quote = '\"';
@@ -167,6 +169,8 @@ YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
 bool YAML_Parser::isValidKey(const std::string &key) {
   try {
     BufferSource keyYAML{key + kLineFeed};
+    moveToNextIndent(keyYAML);
+    parseComments(keyYAML, {kLineFeed});
     YNode keyYNode = parseDocument(keyYAML, {kLineFeed});
     return !keyYNode.isEmpty() && !isA<Comment>(keyYNode);
   } catch ([[maybe_unused]] const std::exception &e) {
