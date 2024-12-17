@@ -10,6 +10,9 @@
 #include "YAML_Impl.hpp"
 
 namespace YAML_Lib {
+
+  std::string extractToNext(ISource &source,
+                          const YAML_Parser::Delimiters &delimiters);
 /// <summary>
 /// Returns true if str ends with substr.
 /// </summary>
@@ -49,8 +52,19 @@ void leftTrim(std::string &str) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 void moveToNextIndent(ISource &source) {
-  while (source.more() && (source.isWS() || source.current() == kLineFeed)) {
-    source.next();
+  while (true) {
+    while (source.more() && (source.isWS() || source.current() == kLineFeed)) {
+      source.next();
+    }
+    if (source.current() == '#') {
+      source.next();
+      std::string comment{extractToNext(source, {kLineFeed})};
+      if (source.more()) {
+        source.next();
+      }
+    } else {
+      break;
+    }
   }
 }
 /// <summary>
@@ -877,7 +891,7 @@ std::vector<YNode> YAML_Parser::parse(ISource &source) {
       inDocument = false;
       // Inter document comment
     } else if (isComment(source) && !inDocument) {
-      yNodeTree.push_back(parseComment(source, {kLineFeed}));
+      parseComment(source, {kLineFeed});
       // Parse document contents
     } else {
       if (!inDocument) {

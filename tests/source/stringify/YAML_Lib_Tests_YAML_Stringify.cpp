@@ -23,8 +23,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() ==
-            "---\n...\n# comment 1\n# comment 2\n# comment 3\n");
+    REQUIRE(destination.toString() == "---\n...\n");
   }
   SECTION("YAML Stringify document one with integer.",
           "[YAML][Stringify][Integer]") {
@@ -94,8 +93,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     BufferDestination destination;
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE(destination.toString() ==
-            "# comment 1\n---\n# comment 2\n# comment 3\n...\n");
+    REQUIRE(destination.toString() == "---\n...\n");
   }
   SECTION("YAML Stringify sequence of double quoted strings.",
           "[YAML][Stringify][Comments]") {
