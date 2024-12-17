@@ -1,6 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
 // ================================
-// ALL COMMENTS STRIIPED AT PRESENT
+// ALL COMMENTS STRIPPED AT PRESENT
 // ================================
 TEST_CASE("Check YAML Parsing of comments.", "[YAML][parse][Comment]") {
   const YAML yaml;
