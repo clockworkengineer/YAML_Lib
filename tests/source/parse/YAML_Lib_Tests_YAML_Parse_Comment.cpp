@@ -1,8 +1,7 @@
 #include "YAML_Lib_Tests.hpp"
-
-//
-// COMMENTS THAT DO NOT START A LINE ARE STRIPPED AT PRESENT
-//
+// ================================
+// ALL COMMENTS STRIIPED AT PRESENT
+// ================================
 TEST_CASE("Check YAML Parsing of comments.", "[YAML][parse][Comment]") {
   const YAML yaml;
   SECTION("YAML parse of comments (no documents).", "[YAML][parse][Comment]") {
@@ -62,24 +61,22 @@ TEST_CASE("Check YAML Parsing of comments.", "[YAML][parse][Comment]") {
   }
   SECTION("YAML parse of comment after '>'.", "[YAML][parse][Comment]") {
     BufferSource source{"---\nbar: > # test comment 1\n  this is not a normal "
-                        "string it\n  spans more than\n  one line\n see?\n"};
+                        "string it\n  spans more than\n  one line\n  see?\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.root()[0][0]));
     REQUIRE_FALSE(!isA<String>(yaml.root()[0][0]["bar"]));
     REQUIRE(YRef<String>(yaml.root()[0][0]["bar"]).value() ==
             "this is not a normal string it spans more than one line see?");
   }
-
   SECTION("YAML parse of comment after '|'.", "[YAML][parse][Comment]") {
     BufferSource source{"---\nbar: | # test comment 1\n  this is not a normal "
-                        "string it\n  spans more than\n  one line\n see?\n"};
+                        "string it\n  spans more than\n  one line\n  see?\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.root()[0][0]));
     REQUIRE_FALSE(!isA<String>(yaml.root()[0][0]["bar"]));
     REQUIRE(YRef<String>(yaml.root()[0][0]["bar"]).value() ==
             "this is not a normal string it\nspans more than\none line\nsee?");
   }
-
   SECTION("YAML parse of comment one same line as a string.",
           "[YAML][parse][Comment]") {
     BufferSource source{"---\n   - One String   # Comment \n"};

@@ -114,12 +114,12 @@ void checkForEnd(ISource &source, char end) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used in parsing.</param>
-void YAML_Parser::parseComments(ISource &source, const Delimiters &delimiters) {
-  while (isComment(source)) {
-    parseComment(source, delimiters);
-    moveToNextIndent(source);
-  }
-}
+// void YAML_Parser::parseComments(ISource &source, const Delimiters &delimiters) {
+//   while (isComment(source)) {
+//     parseComment(source, delimiters);
+//     moveToNextIndent(source);
+//   }
+// }
 /// <summary>
 /// Check for the end of a plain flow string on source stream.
 /// </summary>
@@ -808,8 +808,8 @@ YNode YAML_Parser::parseDictionary(ISource &source,
                               "'.");
       }
       YRef<Dictionary>(yNode).add(std::move(entry));
-    } else if (isComment(source)) {
-      parseComment(source, delimiters);
+    // } else if (isComment(source)) {
+    //   parseComment(source, delimiters);
     } else if (isDocumentStart(source) || isDocumentEnd(source)) {
       break;
     } else {
