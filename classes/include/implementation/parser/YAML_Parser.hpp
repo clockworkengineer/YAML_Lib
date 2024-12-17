@@ -125,7 +125,7 @@ private:
       {isNone, parseNone},
       {isFoldedBlockString, parseFoldedBlockString},
       {isPipedBlockString, parseLiteralBlockString},
-      {isComment, parseComment},
+      // {isComment, parseComment},
       {isAnchor, parseAnchor},
       {isAlias, parseAlias},
       {isOverride, parseOverride},
