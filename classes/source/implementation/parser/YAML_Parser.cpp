@@ -110,17 +110,6 @@ void checkForEnd(ISource &source, char end) {
   moveToNextIndent(source);
 }
 /// <summary>
-/// Parse any comments.
-/// </summary>
-/// <param name="source">Source stream.</param>
-/// <param name="delimiters">Delimiters used in parsing.</param>
-// void YAML_Parser::parseComments(ISource &source, const Delimiters &delimiters) {
-//   while (isComment(source)) {
-//     parseComment(source, delimiters);
-//     moveToNextIndent(source);
-//   }
-// }
-/// <summary>
 /// Check for the end of a plain flow string on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
@@ -163,7 +152,6 @@ YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
 YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
   BufferSource keyYAML{yamlString + kLineFeed};
   moveToNextIndent(keyYAML);
-  // parseComments(keyYAML, {kLineFeed});
   auto keyYNode = parseDocument(keyYAML, {kLineFeed});
   std::string keyString{YRef<Variant>(keyYNode).toKey()};
   char quote = '\"';
@@ -184,7 +172,6 @@ bool YAML_Parser::isValidKey(const std::string &key) {
   try {
     BufferSource keyYAML{key + kLineFeed};
     moveToNextIndent(keyYAML);
-    // parseComments(keyYAML, {kLineFeed});
     YNode keyYNode = parseDocument(keyYAML, {kLineFeed});
     return !keyYNode.isEmpty() && !isA<Comment>(keyYNode);
   } catch ([[maybe_unused]] const std::exception &e) {
@@ -495,7 +482,6 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
                                           const Delimiters &delimiters) {
   BlockChomping chomping{parseBlockChomping(source)};
   moveToNext(source, delimiters);
-  // parseComments(source, delimiters);
   auto blockIndent = source.getIndentation();
   std::string yamlString{
       parseBlockString(source, delimiters, kSpace, chomping)};
@@ -511,7 +497,6 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
                                            const Delimiters &delimiters) {
   BlockChomping chomping{parseBlockChomping(source)};
   moveToNext(source, delimiters);
-  // parseComments(source, delimiters);
   auto blockIndent = source.getIndentation();
   std::string yamlString{
       parseBlockString(source, delimiters, kLineFeed, chomping)};
@@ -730,8 +715,6 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
     if (isArray(source)) {
       source.next();
       YRef<Array>(yNode).add(parseDocument(source, delimiters));
-    // } else if (isComment(source)) {
-    //   parseComment(source, delimiters);
     } else {
       break;
     }
@@ -775,7 +758,6 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
     throw SyntaxError("Only an inline/compact dictionary is allowed.");
   }
   moveToNextIndent(source);
-  // parseComments(source, delimiters);
   YNode yNode;
   if ((source.getIndentation() > keyIndent) || isInlineArray(source) ||
       isInlineDictionary(source) || delimiters.contains('}')) {
@@ -808,8 +790,6 @@ YNode YAML_Parser::parseDictionary(ISource &source,
                               "'.");
       }
       YRef<Dictionary>(yNode).add(std::move(entry));
-    // } else if (isComment(source)) {
-    //   parseComment(source, delimiters);
     } else if (isDocumentStart(source) || isDocumentEnd(source)) {
       break;
     } else {

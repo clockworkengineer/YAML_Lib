@@ -349,5 +349,16 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
         "indentation\non the next line,\nplus another line at the end.");
   }
-
+//     SECTION("YAML parse a plain string block terminated by indentation level.", "[YAML][Parse][Scalar][String]") {
+//     BufferSource source{
+//         "---\ntest1:\n   Mark McGwire\'s\n  year was crippled\n by a knee injury.\n  test2: Mark Twain\n"};
+//     REQUIRE_NOTHROW(yaml.parse(source));
+//     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+//         BufferDestination destination;
+//     REQUIRE_NOTHROW(yaml.stringify(destination));
+//     REQUIRE(destination.toString() ==
+//             "");
+// //     REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
+// //             "Mark McGwire's year was crippled by a knee injury.");
+//   }
 }

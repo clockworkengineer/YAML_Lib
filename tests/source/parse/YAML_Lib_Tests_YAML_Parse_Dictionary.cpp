@@ -431,4 +431,10 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
                         "YAML Syntax Error: Inline dictionary used as key is "
                         "meant to be on one line.");
   }
+  SECTION(
+      "YAML parse dictionaries with out of line key indentation",
+      "[YAML][Parse][Dictionary]") {
+    BufferSource source{"outer: 1\n  inner: 0"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
 }

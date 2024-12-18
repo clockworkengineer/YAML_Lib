@@ -27,8 +27,6 @@ public:
 private:
   // YAML parser
 
-  static void parseComments(ISource &source, const Delimiters &delimiters );
-
   static YNode mergeOverrides(YNode &overrideRoot);
 
   static bool endOfPlainFlowString(ISource &source);
@@ -125,7 +123,6 @@ private:
       {isNone, parseNone},
       {isFoldedBlockString, parseFoldedBlockString},
       {isPipedBlockString, parseLiteralBlockString},
-      // {isComment, parseComment},
       {isAnchor, parseAnchor},
       {isAlias, parseAlias},
       {isOverride, parseOverride},
