@@ -711,14 +711,10 @@ YNode YAML_Parser::parseOverride(ISource &source,
 YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
   unsigned long arrayIndent = source.getIndentation();
   YNode yNode = YNode::make<Array>(arrayIndent);
-  while (source.more() && (arrayIndent == source.getIndentation())) {
-    if (isArray(source)) {
-      source.next();
-      YRef<Array>(yNode).add(parseDocument(source, delimiters));
-    } else {
-      break;
-    }
-
+  while (source.more() && isArray(source) &&
+         (arrayIndent == source.getIndentation())) {
+    source.next();
+    YRef<Array>(yNode).add(parseDocument(source, delimiters));
     moveToNextIndent(source);
   }
   return yNode;
