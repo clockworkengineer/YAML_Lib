@@ -276,9 +276,9 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
   SECTION("YAML parse dictionary with duplicate keys.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{
-        "---\nthing1: \"one\"\n thing1: \"two\"\n thing3: \"three\"\n"};
+        "---\nthing1: \"one\"\nthing1: \"two\"\nthing3: \"three\"\n"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Syntax Error [Line: 4 Column: 2]: Dictionary "
+                        "YAML Syntax Error [Line: 4 Column: 1]: Dictionary "
                         "already contains key 'thing1'.");
   }
 
@@ -431,10 +431,11 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
                         "YAML Syntax Error: Inline dictionary used as key is "
                         "meant to be on one line.");
   }
-  SECTION(
-      "YAML parse dictionaries with out of line key indentation",
-      "[YAML][Parse][Dictionary]") {
+  SECTION("YAML parse dictionaries with out of line key indentation",
+          "[YAML][Parse][Dictionary]") {
     BufferSource source{"outer: 1\n  inner: 0"};
-    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        "YAML Syntax Error [Line: 2 Column: 3]: Mapping key "
+                        "has the incorrect indentation.");
   }
 }

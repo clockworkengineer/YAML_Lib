@@ -11,7 +11,7 @@
 
 namespace YAML_Lib {
 
-  std::string extractToNext(ISource &source,
+std::string extractToNext(ISource &source,
                           const YAML_Parser::Delimiters &delimiters);
 /// <summary>
 /// Returns true if str ends with substr.
@@ -711,16 +711,16 @@ YNode YAML_Parser::parseOverride(ISource &source,
 YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
   unsigned long arrayIndent = source.getIndentation();
   YNode yNode = YNode::make<Array>(arrayIndent);
-  while (source.more() && (arrayIndent <= source.getIndentation())) {
+  while (source.more() && (arrayIndent == source.getIndentation())) {
     if (isArray(source)) {
       source.next();
       YRef<Array>(yNode).add(parseDocument(source, delimiters));
     } else {
       break;
     }
+
     moveToNextIndent(source);
   }
-
   return yNode;
 }
 /// <summary>
@@ -781,7 +781,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
   }
   unsigned long dictionaryIndent = source.getIndentation();
   YNode yNode = YNode::make<Dictionary>(dictionaryIndent);
-  while (source.more() && (dictionaryIndent <= source.getIndentation())) {
+  while (source.more() && (dictionaryIndent == source.getIndentation())) {
     if (isKey(source)) {
       auto entry = parseKeyValue(source, delimiters);
       if (YRef<Dictionary>(yNode).contains(entry.getKey())) {
@@ -797,9 +797,12 @@ YNode YAML_Parser::parseDictionary(ISource &source,
         throw SyntaxError(source.getPosition(),
                           "Missing key/value pair from indentation level.");
       }
-      break;
     }
     moveToNextIndent(source);
+  }
+  if (isKey(source) && dictionaryIndent < source.getIndentation()) {
+    throw SyntaxError(source.getPosition(),
+                      "Mapping key has the incorrect indentation.");
   }
   return (mergeOverrides(yNode));
 }
