@@ -14,6 +14,7 @@ constexpr char kSingleYAMLFile[] = "testfile001.yaml";
 constexpr char kNonExistantYAMLFile[] = "doesntexist.yaml";
 
 const std::string prefixPath(const std::string &yamlFileName);
+void compareYAML(const YAML_Lib::YAML &yaml, const std::string &destinationYAML);
 
 // Test files macro
 #define TEST_FILE_LIST(file)                                                   \

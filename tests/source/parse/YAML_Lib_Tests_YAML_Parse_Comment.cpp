@@ -14,18 +14,14 @@ TEST_CASE("Check YAML Parsing of comments.", "[YAML][parse][Comment]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]));
     REQUIRE(YRef<String>(yaml.root()[0][0][0]).value() == "One");
-    BufferDestination destination;
-    REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\n- \'One\'\n...\n");
+    compareYAML(yaml, "---\n- \'One\'\n...\n");
   }
   SECTION("YAML parse of comments.", "[YAML][parse][Comment]") {
     BufferSource source{"---\n# Comment 1\n   - 'One'\n# Comment 2\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]));
     REQUIRE(YRef<String>(yaml.root()[0][0][0]).value() == "One");
-    BufferDestination destination;
-    REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\n- \'One\'\n...\n");
+    compareYAML(yaml, "---\n- \'One\'\n...\n");
   }
   SECTION("YAML parse of comments and one before start.",
           "[YAML][parse][Comment]") {
@@ -34,9 +30,7 @@ TEST_CASE("Check YAML Parsing of comments.", "[YAML][parse][Comment]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]));
     REQUIRE(YRef<String>(yaml.root()[0][0][0]).value() == "One");
-    BufferDestination destination;
-    REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\n- \'One\'\n...\n");
+    compareYAML(yaml, "---\n- \'One\'\n...\n");
   }
   SECTION("YAML parse of comments and three before start.",
           "[YAML][parse][Comment]") {
@@ -45,9 +39,7 @@ TEST_CASE("Check YAML Parsing of comments.", "[YAML][parse][Comment]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]));
     REQUIRE(YRef<String>(yaml.root()[0][0][0]).value() == "One");
-    BufferDestination destination;
-    REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\n- \'One\'\n...\n");
+    compareYAML(yaml, "---\n- \'One\'\n...\n");
   }
   SECTION("YAML parse of comments one on the same line as start.",
           "[YAML][parse][Comment]") {
@@ -55,9 +47,7 @@ TEST_CASE("Check YAML Parsing of comments.", "[YAML][parse][Comment]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.root()[0][0]));
     REQUIRE(YRef<String>(yaml.root()[0][0][0]).value() == "One");
-    BufferDestination destination;
-    REQUIRE_NOTHROW(yaml.stringify(destination));
-    REQUIRE(destination.toString() == "---\n- \'One\'\n...\n");
+    compareYAML(yaml, "---\n- \'One\'\n...\n");
   }
   SECTION("YAML parse of comment after '>'.", "[YAML][parse][Comment]") {
     BufferSource source{"---\nbar: > # test comment 1\n  this is not a normal "

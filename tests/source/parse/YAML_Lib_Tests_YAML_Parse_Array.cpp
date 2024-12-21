@@ -92,8 +92,6 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
 
     BufferSource source{"---\nitems: [1, 2, 3, 4, 5 ]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    BufferDestination destination;
-    REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
     REQUIRE(YRef<Array>(yaml.document(0)[0]["items"]).size() == 5);
     REQUIRE(YRef<Number>(yaml.document(0)[0]["items"][0]).value<int>() == 1);
@@ -191,6 +189,9 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
   // SECTION("YAML parse array with incorrect indentation.",
   //         "[YAML][Parse][Array]") {
   //   BufferSource source{"---\n   - test\n- test"};
-  //   REQUIRE_THROWS_WITH(yaml.parse(source), "");
+  //   REQUIRE_NOTHROW(yaml.parse(source));
+  //   BufferDestination destination;
+  //   REQUIRE_NOTHROW(yaml.stringify(destination));
+  //   REQUIRE(destination.toString() == "");
   // }
 }
