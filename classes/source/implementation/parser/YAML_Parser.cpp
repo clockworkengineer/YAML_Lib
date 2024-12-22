@@ -46,27 +46,7 @@ void leftTrim(std::string &str) {
             std::find_if(str.begin(), str.end(),
                          [](unsigned char ch) { return !std::isspace(ch); }));
 }
-/// <summary>
-/// Move to the next non-whitespace character in source stream; jumping over new
-/// lines.
-/// </summary>
-/// <param name="source">Source stream.</param>
-void moveToNextIndent(ISource &source) {
-  while (true) {
-    while (source.more() && (source.isWS() || source.current() == kLineFeed)) {
-      source.next();
-    }
-    if (source.current() == '#') {
-      source.next();
-      std::string comment{extractToNext(source, {kLineFeed})};
-      if (source.more()) {
-        source.next();
-      }
-    } else {
-      break;
-    }
-  }
-}
+
 /// <summary>
 /// Move to next delimiter on source stream in a set and then to next indent.
 /// </summary>
@@ -78,7 +58,26 @@ void moveToNext(ISource &source, const YAML_Parser::Delimiters &delimiters) {
       source.next();
     }
   }
-  moveToNextIndent(source);
+}
+/// <summary>
+/// Move to the next non-whitespace character in source stream; jumping over new
+/// lines.
+/// </summary>
+/// <param name="source">Source stream.</param>
+void moveToNextIndent(ISource &source) {
+  while (true) {
+    while (source.more() && (source.isWS() || source.current() == kLineFeed)) {
+      source.next();
+    }
+    if (source.current() == '#') {
+      moveToNext(source, {kLineFeed});
+      if (source.more()) {
+        source.next();
+      }
+    } else {
+      break;
+    }
+  }
 }
 /// <summary>
 /// Extract characters from source stream up to a delimiter.
@@ -482,6 +481,7 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
                                           const Delimiters &delimiters) {
   BlockChomping chomping{parseBlockChomping(source)};
   moveToNext(source, delimiters);
+  moveToNextIndent(source);
   auto blockIndent = source.getIndentation();
   std::string yamlString{
       parseBlockString(source, delimiters, kSpace, chomping)};
@@ -497,6 +497,7 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
                                            const Delimiters &delimiters) {
   BlockChomping chomping{parseBlockChomping(source)};
   moveToNext(source, delimiters);
+  moveToNextIndent(source);
   auto blockIndent = source.getIndentation();
   std::string yamlString{
       parseBlockString(source, delimiters, kLineFeed, chomping)};
@@ -559,6 +560,7 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
     }
   }
   moveToNext(source, delimiters);
+  moveToNextIndent(source);
   return YNode::make<String>(yamlString, quote);
 }
 /// <summary>
@@ -591,6 +593,7 @@ YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters) {
                               number.is<long long>() || number.is<float>() ||
                               number.is<double>() || number.is<long double>()) {
     moveToNext(source, delimiters);
+    moveToNextIndent(source);
     yNode = YNode::make<Number>(number);
   }
   if (yNode.isEmpty()) {
@@ -860,10 +863,12 @@ std::vector<YNode> YAML_Parser::parse(ISource &source) {
     if (isDocumentStart(source)) {
       inDocument = true;
       moveToNext(source, {kLineFeed, '|', '>'});
+      moveToNextIndent(source);
       yNodeTree.push_back(YNode::make<Document>());
       // End of a document
     } else if (isDocumentEnd(source)) {
       moveToNext(source, {kLineFeed});
+      moveToNextIndent(source);
       if (!inDocument) {
         yNodeTree.push_back(YNode::make<Document>());
       }
