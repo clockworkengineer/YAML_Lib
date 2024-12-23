@@ -33,10 +33,10 @@ public:
   void parse(ISource &source);
   // Create YAML text string from YNode tree
   void stringify(IDestination &destination) const;
-  // Get root of YAML tree
+  // Get the root of YAML tree
   [[nodiscard]] std::vector<YNode> &root() { return yamlTree; }
   [[nodiscard]] const std::vector<YNode> &root() const { return yamlTree; }
-  // Get document
+  // Get the document
   [[nodiscard]] YNode &document(unsigned long index) {
     long numberOfDocuments = index;
     for (auto &yNode : yamlTree) {

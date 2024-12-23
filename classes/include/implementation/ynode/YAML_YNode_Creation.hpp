@@ -33,13 +33,13 @@ inline static YNode typeToYNode(const YAML::IntializerListTypes &type)
   if (const auto pValue = std::get_if<YNode>(&type)) { return std::move(*const_cast<YNode *>(pValue)); }
   throw YNode::Error("YNode for unsupported type could not be created.");
 }
-// Construct YNode Array from initializer list
+// Construct YNode Array from the initializer list
 inline YNode::YNode(const YAML::ArrayInitializer &array)
 {
   *this = make<Array>();
   for (const auto &entry : array) { YRef<Array>(*this).add(typeToYNode(entry)); }
 }
-// Construct YNode Dictionary from initializer list
+// Construct YNode Dictionary from the initializer list
 inline YNode::YNode(const YAML::Dictionaryintializer &dictionary)
 {
   *this = make<Dictionary>();
