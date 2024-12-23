@@ -29,6 +29,13 @@ namespace YAML_Lib {
 class YAML_Impl;
 struct YNode;
 
+// =====================
+// YAML string constants
+// =====================
+constexpr const char *kOverride{ "<<"};
+constexpr const char *kStartDocument{ "---"};
+constexpr const char *kEndDocument{ "..."};
+
 class YAML {
 public:
   // Possible YAML Node initializer list types

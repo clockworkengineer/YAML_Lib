@@ -190,8 +190,6 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
   //         "[YAML][Parse][Array]") {
   //   BufferSource source{"---\n   - test\n- test"};
   //   REQUIRE_NOTHROW(yaml.parse(source));
-  //   BufferDestination destination;
-  //   REQUIRE_NOTHROW(yaml.stringify(destination));
-  //   REQUIRE(destination.toString() == "");
+  //   compareYAML(yaml, "");
   // }
 }

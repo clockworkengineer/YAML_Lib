@@ -11,15 +11,13 @@
 
 namespace YAML_Lib {
 
-std::string extractToNext(ISource &source,
-                          const YAML_Parser::Delimiters &delimiters);
 /// <summary>
 /// Returns true if str ends with substr.
 /// </summary>
 /// <param name="str">Target string.</param>
 /// <param name="substr">Ends with string.</param>
 /// <returns>==true,then ends with substr.</returns>
-bool endsWith(const std::string &str, const std::string &substr) {
+bool YAML_Parser::endsWith(const std::string &str, const std::string &substr) {
   auto strLen = str.size();
   auto substrLen = substr.size();
   if (strLen < substrLen)
@@ -31,27 +29,18 @@ bool endsWith(const std::string &str, const std::string &substr) {
 /// Remove any spaces at the end of str.
 /// </summary>
 /// <param name="str">Target string.</param>
-void rightTrim(std::string &str) {
+void YAML_Parser::rightTrim(std::string &str) {
   str.erase(std::find_if(str.rbegin(), str.rend(),
                          [](unsigned char ch) { return !std::isspace(ch); })
                 .base(),
             str.end());
 }
 /// <summary>
-/// Remove any spaces at the front of str.
-/// </summary>
-/// <param name="str">Target string.</param>
-void leftTrim(std::string &str) {
-  str.erase(str.begin(),
-            std::find_if(str.begin(), str.end(),
-                         [](unsigned char ch) { return !std::isspace(ch); }));
-}
-/// <summary>
 /// Move to next delimiter on source stream in a set.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Set of possible delimiter characters.</param>
-void moveToNext(ISource &source, const YAML_Parser::Delimiters &delimiters) {
+void YAML_Parser::moveToNext(ISource &source, const YAML_Parser::Delimiters &delimiters) {
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
       source.next();
@@ -63,13 +52,13 @@ void moveToNext(ISource &source, const YAML_Parser::Delimiters &delimiters) {
 /// lines and stripping amy comments.
 /// </summary>
 /// <param name="source">Source stream.</param>
-void moveToNextIndent(ISource &source) {
+void YAML_Parser::moveToNextIndent(ISource &source) {
   bool indentFound{false};
   while (!indentFound) {
     while (source.more() && (source.isWS() || source.current() == kLineFeed)) {
       source.next();
     }
-    if (source.current() == '#') {
+    if (isComment(source)) {
       moveToNext(source, {kLineFeed});
       if (source.more()) {
         source.next();
@@ -85,7 +74,7 @@ void moveToNextIndent(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns>Extracted characters.</returns>
-std::string extractToNext(ISource &source,
+std::string YAML_Parser::extractToNext(ISource &source,
                           const YAML_Parser::Delimiters &delimiters) {
   std::string extracted;
   if (!delimiters.empty()) {
@@ -100,7 +89,7 @@ std::string extractToNext(ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="end">End character.</param>
-void checkForEnd(ISource &source, char end) {
+void YAML_Parser::checkForEnd(ISource &source, char end) {
   if (source.current() != end) {
     throw SyntaxError(source.getPosition(),
                       std::string("Missing closing ") + end + ".");
@@ -123,15 +112,15 @@ bool YAML_Parser::endOfPlainFlowString(ISource &source) {
 /// </summary>
 YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
   if (isA<Dictionary>(overrideRoot) &&
-      YRef<Dictionary>(overrideRoot).contains("<<")) {
+      YRef<Dictionary>(overrideRoot).contains(kOverride)) {
     auto &dictionary = YRef<Dictionary>(overrideRoot);
     std::set<std::string> overrideKeys;
     for (auto &entry : dictionary.value()) {
-      if (entry.getKey() != "<<") {
+      if (entry.getKey() != kOverride) {
         overrideKeys.insert(entry.getKey());
       }
     }
-    auto &innerDictionary = YRef<Dictionary>(dictionary["<<"]);
+    auto &innerDictionary = YRef<Dictionary>(dictionary[kOverride]);
     for (auto &entry : overrideKeys) {
       auto overrideEntry = mergeOverrides(dictionary[entry]);
       if (innerDictionary.contains(entry)) {
@@ -140,7 +129,7 @@ YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
         innerDictionary.add(DictionaryEntry(entry, overrideEntry));
       }
     }
-    overrideRoot = std::move(overrideRoot["<<"]);
+    overrideRoot = std::move(overrideRoot[kOverride]);
   }
   return (std::move(overrideRoot));
 }
@@ -344,7 +333,7 @@ bool YAML_Parser::isDictionary(ISource &source) { return isKey(source); }
 /// <returns>== true a start document has been found.</returns>
 bool YAML_Parser::isDocumentStart(ISource &source) {
   source.save();
-  bool isStart{source.match("---")};
+  bool isStart{source.match(kStartDocument)};
   source.restore();
   return isStart;
 }
@@ -355,7 +344,7 @@ bool YAML_Parser::isDocumentStart(ISource &source) {
 /// <returns>== true a end document has been found.</returns>
 bool YAML_Parser::isDocumentEnd(ISource &source) {
   source.save();
-  bool isEnd{source.match("...")};
+  bool isEnd{source.match(kEndDocument)};
   source.restore();
   return isEnd;
 }
