@@ -186,10 +186,16 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(YRef<Number>(yaml.document(0)[0][4]).value<int>() == 5);
     REQUIRE(YRef<Number>(yaml.document(0)[0][5]).value<int>() == 6);
   }
-  // SECTION("YAML parse array with incorrect indentation.",
-  //         "[YAML][Parse][Array]") {
-  //   BufferSource source{"---\n   - test\n- test"};
-  //   REQUIRE_NOTHROW(yaml.parse(source));
-  //   compareYAML(yaml, "");
-  // }
+  SECTION("YAML parse array with incorrect indentation.",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\n   - test\n- test"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    compareYAML(yaml, "");
+  }
+  SECTION("YAML parse array with string that looks like continuing array",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\n- test - test"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    compareYAML(yaml, "---\n- test - test\n...\n");
+  }
 }
