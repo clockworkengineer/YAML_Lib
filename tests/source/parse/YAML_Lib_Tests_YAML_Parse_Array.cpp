@@ -186,11 +186,10 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(YRef<Number>(yaml.document(0)[0][4]).value<int>() == 5);
     REQUIRE(YRef<Number>(yaml.document(0)[0][5]).value<int>() == 6);
   }
-  SECTION("YAML parse array with incorrect indentation.",
+  SECTION("YAML parse array with incorrect indentation in element.",
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n   - test\n- test"};
-    REQUIRE_NOTHROW(yaml.parse(source));
-    compareYAML(yaml, "");
+    REQUIRE_THROWS_WITH(yaml.parse(source),"YAML Syntax Error: Invalid indentation for array element.");
   }
   SECTION("YAML parse array with string that looks like continuing array",
           "[YAML][Parse][Array]") {

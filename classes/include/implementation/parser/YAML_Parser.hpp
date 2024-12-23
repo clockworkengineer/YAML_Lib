@@ -135,8 +135,11 @@ private:
       {isAlias, parseAlias},
       {isOverride, parseOverride},
       {isDefault, parsePlainFlowString}};
+  // Indent level
+  inline static long indentLevel{0};
   // Translator
   ITranslator &translator;
+
 };
 
 } // namespace YAML_Lib

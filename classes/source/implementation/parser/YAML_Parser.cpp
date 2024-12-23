@@ -40,7 +40,8 @@ void YAML_Parser::rightTrim(std::string &str) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Set of possible delimiter characters.</param>
-void YAML_Parser::moveToNext(ISource &source, const YAML_Parser::Delimiters &delimiters) {
+void YAML_Parser::moveToNext(ISource &source,
+                             const YAML_Parser::Delimiters &delimiters) {
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
       source.next();
@@ -74,8 +75,9 @@ void YAML_Parser::moveToNextIndent(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns>Extracted characters.</returns>
-std::string YAML_Parser::extractToNext(ISource &source,
-                          const YAML_Parser::Delimiters &delimiters) {
+std::string
+YAML_Parser::extractToNext(ISource &source,
+                           const YAML_Parser::Delimiters &delimiters) {
   std::string extracted;
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
@@ -700,6 +702,7 @@ YNode YAML_Parser::parseOverride(ISource &source,
 /// <returns>Array YNode.</returns>
 YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
   unsigned long arrayIndent = source.getIndentation();
+  indentLevel++;
   YNode yNode = YNode::make<Array>(arrayIndent);
   while (source.more() && isArray(source) &&
          (arrayIndent == source.getIndentation())) {
@@ -707,6 +710,11 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
     YRef<Array>(yNode).add(parseDocument(source, delimiters));
     moveToNextIndent(source);
   }
+  if (isArray(source) && (indentLevel == 1) &&
+      (arrayIndent > source.getIndentation())) {
+    throw SyntaxError("Invalid indentation for array element.");
+  }
+  indentLevel--;
   return yNode;
 }
 /// <summary>
