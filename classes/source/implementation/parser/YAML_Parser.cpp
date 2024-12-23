@@ -46,9 +46,8 @@ void leftTrim(std::string &str) {
             std::find_if(str.begin(), str.end(),
                          [](unsigned char ch) { return !std::isspace(ch); }));
 }
-
 /// <summary>
-/// Move to next delimiter on source stream in a set and then to next indent.
+/// Move to next delimiter on source stream in a set.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Set of possible delimiter characters.</param>
@@ -61,11 +60,12 @@ void moveToNext(ISource &source, const YAML_Parser::Delimiters &delimiters) {
 }
 /// <summary>
 /// Move to the next non-whitespace character in source stream; jumping over new
-/// lines.
+/// lines and stripping amy comments.
 /// </summary>
 /// <param name="source">Source stream.</param>
 void moveToNextIndent(ISource &source) {
-  while (true) {
+  bool indentFound{false};
+  while (!indentFound) {
     while (source.more() && (source.isWS() || source.current() == kLineFeed)) {
       source.next();
     }
@@ -75,7 +75,7 @@ void moveToNextIndent(ISource &source) {
         source.next();
       }
     } else {
-      break;
+      indentFound = true;
     }
   }
 }
@@ -149,9 +149,8 @@ YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
 /// </summary>
 /// <param name="yamlString">YAML string.</param>
 YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
-  BufferSource keyYAML{yamlString + kLineFeed};
-  moveToNextIndent(keyYAML);
-  auto keyYNode = parseDocument(keyYAML, {kLineFeed});
+  BufferSource yamlKey{yamlString + kLineFeed};
+  auto keyYNode = parseDocument(yamlKey, {kLineFeed});
   std::string keyString{YRef<Variant>(keyYNode).toKey()};
   char quote = '\"';
   if (isA<String>(keyYNode)) {
@@ -169,9 +168,8 @@ YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
 /// <returns>==true value is a valid key.</returns>
 bool YAML_Parser::isValidKey(const std::string &key) {
   try {
-    BufferSource keyYAML{key + kLineFeed};
-    moveToNextIndent(keyYAML);
-    YNode keyYNode = parseDocument(keyYAML, {kLineFeed});
+    BufferSource yamlKey{key + kLineFeed};
+    YNode keyYNode = parseDocument(yamlKey, {kLineFeed});
     return !keyYNode.isEmpty() && !isA<Comment>(keyYNode);
   } catch ([[maybe_unused]] const std::exception &e) {
     return false;
@@ -736,7 +734,6 @@ YNode YAML_Parser::parseInlineArray(
   YNode yNode = YNode::make<Array>(arrayIndent);
   do {
     source.next();
-    moveToNextIndent(source);
     YRef<Array>(yNode).add(parseDocument(source, inLineArrayDelimiters));
   } while (source.current() == ',');
   checkForEnd(source, ']');
