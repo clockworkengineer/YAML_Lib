@@ -2,7 +2,7 @@
 
 namespace YAML_Lib {
 
-struct Number : Variant {
+struct Number final : Variant {
   // Number values variant
   using Values = std::variant<std::monostate, int, long, long long, float,
                               double, long double>;
@@ -22,7 +22,7 @@ struct Number : Variant {
   Number &operator=(const Number &other) = default;
   Number(Number &&other) = default;
   Number &operator=(Number &&other) = default;
-  ~Number() = default;
+  ~Number() override = default;
   // Is number an int/long/long long/float/double/long double ?
   template <typename T> [[nodiscard]] bool is() const {
     return std::get_if<T>(&yNodeNumber) != nullptr;

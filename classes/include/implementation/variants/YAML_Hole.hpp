@@ -2,7 +2,7 @@
 
 namespace YAML_Lib {
 
-struct Hole : Variant
+struct Hole final : Variant
 {
   // Constructors/Destructors
   Hole() : Variant(Type::hole) {}
@@ -10,7 +10,7 @@ struct Hole : Variant
   Hole &operator=(const Hole &other) = default;
   Hole(Hole &&other) = default;
   Hole &operator=(Hole &&other) = default;
-  ~Hole() = default;
+  ~Hole() override = default;
   // Return string representation of value
   [[nodiscard]] const std::string toString() const override { return "null"; }
 };

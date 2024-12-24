@@ -2,14 +2,14 @@
 
 namespace YAML_Lib {
 
-struct Null : Variant {
+struct Null final : Variant {
   // Constructors/Destructors
   Null() : Variant(Type::null) {}
   Null(const Null &other) = default;
   Null &operator=(const Null &other) = default;
   Null(Null &&other) = default;
   Null &operator=(Null &&other) = default;
-  ~Null() = default;
+  ~Null() override = default;
   // Return null value
   [[nodiscard]] static void *value() { return nullptr; }
   // Return string representation of value

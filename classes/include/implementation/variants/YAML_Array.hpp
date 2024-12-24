@@ -8,7 +8,7 @@ struct ArrayError final : std::runtime_error {
       : std::runtime_error("Array Error: " + message) {}
 };
 
-struct Array : Variant {
+struct Array final : Variant {
   using Error = ArrayError;
   using Entry = YNode;
   using Entries = std::vector<Entry>;
@@ -18,7 +18,7 @@ struct Array : Variant {
   Array &operator=(const Array &other) = default;
   Array(Array &&other) = default;
   Array &operator=(Array &&other) = default;
-  ~Array() = default;
+  ~Array() override = default;
   // Add array element
   void add(Entry yNode) { yNodeArray.emplace_back(std::move(yNode)); }
   // Return the size of array

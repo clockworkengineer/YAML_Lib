@@ -23,7 +23,7 @@ struct Variant {
   Variant &operator=(const Variant &other) = default;
   Variant(Variant &&other) = default;
   Variant &operator=(Variant &&other) = default;
-  ~Variant() = default;
+  virtual ~Variant() = default;
   // Get BNode type
   [[nodiscard]] Type getNodeType() const { return (yNodeType); }
   // Convert variant to a string

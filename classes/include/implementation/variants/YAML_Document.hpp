@@ -3,7 +3,7 @@
 namespace YAML_Lib {
 
 
-struct Document : Variant
+struct Document final : Variant
 {
   using Entry = YNode;
   using Entries = std::vector<Entry>;
@@ -13,7 +13,7 @@ struct Document : Variant
   Document &operator=(const Document &other) = default;
   Document(Document &&other) = default;
   Document &operator=(Document &&other) = default;
-  ~Document() = default;
+  ~Document() override = default;
   // Add document element
   void add(Entry yNode) { yNodeDocument.emplace_back(std::move(yNode)); }
   // Return the size of document

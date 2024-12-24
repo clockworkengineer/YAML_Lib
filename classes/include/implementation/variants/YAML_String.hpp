@@ -5,7 +5,7 @@
 
 namespace YAML_Lib {
 
-struct String : Variant
+struct String final : Variant
 {
   // Constructors/Destructors
   String() : Variant(Type::string) {}
@@ -14,7 +14,7 @@ struct String : Variant
   String &operator=(const String &other) = default;
   String(String &&other) = default;
   String &operator=(String &&other) = default;
-  ~String() = default;
+  ~String() override = default;
   // Return reference to string
   [[nodiscard]] std::string &value() { return yNodeString; }
   [[nodiscard]] const std::string &value() const { return yNodeString; }

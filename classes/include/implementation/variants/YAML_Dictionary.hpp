@@ -34,7 +34,7 @@ private:
   YNode yNode;
 };
 
-struct Dictionary : Variant {
+struct Dictionary final : Variant {
   using Error = DictionaryError;
   using Entry = DictionaryEntry;
   using Entries = std::vector<Entry>;
@@ -44,7 +44,7 @@ struct Dictionary : Variant {
   Dictionary &operator=(const Dictionary &other) = default;
   Dictionary(Dictionary &&other) = default;
   Dictionary &operator=(Dictionary &&other) = default;
-  ~Dictionary() = default;
+  ~Dictionary() override = default;
   // Add Entry to Dictionary
   template <typename T> void add(T &&entry) {
     yNodeDictionary.emplace_back(std::forward<T>(entry));

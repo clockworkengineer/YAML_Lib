@@ -6,7 +6,7 @@ namespace YAML_Lib {
 // =======
 // Boolean
 // =======
-struct Boolean : Variant {
+struct Boolean final : Variant {
   // Constructors/Destructors
   Boolean() : Variant(Type::boolean) {}
   Boolean(const bool boolean, std::string value)
@@ -15,7 +15,7 @@ struct Boolean : Variant {
   Boolean &operator=(const Boolean &other) = default;
   Boolean(Boolean &&other) = default;
   Boolean &operator=(Boolean &&other) = default;
-  ~Boolean() = default;
+  ~Boolean() override = default;
   // Return reference boolean value
   [[nodiscard]] bool &value() { return yNodeBoolean; }
   [[nodiscard]] const bool &value() const { return yNodeBoolean; }

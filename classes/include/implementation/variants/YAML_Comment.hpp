@@ -10,7 +10,7 @@ struct Comment final : Variant
   Comment &operator=(const Comment &other)  = default;
   Comment(Comment &&other) = default;
   Comment &operator=(Comment &&other) = default;
-  ~Comment() = default;
+  ~Comment() override = default;
   // Return reference to comment
   [[nodiscard]] const std::string &value() const { return yamlComment; }
    // Return string representation of value
