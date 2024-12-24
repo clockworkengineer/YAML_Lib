@@ -131,10 +131,6 @@ protected:
     long column{};
     std::size_t bufferPosition{};
   };
-  // bool saved{false};
-  // long saveLineNo{};
-  // long saveColumn{};
-  // std::size_t saveBufferPosition{};
   std::vector<Context> contexts;
 };
 } // namespace YAML_Lib
