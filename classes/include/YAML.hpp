@@ -39,14 +39,14 @@ constexpr const char *kEndDocument{ "..."};
 class YAML {
 public:
   // Possible YAML Node initializer list types
-  using IntializerListTypes =
+  using InitializerListTypes =
       std::variant<int, long, long long, float, double, long double, bool,
                    std::string, std::nullptr_t, YNode>;
   // Array initializer list
-  using ArrayInitializer = std::initializer_list<IntializerListTypes>;
+  using ArrayInitializer = std::initializer_list<InitializerListTypes>;
   // Dictionary initializer list
-  using Dictionaryintializer =
-      std::initializer_list<std::pair<std::string, IntializerListTypes>>;
+  using DictionaryInitializer =
+      std::initializer_list<std::pair<std::string, InitializerListTypes>>;
   // Pass any user defined parser/stringifier here
   explicit YAML(IStringify *stringify = nullptr, IParser *parser = nullptr);
   YAML(const YAML &other) = delete;

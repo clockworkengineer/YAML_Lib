@@ -19,7 +19,7 @@ template<typename T> YNode::YNode(T value)
   }
 }
 // Convert an initializer list type to YNode
-inline static YNode typeToYNode(const YAML::IntializerListTypes &type)
+inline static YNode typeToYNode(const YAML::InitializerListTypes &type)
 {
   if (const auto pValue = std::get_if<int>(&type)) { return YNode(*pValue); }
   if (const auto pValue = std::get_if<long>(&type)) { return YNode(*pValue); }
@@ -40,7 +40,7 @@ inline YNode::YNode(const YAML::ArrayInitializer &array)
   for (const auto &entry : array) { YRef<Array>(*this).add(typeToYNode(entry)); }
 }
 // Construct YNode Dictionary from the initializer list
-inline YNode::YNode(const YAML::Dictionaryintializer &dictionary)
+inline YNode::YNode(const YAML::DictionaryInitializer &dictionary)
 {
   *this = make<Dictionary>();
   for (const auto &[fst, snd] : dictionary) { YRef<Dictionary>(*this).add(Dictionary::Entry(fst, typeToYNode(snd))); }
