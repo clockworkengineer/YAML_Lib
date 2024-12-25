@@ -51,7 +51,7 @@ public:
   // Is the current character whitespace
   // ===================================
   [[nodiscard]] bool isWS() const {
-    auto ch = current();
+    const auto ch = current();
     return ch == kSpace || ch == '\t';
   }
   // ==================================
@@ -95,7 +95,7 @@ public:
   // Return current character and move one
   // =====================================
   char append() {
-    auto ch = current();
+    const auto ch = current();
     if (more()) {
       next();
     }

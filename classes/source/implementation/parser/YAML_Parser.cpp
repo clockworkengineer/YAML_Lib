@@ -181,8 +181,7 @@ std::string YAML_Parser::extractKey(ISource &source) {
   } else {
     delimiters = {':', kLineFeed};
   }
-  std::string key;
-  key = extractToNext(source, delimiters);
+  std::string key = extractToNext(source, delimiters);
   if (delimiters.contains('}') && source.current() == '}') {
     key += source.append();
     source.ignoreWS();
@@ -833,11 +832,10 @@ YNode YAML_Parser::parseInlineDictionary(
 /// <returns>Document root YNode.</returns>
 YNode YAML_Parser::parseDocument(ISource &source,
                                  const Delimiters &delimiters) {
-  YNode yNode;
   moveToNextIndent(source);
   for (const auto &parser : parsers) {
     if (parser.first(source)) {
-      yNode = parser.second(source, delimiters);
+      YNode yNode = parser.second(source, delimiters);
       if (!yNode.isEmpty()) {
         return yNode;
       }

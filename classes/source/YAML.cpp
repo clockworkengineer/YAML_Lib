@@ -58,10 +58,10 @@ const std::vector<YNode> &YAML::root() const { return implementation->root(); }
 /// </summary>
 /// <param name="index"></param>
 /// <returns></returns>
-YNode &YAML::document(unsigned long index) {
+YNode &YAML::document(const unsigned long index) {
   return implementation->document(index);
 }
-const YNode &YAML::document(unsigned long index) const {
+const YNode &YAML::document(const unsigned long index) const {
   return implementation->document(index);
 }
 

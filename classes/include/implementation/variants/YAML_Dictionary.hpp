@@ -39,7 +39,7 @@ struct Dictionary final : Variant {
   using Entry = DictionaryEntry;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
-  explicit Dictionary(unsigned long indent = 0) : Variant(Type::dictionary, indent) {}
+  explicit Dictionary(const unsigned long indent = 0) : Variant(Type::dictionary, indent) {}
   Dictionary(const Dictionary &other) = default;
   Dictionary &operator=(const Dictionary &other) = default;
   Dictionary(Dictionary &&other) = default;
@@ -101,7 +101,7 @@ private:
 
 inline Dictionary::Entries::iterator
 Dictionary::findKey(Entries &dictionary, const std::string &key) {
-  auto it = std::ranges::find_if(dictionary, [&key](Entry &entry) -> bool {
+  const auto it = std::ranges::find_if(dictionary, [&key](Entry &entry) -> bool {
     return entry.getKey() == key;
   });
   if (it == dictionary.end()) {
@@ -111,7 +111,7 @@ Dictionary::findKey(Entries &dictionary, const std::string &key) {
 }
 inline Dictionary::Entries::const_iterator
 Dictionary::findKey(const Entries &dictionary, const std::string &key) {
-  auto it =
+  const auto it =
       std::ranges::find_if(dictionary, [&key](const Entry &entry) -> bool {
         return entry.getKey() == key;
       });

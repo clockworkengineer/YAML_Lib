@@ -13,7 +13,7 @@ struct Array final : Variant {
   using Entry = YNode;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
-  explicit Array(unsigned long indent = 0) : Variant(Type::array, indent) {}
+  explicit Array(const unsigned long indent = 0) : Variant(Type::array, indent) {}
   Array(const Array &other) = default;
   Array &operator=(const Array &other) = default;
   Array(Array &&other) = default;
