@@ -39,7 +39,7 @@ std::vector<std::string> splitString(const std::string &target,
 /// <param name="destination"></param>
 /// <param name="indent"></param>
 /// <returns></returns>
-std::string calculateIndent(IDestination &destination, unsigned long indent) {
+std::string calculateIndent(IDestination &destination, const unsigned long indent) {
   if (destination.last() == kLineFeed) {
     return std::string(indent, kSpace);
   }
@@ -66,7 +66,7 @@ void stringifyAnyBlockStyle(IDestination &destination, const YNode &yNode) {
 /// <param name="yNode"></param>
 /// <param name="indent"></param>
 void YAML_Stringify::stringifyYAML(IDestination &destination,
-                                   const YNode &yNode, unsigned long indent) {
+                                   const YNode &yNode, const unsigned long indent) {
   YAML_Translator translator;
   if (isA<Number>(yNode)) {
     destination.add(YRef<Number>(yNode).toString());

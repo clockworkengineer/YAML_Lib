@@ -37,7 +37,7 @@ public:
   [[nodiscard]] std::vector<YNode> &root() { return yamlTree; }
   [[nodiscard]] const std::vector<YNode> &root() const { return yamlTree; }
   // Get the document
-  [[nodiscard]] YNode &document(unsigned long index) {
+  [[nodiscard]] YNode &document(const unsigned long index) {
     long numberOfDocuments = index;
     for (auto &yNode : yamlTree) {
       if (isA<Document>(yNode)) {
@@ -48,7 +48,7 @@ public:
     }
     throw Error("Document does not exist.");
   }
-  [[nodiscard]] const YNode &document(unsigned long index) const {
+  [[nodiscard]] const YNode &document(const unsigned long index) const {
     long numberOfDocuments = index;
     for (auto &yNode : yamlTree) {
       if (isA<Document>(yNode)) {

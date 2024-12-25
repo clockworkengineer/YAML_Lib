@@ -18,8 +18,8 @@ namespace YAML_Lib {
 /// <param name="substr">Ends with string.</param>
 /// <returns>==true,then ends with substr.</returns>
 bool YAML_Parser::endsWith(const std::string &str, const std::string &substr) {
-  auto strLen = str.size();
-  auto substrLen = substr.size();
+  const auto strLen = str.size();
+  const auto substrLen = substr.size();
   if (strLen < substrLen)
     return false;
 
@@ -31,7 +31,7 @@ bool YAML_Parser::endsWith(const std::string &str, const std::string &substr) {
 /// <param name="str">Target string.</param>
 void YAML_Parser::rightTrim(std::string &str) {
   str.erase(std::find_if(str.rbegin(), str.rend(),
-                         [](unsigned char ch) { return !std::isspace(ch); })
+                         [](const unsigned char ch) { return !std::isspace(ch); })
                 .base(),
             str.end());
 }
@@ -91,7 +91,7 @@ YAML_Parser::extractToNext(ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="end">End character.</param>
-void YAML_Parser::checkForEnd(ISource &source, char end) {
+void YAML_Parser::checkForEnd(ISource &source, const char end) {
   if (source.current() != end) {
     throw SyntaxError(source.getPosition(),
                       std::string("Missing closing ") + end + ".");
@@ -160,7 +160,7 @@ YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
 bool YAML_Parser::isValidKey(const std::string &key) {
   try {
     BufferSource yamlKey{key + kLineFeed};
-    YNode keyYNode = parseDocument(yamlKey, {kLineFeed});
+    const YNode keyYNode = parseDocument(yamlKey, {kLineFeed});
     return !keyYNode.isEmpty() && !isA<Comment>(keyYNode);
   } catch ([[maybe_unused]] const std::exception &e) {
     return false;
@@ -195,7 +195,7 @@ std::string YAML_Parser::extractKey(ISource &source) {
 /// <returns>==true value is an overrides.</returns>
 bool YAML_Parser::isOverride(ISource &source) {
   source.save();
-  bool isOverride{source.match("<<:")};
+  const bool isOverride{source.match("<<:")};
   source.restore();
   return isOverride;
 }
@@ -241,7 +241,7 @@ bool YAML_Parser::isArray(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>==true if a boolean value has been found.</returns>
 bool YAML_Parser::isBoolean(ISource &source) {
-  auto ch = source.current();
+  const auto ch = source.current();
   return ch == 'T' || ch == 'F' || ch == 'O' || ch == 'Y' || ch == 'N';
 }
 /// <summary>
@@ -250,7 +250,7 @@ bool YAML_Parser::isBoolean(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>==true then a quoted string has been found.</returns>
 bool YAML_Parser::isQuotedString(ISource &source) {
-  auto ch = source.current();
+  const auto ch = source.current();
   return (ch == '\'') || (ch == '"');
 }
 /// <summary>
@@ -259,7 +259,7 @@ bool YAML_Parser::isQuotedString(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>==true then a number has been found.</returns>
 bool YAML_Parser::isNumber(ISource &source) {
-  auto ch = source.current();
+  const auto ch = source.current();
   return (ch >= '0' && ch <= '9') || ch == '-' || ch == '+';
 }
 /// <summary>
@@ -268,7 +268,7 @@ bool YAML_Parser::isNumber(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>==true a null (none) value has been found.</returns>
 bool YAML_Parser::isNone(ISource &source) {
-  auto second = source.current();
+  const auto second = source.current();
   return second == 'n' || second == '~';
 }
 /// <summary>
@@ -334,7 +334,7 @@ bool YAML_Parser::isDictionary(ISource &source) { return isKey(source); }
 /// <returns>== true a start document has been found.</returns>
 bool YAML_Parser::isDocumentStart(ISource &source) {
   source.save();
-  bool isStart{source.match(kStartDocument)};
+  const bool isStart{source.match(kStartDocument)};
   source.restore();
   return isStart;
 }
@@ -345,7 +345,7 @@ bool YAML_Parser::isDocumentStart(ISource &source) {
 /// <returns>== true a end document has been found.</returns>
 bool YAML_Parser::isDocumentEnd(ISource &source) {
   source.save();
-  bool isEnd{source.match(kEndDocument)};
+  const bool isEnd{source.match(kEndDocument)};
   source.restore();
   return isEnd;
 }
@@ -382,7 +382,7 @@ void YAML_Parser::appendCharacterToString(ISource &source,
 /// <returns>Specified block chomping.</returns>
 YAML_Parser::BlockChomping YAML_Parser::parseBlockChomping(ISource &source) {
   source.next();
-  auto ch = source.current();
+  const auto ch = source.current();
   if (ch == '-') {
     return BlockChomping::strip;
   } else if (ch == '+') {
@@ -401,9 +401,9 @@ YAML_Parser::BlockChomping YAML_Parser::parseBlockChomping(ISource &source) {
 /// <returns>Block string parsed.</returns>
 std::string YAML_Parser::parseBlockString(ISource &source,
                                           const Delimiters &delimiters,
-                                          char fillerDefault,
-                                          BlockChomping &chomping) {
-  unsigned long blockIndent = source.getIndentation();
+                                          const char fillerDefault,
+                                          const BlockChomping &chomping) {
+  const unsigned long blockIndent = source.getIndentation();
   std::string yamlString{};
   do {
     char filler{fillerDefault};
@@ -520,7 +520,7 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parseQuotedFlowString(ISource &source,
                                          const Delimiters &delimiters) {
-  YAML_Translator translator;
+  const YAML_Translator translator;
   const char quote = source.append();
   std::string yamlString;
   if (quote == '"') {
@@ -637,7 +637,7 @@ YNode YAML_Parser::parseBoolean(ISource &source, const Delimiters &delimiters) {
 /// <returns>Anchor YNode.</returns>
 YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters) {
   source.next();
-  std::string name{extractToNext(source, {kLineFeed, kSpace})};
+  const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.ignoreWS();
   std::string unparsed{};
   if (source.current() != kLineFeed) {
@@ -645,7 +645,7 @@ YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters) {
     moveToNextIndent(source);
   } else {
     moveToNextIndent(source);
-    auto anchorIndent = source.getIndentation();
+    const auto anchorIndent = source.getIndentation();
     do {
       std::string indent(source.getIndentation(), kSpace);
       unparsed += indent + extractToNext(source, {kLineFeed}) + "\n";
@@ -664,9 +664,9 @@ YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters) {
 /// <returns>Alias anchor.</returns>
 YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters) {
   source.next();
-  std::string name{extractToNext(source, {kLineFeed, kSpace})};
+  const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.next();
-  std::string unparsed{yamlAliasMap[name]};
+  const std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
   return (parseDocument(anchor, delimiters));
 }
@@ -686,9 +686,9 @@ YNode YAML_Parser::parseOverride(ISource &source,
     throw SyntaxError("Missing '*' from alias.");
   }
   source.next();
-  std::string name{extractToNext(source, {kLineFeed, kSpace})};
+  const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.next();
-  std::string unparsed{yamlAliasMap[name]};
+  const std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, delimiters);
   return (parsed);
@@ -743,7 +743,7 @@ YNode YAML_Parser::parseInlineArray(
 /// <returns>Dictionary entry for key/value.</returns>
 DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
                                            const Delimiters &delimiters) {
-  unsigned long keyIndent = source.getIndentation();
+  const unsigned long keyIndent = source.getIndentation();
   YNode keyYNode = parseKey(source);
   source.ignoreWS();
   if (isKey(source) && !delimiters.contains('}')) {

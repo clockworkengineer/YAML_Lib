@@ -17,7 +17,7 @@ public:
   void stringify(const std::vector<YNode> &yamlTree,
                  IDestination &destination) const override;
   // Indentation increment
-  static void setIndentation(unsigned long indentation) {
+  static void setIndentation(const unsigned long indentation) {
     yamlIndentation = indentation;
   }
 private:
