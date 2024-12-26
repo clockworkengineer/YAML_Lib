@@ -32,9 +32,9 @@ struct YNode;
 // =====================
 // YAML string constants
 // =====================
-constexpr const char *kOverride{ "<<"};
-constexpr const char *kStartDocument{ "---"};
-constexpr const char *kEndDocument{ "..."};
+constexpr auto kOverride{ "<<"};
+constexpr auto kStartDocument{ "---"};
+constexpr auto kEndDocument{ "..."};
 
 class YAML {
 public:
