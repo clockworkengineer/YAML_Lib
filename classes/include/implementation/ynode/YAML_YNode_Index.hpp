@@ -30,7 +30,8 @@ inline YNode &YNode::operator[](const std::size_t index) {
 inline const YNode &YNode::operator[](const std::size_t index) const {
   if (isA<Array>(*this)) {
     return YRef<Array>(*this)[index];
-  } else if (isA<Document>(*this)) {
+  }
+  if (isA<Document>(*this)) {
     return YRef<Document>(*this)[index];
   }
   throw Error("Not an array or document to index.");

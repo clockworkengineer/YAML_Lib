@@ -133,7 +133,7 @@ YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
     }
     overrideRoot = std::move(overrideRoot[kOverride]);
   }
-  return (std::move(overrideRoot));
+  return std::move(overrideRoot);
 }
 /// <summary>
 /// Convert YAML key to a string YNode
@@ -210,7 +210,7 @@ bool YAML_Parser::isKey(ISource &source) {
   std::string key{extractKey(source)};
   if (source.current() == ':') {
     source.next();
-    if ((source.current() == ' ') || (source.current() == kLineFeed)) {
+    if (source.current() == ' ' || source.current() == kLineFeed) {
       rightTrim(key);
       keyPresent = isValidKey(key);
     }
@@ -233,7 +233,7 @@ bool YAML_Parser::isArray(ISource &source) {
     arrayPresent = ch == kSpace || ch == kLineFeed;
   }
   source.restore();
-  return (arrayPresent);
+  return arrayPresent;
 }
 /// <summary>
 /// Has a possible boolean value been found in the source stream?
@@ -251,7 +251,7 @@ bool YAML_Parser::isBoolean(const ISource &source) {
 /// <returns>==true then a quoted string has been found.</returns>
 bool YAML_Parser::isQuotedString(const ISource &source) {
   const auto ch = source.current();
-  return (ch == '\'') || (ch == '"');
+  return ch == '\'' || ch == '"';
 }
 /// <summary>
 /// Has a possible number been found in the source stream?
@@ -384,9 +384,10 @@ YAML_Parser::BlockChomping YAML_Parser::parseBlockChomping(ISource &source) {
   source.next();
   if (const auto ch = source.current(); ch == '-') {
     return BlockChomping::strip;
-  } else if (ch == '+') {
-    return BlockChomping::keep;
   } else {
+    if (ch == '+') {
+      return BlockChomping::keep;
+    }
     return BlockChomping::clip;
   }
 }
@@ -410,7 +411,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
       if (yamlString.back() != kLineFeed) {
         yamlString += kLineFeed;
       }
-      yamlString += std::string((source.getIndentation() - 1), kSpace);
+      yamlString += std::string(source.getIndentation() - 1, kSpace);
       filler = kLineFeed;
     }
     yamlString += extractToNext(source, delimiters);
@@ -563,7 +564,7 @@ YNode YAML_Parser::parseComment(ISource &source,
   if (source.more()) {
     source.next();
   }
-  return (YNode::make<Comment>(comment));
+  return YNode::make<Comment>(comment);
 }
 /// <summary>
 /// Parse a numeric value on source stream.
@@ -653,7 +654,7 @@ YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters) {
   }
   yamlAliasMap[name] = unparsed;
   BufferSource anchor{unparsed};
-  return (parseDocument(anchor, delimiters));
+  return parseDocument(anchor, delimiters);
 }
 /// <summary>
 /// Parse alias on source stream and substitute alias.
@@ -667,7 +668,7 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters) {
   source.next();
   const std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
-  return (parseDocument(anchor, delimiters));
+  return parseDocument(anchor, delimiters);
 }
 /// <summary>
 /// Parse alias on source stream, substitute alias, and any overrides.
@@ -690,7 +691,7 @@ YNode YAML_Parser::parseOverride(ISource &source,
   const std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
   YNode parsed = parseDocument(anchor, delimiters);
-  return (parsed);
+  return parsed;
 }
 /// <summary>
 /// Parse array on source stream.
@@ -703,13 +704,13 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
   indentLevel++;
   YNode yNode = YNode::make<Array>(arrayIndent);
   while (source.more() && isArray(source) &&
-         (arrayIndent == source.getIndentation())) {
+         arrayIndent == source.getIndentation()) {
     source.next();
     YRef<Array>(yNode).add(parseDocument(source, delimiters));
     moveToNextIndent(source);
   }
-  if (isArray(source) && (indentLevel == 1) &&
-      (arrayIndent > source.getIndentation())) {
+  if (isArray(source) && indentLevel == 1 &&
+      arrayIndent > source.getIndentation()) {
     throw SyntaxError("Invalid indentation for array element.");
   }
   indentLevel--;
@@ -750,7 +751,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   }
   moveToNextIndent(source);
   YNode yNode;
-  if ((source.getIndentation() > keyIndent) || isInlineArray(source) ||
+  if (source.getIndentation() > keyIndent || isInlineArray(source) ||
       isInlineDictionary(source) || delimiters.contains('}')) {
     yNode = parseDocument(source, delimiters);
   } else {
@@ -772,7 +773,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
   }
   unsigned long dictionaryIndent = source.getIndentation();
   YNode yNode = YNode::make<Dictionary>(dictionaryIndent);
-  while (source.more() && (dictionaryIndent == source.getIndentation())) {
+  while (source.more() && dictionaryIndent == source.getIndentation()) {
     if (isKey(source)) {
       auto entry = parseKeyValue(source, delimiters);
       if (YRef<Dictionary>(yNode).contains(entry.getKey())) {
@@ -795,7 +796,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
     throw SyntaxError(source.getPosition(),
                       "Mapping key has the incorrect indentation.");
   }
-  return (mergeOverrides(yNode));
+  return mergeOverrides(yNode);
 }
 /// <summary>
 /// Parse inline dictionary on source stream.
@@ -821,7 +822,7 @@ YNode YAML_Parser::parseInlineDictionary(
     throw SyntaxError(
         "Inline dictionary used as key is meant to be on one line.");
   }
-  return (yNode);
+  return yNode;
 }
 /// <summary>
 /// Parse YAML document on source stream.

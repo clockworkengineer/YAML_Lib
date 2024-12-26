@@ -19,7 +19,7 @@ template<typename T> YNode::YNode(T value)
   }
 }
 // Convert an initializer list type to YNode
-inline static YNode typeToYNode(const YAML::InitializerListTypes &type)
+static YNode typeToYNode(const YAML::InitializerListTypes &type)
 {
   if (const auto pValue = std::get_if<int>(&type)) { return YNode(*pValue); }
   if (const auto pValue = std::get_if<long>(&type)) { return YNode(*pValue); }
