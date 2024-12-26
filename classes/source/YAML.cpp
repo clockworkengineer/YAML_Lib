@@ -27,7 +27,7 @@ YAML::~YAML() = default;
 /// Fetch version string for current YAML_Lib.
 /// </summary>
 /// <returns></returns>
-std::string YAML::version() { return (YAML_Impl::version()); }
+std::string YAML::version() { return YAML_Impl::version(); }
 unsigned int YAML::getNumberOfDocuments() const {
   return implementation->getNumberOfDocuments();
 }

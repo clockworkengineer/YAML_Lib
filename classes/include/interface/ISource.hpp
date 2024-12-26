@@ -99,7 +99,7 @@ public:
     if (more()) {
       next();
     }
-    return (ch);
+    return ch;
   }
   // ==================================
   // Get current source stream position

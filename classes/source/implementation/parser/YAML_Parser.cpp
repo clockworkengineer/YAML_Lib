@@ -84,7 +84,7 @@ YAML_Parser::extractToNext(ISource &source,
       extracted += source.append();
     }
   }
-  return (extracted);
+  return extracted;
 }
 /// <summary>
 /// Check that end character has been found if not throw an exception.
