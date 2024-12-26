@@ -41,7 +41,7 @@ void YAML_Parser::rightTrim(std::string &str) {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Set of possible delimiter characters.</param>
 void YAML_Parser::moveToNext(ISource &source,
-                             const YAML_Parser::Delimiters &delimiters) {
+                             const Delimiters &delimiters) {
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
       source.next();
@@ -77,7 +77,7 @@ void YAML_Parser::moveToNextIndent(ISource &source) {
 /// <returns>Extracted characters.</returns>
 std::string
 YAML_Parser::extractToNext(ISource &source,
-                           const YAML_Parser::Delimiters &delimiters) {
+                           const Delimiters &delimiters) {
   std::string extracted;
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {

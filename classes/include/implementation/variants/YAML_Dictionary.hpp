@@ -105,7 +105,7 @@ Dictionary::findKey(Entries &dictionary, const std::string &key) {
     return entry.getKey() == key;
   });
   if (it == dictionary.end()) {
-    throw Dictionary::Error("Invalid key used to access dictionary.");
+    throw Error("Invalid key used to access dictionary.");
   }
   return it;
 }
@@ -116,7 +116,7 @@ Dictionary::findKey(const Entries &dictionary, const std::string &key) {
         return entry.getKey() == key;
       });
   if (it == dictionary.end()) {
-    throw Dictionary::Error("Invalid key used to access dictionary.");
+    throw Error("Invalid key used to access dictionary.");
   }
   return it;
 }

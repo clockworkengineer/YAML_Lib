@@ -39,11 +39,11 @@ std::vector<std::string> splitString(const std::string &target,
 /// <param name="destination"></param>
 /// <param name="indent"></param>
 /// <returns></returns>
-std::string calculateIndent(IDestination &destination, const unsigned long indent) {
+auto calculateIndent(IDestination &destination, const unsigned long indent) {
   if (destination.last() == kLineFeed) {
     return std::string(indent, kSpace);
   }
-  return "";
+  return std::string("");
 }
 /// <summary>
 ///

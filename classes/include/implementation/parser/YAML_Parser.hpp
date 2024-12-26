@@ -30,10 +30,10 @@ private:
   static bool endsWith(const std::string &str, const std::string &substr);
   static void rightTrim(std::string &str);
   static void moveToNext(ISource &source,
-                         const YAML_Parser::Delimiters &delimiters);
+                         const Delimiters &delimiters);
   static void moveToNextIndent(ISource &source);
   static std::string extractToNext(ISource &source,
-                                   const YAML_Parser::Delimiters &delimiters);
+                                   const Delimiters &delimiters);
   static void checkForEnd(ISource &source, char end);
   static YNode mergeOverrides(YNode &overrideRoot);
 
@@ -84,7 +84,7 @@ private:
   static BlockChomping parseBlockChomping(ISource &source);
 
   static std::string parseBlockString(ISource &source,
-                                      const YAML_Parser::Delimiters &delimiters,
+                                      const Delimiters &delimiters,
                                       char fillerDefault,
                                       const BlockChomping &chomping);
   static YNode parseKey(ISource &source);
