@@ -20,7 +20,7 @@ namespace YAML_Lib {
 YAML::YAML([[maybe_unused]]IStringify *stringify, [[maybe_unused]]IParser *parser)
     : implementation(std::make_unique<YAML_Impl>(stringify, parser)) {}
 /// <summary>
-/// Destroy YAML object..
+/// Destroy YAML object.
 /// </summary>
 YAML::~YAML() = default;
 /// <summary>
@@ -32,7 +32,7 @@ unsigned int YAML::getNumberOfDocuments() const {
   return implementation->getNumberOfDocuments();
 }
 /// <summary>
-/// Parse YAML from source stream into and YNode tree.
+/// Parse YAML from source stream into the YNode tree.
 /// </summary>
 /// <param name="source"></param>
 void YAML::parse(ISource &source) const { implementation->parse(source); }
@@ -54,7 +54,7 @@ void YAML::stringify(IDestination &&destination) const {
 std::vector<YNode> &YAML::root() { return implementation->root(); }
 const std::vector<YNode> &YAML::root() const { return implementation->root(); }
 /// <summary>
-/// Return YNode of index document within YAML tree.
+/// Return YNode of the index document within YAML tree.
 /// </summary>
 /// <param name="index"></param>
 /// <returns></returns>

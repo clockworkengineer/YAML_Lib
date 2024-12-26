@@ -49,25 +49,25 @@ private:
 
   static bool isArray(ISource &source);
 
-  static bool isBoolean(ISource &source);
+  static bool isBoolean(const ISource &source);
 
-  static bool isQuotedString(ISource &source);
-  static bool isNumber(ISource &source);
+  static bool isQuotedString(const ISource &source);
+  static bool isNumber(const ISource &source);
 
-  static bool isNone(ISource &source);
+  static bool isNone(const ISource &source);
 
-  static bool isFoldedBlockString(ISource &source);
+  static bool isFoldedBlockString(const ISource &source);
 
-  static bool isPipedBlockString(ISource &source);
+  static bool isPipedBlockString(const ISource &source);
 
-  static bool isComment(ISource &source);
+  static bool isComment(const ISource &source);
 
-  static bool isAnchor(ISource &source);
-  static bool isAlias(ISource &source);
+  static bool isAnchor(const ISource &source);
+  static bool isAlias(const ISource &source);
 
-  static bool isInlineArray(ISource &source);
+  static bool isInlineArray(const ISource &source);
 
-  static bool isInlineDictionary(ISource &source);
+  static bool isInlineDictionary(const ISource &source);
 
   static bool isDictionary(ISource &source);
 
