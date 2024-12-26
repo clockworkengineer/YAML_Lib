@@ -1,6 +1,5 @@
-#include <utility>
-
 #pragma once
+#include <utility>
 
 namespace YAML_Lib {
 // =======

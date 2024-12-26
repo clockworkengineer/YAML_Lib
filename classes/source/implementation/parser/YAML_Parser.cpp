@@ -16,7 +16,7 @@ namespace YAML_Lib {
 /// </summary>
 /// <param name="str">Target string.</param>
 /// <param name="substr">Ends with string.</param>
-/// <returns>==true,then ends with substr.</returns>
+/// <returns>==true, then ends with substr.</returns>
 bool YAML_Parser::endsWith(const std::string &str, const std::string &substr) {
   const auto strLen = str.size();
   const auto substrLen = substr.size();
@@ -36,7 +36,7 @@ void YAML_Parser::rightTrim(std::string &str) {
             str.end());
 }
 /// <summary>
-/// Move to next delimiter on source stream in a set.
+/// Move to the next delimiter on source stream in a set.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Set of possible delimiter characters.</param>
@@ -153,9 +153,9 @@ YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
   return YNode::make<String>(keyString, quote, 0);
 }
 /// <summary>
-/// Does YAML passed in constitute a valid dictionary key.
+/// Does YAML that is  passed in constitute a valid dictionary key?
 /// </summary>
-/// <param name="key">YAML sequence to be converted to be used as key.</param>
+/// <param name="key">YAML sequence to be converted to be used as the key.</param>
 /// <returns>==true value is a valid key.</returns>
 bool YAML_Parser::isValidKey(const std::string &key) {
   try {
@@ -189,10 +189,10 @@ std::string YAML_Parser::extractKey(ISource &source) {
   return key;
 }
 /// <summary>
-/// Is YAML overrides on source stream.
+/// Is YAML overrides on source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns>==true value is an overrides.</returns>
+/// <returns>==true value is an override.</returns>
 bool YAML_Parser::isOverride(ISource &source) {
   source.save();
   const bool isOverride{source.match("<<:")};
@@ -200,7 +200,7 @@ bool YAML_Parser::isOverride(ISource &source) {
   return isOverride;
 }
 /// <summary>
-/// Has a dictionary key been found in the source stream.
+/// Has a dictionary key been found in the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>== true if a dictionary key has been found.</returns>
@@ -219,7 +219,7 @@ bool YAML_Parser::isKey(ISource &source) {
   return keyPresent;
 }
 /// <summary>
-/// Has an array element been found in the source stream.
+/// Has an array element been found in the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true if an array element has been found.</returns>
@@ -236,7 +236,7 @@ bool YAML_Parser::isArray(ISource &source) {
   return (arrayPresent);
 }
 /// <summary>
-/// Has a possible boolean value been found in the source stream.
+/// Has a possible boolean value been found in the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true if a boolean value has been found.</returns>
@@ -245,7 +245,7 @@ bool YAML_Parser::isBoolean(const ISource &source) {
   return ch == 'T' || ch == 'F' || ch == 'O' || ch == 'Y' || ch == 'N';
 }
 /// <summary>
-/// Has a quoted string been found in the source stream.
+/// Has a quoted string been found in the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true then a quoted string has been found.</returns>
@@ -254,7 +254,7 @@ bool YAML_Parser::isQuotedString(const ISource &source) {
   return (ch == '\'') || (ch == '"');
 }
 /// <summary>
-/// Has a possible number been found in the source stream.
+/// Has a possible number been found in the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true then a number has been found.</returns>
@@ -263,7 +263,7 @@ bool YAML_Parser::isNumber(const ISource &source) {
   return (ch >= '0' && ch <= '9') || ch == '-' || ch == '+';
 }
 /// <summary>
-/// Has a possible null value been found on the input stream.
+/// Has a possible null value been found on the input stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true a null (none) value has been found.</returns>
@@ -272,7 +272,7 @@ bool YAML_Parser::isNone(const ISource &source) {
   return second == 'n' || second == '~';
 }
 /// <summary>
-/// Has a folded block string been found on the input stream.
+/// Has a folded block string been found on the input stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true a founded block string has been found.</returns>
@@ -280,7 +280,7 @@ bool YAML_Parser::isFoldedBlockString(const ISource &source) {
   return source.current() == '>';
 }
 /// <summary>
-/// Has a piped block string been found on the input stream.
+/// Has a piped block string been found on the input stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true a piped block string has been found.</returns>
@@ -288,25 +288,25 @@ bool YAML_Parser::isPipedBlockString(const ISource &source) {
   return source.current() == '|';
 }
 /// <summary>
-/// Has a comment been found on the source stream.
+/// Has a comment been found on the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true a comment has been found.</returns>
 bool YAML_Parser::isComment(const ISource &source) { return source.current() == '#'; }
 /// <summary>
-/// Has an anchor been found on the source stream.
+/// Has an anchor been found on the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true an anchor has been found.</returns>
 bool YAML_Parser::isAnchor(const ISource &source) { return source.current() == '&'; }
 /// <summary>
-/// Has an alias been found on the input stream.
+/// Has an alias been found on the input stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true an alias has been found.</returns>
 bool YAML_Parser::isAlias(const ISource &source) { return source.current() == '*'; }
 /// <summary>
-/// Has an inline array been found on the source stream.
+/// Has an inline array been found on the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true an inline array has been found.</returns>
@@ -314,21 +314,21 @@ bool YAML_Parser::isInlineArray(const ISource &source) {
   return source.current() == '[';
 }
 /// <summary>
-/// Has an inline dictionary been found on the source stream.
+/// Has an inline dictionary been found on the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns>==true a inline dictionary has been found./returns>
+/// <returns>==true an inline dictionary has been found./returns>
 bool YAML_Parser::isInlineDictionary(const ISource &source) {
   return source.current() == '{';
 }
 /// <summary>
-/// Has a dictionary been found on the source stream.
+/// Has a dictionary been found on the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true a dictionary has been found./returns>
 bool YAML_Parser::isDictionary(ISource &source) { return isKey(source); }
 /// <summary>
-/// Has document start been found on the source stream.
+/// Has document start been found on the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>== true a start document has been found.</returns>
@@ -339,10 +339,10 @@ bool YAML_Parser::isDocumentStart(ISource &source) {
   return isStart;
 }
 /// <summary>
-/// Has document end been found on the source stream.
+/// Has the document end been found on the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns>== true a end document has been found.</returns>
+/// <returns>== true an end document has been found.</returns>
 bool YAML_Parser::isDocumentEnd(ISource &source) {
   source.save();
   const bool isEnd{source.match(kEndDocument)};
@@ -353,7 +353,7 @@ bool YAML_Parser::isDocumentEnd(ISource &source) {
 /// Last parser router table entry so return true.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns>true</returns>
+/// <returns>True</returns>
 bool YAML_Parser::isDefault([[maybe_unused]] ISource &source) { return true; }
 /// <summary>
 /// Append character to YAML string performing any necessary newline folding.
@@ -482,7 +482,7 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parseLiteralBlockString(ISource &source,
                                            const Delimiters &delimiters) {
-  BlockChomping chomping{parseBlockChomping(source)};
+  const BlockChomping chomping{parseBlockChomping(source)};
   moveToNext(source, delimiters);
   moveToNextIndent(source);
   auto blockIndent = source.getIndentation();
@@ -519,10 +519,10 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parseQuotedFlowString(ISource &source,
                                          const Delimiters &delimiters) {
-  const YAML_Translator translator;
   const char quote = source.append();
   std::string yamlString;
   if (quote == '"') {
+    const YAML_Translator translator;
     while (source.more() && source.current() != quote) {
       if (source.current() == '\\') {
         yamlString += source.append();
@@ -670,7 +670,7 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters) {
   return (parseDocument(anchor, delimiters));
 }
 /// <summary>
-/// Parse alias on source stream, substitute alias and any overrides.
+/// Parse alias on source stream, substitute alias, and any overrides.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse alias.</param>
@@ -696,7 +696,7 @@ YNode YAML_Parser::parseOverride(ISource &source,
 /// Parse array on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters">Delimiters used to parse array.</param>
+/// <param name="delimiters">Delimiters used to parse the array.</param>
 /// <returns>Array YNode.</returns>
 YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
   unsigned long arrayIndent = source.getIndentation();
@@ -719,7 +719,7 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
 /// Parse inline array on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters">Delimiters used to parse inline array.</param>
+/// <param name="delimiters">Delimiters used to parse the inline array.</param>
 /// <returns>Array YNode.</returns>
 YNode YAML_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters) {
@@ -738,7 +738,7 @@ YNode YAML_Parser::parseInlineArray(
 /// Parse dictionary key/value pair on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters">Delimiters used to parse key/value pair.</param>
+/// <param name="delimiters">Delimiters used to parse a key/value pair.</param>
 /// <returns>Dictionary entry for key/value.</returns>
 DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
                                            const Delimiters &delimiters) {

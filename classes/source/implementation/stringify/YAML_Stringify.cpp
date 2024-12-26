@@ -66,13 +66,13 @@ void stringifyAnyBlockStyle(IDestination &destination, const YNode &yNode) {
 /// <param name="indent"></param>
 void YAML_Stringify::stringifyYAML(IDestination &destination,
                                    const YNode &yNode, const unsigned long indent) {
-  YAML_Translator translator;
   if (isA<Number>(yNode)) {
     destination.add(YRef<Number>(yNode).toString());
   } else if (isA<String>(yNode)) {
     if (const char quote = YRef<String>(yNode).getQuote(); quote == '\'' || quote == '"') {
       std::string yamlString{YRef<String>(yNode).toString()};
       if (quote == '"') {
+        const YAML_Translator translator;
         yamlString = translator.to(yamlString);
       }
       destination.add(quote + yamlString + quote);
