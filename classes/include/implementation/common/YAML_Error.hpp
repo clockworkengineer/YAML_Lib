@@ -6,7 +6,7 @@ namespace YAML_Lib {
 struct Error final : std::runtime_error
 {
   explicit Error(const std::string &message) : std::runtime_error("YAML Error: " + message) {}
-  explicit Error(const std::pair<long, long> &position, const std::string &message = "")
+  explicit Error(const std::pair<unsigned long, unsigned long> &position, const std::string &message = "")
     : std::runtime_error("YAML Error [Line: " + std::to_string(position.first)
                          + " Column: " + std::to_string(position.second) + "]: " + message)
   {}
@@ -14,7 +14,7 @@ struct Error final : std::runtime_error
 struct SyntaxError final : std::runtime_error
 {
   explicit SyntaxError(const std::string &message) : std::runtime_error("YAML Syntax Error: " + message) {}
-  explicit SyntaxError(const std::pair<long, long> &position, const std::string &message = "")
+  explicit SyntaxError(const std::pair<unsigned long, unsigned long> &position, const std::string &message = "")
     : std::runtime_error("YAML Syntax Error [Line: " + std::to_string(position.first)
                          + " Column: " + std::to_string(position.second) + "]: " + message)
   {}

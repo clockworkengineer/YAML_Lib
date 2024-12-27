@@ -104,7 +104,7 @@ public:
   // ==================================
   // Get current source stream position
   // ==================================
-  [[nodiscard]] std::pair<long, long> getPosition() const {
+  [[nodiscard]] std::pair<unsigned long, unsigned long> getPosition() const {
     return std::make_pair(lineNo, column);
   }
   // ====================
@@ -121,14 +121,14 @@ protected:
   // ========================================
   // Current line and column on source stream
   // ========================================
-  long lineNo = 1;
+  unsigned long lineNo = 1;
   long column = 1;
   // =============
   // Saved context
   // =============
   struct Context {
-    long lineNo{};
-    long column{};
+    unsigned long lineNo{};
+    unsigned long column{};
     std::size_t bufferPosition{};
   };
   std::vector<Context> contexts;

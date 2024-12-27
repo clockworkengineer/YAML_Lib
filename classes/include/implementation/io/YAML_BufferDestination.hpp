@@ -21,7 +21,7 @@ public:
 
   [[nodiscard]] std::string toString() const { return buffer; }
   [[nodiscard]] std::size_t size() const { return buffer.size(); }
-  [[nodiscard]] char last() override  { return buffer.back(); }
+  [[nodiscard]] char last() override { return buffer.back(); }
 
 private:
   std::string buffer;

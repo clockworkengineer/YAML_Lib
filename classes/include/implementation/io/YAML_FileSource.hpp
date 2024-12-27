@@ -57,21 +57,22 @@ public:
     contexts.emplace_back(lineNo, column, source.tellg());
   }
   void restore() override {
-    Context context { contexts.back()};
+    Context context{contexts.back()};
     contexts.pop_back();
     lineNo = context.lineNo;
     column = context.column;
-    source.seekg(context.bufferPosition - source.tellg() - 1, std::ios_base::cur);
+    source.seekg(context.bufferPosition - source.tellg() - 1,
+                 std::ios_base::cur);
   }
 
 protected:
   void backup(const unsigned long length) override {
+    if (static_cast<long>(column) - length < 1) {
+      throw Error("Backup past start column.");
+    }
     source.clear();
     source.seekg(-static_cast<long>(length), std::ios_base::cur);
     column -= length;
-    if (column < 0) {
-      throw Error("backup past start of buffer.");
-    }
   }
 
 private:

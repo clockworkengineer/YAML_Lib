@@ -26,7 +26,6 @@ public:
 
 private:
   // YAML parser
-
   static bool endsWith(const std::string &str, const std::string &substr);
   static void rightTrim(std::string &str);
   static void moveToNext(ISource &source,
