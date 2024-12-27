@@ -189,7 +189,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
   SECTION("YAML parse array with incorrect indentation in element.",
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n   - test\n- test"};
-    REQUIRE_THROWS_WITH(yaml.parse(source),"YAML Syntax Error: Invalid indentation for array element.");
+    REQUIRE_THROWS_WITH(yaml.parse(source),"YAML Syntax Error [Line: 3 Column: 1]: Invalid indentation for array element.");
   }
   SECTION("YAML parse array with string that looks like continuing array",
           "[YAML][Parse][Array]") {

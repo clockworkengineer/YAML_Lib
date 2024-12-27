@@ -683,7 +683,7 @@ YNode YAML_Parser::parseOverride(ISource &source,
   source.next();
   source.ignoreWS();
   if (source.current() != '*') {
-    throw SyntaxError("Missing '*' from alias.");
+    throw SyntaxError(source.getPosition(),"Missing '*' from alias.");
   }
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
@@ -711,7 +711,7 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
   }
   if (isArray(source) && indentLevel == 1 &&
       arrayIndent > source.getIndentation()) {
-    throw SyntaxError("Invalid indentation for array element.");
+    throw SyntaxError(source.getPosition(),"Invalid indentation for array element.");
   }
   indentLevel--;
   return yNode;
@@ -747,7 +747,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   YNode keyYNode = parseKey(source);
   source.ignoreWS();
   if (isKey(source) && !delimiters.contains('}')) {
-    throw SyntaxError("Only an inline/compact dictionary is allowed.");
+    throw SyntaxError(source.getPosition(),"Only an inline/compact dictionary is allowed.");
   }
   moveToNextIndent(source);
   YNode yNode;
@@ -819,7 +819,7 @@ YNode YAML_Parser::parseInlineDictionary(
   } while (source.current() == ',');
   checkForEnd(source, '}');
   if (source.current() == ':') {
-    throw SyntaxError(
+    throw SyntaxError(source.getPosition(),
         "Inline dictionary used as key is meant to be on one line.");
   }
   return yNode;

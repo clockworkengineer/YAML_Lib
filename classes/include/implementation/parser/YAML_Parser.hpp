@@ -137,7 +137,7 @@ private:
   // Indent level
   inline static long indentLevel{0};
   // Translator
-  ITranslator &translator;
+  const ITranslator &translator;
 
 };
 

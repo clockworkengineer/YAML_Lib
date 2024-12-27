@@ -113,7 +113,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n outer: inner: 'true'\n"};
     REQUIRE_THROWS_WITH(
         yaml.parse(source),
-        "YAML Syntax Error: Only an inline/compact dictionary is allowed.");
+        "YAML Syntax Error [Line: 2 Column: 9]: Only an inline/compact dictionary is allowed.");
   }
   SECTION("YAML parse dictionary with key value pair and inline dictionary on "
           "the different lines.",
@@ -407,8 +407,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
       "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n{one: \n1, \ntwo: 2}: 'test'\n...\n"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Syntax Error: Inline dictionary used as key is "
-                        "meant to be on one line.");
+                        "YAML Syntax Error [Line: 4 Column: 8]: Inline dictionary used as key is meant to be on one line.");
   }
   SECTION("YAML parse dictionaries with out of line key indentation",
           "[YAML][Parse][Dictionary]") {

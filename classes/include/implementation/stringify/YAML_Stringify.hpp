@@ -27,7 +27,7 @@ private:
   // Current indentation level
   inline static unsigned long yamlIndentation{2};
   // Translator
-  ITranslator &translator;
+  const ITranslator &translator;
 };
 
 } // namespace YAML_Lib
