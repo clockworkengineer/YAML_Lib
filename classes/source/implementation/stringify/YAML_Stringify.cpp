@@ -7,8 +7,7 @@
 // Dependencies: C++20 - Language standard features used.
 //
 
-#include "YAML_Stringify.hpp"
-#include "YAML_Translator.hpp"
+#include "YAML_Impl.hpp"
 
 namespace YAML_Lib {
 /// <summary>
@@ -72,8 +71,7 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
     if (const char quote = YRef<String>(yNode).getQuote(); quote == '\'' || quote == '"') {
       std::string yamlString{YRef<String>(yNode).toString()};
       if (quote == '"') {
-        const YAML_Translator translator;
-        yamlString = translator.to(yamlString);
+        yamlString = yamlTranslator->to(yamlString);
       }
       destination.add(quote + yamlString + quote);
     } else {

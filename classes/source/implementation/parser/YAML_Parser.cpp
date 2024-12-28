@@ -523,7 +523,6 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
   const char quote = source.append();
   std::string yamlString;
   if (quote == '"') {
-    const YAML_Translator translator;
     while (source.more() && source.current() != quote) {
       if (source.current() == '\\') {
         yamlString += source.append();
@@ -532,7 +531,7 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
         appendCharacterToString(source, yamlString);
       }
     }
-    yamlString = translator.from(yamlString);
+    yamlString = yamlTranslator->from(yamlString);
   } else {
     while (source.more()) {
       if (source.current() == quote) {

@@ -11,8 +11,9 @@ class YAML_Parser final : public IParser {
 public:
   using Delimiters = std::set<char>;
   enum class BlockChomping : uint8_t { clip = 0, strip, keep };
-
-  explicit YAML_Parser(ITranslator &translator) : translator(translator) {}
+  explicit YAML_Parser(std::shared_ptr<ITranslator> translator)  {
+    yamlTranslator = translator;
+  }
   YAML_Parser(const YAML_Parser &other) = delete;
   YAML_Parser &operator=(const YAML_Parser &other) = delete;
   YAML_Parser(YAML_Parser &&other) = delete;
@@ -28,8 +29,7 @@ private:
   // YAML parser
   static bool endsWith(const std::string &str, const std::string &substr);
   static void rightTrim(std::string &str);
-  static void moveToNext(ISource &source,
-                         const Delimiters &delimiters);
+  static void moveToNext(ISource &source, const Delimiters &delimiters);
   static void moveToNextIndent(ISource &source);
   static std::string extractToNext(ISource &source,
                                    const Delimiters &delimiters);
@@ -137,8 +137,7 @@ private:
   // Indent level
   inline static long indentLevel{0};
   // Translator
-  const ITranslator &translator;
-
+  inline static std::shared_ptr<ITranslator> yamlTranslator;
 };
 
 } // namespace YAML_Lib

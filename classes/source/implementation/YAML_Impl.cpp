@@ -12,6 +12,7 @@
 namespace YAML_Lib {
 
 YAML_Impl::YAML_Impl(IStringify *stringify, IParser *parser) {
+  auto yamlTranslator = std::make_shared<YAML_Translator>();
   if (parser == nullptr) {
     yamlParser = std::make_unique<YAML_Parser>(yamlTranslator);
   } else {
