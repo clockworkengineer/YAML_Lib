@@ -29,7 +29,7 @@ public:
     }
     return numberOfDocuments;
   }
-    // Parse YAML into YNode tree
+  // Parse YAML into YNode tree
   void parse(ISource &source);
   // Create YAML text string from YNode tree
   void stringify(IDestination &destination) const;
@@ -38,26 +38,16 @@ public:
   [[nodiscard]] const std::vector<YNode> &root() const { return yamlTree; }
   // Get the document
   [[nodiscard]] YNode &document(const unsigned long index) {
-    long numberOfDocuments = static_cast<long>(index);
-    for (auto &yNode : yamlTree) {
-      if (isA<Document>(yNode)) {
-        if (--numberOfDocuments < 0) {
-          return yNode;
-        }
-      }
+    if (index >= yamlTree.size()) {
+      throw Error("Document does not exist.");
     }
-    throw Error("Document does not exist.");
+    return yamlTree[index];
   }
   [[nodiscard]] const YNode &document(const unsigned long index) const {
-    long numberOfDocuments = static_cast<long>(index);
-    for (auto &yNode : yamlTree) {
-      if (isA<Document>(yNode)) {
-        if (--numberOfDocuments < 0) {
-          return yNode;
-        }
-      }
+    if (index >= yamlTree.size()) {
+      throw Error("Document does not exist.");
     }
-    throw Error("Document does not exist.");
+    return yamlTree[index];
   }
 
 private:

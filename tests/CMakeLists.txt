@@ -35,6 +35,7 @@ set(TEST_SOURCES
         source/stringify/YAML_Lib_Tests_YAML_Stringify.cpp
         source/io/YAML_Lib_Tests_ISource_Buffer.cpp
         source/io/YAML_Lib_Tests_IDestination_Buffer.cpp
+        source/io/YAML_Lib_Tests_ISource_File.cpp
         source/misc/YAML_Lib_Tests_Helper.cpp)
 
 add_executable(${TEST_EXECUTABLE} ${TEST_SOURCES})

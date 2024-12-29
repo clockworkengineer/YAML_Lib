@@ -34,12 +34,12 @@ void nextFibonacci() {
     // Parse in current sequence
     yaml.parse(yml::FileSource{yamlFibonacciFile()});
 
-    if (yml::isA<yml::Document>(yaml.document(0))) {
-      PLOG_INFO << "Document present...";
-    }
-    if (yml::isA<yml::Array>(yaml.document(0)[0])) {
-      PLOG_INFO << "Array present...";
-    }
+    // if (yml::isA<yml::Document>(yaml.document(0))) {
+    //   PLOG_INFO << "Document present...";
+    // }
+    // if (yml::isA<yml::Array>(yaml.document(0)[0])) {
+    //   PLOG_INFO << "Array present...";
+    // }
     // REQUIRE(YRef<Array>(yaml.document(0)[0]).size() == 3);
     // REQUIRE(YRef<Number>(yaml.document(0)[0][0]).value<long>() == 1);
     // REQUIRE(YRef<Number>(yaml.document(0)[0][1]).value<long>() == 1);
