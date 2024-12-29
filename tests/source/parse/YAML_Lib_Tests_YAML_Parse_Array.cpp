@@ -18,6 +18,17 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(YRef<Array>(yaml.document(0)[0]).size() == 1);
     REQUIRE(YRef<String>(yaml.document(0)[0][0]).value() == "One");
   }
+  SECTION("YAML parse array with multiplw integer elemenrs and check result.",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\n- 1\n- 1\n- 2\n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Document>(yaml.document(0)));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]));
+    REQUIRE(YRef<Array>(yaml.document(0)[0]).size() == 3);
+    REQUIRE(YRef<Number>(yaml.document(0)[0][0]).value<long>() == 1);
+    REQUIRE(YRef<Number>(yaml.document(0)[0][1]).value<long>() == 1);
+    REQUIRE(YRef<Number>(yaml.document(0)[0][2]).value<long>() == 2);
+  }
   SECTION("YAML parse array with multiple string elements and check result.",
           "[YAML][Parse][Array]") {
     BufferSource source{
@@ -189,7 +200,9 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
   SECTION("YAML parse array with incorrect indentation in element.",
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n   - test\n- test"};
-    REQUIRE_THROWS_WITH(yaml.parse(source),"YAML Syntax Error [Line: 3 Column: 1]: Invalid indentation for array element.");
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        "YAML Syntax Error [Line: 3 Column: 1]: Invalid "
+                        "indentation for array element.");
   }
   SECTION("YAML parse array with string that looks like continuing array",
           "[YAML][Parse][Array]") {
