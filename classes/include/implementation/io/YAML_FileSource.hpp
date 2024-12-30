@@ -33,9 +33,11 @@ public:
     }
     source.get();
     if (current() == kCarriageReturn) {
-      source.get();
-      if (current() != kLineFeed) {
-        source.unget();
+      if (more()) {
+        source.get();
+        if (current() != kLineFeed) {
+          source.unget();
+        }
       }
     }
   }
