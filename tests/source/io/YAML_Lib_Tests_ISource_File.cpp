@@ -9,11 +9,11 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
           "[YAML][ISource][File][Parse]") {
     REQUIRE_NOTHROW(yaml.parse(FileSource(prefixPath(kSingleSmallYAMLFile))));
   }
-  // SECTION("Create FileSource from testfile000.yaml, parse and stringify.",
-  //         "[YAML][ISource][File][Parse]") {
-  //   REQUIRE_NOTHROW(yaml.parse(FileSource(prefixPath(kSingleSmallYAMLFile))));
-  //   compareYAML(yaml, "---\n- 1\n- 1\n- 2\n...\n");
-  // }
+  SECTION("Create FileSource from testfile000.yaml, parse and stringify.",
+          "[YAML][ISource][File][Parse]") {
+    REQUIRE_NOTHROW(yaml.parse(FileSource(prefixPath(kSingleSmallYAMLFile))));
+    compareYAML(yaml, "---\n- 1\n- 1\n- 2\n...\n");
+  }
   SECTION("Check that FileSource position() works correctly.",
           "[YAML][ISource][File][Position]") {
     FileSource source{FileSource(prefixPath(kSingleYAMLFile))};
@@ -86,5 +86,21 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
     REQUIRE_THROWS_AS(source.next(), ISource::Error);
     REQUIRE_THROWS_WITH(source.next(),
                         "ISource Error: Tried to read past end of file.");
+  }
+  SECTION("Check that FileSource finds sav/restore working.",
+          "[YAML][ISource][File][Match]") {
+    FileSource source{prefixPath(kSingleYAMLFile)};
+    while (source.more() && source.current() != 'd') {
+      source.next();
+    }
+    source.save();
+    REQUIRE(source.position() == 5);
+    source.restore();
+    REQUIRE(source.position() == 5);
+  }
+  SECTION("Check that FileSource works with line array that has newlines.",
+          "[YAML][ISource][File][Match]") {
+    FileSource source{prefixPath("testfile032.yaml")};
+    REQUIRE_NOTHROW(yaml.parse(source));
   }
 }
