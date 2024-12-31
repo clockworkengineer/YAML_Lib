@@ -44,7 +44,7 @@ public:
     lineNo = 1;
     column = 1;
   }
-  [[nodiscard]] std::size_t position() const override { return bufferPosition; }
+  [[nodiscard]] std::size_t position()  override { return bufferPosition; }
   void save() override {
     contexts.emplace_back(lineNo, column, bufferPosition);
   }
@@ -66,7 +66,7 @@ protected:
   }
 
 private:
-  std::size_t bufferPosition = 0;
+  // std::size_t bufferPosition = 0;
   std::string buffer;
 };
 } // namespace YAML_Lib

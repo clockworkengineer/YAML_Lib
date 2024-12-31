@@ -46,7 +46,7 @@ public:
   // ===============================================
   // Current character position within source stream
   // ===============================================
-  [[nodiscard]] virtual std::size_t position() const = 0;
+  [[nodiscard]] virtual std::size_t position()  = 0;
   // ===================================
   // Is the current character whitespace
   // ===================================
@@ -123,6 +123,7 @@ protected:
   // ========================================
   unsigned long lineNo = 1;
   long column = 1;
+  std::size_t bufferPosition{};
   // =============
   // Saved context
   // =============

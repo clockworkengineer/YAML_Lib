@@ -40,6 +40,7 @@ public:
         }
       }
     }
+    bufferPosition = source.tellg();
   }
   bool more() const override { return source.peek() != EOF; }
   void reset() override {
@@ -48,22 +49,28 @@ public:
     source.clear();
     source.seekg(0, std::ios_base::beg);
   }
-  std::size_t position() const override {
+  std::size_t position() override {
     if (more()) {
-      return source.tellg();
+      bufferPosition = source.tellg();
+    } else {
+      bufferPosition = std::filesystem::file_size(filename);
     }
-    return std::filesystem::file_size(filename);
+    return bufferPosition;
   }
-
   void save() override {
-    contexts.emplace_back(lineNo, column, source.tellg());
+    bufferPosition = source.tellg();
+    contexts.emplace_back(lineNo, column, bufferPosition);
   }
   void restore() override {
     Context context{contexts.back()};
     contexts.pop_back();
     lineNo = context.lineNo;
     column = context.column;
+    if (source.eof()) {
+      source.clear();
+    }
     source.seekg(context.bufferPosition, std::ios_base::beg);
+    bufferPosition = source.tellg();
   }
 
 protected:
