@@ -26,34 +26,23 @@ std::string yamlFibonacciFile() {
 /// next in sequence and write back to YAML file.
 /// </summary>
 void nextFibonacci() {
-  const yml::YAML yaml;
+  yml::YAML yaml;
   if (!std::filesystem::exists(yamlFibonacciFile())) {
     // If YAML file does not exist create initial sequence
     yaml.parse(yml::BufferSource{"---\n - 1\n - 1\n - 2\n...\n"});
   } else {
     // Parse in current sequence
     yaml.parse(yml::FileSource{yamlFibonacciFile()});
-
-    // if (yml::isA<yml::Document>(yaml.document(0))) {
-    //   PLOG_INFO << "Document present...";
-    // }
-    // if (yml::isA<yml::Array>(yaml.document(0)[0])) {
-    //   PLOG_INFO << "Array present...";
-    // }
-    // REQUIRE(YRef<Array>(yaml.document(0)[0]).size() == 3);
-    // REQUIRE(YRef<Number>(yaml.document(0)[0][0]).value<long>() == 1);
-    // REQUIRE(YRef<Number>(yaml.document(0)[0][1]).value<long>() == 1);
-    // REQUIRE(YRef<Number>(yaml.document(0)[0][2]).value<long>() == 2);
-    // auto &fibonacciArray = yml::YRef<yml::Array>(yaml.document(0))[0];
-    // // Get index of last element
-    // const auto last = fibonacciArray.size() - 1;
+    auto &fibonacciArray = yml::YRef<yml::Array>(yaml.document(0)[0]);
+    // Get index of last element
+    const auto last = fibonacciArray.size() - 1;
     // // Get last two in sequence
-    // const auto first = yml::YRef<yml::Number>(yaml.root()[last -
-    // 1]).value<long>(); const auto second =
-    // yml::YRef<yml::Number>(yaml.root()[last]).value<long>();
-    // // Create new element for next in sequence
-    // fibonacciArray.add(yml::YNode::make<yml::Number>(first+second));
-    // yaml.root().addChild(xNode);
+    const auto first =
+        yml::YRef<yml::Number>(fibonacciArray[last - 1]).value<long>();
+    const auto second =
+        yml::YRef<yml::Number>(fibonacciArray[last]).value<long>();
+    // Create new element for next in sequence
+    fibonacciArray.add(yml::YNode::make<yml::Number>(first + second));
   }
   // Write updated sequence back to file
   yaml.stringify(yml::FileDestination{yamlFibonacciFile()});

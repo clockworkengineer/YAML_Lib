@@ -21,10 +21,24 @@ inline YNode &YNode::operator[](const std::size_t index) {
     if (isA<Hole>(*this)) {
       *this = make<Array>();
     }
-    return YRef<Array>(*this)[index];
+    if (isA<Array>(*this)) {
+      return YRef<Array>(*this)[index];
+    }
+    if (isA<Document>(*this)) {
+      return YRef<Document>(*this)[index];
+    }
+    throw Error("Not a document or array variant.");
   } catch ([[maybe_unused]] const Error &error) {
     YRef<Array>(*this).resize(index);
-    return YRef<Array>(*this)[index];
+    if (isA<Array>(*this)) {
+      YRef<Array>(*this).resize(index);
+      return YRef<Array>(*this)[index];
+    }
+    if (isA<Document>(*this)) {
+      YRef<Document>(*this).resize(index);
+      return YRef<Document>(*this)[index];
+    }
+    throw Error("Not a document or array variant.");
   }
 }
 inline const YNode &YNode::operator[](const std::size_t index) const {

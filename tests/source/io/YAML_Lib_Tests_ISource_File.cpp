@@ -98,11 +98,11 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
     source.restore();
     REQUIRE(source.position() == 5);
   }
-  // SECTION("Check that FileSource works with line array that has newlines.",
-  //         "[YAML][ISource][File][Match]") {
-  //   FileSource source{prefixPath("testfile032.yaml")};
-  //   REQUIRE_NOTHROW(yaml.parse(source));
-  // }
+  SECTION("Check that FileSource works with line array that has newlines.",
+          "[YAML][ISource][File][Match]") {
+    FileSource source{prefixPath("testfile032.yaml")};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
   SECTION("Check that FileSource finds sav/restore working when reached end of "
           "file before restore.",
           "[YAML][ISource][File][Match]") {
