@@ -17,7 +17,8 @@ namespace YAML_Lib {
 /// </summary>
 /// <param name="stringify">Pointer to stringifier interface.</param>
 /// <param name="parser">Pointer to parser interface.</param>
-YAML::YAML([[maybe_unused]]IStringify *stringify, [[maybe_unused]]IParser *parser)
+YAML::YAML([[maybe_unused]] IStringify *stringify,
+           [[maybe_unused]] IParser *parser)
     : implementation(std::make_unique<YAML_Impl>(stringify, parser)) {}
 /// <summary>
 /// Destroy YAML object.

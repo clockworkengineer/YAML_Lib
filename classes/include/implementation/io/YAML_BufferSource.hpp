@@ -46,7 +46,7 @@ public:
   }
   [[nodiscard]] std::size_t position()  override { return bufferPosition; }
   void save() override {
-    contexts.emplace_back(lineNo, column, bufferPosition);
+    contexts.push_back(Context(lineNo, column, bufferPosition));
   }
   void restore() override {
     Context context{contexts.back()};

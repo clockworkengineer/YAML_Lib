@@ -36,7 +36,7 @@ void nextFibonacci() {
     auto &fibonacciArray = yml::YRef<yml::Array>(yaml.document(0)[0]);
     // Get index of last element
     const auto last = fibonacciArray.size() - 1;
-    // // Get last two in sequence
+    // Get last two in sequence
     const auto first =
         yml::YRef<yml::Number>(fibonacciArray[last - 1]).value<long>();
     const auto second =

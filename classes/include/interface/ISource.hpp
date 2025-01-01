@@ -46,7 +46,7 @@ public:
   // ===============================================
   // Current character position within source stream
   // ===============================================
-  [[nodiscard]] virtual std::size_t position()  = 0;
+  [[nodiscard]] virtual std::size_t position() = 0;
   // ===================================
   // Is the current character whitespace
   // ===================================

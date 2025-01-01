@@ -59,7 +59,7 @@ public:
   }
   void save() override {
     bufferPosition = source.tellg();
-    contexts.emplace_back(lineNo, column, bufferPosition);
+    contexts.push_back(Context(lineNo, column, bufferPosition));
   }
   void restore() override {
     Context context{contexts.back()};
