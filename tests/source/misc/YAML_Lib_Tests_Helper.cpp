@@ -22,3 +22,23 @@ void compareYAML( const YAML_Lib::YAML &yaml, const std::string &destinationYAML
     REQUIRE_NOTHROW(yaml.stringify(destination));
     REQUIRE(destination.toString() == destinationYAML);
 }
+
+/// <summary>
+/// Compare string agaisnt contents of file.
+/// </summary>
+/// <param name="str">String to compare.</param>
+/// <param name="fileName">File to compare against string</param>
+/// <returns>true if file the same as str, false otherwise</returns>
+bool compareFile(const std::string &str, const std::string &fileName) {
+  std::stringstream fileContents;
+  std::ifstream file(fileName, std::ifstream::binary | std::ifstream::ate);
+  if (file.fail()) {
+    return false; // file problem
+  }
+  file.seekg(0, std::ifstream::beg);
+  fileContents << file.rdbuf();
+  if (fileContents.str().size()!=str.size()) {
+    return false;
+  }
+  return fileContents.str()==str;
+}
