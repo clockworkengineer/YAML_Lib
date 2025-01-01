@@ -128,6 +128,8 @@ protected:
   // Saved context
   // =============
   struct Context {
+    Context(unsigned long line, unsigned long col, std::size_t pos)
+        : lineNo(line), column(col), bufferPosition(pos) {}
     unsigned long lineNo{};
     unsigned long column{};
     std::size_t bufferPosition{};
