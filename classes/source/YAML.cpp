@@ -30,7 +30,7 @@ YAML::~YAML() = default;
 /// <returns>Version string.</returns>
 std::string YAML::version() { return YAML_Impl::version(); }
 /// <summary>
-/// Return number for documents parsed.
+/// Return number of documents parsed.
 /// </summary>
 /// <returns>Number of documents.</returns>
 unsigned int YAML::getNumberOfDocuments() const {
@@ -69,5 +69,4 @@ YNode &YAML::document(const unsigned long index) {
 const YNode &YAML::document(const unsigned long index) const {
   return implementation->document(index);
 }
-
 } // namespace YAML_Lib
