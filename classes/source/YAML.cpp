@@ -25,6 +25,11 @@ YAML::YAML([[maybe_unused]] IStringify *stringify,
 /// </summary>
 YAML::~YAML() = default;
 /// <summary>
+/// YAML constructor. Pass a YAML string to be initially parsed.
+/// </summary>
+/// <param name="yamlString">YAML string.</param>
+YAML::YAML(const std::string &yamlString) : YAML() { parse(BufferSource{ yamlString }); }
+/// <summary>
 /// Fetch version string for current YAML_Lib.
 /// </summary>
 /// <returns>Version string.</returns>

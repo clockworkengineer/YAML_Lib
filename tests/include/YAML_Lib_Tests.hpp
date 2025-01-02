@@ -15,7 +15,8 @@ constexpr char kSingleYAMLFile[] = "testfile001.yaml";
 constexpr char kNonExistantYAMLFile[] = "doesntexist.yaml";
 
 const std::string prefixPath(const std::string &yamlFileName);
-void compareYAML(const YAML_Lib::YAML &yaml, const std::string &destinationYAML);
+void compareYAML(const YAML_Lib::YAML &yaml,
+                 const std::string &destinationYAML);
 bool compareFile(const std::string &str, const std::string &fileName);
 
 // Test files macro
@@ -32,5 +33,8 @@ bool compareFile(const std::string &str, const std::string &fileName);
        "testfile025.yaml", "testfile026.yaml", "testfile027.yaml",             \
        "testfile028.yaml", "testfile029.yaml", "testfile030.yaml",             \
        "testfile031.yaml"}))
-
+// Floating point comparison (accurate to within an epsilon)
+template <typename T> bool equalFloatingPoint(T a, T b, double epsilon) {
+  return (std::fabs(a - b) <= epsilon);
+}
 using namespace YAML_Lib;

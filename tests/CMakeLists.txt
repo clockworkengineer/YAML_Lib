@@ -20,6 +20,7 @@ set(TEST_EXECUTABLE ${YAML_LIBRARY_NAME}_Unit_Tests)
 
 set(TEST_SOURCES
         source/yaml/YAML_Lib_Tests_YAML.cpp
+        source/yaml/YAML_Lib_Tests_YAML_Create_Simple.cpp
         source/document/YAML_Lib_Tests_YAML_Document.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse.cpp
         source/parse/YAML_Lib_Tests_YAML_Parse_Array.cpp

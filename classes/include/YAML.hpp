@@ -49,6 +49,8 @@ public:
       std::initializer_list<std::pair<std::string, InitializerListTypes>>;
   // Pass any user defined parser/stringifier here
   explicit YAML(IStringify *stringify = nullptr, IParser *parser = nullptr);
+    // Pass in default YAML to parse
+  explicit YAML(const std::string &yamlString);
   YAML(const YAML &other) = delete;
   YAML &operator=(const YAML &other) = delete;
   YAML(YAML &&other) = delete;
