@@ -58,6 +58,11 @@ const YNode &YAML_Impl::operator[](const std::string &key) const {
 
 YNode &YAML_Impl::operator[](const std::size_t index) {
   try {
+    if (getNumberOfDocuments() == 0) {
+      BufferSource source("---\n...\n");
+      parse(source);
+      YRef<Document>(document(0)).add(YNode::make<Array>());
+    }
     if (document(0)[0].isEmpty()) {
       document(0)[0] = YNode::make<Array>();
     }
