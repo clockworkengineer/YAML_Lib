@@ -74,6 +74,13 @@ public:
   [[nodiscard]] YNode &document(unsigned long index);
   [[nodiscard]] const YNode &document(unsigned long index) const;
 
+  // Search for YAML object entry with a given key
+  YNode &operator[](const std::string &key);
+  const YNode &operator[](const std::string &key) const;
+  // Get YAML array entry at index
+  YNode &operator[](std::size_t index);
+  const YNode &operator[](std::size_t index) const;
+
   static std::string fromFile(const std::string &yamlFileName) {
     std::ifstream yamlFile{yamlFileName, std::ios_base::binary};
     std::ostringstream yamlFileBuffer;

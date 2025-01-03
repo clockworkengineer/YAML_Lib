@@ -38,4 +38,34 @@ void YAML_Impl::stringify(IDestination &destination) const {
   yamlStringify->stringify(yamlTree, destination);
 }
 
+YNode &YAML_Impl::operator[](const std::string &key) {
+  try {
+    if (getNumberOfDocuments() == 0) {
+      BufferSource source("---\n...\n");
+      parse(source);
+      YRef<Document>(document(0)).add(YNode::make<Dictionary>());
+    }
+    return document(0)[0][key];
+  } catch ([[maybe_unused]] Dictionary::Error &error) {
+    YRef<Dictionary>(document(0)[0])
+        .add(Dictionary::Entry(key, YNode::make<Hole>()));
+    return document(0)[0][key];
+  }
+}
+const YNode &YAML_Impl::operator[](const std::string &key) const {
+  return document(0)[0][key];
+}
+
+YNode &YAML_Impl::operator[](const std::size_t index) {
+  try {
+    if (document(0)[0].isEmpty()) {
+      document(0)[0] = YNode::make<Array>();
+    }
+    return document(0)[0][index];
+  } catch ([[maybe_unused]] YNode::Error &error) {
+    YRef<Array>(document(0)[0]).resize(index);
+    return document(0)[0][index];
+  }
+}
+
 } // namespace YAML_Lib

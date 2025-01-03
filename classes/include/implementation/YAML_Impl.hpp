@@ -49,7 +49,13 @@ public:
     }
     return yamlTree[index];
   }
-
+  // Search for YAML object entry with a given key
+  YNode &operator[](const std::string &key);
+  const YNode &operator[](const std::string &key) const;
+  // Get YAML array element at index
+  YNode &operator[](std::size_t index);
+  const YNode &operator[](std::size_t index) const;
+  
 private:
   // Pointer to YAML parser interface
   inline static std::unique_ptr<IParser> yamlParser;

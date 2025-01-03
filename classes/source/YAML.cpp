@@ -74,4 +74,16 @@ YNode &YAML::document(const unsigned long index) {
 const YNode &YAML::document(const unsigned long index) const {
   return implementation->document(index);
 }
+/// <summary>
+/// Return object entry for the passed in keys.
+/// </summary>
+/// <param name="key">Object entry (YNode) key.</param>
+YNode &YAML::operator[](const std::string &key) { return (*implementation)[key]; }
+const YNode &YAML::operator[](const std::string &key) const { return (*implementation)[key]; }
+/// <summary>
+/// Return array entry for the passed in index.
+/// </summary>
+/// <param name="index">Array entry (YNode) index.</param>
+YNode &YAML::operator[](const std::size_t index) { return (*implementation)[index]; }
+const YNode &YAML::operator[](const std::size_t index) const { return (*implementation)[index]; }
 } // namespace YAML_Lib
