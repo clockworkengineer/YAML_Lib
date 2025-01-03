@@ -32,9 +32,9 @@ struct YNode;
 // =====================
 // YAML string constants
 // =====================
-constexpr auto kOverride{ "<<"};
-constexpr auto kStartDocument{ "---"};
-constexpr auto kEndDocument{ "..."};
+constexpr auto kOverride{"<<"};
+constexpr auto kStartDocument{"---"};
+constexpr auto kEndDocument{"..."};
 
 class YAML {
 public:
@@ -49,8 +49,12 @@ public:
       std::initializer_list<std::pair<std::string, InitializerListTypes>>;
   // Pass any user defined parser/stringifier here
   explicit YAML(IStringify *stringify = nullptr, IParser *parser = nullptr);
-    // Pass in default YAML to parse
+  // Pass in default YAML to parse
   explicit YAML(const std::string &yamlString);
+  // Construct an array
+  YAML(const ArrayInitializer &array);
+  // Construct object
+  YAML(const DictionaryInitializer &dictionary);
   YAML(const YAML &other) = delete;
   YAML &operator=(const YAML &other) = delete;
   YAML(YAML &&other) = delete;

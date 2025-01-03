@@ -28,7 +28,34 @@ YAML::~YAML() = default;
 /// YAML constructor. Pass a YAML string to be initially parsed.
 /// </summary>
 /// <param name="yamlString">YAML string.</param>
-YAML::YAML(const std::string &yamlString) : YAML() { parse(BufferSource{ yamlString }); }
+YAML::YAML(const std::string &yamlString) : YAML() {
+  parse(BufferSource{yamlString});
+}
+// <summary>
+/// YAML constructor (array).
+/// </summary>
+/// <param name="array">Initializer list of single values or YNode.</param>
+YAML::YAML(const ArrayInitializer &array) : YAML() {
+  if (getNumberOfDocuments() == 0) {
+    BufferSource source("---\n...\n");
+    parse(source);
+    YRef<Document>(document(0)).add(YNode::make<Array>());
+  }
+  this->document(0)[0] = YNode(array);
+}
+
+/// <summary>
+/// YAML constructor (object).
+/// </summary>
+/// <param name="object">Initializer list of key/value(YNode) pairs.</param>
+YAML::YAML(const DictionaryInitializer &dictionary) : YAML() {
+  if (getNumberOfDocuments() == 0) {
+    BufferSource source("---\n...\n");
+    parse(source);
+    YRef<Document>(document(0)).add(YNode::make<Dictionary>());
+  }
+  this->document(0)[0] = YNode(dictionary);
+}
 /// <summary>
 /// Fetch version string for current YAML_Lib.
 /// </summary>
@@ -78,12 +105,20 @@ const YNode &YAML::document(const unsigned long index) const {
 /// Return object entry for the passed in keys.
 /// </summary>
 /// <param name="key">Object entry (YNode) key.</param>
-YNode &YAML::operator[](const std::string &key) { return (*implementation)[key]; }
-const YNode &YAML::operator[](const std::string &key) const { return (*implementation)[key]; }
+YNode &YAML::operator[](const std::string &key) {
+  return (*implementation)[key];
+}
+const YNode &YAML::operator[](const std::string &key) const {
+  return (*implementation)[key];
+}
 /// <summary>
 /// Return array entry for the passed in index.
 /// </summary>
 /// <param name="index">Array entry (YNode) index.</param>
-YNode &YAML::operator[](const std::size_t index) { return (*implementation)[index]; }
-const YNode &YAML::operator[](const std::size_t index) const { return (*implementation)[index]; }
+YNode &YAML::operator[](const std::size_t index) {
+  return (*implementation)[index];
+}
+const YNode &YAML::operator[](const std::size_t index) const {
+  return (*implementation)[index];
+}
 } // namespace YAML_Lib

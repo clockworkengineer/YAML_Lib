@@ -98,40 +98,37 @@ TEST_CASE("Check YAML create complex YAML structures.",
         "\n  everything: 42\nlist: \n  - 1\n  - 0\n  - 2\nobject: \n  "
         "currency: \"USD\"\n  value: \n    key1: 22\n    key2: 99.899\n...\n");
   }
-  //   SECTION("Array creation completely using a initializer list.",
-  //   "[YAML][Create][Complex][Initializer")
-  //   {
-  //     YAML yaml = { 1, 2, 3, 4 };
-  //     BufferDestination yamlDestination;
-  //     REQUIRE_NOTHROW(yaml.stringify(yamlDestination));
-  //     REQUIRE(yamlDestination.toString() == R"([1,2,3,4])");
-  //   }
-  //   SECTION("Object creation completely using a initializer list.",
-  //   "[YAML][Create][Complex][Initializer")
-  //   {
-  //     YAML yaml = { { "currency", "USD" }, { "value", 42.99 } };
-  //     BufferDestination yamlDestination;
-  //     REQUIRE_NOTHROW(yaml.stringify(yamlDestination));
-  //     REQUIRE(yamlDestination.toString() ==
-  //     R"({"currency":"USD","value":42.99})");
-  //   }
-  //   SECTION("Object creation completely using a nested initializer list.",
-  //   "[YAML][Create][Complex][Initializer")
-  //   {
-  //     // Note: For the moment has to explicitly uses YNode to create a
-  //     // nested object/array
-  //     YAML yaml = { { "pi", 3.141 },
-  //       { "happy", true },
-  //       { "name", "Niels" },
-  //       { "nothing", nullptr },
-  //       { "answer", YNode{ { "everything", 42 } } },
-  //       { "list", YNode{ 1, 0, 2 } },
-  //       { "object", YNode{ { "currency", "USD" }, { "value", 42.99 } } } };
-  //     BufferDestination yamlDestination;
-  //     REQUIRE_NOTHROW(yaml.stringify(yamlDestination));
-  //     REQUIRE(
-  //       yamlDestination.toString()
-  //       ==
-  //       R"({"pi":3.141,"happy":true,"name":"Niels","nothing":null,"answer":{"everything":42},"list":[1,0,2],"object":{"currency":"USD","value":42.99}})");
-  //   }
+  SECTION("Array creation completely using a initializer list.",
+          "[YAML][Create][Complex][Initializer") {
+    YAML yaml = {1, 2, 3, 4};
+    BufferDestination yamlDestination;
+    REQUIRE_NOTHROW(yaml.stringify(yamlDestination));
+    REQUIRE(yamlDestination.toString() == "---\n- 1\n- 2\n- 3\n- 4\n...\n");
+  }
+  SECTION("Object creation completely using a initializer list.",
+          "[YAML][Create][Complex][Initializer") {
+    YAML yaml = {{"currency", "USD"}, {"value", 42.99}};
+    BufferDestination yamlDestination;
+    REQUIRE_NOTHROW(yaml.stringify(yamlDestination));
+    REQUIRE(yamlDestination.toString() ==
+            "---\ncurrency: \"USD\"\nvalue: 42.99\n...\n");
+  }
+  SECTION("Object creation completely using a nested initializer list.",
+          "[YAML][Create][Complex][Initializer") {
+    // Note: For the moment has to explicitly uses YNode to create a
+    // nested object/array
+    YAML yaml = {{"pi", 3.141},
+                 {"happy", true},
+                 {"name", "Niels"},
+                 {"nothing", nullptr},
+                 {"answer", YNode{{"everything", 42}}},
+                 {"list", YNode{1, 0, 2}},
+                 {"object", YNode{{"currency", "USD"}, {"value", 42.99}}}};
+    BufferDestination yamlDestination;
+    REQUIRE_NOTHROW(yaml.stringify(yamlDestination));
+    REQUIRE(yamlDestination.toString() ==
+            "---\npi: 3.141\nhappy: True\nname: \"Niels\"\nnothing: "
+            "null\nanswer: \n  everything: 42\nlist: \n  - 1\n  - 0\n  - "
+            "2\nobject: \n  currency: \"USD\"\n  value: 42.99\n...\n");
+  }
 }
