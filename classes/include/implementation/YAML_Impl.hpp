@@ -49,14 +49,19 @@ public:
     }
     return yamlTree[index];
   }
+  // Traverse YAML tree
+  void traverse(IAction &action);
+  void traverse(IAction &action) const;
   // Search for YAML object entry with a given key
   YNode &operator[](const std::string &key);
   const YNode &operator[](const std::string &key) const;
   // Get YAML array element at index
   YNode &operator[](std::size_t index);
   const YNode &operator[](std::size_t index) const;
-  
+
 private:
+  // Traverse JSON tree
+  template<typename T> static void traverseYNodes(T &yNode, IAction &action);
   // Pointer to YAML parser interface
   inline static std::unique_ptr<IParser> yamlParser;
   // Pointer to YAML stringify interface
@@ -64,4 +69,32 @@ private:
   // YAML tree
   std::vector<YNode> yamlTree;
 };
+
+/// <summary>
+/// Recursively traverse YNode tree calling IAction methods and possibly
+/// modifying the tree contents or even structure.
+/// </summary>
+/// <param name="yNode">YNode tree to be traversed.</param>
+/// <param name="action">Action methods to call during traversal.</param>
+template<typename T> void YAML_Impl::traverseYNodes(T &yNode, IAction &action)
+{
+  action.onYNode(yNode);
+  if (isA<Number>(yNode)) {
+    action.onNumber(yNode);
+  } else if (isA<String>(yNode)) {
+    action.onString(yNode);
+  } else if (isA<Boolean>(yNode)) {
+    action.onBoolean(yNode);
+  } else if (isA<Null>(yNode)) {
+    action.onNull(yNode);
+  } else if (isA<Dictionary>(yNode)) {
+    action.onDictionary(yNode);
+    for (auto &entry : YRef<Dictionary>(yNode).value()) { traverseYNodes(entry.getYNode(), action); }
+  } else if (isA<Array>(yNode)) {
+    action.onArray(yNode);
+    for (auto &entry : YRef<Array>(yNode).value()) { traverseYNodes(entry, action); }
+  } else if (!isA<Hole>(yNode)) {
+    throw Error("Unknown YNode type encountered during tree traversal.");
+  }
+}
 } // namespace YAML_Lib

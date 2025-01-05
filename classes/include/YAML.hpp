@@ -77,7 +77,9 @@ public:
   // Get vector of YAML document
   [[nodiscard]] YNode &document(unsigned long index);
   [[nodiscard]] const YNode &document(unsigned long index) const;
-
+  // Traverse YAML tree
+  void traverse(IAction &action);
+  void traverse(IAction &action) const;
   // Search for YAML object entry with a given key
   YNode &operator[](const std::string &key);
   const YNode &operator[](const std::string &key) const;

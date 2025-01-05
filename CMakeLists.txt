@@ -33,6 +33,7 @@ list(APPEND YAML_SOURCES "./classes/source/implementation/converter/${PLATFORM}/
 set(YAML_INCLUDES
   YAML_Config.hpp
   ./classes/include/YAML.hpp
+  ./classes/include/interface/IAction.hpp
   ./classes/include/interface/ISource.hpp
   ./classes/include/interface/IDestination.hpp
   ./classes/include/interface/IParser.hpp

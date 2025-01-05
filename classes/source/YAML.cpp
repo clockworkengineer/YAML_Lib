@@ -102,6 +102,17 @@ const YNode &YAML::document(const unsigned long index) const {
   return implementation->document(index);
 }
 /// <summary>
+/// Recursively traverse YNode structure calling IAction methods (read-only)
+///  or to change the YAML tree node directly.
+/// </summary>
+/// <param name="action">Action methods to call during traversal.</param>
+/// Traverse using non-const YAML so can change YAML tree
+void YAML::traverse(IAction &action) { implementation->traverse(action); }
+// Traverse using const YAML so cannot change YAML tree
+void YAML::traverse(IAction &action) const {
+  std::as_const(*implementation).traverse(action);
+}
+/// <summary>
 /// Return object entry for the passed in keys.
 /// </summary>
 /// <param name="key">Object entry (YNode) key.</param>
