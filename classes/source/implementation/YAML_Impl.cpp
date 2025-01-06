@@ -41,12 +41,12 @@ void YAML_Impl::stringify(IDestination &destination) const {
 void YAML_Impl::traverse(IAction &action)
 {
   if (yamlTree.empty()) { throw Error("No YAML to traverse."); }
- traverseYNodes(yamlTree[0], action);
+ traverseYNodes(yamlTree[0][0], action);
 }
 void YAML_Impl::traverse(IAction &action) const
 {
   if (yamlTree.empty()) { throw Error("No YAML to traverse."); }
- traverseYNodes(yamlTree[0], action);
+ traverseYNodes(yamlTree[0][0], action);
 }
 
 YNode &YAML_Impl::operator[](const std::string &key) {

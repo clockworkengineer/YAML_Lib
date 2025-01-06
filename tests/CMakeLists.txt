@@ -40,6 +40,7 @@ set(TEST_SOURCES
         source/io/YAML_Lib_Tests_IDestination_Buffer.cpp
         source/io/YAML_Lib_Tests_IDestination_File.cpp
         source/io/YAML_Lib_Tests_ISource_File.cpp
+        source/traverse/YAML_Lib_Tests_Traverse.cpp
         source/misc/YAML_Lib_Tests_Helper.cpp)
 
 add_executable(${TEST_EXECUTABLE} ${TEST_SOURCES})
