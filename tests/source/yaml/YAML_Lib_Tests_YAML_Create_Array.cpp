@@ -9,12 +9,12 @@ TEST_CASE("Check YAML array creation api.", "[YAML][Create][Array]") {
   SECTION("Initialise YAML with YAML array passed to constructor and validate.",
           "[YAML][Create][Constructor][Validate]") {
     const YAML yaml(R"([ "pi", 3.141 ])");
-    REQUIRE_FALSE(!isA<Array>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0][0]));
-    REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0][1]));
-    REQUIRE(YRef<String>(yaml.document(0)[0][0]).value() == "pi");
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!isA<Number>(yaml.document(0)[1]));
+    REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "pi");
     REQUIRE_FALSE(!equalFloatingPoint(
-        YRef<Number>(yaml.document(0)[0][1]).value<float>(), 3.141f, 0.0001));
+        YRef<Number>(yaml.document(0)[1]).value<float>(), 3.141f, 0.0001));
   }
   SECTION("Initialise root YAML array with one entry containing a integer.",
           "[YAML][Create][Array][Number]") {
