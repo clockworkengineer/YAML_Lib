@@ -41,13 +41,13 @@ public:
     if (index >= yamlTree.size()) {
       throw Error("Document does not exist.");
     }
-    return yamlTree[index];
+    return yamlTree[index][0];
   }
   [[nodiscard]] const YNode &document(const unsigned long index) const {
     if (index >= yamlTree.size()) {
       throw Error("Document does not exist.");
     }
-    return yamlTree[index];
+    return yamlTree[index][0];
   }
   // Traverse YAML tree
   void traverse(IAction &action);

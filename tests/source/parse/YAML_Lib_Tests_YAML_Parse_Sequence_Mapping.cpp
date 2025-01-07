@@ -9,7 +9,7 @@ TEST_CASE("Check YAML parse mapping between sequences.",
         "---\n? - Detroit Tigers\n - Chicago cubs\n: - 2001-07-23\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     compareYAML(
         yaml,
         "---\n\"[Detroit Tigers, Chicago cubs]\": \n  - 2001-07-23\n...\n");
@@ -22,7 +22,7 @@ TEST_CASE("Check YAML parse mapping between sequences.",
         "2001-08-14 ]"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     compareYAML(
         yaml,
         "---\n\"[Detroit Tigers, Chicago cubs]\": \n  - 2001-07-23\n\"[New "
@@ -37,7 +37,7 @@ TEST_CASE("Check YAML parse mapping between sequences.",
         "2001-07-02, 2001-08-12,\n    2001-08-14 ]"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     compareYAML(
         yaml,
         "---\n\"[Detroit Tigers, Chicago cubs]\": \n  - 2001-07-23\nNew "
@@ -53,7 +53,7 @@ TEST_CASE("Check YAML parse mapping between sequences.",
         "2001-07-02, 2001-08-12,\n    2001-08-14 ]"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     compareYAML(
         yaml,
         "---\n\"[Detroit Tigers, Chicago Cubs]\": \n  - 2001-07-23\n\"[New "

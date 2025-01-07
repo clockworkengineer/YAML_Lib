@@ -8,19 +8,19 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
         "----\nhr:\n  - Mark McGwire\n  # Following node labeled SS\n  - &SS "
         "Sammy Sosa\nrbi:\n  - *SS # Subsequent occurance\n  - Ken Griffey"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("hr"));
-    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)[0]).contains("rbi"));
-    REQUIRE(YRef<String>(yaml.document(0)[0]["hr"][0]).value() ==
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)).contains("hr"));
+    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)).contains("rbi"));
+    REQUIRE(YRef<String>(yaml.document(0)["hr"][0]).value() ==
             "Mark McGwire");
-    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["hr"][1]));
-    REQUIRE(YRef<String>(yaml.document(0)[0]["hr"][1]).value() == "Sammy Sosa");
-    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["hr"][1]));
-    REQUIRE(YRef<String>(yaml.document(0)[0]["hr"][1]).value() == "Sammy Sosa");
-    REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]["rbi"][0]));
-    REQUIRE(YRef<String>(yaml.document(0)[0]["rbi"][0]).value() ==
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)["hr"][1]));
+    REQUIRE(YRef<String>(yaml.document(0)["hr"][1]).value() == "Sammy Sosa");
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)["hr"][1]));
+    REQUIRE(YRef<String>(yaml.document(0)["hr"][1]).value() == "Sammy Sosa");
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)["rbi"][0]));
+    REQUIRE(YRef<String>(yaml.document(0)["rbi"][0]).value() ==
             "Sammy Sosa");
-    REQUIRE(YRef<String>(yaml.document(0)[0]["rbi"][1]).value() ==
+    REQUIRE(YRef<String>(yaml.document(0)["rbi"][1]).value() ==
             "Ken Griffey");
   }
   SECTION("YAML parse array with one complex anchor (example 1).",

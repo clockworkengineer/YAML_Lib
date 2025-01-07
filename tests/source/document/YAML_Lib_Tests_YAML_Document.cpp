@@ -6,7 +6,7 @@ TEST_CASE("Check YAML Document API.", "[YAML][Document]") {
     BufferSource source{"---\n   - 'One'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE_FALSE(!isA<Document>(yaml.document(0)));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
   }
   SECTION("Check YAML Document API doe non-existent document.",
           "[YAML][Document]") {
@@ -20,7 +20,7 @@ TEST_CASE("Check YAML Document API.", "[YAML][Document]") {
     BufferSource source{"---\n   - 'One'\n...\n---\n   - 'Two'\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 2);
-    REQUIRE_FALSE(!isA<Document>(yaml.document(0)));
-    REQUIRE_FALSE(!isA<Document>(yaml.document(1)));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(1)));
   }
 }
