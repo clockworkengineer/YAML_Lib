@@ -30,18 +30,18 @@ bool YAML_Parser::endsWith(const std::string &str, const std::string &substr) {
 /// </summary>
 /// <param name="str">Target string.</param>
 void YAML_Parser::rightTrim(std::string &str) {
-  str.erase(std::find_if(str.rbegin(), str.rend(),
-                         [](const unsigned char ch) { return !std::isspace(ch); })
-                .base(),
-            str.end());
+  str.erase(
+      std::find_if(str.rbegin(), str.rend(),
+                   [](const unsigned char ch) { return !std::isspace(ch); })
+          .base(),
+      str.end());
 }
 /// <summary>
 /// Move to the next delimiter on source stream in a set.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Set of possible delimiter characters.</param>
-void YAML_Parser::moveToNext(ISource &source,
-                             const Delimiters &delimiters) {
+void YAML_Parser::moveToNext(ISource &source, const Delimiters &delimiters) {
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
       source.next();
@@ -75,9 +75,8 @@ void YAML_Parser::moveToNextIndent(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns>Extracted characters.</returns>
-std::string
-YAML_Parser::extractToNext(ISource &source,
-                           const Delimiters &delimiters) {
+std::string YAML_Parser::extractToNext(ISource &source,
+                                       const Delimiters &delimiters) {
   std::string extracted;
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
@@ -155,8 +154,8 @@ YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
 /// <summary>
 /// Does YAML that is  passed in constitute a valid dictionary key?
 /// </summary>
-/// <param name="key">YAML sequence to be converted to be used as the key.</param>
-/// <returns>==true value is a valid key.</returns>
+/// <param name="key">YAML sequence to be converted to be used as the
+/// key.</param> <returns>==true value is a valid key.</returns>
 bool YAML_Parser::isValidKey(const std::string &key) {
   try {
     BufferSource yamlKey{key + kLineFeed};
@@ -292,19 +291,25 @@ bool YAML_Parser::isPipedBlockString(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true a comment has been found.</returns>
-bool YAML_Parser::isComment(const ISource &source) { return source.current() == '#'; }
+bool YAML_Parser::isComment(const ISource &source) {
+  return source.current() == '#';
+}
 /// <summary>
 /// Has an anchor been found on the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true an anchor has been found.</returns>
-bool YAML_Parser::isAnchor(const ISource &source) { return source.current() == '&'; }
+bool YAML_Parser::isAnchor(const ISource &source) {
+  return source.current() == '&';
+}
 /// <summary>
 /// Has an alias been found on the input stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>==true an alias has been found.</returns>
-bool YAML_Parser::isAlias(const ISource &source) { return source.current() == '*'; }
+bool YAML_Parser::isAlias(const ISource &source) {
+  return source.current() == '*';
+}
 /// <summary>
 /// Has an inline array been found on the source stream?
 /// </summary>
@@ -682,7 +687,7 @@ YNode YAML_Parser::parseOverride(ISource &source,
   source.next();
   source.ignoreWS();
   if (source.current() != '*') {
-    throw SyntaxError(source.getPosition(),"Missing '*' from alias.");
+    throw SyntaxError(source.getPosition(), "Missing '*' from alias.");
   }
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
@@ -710,7 +715,8 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
   }
   if (isArray(source) && indentLevel == 1 &&
       arrayIndent > source.getIndentation()) {
-    throw SyntaxError(source.getPosition(),"Invalid indentation for array element.");
+    throw SyntaxError(source.getPosition(),
+                      "Invalid indentation for array element.");
   }
   indentLevel--;
   return yNode;
@@ -746,7 +752,8 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   YNode keyYNode = parseKey(source);
   source.ignoreWS();
   if (isKey(source) && !delimiters.contains('}')) {
-    throw SyntaxError(source.getPosition(),"Only an inline/compact dictionary is allowed.");
+    throw SyntaxError(source.getPosition(),
+                      "Only an inline/compact dictionary is allowed.");
   }
   moveToNextIndent(source);
   YNode yNode;
@@ -812,13 +819,16 @@ YNode YAML_Parser::parseInlineDictionary(
   do {
     source.next();
     moveToNextIndent(source);
-    YRef<Dictionary>(yNode).add(
-        parseKeyValue(source, inLineDictionaryDelimiters));
+    if (source.current() != '}') {
+      YRef<Dictionary>(yNode).add(
+          parseKeyValue(source, inLineDictionaryDelimiters));
+    }
 
   } while (source.current() == ',');
   checkForEnd(source, '}');
   if (source.current() == ':') {
-    throw SyntaxError(source.getPosition(),
+    throw SyntaxError(
+        source.getPosition(),
         "Inline dictionary used as key is meant to be on one line.");
   }
   return yNode;

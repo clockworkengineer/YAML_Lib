@@ -94,8 +94,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE_FALSE(!isA<Array>(yaml.document(1)));
     REQUIRE(YRef<Array>(yaml.document(1)).size() == 2);
     REQUIRE(YRef<String>(yaml.document(1)[0]).value() == "Chicago Cubs");
-    REQUIRE(YRef<String>(yaml.document(1)[1]).value() ==
-            "St Louis Cardinals");
+    REQUIRE(YRef<String>(yaml.document(1)[1]).value() == "St Louis Cardinals");
   }
   SECTION("YAML parse flat array of integers and verify.",
           "[YAML][Parse][Array]") {
@@ -203,10 +202,21 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
                         "YAML Syntax Error [Line: 3 Column: 1]: Invalid "
                         "indentation for array element.");
   }
-  SECTION("YAML parse array with string that looks like continuing array",
+  SECTION("YAML parse array with string that looks like continuing array.",
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n- test - test"};
     REQUIRE_NOTHROW(yaml.parse(source));
     compareYAML(yaml, "---\n- test - test\n...\n");
   }
+  SECTION("YAML parse empty array.", "[YAML][Parse][Array]") {
+    BufferSource source{"---\n[]\n..."};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
+  }
+  // SECTION("YAML parse ',' in array.", "[YAML][Parse][Array]") {
+  //   BufferSource source{"---\n[, , ]\n..."};
+  //   REQUIRE_NOTHROW(yaml.parse(source));
+  //   REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
+  //   compareYAML(yaml, "");
+  // }
 }
