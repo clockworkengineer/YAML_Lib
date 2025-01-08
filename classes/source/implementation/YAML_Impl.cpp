@@ -54,13 +54,13 @@ YNode &YAML_Impl::operator[](const std::string &key) {
     if (getNumberOfDocuments() == 0) {
       BufferSource source("---\n...\n");
       parse(source);
-      YRef<Document>(document(0)).add(YNode::make<Dictionary>());
+      YRef<Document>(yamlTree[0]).add(YNode::make<Dictionary>());
     }
-    return document(0)[0][key];
+    return document(0)[key];
   } catch ([[maybe_unused]] Dictionary::Error &error) {
-    YRef<Dictionary>(document(0)[0])
+    YRef<Dictionary>(document(0))
         .add(Dictionary::Entry(key, YNode::make<Hole>()));
-    return document(0)[0][key];
+    return document(0)[key];
   }
 }
 const YNode &YAML_Impl::operator[](const std::string &key) const {
@@ -72,15 +72,16 @@ YNode &YAML_Impl::operator[](const std::size_t index) {
     if (getNumberOfDocuments() == 0) {
       BufferSource source("---\n...\n");
       parse(source);
-      YRef<Document>(document(0)).add(YNode::make<Array>());
+      YRef<Document>(yamlTree[0]).add(YNode::make<Array>());
+      // YRef<Document>(document(0)).add(YNode::make<Array>());
     }
-    if (document(0)[0].isEmpty()) {
-      document(0)[0] = YNode::make<Array>();
-    }
-    return document(0)[0][index];
+    // if (document(0)[0].isEmpty()) {
+    //   document(0)[0] = YNode::make<Array>();
+    // }
+    return document(0)[index];
   } catch ([[maybe_unused]] YNode::Error &error) {
-    YRef<Array>(document(0)[0]).resize(index);
-    return document(0)[0][index];
+    YRef<Array>(document(0)).resize(index);
+    return document(0)[index];
   }
 }
 

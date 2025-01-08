@@ -37,11 +37,11 @@ YAML::YAML(const std::string &yamlString) : YAML() {
 /// <param name="array">Initializer list of single values or YNode.</param>
 YAML::YAML(const ArrayInitializer &array) : YAML() {
   if (getNumberOfDocuments() == 0) {
-    BufferSource source("---\n...\n");
+    BufferSource source("---\n[]\n...\n");
     parse(source);
-    YRef<Document>(document(0)).add(YNode::make<Array>());
+    // YRef<Document>(yamlTree[0]).add(YNode::make<Array>());
   }
-  this->document(0)[0] = YNode(array);
+  this->document(0) = YNode(array);
 }
 
 /// <summary>
@@ -50,11 +50,11 @@ YAML::YAML(const ArrayInitializer &array) : YAML() {
 /// <param name="object">Initializer list of key/value(YNode) pairs.</param>
 YAML::YAML(const DictionaryInitializer &dictionary) : YAML() {
   if (getNumberOfDocuments() == 0) {
-    BufferSource source("---\n...\n");
+    BufferSource source("---\n null : null\n...\n");
     parse(source);
-    YRef<Document>(document(0)).add(YNode::make<Dictionary>());
+    // YRef<Document>(yamlTree[0]).add(YNode::make<Dictionary>());
   }
-  this->document(0)[0] = YNode(dictionary);
+  this->document(0) = YNode(dictionary);
 }
 /// <summary>
 /// Fetch version string for current YAML_Lib.
