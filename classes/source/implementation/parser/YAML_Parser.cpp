@@ -736,6 +736,17 @@ YNode YAML_Parser::parseInlineArray(
   do {
     source.next();
     YRef<Array>(yNode).add(parseDocument(source, inLineArrayDelimiters));
+    auto &element = YRef<Array>(yNode).value().back();
+    if (isA<String>(element)) {
+      if (YRef<String>(element).value().empty() &&
+          YRef<String>(element).getQuote() == '\0') {
+        if (source.current() != ']') {
+          element = YNode::make<Null>();
+        } else {
+          YRef<Array>(yNode).value().pop_back();
+        }
+      }
+    }
   } while (source.current() == ',');
   checkForEnd(source, ']');
   return yNode;

@@ -213,10 +213,10 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
   }
-  // SECTION("YAML parse ',' in array.", "[YAML][Parse][Array]") {
-  //   BufferSource source{"---\n[, , ]\n..."};
-  //   REQUIRE_NOTHROW(yaml.parse(source));
-  //   REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
-  //   compareYAML(yaml, "");
-  // }
+  SECTION("YAML parse ',,' in array.", "[YAML][Parse][Array]") {
+    BufferSource source{"---\n[ ,rrrr, ]\n..."};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
+    compareYAML(yaml, "---\n- null\n- rrrr\n...\n");
+  }
 }
