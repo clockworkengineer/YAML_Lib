@@ -398,23 +398,24 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
                         "YAML Syntax Error [Line: 2 Column: 3]: Mapping key "
                         "has the incorrect indentation.");
   }
-//   SECTION("YAML parse empty dictionary.", "[YAML][Parse][Dictionary]") {
-//     BufferSource source{"---\n { } \n...\n"};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
-//     compareYAML(yaml, "");
-//   }
+  SECTION("YAML parse empty dictionary.", "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n { } \n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+  }
 
-//   SECTION("YAML parse in dictionary with just one seperator.", "[YAML][Parse][Dictionary]") {
-//     BufferSource source{"---\n { , } \n...\n"};
+//   SECTION("YAML parse in dictionary with just one seperator.",
+//           "[YAML][Parse][Dictionary]") {
+//     BufferSource source{"---\n { ttttt: ,ttttt:  } \n...\n"};
 //     REQUIRE_NOTHROW(yaml.parse(source));
 //     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
-//     compareYAML(yaml, "");
+//     compareYAML(yaml, "---\n- one\n- two\n- three\n...\n");
 //   }
-//   SECTION("YAML parse  dictionary with just keys.", "[YAML][Parse][Dictionary]") {
-//     BufferSource source{"---\n { eeee, eee: , tttt } \n...\n"};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
-//     compareYAML(yaml, "");
-//   }
-}
+  //   SECTION("YAML parse  dictionary with just keys.",
+  //   "[YAML][Parse][Dictionary]") {
+  //     BufferSource source{"---\n { eeee, eee: , tttt } \n...\n"};
+  //     REQUIRE_NOTHROW(yaml.parse(source));
+  //     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+  //     compareYAML(yaml, "");
+  //   }
+  }

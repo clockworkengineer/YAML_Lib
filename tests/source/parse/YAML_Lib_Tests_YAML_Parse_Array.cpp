@@ -213,10 +213,16 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
   }
-  SECTION("YAML parse ',,' in array.", "[YAML][Parse][Array]") {
-    BufferSource source{"---\n[ ,rrrr, ]\n..."};
+  SECTION("YAML parse array ending with ','.", "[YAML][Parse][Array]") {
+    BufferSource source{"---\n[one ,two, three, ]\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
-    compareYAML(yaml, "---\n- null\n- rrrr\n...\n");
+    compareYAML(yaml, "---\n- one\n- two\n- three\n...\n");
+  }
+  SECTION("YAML parse array containing empty elements'.",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\n[,, three, ]\n..."};
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        "YAML Syntax Error: Unexpected ',' in in-line array.");
   }
 }

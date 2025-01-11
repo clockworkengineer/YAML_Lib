@@ -741,7 +741,7 @@ YNode YAML_Parser::parseInlineArray(
       if (YRef<String>(element).value().empty() &&
           YRef<String>(element).getQuote() == '\0') {
         if (source.current() != ']') {
-          element = YNode::make<Null>();
+          throw SyntaxError("Unexpected ',' in in-line array.");
         } else {
           YRef<Array>(yNode).value().pop_back();
         }
