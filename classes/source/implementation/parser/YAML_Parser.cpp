@@ -830,7 +830,9 @@ YNode YAML_Parser::parseInlineDictionary(
   do {
     source.next();
     moveToNextIndent(source);
-    if (source.current() != '}') {
+    if (source.current() == ',') {
+      throw SyntaxError("Unexpected ',' in in-line dictionary.");
+    } else if (source.current() != '}') {
       YRef<Dictionary>(yNode).add(
           parseKeyValue(source, inLineDictionaryDelimiters));
     }
