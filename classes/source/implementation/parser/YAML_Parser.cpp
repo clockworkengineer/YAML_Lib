@@ -177,8 +177,10 @@ std::string YAML_Parser::extractKey(ISource &source) {
   } else if (source.current() == '?') {
     source.next();
     delimiters = {':'};
-  } else {
+  } else if (source.current() == '[')
     delimiters = {':', kLineFeed};
+  else {
+    delimiters = {':', ',', kLineFeed};
   }
   std::string key = extractToNext(source, delimiters);
   if (delimiters.contains('}') && source.current() == '}') {
@@ -768,11 +770,50 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   }
   moveToNextIndent(source);
   YNode yNode;
-  if (source.getIndentation() > keyIndent || isInlineArray(source) ||
-      isInlineDictionary(source) || delimiters.contains('}')) {
+  if ((source.getIndentation() > keyIndent || isInlineArray(source) ||
+       isInlineDictionary(source) || delimiters.contains('}')) &&
+      (source.current() != ',')) {
     yNode = parseDocument(source, delimiters);
   } else {
     yNode = YNode::make<Null>();
+  }
+  if (isA<String>(yNode)) {
+    if (YRef<String>(yNode).value().empty() &&
+        YRef<String>(yNode).getQuote() == '\0') {
+      yNode = YNode::make<Null>();
+    }
+  }
+  return {keyYNode, yNode};
+}
+/// <summary>
+/// Parse inline dictionary key/value pair on source stream.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <param name="delimiters">Delimiters used to parse a key/value pair.</param>
+/// <returns>Dictionary entry for key/value.</returns>
+DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
+                                           const Delimiters &delimiters) {
+  const unsigned long keyIndent = source.getIndentation();
+  YNode keyYNode = parseKey(source);
+  source.ignoreWS();
+  if (isKey(source) && !delimiters.contains('}')) {
+    throw SyntaxError(source.getPosition(),
+                      "Only an inline/compact dictionary is allowed.");
+  }
+  moveToNextIndent(source);
+  YNode yNode;
+  if ((source.getIndentation() > keyIndent || isInlineArray(source) ||
+       isInlineDictionary(source) || delimiters.contains('}')) &&
+      (source.current() != ',')) {
+    yNode = parseDocument(source, delimiters);
+  } else {
+    yNode = YNode::make<Null>();
+  }
+  if (isA<String>(yNode)) {
+    if (YRef<String>(yNode).value().empty() &&
+        YRef<String>(yNode).getQuote() == '\0') {
+      yNode = YNode::make<Null>();
+    }
   }
   return {keyYNode, yNode};
 }
@@ -834,7 +875,7 @@ YNode YAML_Parser::parseInlineDictionary(
       throw SyntaxError("Unexpected ',' in in-line dictionary.");
     } else if (source.current() != '}') {
       YRef<Dictionary>(yNode).add(
-          parseKeyValue(source, inLineDictionaryDelimiters));
+          parseInlineKeyValue(source, inLineDictionaryDelimiters));
     }
 
   } while (source.current() == ',');

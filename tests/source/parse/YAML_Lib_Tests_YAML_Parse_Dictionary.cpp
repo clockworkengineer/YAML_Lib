@@ -425,11 +425,32 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
         yaml.parse(source),
         "YAML Syntax Error: Unexpected ',' in in-line dictionary.");
   }
-  //   SECTION("YAML parse  dictionary with just keys.",
-  //   "[YAML][Parse][Dictionary]") {
-  //     BufferSource source{"---\n { eeee, eee: , tttt } \n...\n"};
-  //     REQUIRE_NOTHROW(yaml.parse(source));
-  //     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
-  //     compareYAML(yaml, "");
-  //   }
+  SECTION("YAML parse  dictionary with just keys (example 1).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n { eeee, } \n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    compareYAML(yaml, "---\neeee: null\n...\n");
+  }
+    SECTION("YAML parse  dictionary with just keys (example 2).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n { eeee:, } \n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    compareYAML(yaml, "---\neeee: null\n...\n");
+  }
+//     SECTION("YAML parse  dictionary with just keys (example 3).",
+//           "[YAML][Parse][Dictionary]") {
+//     BufferSource source{"---\n { eeee:, rrrr} \n...\n"};
+//     REQUIRE_NOTHROW(yaml.parse(source));
+//     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+//     compareYAML(yaml, "---\neeee: null\n...\n");
+//   }
+//   SECTION("YAML parse  dictionary with just keys (example 2).",
+//           "[YAML][Parse][Dictionary]") {
+//     BufferSource source{"---\n { eeee:, rrrr:, ooooo:, } \n...\n"};
+//     REQUIRE_NOTHROW(yaml.parse(source));
+//     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+//     compareYAML(yaml, "---\neeee: null\n...\n");
+//   }
 }

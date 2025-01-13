@@ -11,7 +11,7 @@ class YAML_Parser final : public IParser {
 public:
   using Delimiters = std::set<char>;
   enum class BlockChomping : uint8_t { clip = 0, strip, keep };
-  explicit YAML_Parser(std::shared_ptr<ITranslator> translator)  {
+  explicit YAML_Parser(std::shared_ptr<ITranslator> translator) {
     yamlTranslator = translator;
   }
   YAML_Parser(const YAML_Parser &other) = delete;
@@ -108,6 +108,8 @@ private:
                                 [[maybe_unused]] const Delimiters &delimiters);
   static DictionaryEntry parseKeyValue(ISource &source,
                                        const Delimiters &delimiters);
+  static DictionaryEntry parseInlineKeyValue(ISource &source,
+                                             const Delimiters &delimiters);
   static YNode parseDictionary(ISource &source, const Delimiters &delimiters);
   static YNode
   parseInlineDictionary(ISource &source,
