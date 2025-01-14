@@ -62,10 +62,6 @@ public:
       next();
     }
   }
-  // ======================
-  // Get source indentation
-  // ======================
-  [[nodiscard]] unsigned long getIndentation() const { return column; }
   // ===============================================================
   // Is current string a match at the current source stream position
   // ===============================================================
