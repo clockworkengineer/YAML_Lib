@@ -764,24 +764,15 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   const unsigned long keyIndent = source.getIndentation();
   YNode keyYNode = parseKey(source);
   source.ignoreWS();
-  if (isKey(source) && !delimiters.contains('}')) {
+  if (isKey(source)) {
     throw SyntaxError(source.getPosition(),
                       "Only an inline/compact dictionary is allowed.");
   }
   moveToNextIndent(source);
-  YNode yNode;
+  YNode yNode { YNode::make<Null>() };
   if ((source.getIndentation() > keyIndent || isInlineArray(source) ||
-       isInlineDictionary(source) || delimiters.contains('}')) &&
-      (source.current() != ',')) {
+       isInlineDictionary(source))) {
     yNode = parseDocument(source, delimiters);
-  } else {
-    yNode = YNode::make<Null>();
-  }
-  if (isA<String>(yNode)) {
-    if (YRef<String>(yNode).value().empty() &&
-        YRef<String>(yNode).getQuote() == '\0') {
-      yNode = YNode::make<Null>();
-    }
   }
   return {keyYNode, yNode};
 }
@@ -793,21 +784,12 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
 /// <returns>Dictionary entry for key/value.</returns>
 DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
                                            const Delimiters &delimiters) {
-  const unsigned long keyIndent = source.getIndentation();
   YNode keyYNode = parseKey(source);
   source.ignoreWS();
-  if (isKey(source) && !delimiters.contains('}')) {
-    throw SyntaxError(source.getPosition(),
-                      "Only an inline/compact dictionary is allowed.");
-  }
   moveToNextIndent(source);
-  YNode yNode;
-  if ((source.getIndentation() > keyIndent || isInlineArray(source) ||
-       isInlineDictionary(source) || delimiters.contains('}')) &&
-      (source.current() != ',')) {
+  YNode yNode {  YNode::make<Null>() };
+  if (source.current() != ',') {
     yNode = parseDocument(source, delimiters);
-  } else {
-    yNode = YNode::make<Null>();
   }
   if (isA<String>(yNode)) {
     if (YRef<String>(yNode).value().empty() &&
