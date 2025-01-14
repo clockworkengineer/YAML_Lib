@@ -439,18 +439,25 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     compareYAML(yaml, "---\neeee: null\n...\n");
   }
-//     SECTION("YAML parse  dictionary with just keys (example 3).",
-//           "[YAML][Parse][Dictionary]") {
-//     BufferSource source{"---\n { eeee:, rrrr} \n...\n"};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
-//     compareYAML(yaml, "---\neeee: null\n...\n");
-//   }
-//   SECTION("YAML parse  dictionary with just keys (example 2).",
-//           "[YAML][Parse][Dictionary]") {
-//     BufferSource source{"---\n { eeee:, rrrr:, ooooo:, } \n...\n"};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
-//     compareYAML(yaml, "---\neeee: null\n...\n");
-//   }
+    SECTION("YAML parse  dictionary with just keys (example 3).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n { eeee:, rrrr } \n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    compareYAML(yaml, "---\neeee: null\nrrrr: null\n...\n");
+  }
+  SECTION("YAML parse  dictionary with just keys (example 4).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n { eeee:, rrrr:, ooooo:, } \n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    compareYAML(yaml, "---\neeee: null\nrrrr: null\nooooo: null\n...\n");
+  }
+    SECTION("YAML parse  dictionary with just keys (example 5).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n { eeee:, \nrrrr:, \nooooo:, } \n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    compareYAML(yaml, "---\neeee: null\nrrrr: null\nooooo: null\n...\n");
+  }
 }

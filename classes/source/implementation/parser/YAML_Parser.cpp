@@ -180,10 +180,10 @@ std::string YAML_Parser::extractKey(ISource &source) {
   } else if (source.current() == '[')
     delimiters = {':', kLineFeed};
   else {
-    delimiters = {':', ',', kLineFeed};
+    delimiters = {':', ',', '}', kLineFeed};
   }
   std::string key = extractToNext(source, delimiters);
-  if (delimiters.contains('}') && source.current() == '}') {
+  if (delimiters.contains('}') && source.current() == '}' && key[0] == '{') {
     key += source.append();
     source.ignoreWS();
   }
@@ -456,7 +456,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
 /// <returns>String YNode for dictionary key.</returns>
 YNode YAML_Parser::parseKey(ISource &source) {
   std::string key{extractKey(source)};
-  if (source.more()) {
+  if (source.more() && source.current() != '}') {
     source.next();
   }
   rightTrim(key);
