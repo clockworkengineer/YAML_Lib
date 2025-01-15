@@ -460,11 +460,25 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     compareYAML(yaml, "---\neeee: null\nrrrr: null\nooooo: null\n...\n");
   }
-    SECTION("YAML parse  dictionary with just keys (example 6).",
+      SECTION("YAML parse  dictionary with just keys (example 6).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n { eeee, rrrr: } \n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     compareYAML(yaml, "---\neeee: null\nrrrr: null\n...\n");
+  }
+  SECTION("YAML parse  dictionary with just keys (no colons) (example 7).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n { eeee, rrrr, oooo } \n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    compareYAML(yaml, "---\neeee: null\nrrrr: null\noooo: null\n...\n");
+  }
+  SECTION("YAML parse dictionary with s duplicate keys) (example 8).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n { eeee, rrrr, rrrr } \n...\n"};
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        "YAML Syntax Error [Line: 2 Column: 21]: Dictionary "
+                        "already contains key 'rrrr'.");
   }
 }

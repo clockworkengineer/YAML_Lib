@@ -856,8 +856,13 @@ YNode YAML_Parser::parseInlineDictionary(
     if (source.current() == ',') {
       throw SyntaxError("Unexpected ',' in in-line dictionary.");
     } else if (source.current() != '}') {
-      YRef<Dictionary>(yNode).add(
-          parseInlineKeyValue(source, inLineDictionaryDelimiters));
+      auto entry = parseInlineKeyValue(source, inLineDictionaryDelimiters);
+      if (YRef<Dictionary>(yNode).contains(entry.getKey())) {
+        throw SyntaxError(source.getPosition(),
+                          "Dictionary already contains key '" + entry.getKey() +
+                              "'.");
+      }
+      YRef<Dictionary>(yNode).add(std::move(entry));
     }
 
   } while (source.current() == ',');
