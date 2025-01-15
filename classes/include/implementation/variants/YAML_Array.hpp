@@ -32,7 +32,7 @@ struct Array final : Variant {
     if (!yNodeArray.empty()) {
       size_t commaCount = yNodeArray.size() - 1;
       for (auto &entryYNode : yNodeArray) {
-        array += entryYNode.getVariant().toString();
+        array += entryYNode.getVariant().toKey();
         if (commaCount-- > 0) {
           array += ", ";
         }

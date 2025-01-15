@@ -79,7 +79,7 @@ struct Dictionary final : Variant {
     for (auto &entryYNode : yNodeDictionary) {
       dictionary += entryYNode.getKeyYNode().getVariant().toString();
       dictionary += ": ";
-      dictionary += entryYNode.getYNode().getVariant().toString();
+      dictionary += entryYNode.getYNode().getVariant().toKey();
       if (commaCount-- > 0) {
         dictionary += ", ";
       }
