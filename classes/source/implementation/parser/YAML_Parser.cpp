@@ -456,7 +456,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
 /// <returns>String YNode for dictionary key.</returns>
 YNode YAML_Parser::parseKey(ISource &source) {
   std::string key{extractKey(source)};
-  if (source.more() && source.current() != '}') {
+  if (source.more() && source.current() != '}' && source.current() != ',') {
     source.next();
   }
   rightTrim(key);
@@ -785,8 +785,8 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
 DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
                                                  const Delimiters &delimiters) {
   YNode keyYNode = parseKey(source);
-  source.ignoreWS();
-  moveToNextIndent(source);
+  // source.ignoreWS();
+  // moveToNextIndent(source);
   YNode yNode{YNode::make<Null>()};
   if (source.current() != ',') {
     yNode = parseDocument(source, delimiters);
