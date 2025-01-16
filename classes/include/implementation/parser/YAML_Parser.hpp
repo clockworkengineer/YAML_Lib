@@ -33,6 +33,7 @@ private:
   static void moveToNextIndent(ISource &source);
   static std::string extractToNext(ISource &source,
                                    const Delimiters &delimiters);
+  static std::string extractInLine(ISource &source, char start, char end);
   static void checkForEnd(ISource &source, char end);
   static YNode mergeOverrides(YNode &overrideRoot);
 

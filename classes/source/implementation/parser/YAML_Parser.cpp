@@ -86,6 +86,30 @@ std::string YAML_Parser::extractToNext(ISource &source,
   return extracted;
 }
 /// <summary>
+/// Extract characters from source stream up to a last end character.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <param name="start character".></param>
+/// <param name="end character".></param>
+/// <returns>Extracted characters.</returns>
+std::string YAML_Parser::extractInLine(ISource &source, char start, char end) {
+  std::string extracted;
+  unsigned long depth{1};
+  extracted += start;
+  source.next();
+  while (depth > 0 && source.more()) {
+    if (source.current() == start) {
+      depth++;
+    } else if (source.current() == end) {
+      depth--;
+    }
+    extracted += source.current();
+    source.next();
+  }
+  source.ignoreWS();
+  return extracted;
+}
+/// <summary>
 /// Check that end character has been found if not throw an exception.
 /// </summary>
 /// <param name="source">Source stream.</param>
@@ -173,12 +197,12 @@ bool YAML_Parser::isValidKey(const std::string &key) {
 std::string YAML_Parser::extractKey(ISource &source) {
   Delimiters delimiters;
   if (isInlineDictionary(source)) {
-    delimiters = {'}', kLineFeed};
+    return extractInLine(source, '{', '}');
   } else if (source.current() == '?') {
     source.next();
     delimiters = {':'};
   } else if (source.current() == '[')
-    delimiters = {':', kLineFeed};
+    return extractInLine(source, '[', ']');
   else {
     delimiters = {':', ',', '}', kLineFeed};
   }
@@ -210,6 +234,13 @@ bool YAML_Parser::isKey(ISource &source) {
   bool keyPresent{false};
   std::string key{extractKey(source)};
   if (source.current() == ':') {
+    if (key[0] == '{') {
+      if (key.find('\n')!=std::string::npos) {
+        throw SyntaxError(
+            source.getPosition(),
+            "Inline dictionary used as key is meant to be on one line.");
+      }
+    }
     source.next();
     if (source.current() == ' ' || source.current() == kLineFeed) {
       rightTrim(key);
