@@ -340,7 +340,8 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     compareYAML(yaml, "---\n\"{one: 1, two: 2}\": \'test\'\n...\n");
   }
   // SECTION(
-  //     "YAML parse dictionariy with non string keys (nested inline dictionary).",
+  //     "YAML parse dictionariy with non string keys (nested inline
+  //     dictionary).",
   //     "[YAML][Parse][Dictionary]") {
   //   BufferSource source{"---\n{one: 1, { two: 2} }: 'test'\n...\n"};
   //   REQUIRE_NOTHROW(yaml.parse(source));
@@ -404,14 +405,14 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
                         "YAML Syntax Error [Line: 4 Column: 8]: Inline "
                         "dictionary used as key is meant to be on one line.");
   }
-    SECTION(
+  SECTION(
       "YAML parse dictionaries with non string keys are on more than one line "
       "(inline array).",
       "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n[1,\n2,\n3]: 'test'\n...\n"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Syntax Error [Line: 4 Column: 8]: Inline "
-                        "dictionary used as key is meant to be on one line.");
+                        "YAML Syntax Error [Line: 4 Column: 3]: Inline array "
+                        "used as key is meant to be on one line.");
   }
   SECTION("YAML parse dictionaries with out of line key indentation.",
           "[YAML][Parse][Dictionary]") {

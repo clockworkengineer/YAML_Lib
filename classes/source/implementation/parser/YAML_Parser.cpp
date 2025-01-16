@@ -234,11 +234,17 @@ bool YAML_Parser::isKey(ISource &source) {
   bool keyPresent{false};
   std::string key{extractKey(source)};
   if (source.current() == ':') {
-    if (key[0] == '{') {
-      if (key.find('\n')!=std::string::npos) {
-        throw SyntaxError(
-            source.getPosition(),
-            "Inline dictionary used as key is meant to be on one line.");
+    if (key[0] == '{' || key[0] == '[') {
+      if (key.find('\n') != std::string::npos) {
+        if (key[0] == '{') {
+          throw SyntaxError(
+              source.getPosition(),
+              "Inline dictionary used as key is meant to be on one line.");
+        } else {
+          throw SyntaxError(
+              source.getPosition(),
+              "Inline array used as key is meant to be on one line.");
+        }
       }
     }
     source.next();
