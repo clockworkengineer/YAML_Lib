@@ -39,7 +39,8 @@ struct Dictionary final : Variant {
   using Entry = DictionaryEntry;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
-  explicit Dictionary(const unsigned long indent = 0) : Variant(Type::dictionary, indent) {}
+  explicit Dictionary(const unsigned long indent = 0)
+      : Variant(Type::dictionary, indent) {}
   Dictionary(const Dictionary &other) = default;
   Dictionary &operator=(const Dictionary &other) = default;
   Dictionary(Dictionary &&other) = default;
@@ -79,7 +80,12 @@ struct Dictionary final : Variant {
     for (auto &entryYNode : yNodeDictionary) {
       dictionary += entryYNode.getKeyYNode().getVariant().toString();
       dictionary += ": ";
-      dictionary += entryYNode.getYNode().getVariant().toKey();
+      auto type = entryYNode.getYNode().getVariant().getNodeType();
+      if (type==Variant::Type::dictionary || type==Variant::Type::array) {
+        dictionary += entryYNode.getYNode().getVariant().toKey();
+      } else {
+        dictionary += entryYNode.getYNode().getVariant().toString();
+      }
       if (commaCount-- > 0) {
         dictionary += ", ";
       }
@@ -101,9 +107,10 @@ private:
 
 inline Dictionary::Entries::iterator
 Dictionary::findKey(Entries &dictionary, const std::string &key) {
-  const auto it = std::ranges::find_if(dictionary, [&key](Entry &entry) -> bool {
-    return entry.getKey() == key;
-  });
+  const auto it =
+      std::ranges::find_if(dictionary, [&key](Entry &entry) -> bool {
+        return entry.getKey() == key;
+      });
   if (it == dictionary.end()) {
     throw Error("Invalid key used to access dictionary.");
   }

@@ -264,14 +264,14 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
                         "YAML Syntax Error [Line: 4 Column: 1]: Dictionary "
                         "already contains key 'thing1'.");
   }
-  SECTION("YAML parse dictionaries with duplicate keys in two documents.",
+  SECTION("YAML parse dictionary with duplicate keys in two documents.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\ntime: 20:03:20\nplayer: Sammy Sosa\naction: "
                         "strike (miss)\n\n---\ntime: 20:03:47\nplayer: Sammy "
                         "Sosa\naction: grand slam\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-  SECTION("YAML parse dictionaries with duplicate keys in two "
+  SECTION("YAML parse dictionary with duplicate keys in two "
           "documents(terminating one with end).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\ntime: 20:03:20\nplayer: Sammy Sosa\naction: "
@@ -279,7 +279,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
                         "Sosa\naction: grand slam\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-  SECTION("YAML parse dictionaries with non string keys (boolean).",
+  SECTION("YAML parse dictionary with non string keys (boolean).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\nTrue: On\nFalse: Off\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -290,7 +290,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     REQUIRE(YRef<Boolean>(yaml.document(0)["false"]).value() == false);
     compareYAML(yaml, "---\n\"true\": On\n\"false\": Off\n...\n");
   }
-  SECTION("YAML parse dictionaries with non string key (null).",
+  SECTION("YAML parse dictionary with non string key (null).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\nnull: 1\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -299,7 +299,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     REQUIRE(YRef<Number>(yaml.document(0)[""]).value<int>() == 1);
     compareYAML(yaml, "---\n\"\": 1\n...\n");
   }
-  SECTION("YAML parse dictionaries with non string key (number).",
+  SECTION("YAML parse dictionary with non string key (number).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n666: 1\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -308,21 +308,21 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     REQUIRE(YRef<Number>(yaml.document(0)["666"]).value<int>() == 1);
     compareYAML(yaml, "---\n\"666\": 1\n...\n");
   }
-  SECTION("YAML parse dictionaries with non string keys (inline array).",
+  SECTION("YAML parse dictionary with non string keys (inline array).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n[one, two]: 'test'\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     compareYAML(yaml, "---\n\"[one, two]\": 'test'\n...\n");
   }
-  SECTION("YAML parse dictionaries with non string keys (nested inline array).",
+  SECTION("YAML parse dictionary with non string keys (nested inline array).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n[one, two, [1,2]]: 'test'\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     compareYAML(yaml, "---\n\"[one, two, [1, 2]]\": \'test\'\n...\n");
   }
-  SECTION("YAML parse dictionaries with non string keys (inline array).",
+  SECTION("YAML parse dictionary with non string keys (inline array).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{
         "---\n[one, two]: 'test1'\n[three, four]: 'test2'\n...\n"};
@@ -332,12 +332,20 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
         yaml,
         "---\n\"[one, two]\": \'test1\'\n\"[three, four]\": \'test2\'\n...\n");
   }
-  SECTION("YAML parse dictionaries with non string keys (inline dictionary).",
+  SECTION("YAML parse dictionary with non string keys (inline dictionary).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n{one: 1, two: 2}: 'test'\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     compareYAML(yaml, "---\n\"{one: 1, two: 2}\": \'test\'\n...\n");
+  }
+  SECTION("YAML parse dictionariy with non string keys (nested inline "
+          "dictionary 1).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\n{one: 1, { three: 3} }: 'test'\n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    compareYAML(yaml, "---\n\"{one: 1, {three: 3}: null}\": \'test\'\n...\n");
   }
   SECTION(
       "YAML parse dictionariy with non string keys (nested inline dictionary).",
@@ -347,15 +355,14 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     compareYAML(yaml, "---\n\"{one: 1, two: {three: 3}}\": \'test\'\n...\n");
   }
-  SECTION(
-      "YAML parse dictionariy with non string keys (nested inline array).",
-      "[YAML][Parse][Dictionary]") {
+  SECTION("YAML parse dictionariy with non string keys (nested inline array).",
+          "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n[1,2,3,[4,5,6]]: 'test'\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     compareYAML(yaml, "---\n\"[1, 2, 3, [4, 5, 6]]\": \'test\'\n...\n");
   }
-  SECTION("YAML parse inline dictionaries on more than line. "
+  SECTION("YAML parse inline dictionary on more than line. "
           "(inline dictionary).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{
@@ -369,7 +376,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     compareYAML(yaml, "---\none: 1\ntwo: 2\nthree: 3\nfour: 4\n...\n");
   }
 
-  SECTION("YAML parse nexted inline dictionaries on more than line. "
+  SECTION("YAML parse nexted inline dictionary on more than line. "
           "(inline dictionary).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\nouter: { one: \n1, \n two : 2\n, \n three: 3, "
@@ -404,7 +411,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
                         "already contains key ''.");
   }
   SECTION(
-      "YAML parse dictionaries with non string keys are on more than one line "
+      "YAML parse dictionary with non string keys are on more than one line "
       "(inline dictionary).",
       "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n{one: \n1, \ntwo: 2}: 'test'\n...\n"};
@@ -413,7 +420,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
                         "dictionary used as key is meant to be on one line.");
   }
   SECTION(
-      "YAML parse dictionaries with non string keys are on more than one line "
+      "YAML parse dictionary with non string keys are on more than one line "
       "(inline array).",
       "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n[1,\n2,\n3]: 'test'\n...\n"};
@@ -421,7 +428,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
                         "YAML Syntax Error [Line: 4 Column: 3]: Inline array "
                         "used as key is meant to be on one line.");
   }
-  SECTION("YAML parse dictionaries with out of line key indentation.",
+  SECTION("YAML parse dictionary with out of line key indentation.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"outer: 1\n  inner: 0"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
@@ -510,5 +517,19 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     REQUIRE_THROWS_WITH(yaml.parse(source),
                         "YAML Syntax Error [Line: 2 Column: 21]: Dictionary "
                         "already contains key 'rrrr'.");
+  }
+  SECTION("YAML parse dictionary with nested dictionary with partial entry "
+          "(example 9).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"{one: 1, {three: 3} }"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    compareYAML(yaml, "---\none: 1\n\"{three: 3}\": null\n...\n");
+  }
+    SECTION("YAML parse dictionary with nested array key "
+          "(example 10).",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"{one: 1, [1,2,3, [4,5,6]] }"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    compareYAML(yaml, "---\none: 1\n\"[1, 2, 3, [4, 5, 6]]\": null\n...\n");
   }
 }

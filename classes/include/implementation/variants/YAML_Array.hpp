@@ -13,7 +13,8 @@ struct Array final : Variant {
   using Entry = YNode;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
-  explicit Array(const unsigned long indent = 0) : Variant(Type::array, indent) {}
+  explicit Array(const unsigned long indent = 0)
+      : Variant(Type::array, indent) {}
   Array(const Array &other) = default;
   Array &operator=(const Array &other) = default;
   Array(Array &&other) = default;
@@ -32,7 +33,13 @@ struct Array final : Variant {
     if (!yNodeArray.empty()) {
       size_t commaCount = yNodeArray.size() - 1;
       for (auto &entryYNode : yNodeArray) {
-        array += entryYNode.getVariant().toKey();
+        auto type = entryYNode.getVariant().getNodeType();
+        if (type == Variant::Type::dictionary || type == Variant::Type::array) {
+          array += entryYNode.getVariant().toKey();
+        } else {
+          array += entryYNode.getVariant().toString();
+        }
+
         if (commaCount-- > 0) {
           array += ", ";
         }
