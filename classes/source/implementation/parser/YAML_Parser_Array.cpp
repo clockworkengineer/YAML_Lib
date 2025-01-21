@@ -20,7 +20,7 @@ namespace YAML_Lib {
 YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
   unsigned long arrayIndent = source.getPosition().second;
   indentLevel++;
-  YNode yNode = YNode::make<Array>(arrayIndent);
+  YNode yNode = YNode::make<Array>();
   while (source.more() && isArray(source) &&
          arrayIndent == source.getPosition().second) {
     source.next();
@@ -43,10 +43,9 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
 /// <returns>Array YNode.</returns>
 YNode YAML_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters) {
-  unsigned long arrayIndent = source.getPosition().second;
   Delimiters inLineArrayDelimiters = {delimiters};
   inLineArrayDelimiters.insert({',', ']'});
-  YNode yNode = YNode::make<Array>(arrayIndent);
+  YNode yNode = YNode::make<Array>();
   do {
     source.next();
     YRef<Array>(yNode).add(parseDocument(source, inLineArrayDelimiters));

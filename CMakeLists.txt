@@ -26,6 +26,7 @@ set(YAML_SOURCES
   ./classes/source/implementation/parser/YAML_Parser_Array.cpp
   ./classes/source/implementation/parser/YAML_Parser_BlockString.cpp
   ./classes/source/implementation/parser/YAML_Parser_Dictionary.cpp
+  ./classes/source/implementation/parser/YAML_Parser_Directive.cpp
   ./classes/source/implementation/parser/YAML_Parser_FlowString.cpp
   ./classes/source/implementation/parser/YAML_Parser_Router.cpp
   ./classes/source/implementation/parser/YAML_Parser_Scalar.cpp
