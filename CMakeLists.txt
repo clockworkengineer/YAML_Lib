@@ -23,6 +23,12 @@ set(YAML_SOURCES
   ./classes/source/YAML.cpp
   ./classes/source/implementation/YAML_Impl.cpp
   ./classes/source/implementation/parser/YAML_Parser.cpp
+  ./classes/source/implementation/parser/YAML_Parser_Array.cpp
+  ./classes/source/implementation/parser/YAML_Parser_BlockString.cpp
+  ./classes/source/implementation/parser/YAML_Parser_Dictionary.cpp
+  ./classes/source/implementation/parser/YAML_Parser_Router.cpp
+  ./classes/source/implementation/parser/YAML_Parser_Scalar.cpp
+  ./classes/source/implementation/parser/YAML_Parser_Util.cpp
   ./classes/source/implementation/stringify/YAML_Stringify.cpp
   ./classes/source/implementation/translator/YAML_Translator.cpp
 )
