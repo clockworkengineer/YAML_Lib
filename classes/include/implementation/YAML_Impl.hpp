@@ -21,53 +21,54 @@ public:
   static std::string version();
   // Get number of documents
   [[nodiscard]] unsigned long getNumberOfDocuments() const {
-    unsigned long numberOfDocuments = 0;
-    for (auto &yNode : yamlTree) {
-      if (isA<Document>(yNode)) {
-        numberOfDocuments++;
-      }
-    }
-    return numberOfDocuments;
-  }
+    // unsigned long numberOfDocuments = 0;
+    // for (auto &yNode : yamlTree) {
+    //   // if (isA<Document>(yNode)) {
+    //     numberOfDocuments++;
+    //   // }
+    // yamlTree.size();
+  // }
+  return  yamlTree.size();
+}
   // Parse YAML into YNode tree
   void parse(ISource &source);
-  // Create YAML text string from YNode tree
-  void stringify(IDestination &destination) const;
-  // Get the root of YAML tree
-  [[nodiscard]] std::vector<YNode> &root() { return yamlTree; }
-  [[nodiscard]] const std::vector<YNode> &root() const { return yamlTree; }
-  // Get the document
-  [[nodiscard]] YNode &document(const unsigned long index) {
-    if (index >= yamlTree.size()) {
-      throw Error("Document does not exist.");
-    }
-    return yamlTree[index][0];
+// Create YAML text string from YNode tree
+void stringify(IDestination &destination) const;
+// Get the root of YAML tree
+[[nodiscard]] std::vector<YNode> &root() { return yamlTree; }
+[[nodiscard]] const std::vector<YNode> &root() const { return yamlTree; }
+// Get the document
+[[nodiscard]] YNode &document(const unsigned long index) {
+  if (index >= yamlTree.size()) {
+    throw Error("Document does not exist.");
   }
-  [[nodiscard]] const YNode &document(const unsigned long index) const {
-    if (index >= yamlTree.size()) {
-      throw Error("Document does not exist.");
-    }
-    return yamlTree[index][0];
+  return yamlTree[index][0];
+}
+[[nodiscard]] const YNode &document(const unsigned long index) const {
+  if (index >= yamlTree.size()) {
+    throw Error("Document does not exist.");
   }
-  // Traverse YAML tree
-  void traverse(IAction &action);
-  void traverse(IAction &action) const;
-  // Search for YAML object entry with a given key
-  YNode &operator[](const std::string &key);
-  const YNode &operator[](const std::string &key) const;
-  // Get YAML array element at index
-  YNode &operator[](std::size_t index);
-  const YNode &operator[](std::size_t index) const;
+  return yamlTree[index][0];
+}
+// Traverse YAML tree
+void traverse(IAction &action);
+void traverse(IAction &action) const;
+// Search for YAML object entry with a given key
+YNode &operator[](const std::string &key);
+const YNode &operator[](const std::string &key) const;
+// Get YAML array element at index
+YNode &operator[](std::size_t index);
+const YNode &operator[](std::size_t index) const;
 
 private:
-  // Traverse JSON tree
-  template<typename T> static void traverseYNodes(T &yNode, IAction &action);
-  // Pointer to YAML parser interface
-  inline static std::unique_ptr<IParser> yamlParser;
-  // Pointer to YAML stringify interface
-  inline static std::unique_ptr<IStringify> yamlStringify;
-  // YAML tree
-  std::vector<YNode> yamlTree;
+// Traverse JSON tree
+template <typename T> static void traverseYNodes(T &yNode, IAction &action);
+// Pointer to YAML parser interface
+inline static std::unique_ptr<IParser> yamlParser;
+// Pointer to YAML stringify interface
+inline static std::unique_ptr<IStringify> yamlStringify;
+// YAML tree
+std::vector<YNode> yamlTree;
 };
 
 /// <summary>
@@ -76,8 +77,8 @@ private:
 /// </summary>
 /// <param name="yNode">YNode tree to be traversed.</param>
 /// <param name="action">Action methods to call during traversal.</param>
-template<typename T> void YAML_Impl::traverseYNodes(T &yNode, IAction &action)
-{
+template <typename T>
+void YAML_Impl::traverseYNodes(T &yNode, IAction &action) {
   action.onYNode(yNode);
   if (isA<Number>(yNode)) {
     action.onNumber(yNode);
@@ -89,10 +90,14 @@ template<typename T> void YAML_Impl::traverseYNodes(T &yNode, IAction &action)
     action.onNull(yNode);
   } else if (isA<Dictionary>(yNode)) {
     action.onDictionary(yNode);
-    for (auto &entry : YRef<Dictionary>(yNode).value()) { traverseYNodes(entry.getYNode(), action); }
+    for (auto &entry : YRef<Dictionary>(yNode).value()) {
+      traverseYNodes(entry.getYNode(), action);
+    }
   } else if (isA<Array>(yNode)) {
     action.onArray(yNode);
-    for (auto &entry : YRef<Array>(yNode).value()) { traverseYNodes(entry, action); }
+    for (auto &entry : YRef<Array>(yNode).value()) {
+      traverseYNodes(entry, action);
+    }
   } else if (!isA<Hole>(yNode)) {
     throw Error("Unknown YNode type encountered during tree traversal.");
   }
