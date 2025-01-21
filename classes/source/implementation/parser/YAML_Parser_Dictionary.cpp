@@ -193,6 +193,7 @@ YNode YAML_Parser::parseInlineDictionary(
 
   } while (source.current() == ',');
   checkForEnd(source, '}');
+  moveToNextIndent(source);
   if (source.current() == ':') {
     throw SyntaxError(
         source.getPosition(),

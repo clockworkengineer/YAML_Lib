@@ -62,6 +62,7 @@ YNode YAML_Parser::parseInlineArray(
     }
   } while (source.current() == ',');
   checkForEnd(source, ']');
+  moveToNextIndent(source);
   return yNode;
 }
 } // namespace YAML_Lib

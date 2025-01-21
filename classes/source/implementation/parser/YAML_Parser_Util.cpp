@@ -120,7 +120,6 @@ void YAML_Parser::checkForEnd(ISource &source, const char end) {
                       std::string("Missing closing ") + end + ".");
   }
   source.next();
-  moveToNextIndent(source);
 }
 // <summary>
 /// Append character to YAML string performing any necessary newline folding.
