@@ -1,6 +1,6 @@
 
 //
-// Class: YAML_Parser
+// Class: YAML_Parser_Router
 //
 // Description: Default YAML parser.
 //
