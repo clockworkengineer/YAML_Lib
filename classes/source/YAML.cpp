@@ -39,7 +39,6 @@ YAML::YAML(const ArrayInitializer &array) : YAML() {
   if (getNumberOfDocuments() == 0) {
     BufferSource source("---\n[]\n...\n");
     parse(source);
-    // YRef<Document>(yamlTree[0]).add(YNode::make<Array>());
   }
   this->document(0) = YNode(array);
 }
@@ -52,7 +51,6 @@ YAML::YAML(const DictionaryInitializer &dictionary) : YAML() {
   if (getNumberOfDocuments() == 0) {
     BufferSource source("---\n null : null\n...\n");
     parse(source);
-    // YRef<Document>(yamlTree[0]).add(YNode::make<Dictionary>());
   }
   this->document(0) = YNode(dictionary);
 }

@@ -73,11 +73,7 @@ YNode &YAML_Impl::operator[](const std::size_t index) {
       BufferSource source("---\n...\n");
       parse(source);
       YRef<Document>(yamlTree[0]).add(YNode::make<Array>());
-      // YRef<Document>(document(0)).add(YNode::make<Array>());
     }
-    // if (document(0)[0].isEmpty()) {
-    //   document(0)[0] = YNode::make<Array>();
-    // }
     return document(0)[index];
   } catch ([[maybe_unused]] YNode::Error &error) {
     YRef<Array>(document(0)).resize(index);
