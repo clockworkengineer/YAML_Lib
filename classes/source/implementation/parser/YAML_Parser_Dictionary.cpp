@@ -54,7 +54,7 @@ std::string YAML_Parser::extractKey(ISource &source) {
   } else if (source.current() == '?') {
     source.next();
     delimiters = {':'};
-  } else if (source.current() == '[')
+  } else if (isInlineArray(source))
     return extractInLine(source, '[', ']');
   else {
     delimiters = {':', ',', '}', kLineFeed};
