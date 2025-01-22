@@ -60,7 +60,8 @@ TEST_CASE("Check YAML parse start document.", "[YAML][Parse][Start]") {
     REQUIRE(yaml.getNumberOfDocuments() == 2);
   }
 
-  SECTION("YAML parse dictionary with null for value entry.", "[YAML][Parse][Null]") {
+  SECTION("YAML parse dictionary with null for value entry.",
+          "[YAML][Parse][Null]") {
     BufferSource source{"null:\nbooleans: [ true, false ]\nstring: \'012345\'"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);

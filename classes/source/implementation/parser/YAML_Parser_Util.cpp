@@ -122,5 +122,4 @@ void YAML_Parser::checkForEnd(ISource &source, const char end) {
   source.next();
 }
 
-
 } // namespace YAML_Lib

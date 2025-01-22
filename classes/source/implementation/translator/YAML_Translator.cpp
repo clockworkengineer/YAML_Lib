@@ -169,7 +169,7 @@ std::string YAML_Translator::from(const std::string &escapedString) const {
       else if (*current == 'u') {
         utf16Buffer +=
             decodeUTF16(current, std::distance(current, escapedString.end()));
-      // UTF8 "\x00"
+        // UTF8 "\x00"
       } else if (*current == 'x') {
         utf16Buffer +=
             decodeUTF8(current, std::distance(current, escapedString.end()));

@@ -539,12 +539,12 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     compareYAML(
         yaml, "---\none: 1\n\"[one, two, three, [four, 5, 6]]\": null\n...\n");
   }
-//     SECTION("YAML parse dictionary with nested array key (example 12).",
-//           "[YAML][Parse][Dictionary]") {
-//     BufferSource source{
-//         "{one: 1, [\"one\",\"two\",\"three\", [\"four\",\"]\",6]] }"};
-//     REQUIRE_NOTHROW(yaml.parse(source));
-//     compareYAML(
-//         yaml, "");
-//   }
+  //     SECTION("YAML parse dictionary with nested array key (example 12).",
+  //           "[YAML][Parse][Dictionary]") {
+  //     BufferSource source{
+  //         "{one: 1, [\"one\",\"two\",\"three\", [\"four\",\"]\",6]] }"};
+  //     REQUIRE_NOTHROW(yaml.parse(source));
+  //     compareYAML(
+  //         yaml, "");
+  //   }
 }

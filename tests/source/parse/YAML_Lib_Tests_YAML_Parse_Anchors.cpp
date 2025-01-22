@@ -11,17 +11,14 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)).contains("hr"));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)).contains("rbi"));
-    REQUIRE(YRef<String>(yaml.document(0)["hr"][0]).value() ==
-            "Mark McGwire");
+    REQUIRE(YRef<String>(yaml.document(0)["hr"][0]).value() == "Mark McGwire");
     REQUIRE_FALSE(!isA<String>(yaml.document(0)["hr"][1]));
     REQUIRE(YRef<String>(yaml.document(0)["hr"][1]).value() == "Sammy Sosa");
     REQUIRE_FALSE(!isA<String>(yaml.document(0)["hr"][1]));
     REQUIRE(YRef<String>(yaml.document(0)["hr"][1]).value() == "Sammy Sosa");
     REQUIRE_FALSE(!isA<String>(yaml.document(0)["rbi"][0]));
-    REQUIRE(YRef<String>(yaml.document(0)["rbi"][0]).value() ==
-            "Sammy Sosa");
-    REQUIRE(YRef<String>(yaml.document(0)["rbi"][1]).value() ==
-            "Ken Griffey");
+    REQUIRE(YRef<String>(yaml.document(0)["rbi"][0]).value() == "Sammy Sosa");
+    REQUIRE(YRef<String>(yaml.document(0)["rbi"][1]).value() == "Ken Griffey");
   }
   SECTION("YAML parse array with one complex anchor (example 1).",
           "[YAML][Parse][Anchors]") {

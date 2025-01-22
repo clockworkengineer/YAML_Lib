@@ -148,8 +148,7 @@ TEST_CASE("Check YAML array creation api.", "[YAML][Create][Array]") {
         YRef<Number>(yaml.document(0)[5][1]).value<double>(), 2.0, 0.0001));
     REQUIRE(YRef<Number>(yaml.document(0)[5][2]).value<int>() == 3);
     REQUIRE_FALSE(!equalFloatingPoint(
-        YRef<Number>(yaml.document(0)[5][3]).value<double>(), 4.333,
-        0.0001));
+        YRef<Number>(yaml.document(0)[5][3]).value<double>(), 4.333, 0.0001));
     REQUIRE(YRef<String>(yaml.document(0)[5][4]).value() == "5.0");
     REQUIRE(YRef<String>(yaml.document(0)[5][5]).value() ==
             "test test test test");

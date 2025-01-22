@@ -13,8 +13,7 @@ TEST_CASE("Check YAML object creation api.", "[YAML][Create][Dictionary]") {
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)).contains("pi"));
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)["pi"]));
     REQUIRE_FALSE(!equalFloatingPoint(
-        YRef<Number>(yaml.document(0)["pi"]).value<float>(), 3.141f,
-        0.0001));
+        YRef<Number>(yaml.document(0)["pi"]).value<float>(), 3.141f, 0.0001));
   }
   SECTION(
       "Initialise root YAML Dictionary with one entry containing a integer.",
@@ -29,8 +28,7 @@ TEST_CASE("Check YAML object creation api.", "[YAML][Create][Dictionary]") {
     YAML yaml;
     yaml["integer"] = 30000l;
     REQUIRE_FALSE(!isA<Number>(yaml["integer"]));
-    REQUIRE(YRef<Number>(yaml.document(0)["integer"]).value<long>() ==
-            30000);
+    REQUIRE(YRef<Number>(yaml.document(0)["integer"]).value<long>() == 30000);
   }
   SECTION("Initialise root YAML Dictionary with one entry containing a float.",
           "[YAML][Create][Dictionary][Number]") {
@@ -38,8 +36,7 @@ TEST_CASE("Check YAML object creation api.", "[YAML][Create][Dictionary]") {
     yaml["pi"] = 3.141f;
     REQUIRE_FALSE(!isA<Number>(yaml["pi"]));
     REQUIRE_FALSE(!equalFloatingPoint(
-        YRef<Number>(yaml.document(0)["pi"]).value<float>(), 3.141f,
-        0.0001));
+        YRef<Number>(yaml.document(0)["pi"]).value<float>(), 3.141f, 0.0001));
   }
   SECTION("Initialise root YAML Dictionary with one entry containing a double.",
           "[YAML][Create][Dictionary][Number]") {
@@ -47,8 +44,7 @@ TEST_CASE("Check YAML object creation api.", "[YAML][Create][Dictionary]") {
     yaml["pi"] = 3.141;
     REQUIRE_FALSE(!isA<Number>(yaml["pi"]));
     REQUIRE_FALSE(!equalFloatingPoint(
-        YRef<Number>(yaml.document(0)["pi"]).value<double>(), 3.141,
-        0.0001));
+        YRef<Number>(yaml.document(0)["pi"]).value<double>(), 3.141, 0.0001));
   }
   SECTION("Initialise root YAML Dictionary with one entry containing a const "
           "char *.",
@@ -94,9 +90,8 @@ TEST_CASE("Check YAML object creation api.", "[YAML][Create][Dictionary]") {
     YAML yaml;
     yaml["nothing"]["extra"]["more"] = nullptr;
     REQUIRE_FALSE(!isA<Null>(yaml["nothing"]["extra"]["more"]));
-    REQUIRE(
-        YRef<Null>(yaml.document(0)["nothing"]["extra"]["more"]).value() ==
-        nullptr);
+    REQUIRE(YRef<Null>(yaml.document(0)["nothing"]["extra"]["more"]).value() ==
+            nullptr);
     BufferDestination destinationBuffer;
     REQUIRE_NOTHROW(yaml.stringify(destinationBuffer));
     REQUIRE(destinationBuffer.toString() ==

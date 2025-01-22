@@ -7,8 +7,8 @@
 // Dependencies: C++20, PLOG, YAML_Lib.
 //
 
-#include "YAML_Utility.hpp"
 #include "YAML_Analyzer.hpp"
+#include "YAML_Utility.hpp"
 
 namespace yl = YAML_Lib;
 
@@ -16,19 +16,17 @@ namespace yl = YAML_Lib;
 /// Parse YAML file and analyze its YAML tree.
 /// </summary>
 /// <param name="fileName">YAML file name</param>
-void processYAMLFile(const std::string &fileName)
-{
+void processYAMLFile(const std::string &fileName) {
   PLOG_INFO << "Analyzing " << fileName;
   const yl::YAML yaml;
   YAML_Analyzer yamlAnalyzer;
-  yaml.parse(yl::FileSource{ fileName });
+  yaml.parse(yl::FileSource{fileName});
   yaml.traverse(yamlAnalyzer);
   PLOG_INFO << yamlAnalyzer.dump();
   PLOG_INFO << "Finished " << fileName << ".";
 }
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
-{
+int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
   // Initialise logging.
   plog::init(plog::debug, "YAML_Analyze_File.log");
   PLOG_INFO << "YAML_Analyze_File started ...";

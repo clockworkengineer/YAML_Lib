@@ -51,7 +51,8 @@ auto calculateIndent(IDestination &destination, const unsigned long indent) {
 /// <param name="yNode"></param>
 void stringifyAnyBlockStyle(IDestination &destination, const YNode &yNode) {
   if (isA<String>(yNode)) {
-    if (const auto quote = YRef<String>(yNode).getQuote(); quote == '>' || quote == '|') {
+    if (const auto quote = YRef<String>(yNode).getQuote();
+        quote == '>' || quote == '|') {
       destination.add("|");
       destination.add(kLineFeed);
     }
@@ -64,11 +65,13 @@ void stringifyAnyBlockStyle(IDestination &destination, const YNode &yNode) {
 /// <param name="yNode"></param>
 /// <param name="indent"></param>
 void YAML_Stringify::stringifyYAML(IDestination &destination,
-                                   const YNode &yNode, const unsigned long indent) {
+                                   const YNode &yNode,
+                                   const unsigned long indent) {
   if (isA<Number>(yNode)) {
     destination.add(YRef<Number>(yNode).toString());
   } else if (isA<String>(yNode)) {
-    if (const char quote = YRef<String>(yNode).getQuote(); quote == '\'' || quote == '"') {
+    if (const char quote = YRef<String>(yNode).getQuote();
+        quote == '\'' || quote == '"') {
       std::string yamlString{YRef<String>(yNode).toString()};
       if (quote == '"') {
         yamlString = yamlTranslator->to(yamlString);
@@ -92,7 +95,8 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
   } else if (isA<Dictionary>(yNode)) {
     for (const auto &entryYNode : YRef<Dictionary>(yNode).value()) {
       destination.add(calculateIndent(destination, indent));
-      if (const char quote = YRef<String>(entryYNode.getKeyYNode()).getQuote(); quote == '\'' || quote == '"') {
+      if (const char quote = YRef<String>(entryYNode.getKeyYNode()).getQuote();
+          quote == '\'' || quote == '"') {
         destination.add(
             quote + YRef<String>(entryYNode.getKeyYNode()).toString() + quote);
       } else {

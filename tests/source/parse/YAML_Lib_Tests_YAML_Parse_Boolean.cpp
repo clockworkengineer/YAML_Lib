@@ -1,6 +1,7 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YAML Parsing of boolean types.", "[YAML][Parse][Scalar][Boolean]") {
+TEST_CASE("Check YAML Parsing of boolean types.",
+          "[YAML][Parse][Scalar][Boolean]") {
   const YAML yaml;
   SECTION("YAML parse a boolean (True).", "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{"---\nTrue\n"};
