@@ -111,8 +111,6 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
 DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
                                                  const Delimiters &delimiters) {
   YNode keyYNode = parseKey(source);
-  // source.ignoreWS();
-  // moveToNextIndent(source);
   YNode yNode{YNode::make<Null>()};
   if (source.current() != ',') {
     yNode = parseDocument(source, delimiters);
