@@ -95,12 +95,12 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
                       "Only an inline/compact dictionary is allowed.");
   }
   moveToNextIndent(source);
-  YNode yNode{YNode::make<Null>()};
+  YNode dictionaryYNode{YNode::make<Null>()};
   if ((source.getPosition().second > keyIndent || isInlineArray(source) ||
        isInlineDictionary(source))) {
-    yNode = parseDocument(source, delimiters);
+    dictionaryYNode = parseDocument(source, delimiters);
   }
-  return {keyYNode, yNode};
+  return {keyYNode, dictionaryYNode};
 }
 /// <summary>
 /// Parse inline dictionary key/value pair on source stream.
@@ -111,17 +111,17 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
 DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
                                                  const Delimiters &delimiters) {
   YNode keyYNode = parseKey(source);
-  YNode yNode{YNode::make<Null>()};
+  YNode dictionaryYNode{YNode::make<Null>()};
   if (source.current() != ',') {
-    yNode = parseDocument(source, delimiters);
+    dictionaryYNode = parseDocument(source, delimiters);
   }
-  if (isA<String>(yNode)) {
-    if (YRef<String>(yNode).value().empty() &&
-        YRef<String>(yNode).getQuote() == '\0') {
-      yNode = YNode::make<Null>();
+  if (isA<String>(dictionaryYNode)) {
+    if (YRef<String>(dictionaryYNode).value().empty() &&
+        YRef<String>(dictionaryYNode).getQuote() == '\0') {
+      dictionaryYNode = YNode::make<Null>();
     }
   }
-  return {keyYNode, yNode};
+  return {keyYNode, dictionaryYNode};
 }
 /// <summary>
 /// Parse a dictionary on source stream.
@@ -136,16 +136,16 @@ YNode YAML_Parser::parseDictionary(ISource &source,
     return {};
   }
   unsigned long dictionaryIndent = source.getPosition().second;
-  YNode yNode = YNode::make<Dictionary>(dictionaryIndent);
+  YNode dictionaryYNode = YNode::make<Dictionary>(dictionaryIndent);
   while (source.more() && dictionaryIndent == source.getPosition().second) {
     if (isKey(source)) {
       auto entry = parseKeyValue(source, delimiters);
-      if (YRef<Dictionary>(yNode).contains(entry.getKey())) {
+      if (YRef<Dictionary>(dictionaryYNode).contains(entry.getKey())) {
         throw SyntaxError(source.getPosition(),
                           "Dictionary already contains key '" + entry.getKey() +
                               "'.");
       }
-      YRef<Dictionary>(yNode).add(std::move(entry));
+      YRef<Dictionary>(dictionaryYNode).add(std::move(entry));
     } else if (isDocumentStart(source) || isDocumentEnd(source)) {
       break;
     } else {
@@ -160,7 +160,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
     throw SyntaxError(source.getPosition(),
                       "Mapping key has the incorrect indentation.");
   }
-  return mergeOverrides(yNode);
+  return mergeOverrides(dictionaryYNode);
 }
 /// <summary>
 /// Parse inline dictionary on source stream.
@@ -173,7 +173,7 @@ YNode YAML_Parser::parseInlineDictionary(
   Delimiters inLineDictionaryDelimiters = {delimiters};
   inLineDictionaryDelimiters.insert({',', '}'});
   unsigned long dictionaryIndent = source.getPosition().second;
-  YNode yNode = YNode::make<Dictionary>(dictionaryIndent);
+  YNode dictionaryYNode = YNode::make<Dictionary>(dictionaryIndent);
   do {
     source.next();
     moveToNextIndent(source);
@@ -181,12 +181,12 @@ YNode YAML_Parser::parseInlineDictionary(
       throw SyntaxError("Unexpected ',' in in-line dictionary.");
     } else if (source.current() != '}') {
       auto entry = parseInlineKeyValue(source, inLineDictionaryDelimiters);
-      if (YRef<Dictionary>(yNode).contains(entry.getKey())) {
+      if (YRef<Dictionary>(dictionaryYNode).contains(entry.getKey())) {
         throw SyntaxError(source.getPosition(),
                           "Dictionary already contains key '" + entry.getKey() +
                               "'.");
       }
-      YRef<Dictionary>(yNode).add(std::move(entry));
+      YRef<Dictionary>(dictionaryYNode).add(std::move(entry));
     }
 
   } while (source.current() == ',');
@@ -196,7 +196,7 @@ YNode YAML_Parser::parseInlineDictionary(
         source.getPosition(),
         "Inline dictionary used as key is meant to be on one line.");
   }
-  return yNode;
+  return dictionaryYNode;
 }
 
 } // namespace YAML_Lib

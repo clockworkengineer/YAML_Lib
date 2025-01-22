@@ -17,7 +17,7 @@ namespace YAML_Lib {
 /// <param name="delimiters">Delimiters used to parse number./param>
 /// <returns>Number YNode.</returns>
 YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters) {
-  YNode yNode;
+  YNode numberYNode;
   source.save();
   std::string numeric{extractToNext(source, delimiters)};
   rightTrim(numeric);
@@ -25,12 +25,12 @@ YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters) {
                               number.is<long long>() || number.is<float>() ||
                               number.is<double>() || number.is<long double>()) {
     moveToNext(source, delimiters);
-    yNode = YNode::make<Number>(number);
+    numberYNode = YNode::make<Number>(number);
   }
-  if (yNode.isEmpty()) {
+  if (numberYNode.isEmpty()) {
     source.restore();
   }
-  return yNode;
+  return numberYNode;
 }
 /// <summary>
 /// Parse None/Null on source stream.
@@ -39,17 +39,17 @@ YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters) {
 /// <param name="delimiters">Delimiters used to parse None.</param>
 /// <returns>None YNode.</returns>
 YNode YAML_Parser::parseNone(ISource &source, const Delimiters &delimiters) {
-  YNode yNode;
+  YNode noneYNode;
   source.save();
   std::string none{extractToNext(source, delimiters)};
   rightTrim(none);
   if (none == "null" || none == "~") {
-    yNode = YNode::make<Null>();
+    noneYNode = YNode::make<Null>();
   }
-  if (yNode.isEmpty()) {
+  if (noneYNode.isEmpty()) {
     source.restore();
   }
-  return yNode;
+  return noneYNode;
 }
 /// <summary>
 /// Parse boolean value on source stream.
@@ -58,19 +58,19 @@ YNode YAML_Parser::parseNone(ISource &source, const Delimiters &delimiters) {
 /// <param name="delimiters">Delimiters used to parse boolean.</param>
 /// <returns>Boolean YNode.</returns>
 YNode YAML_Parser::parseBoolean(ISource &source, const Delimiters &delimiters) {
-  YNode yNode;
+  YNode booleanYNode;
   source.save();
   std::string boolean{extractToNext(source, delimiters)};
   rightTrim(boolean);
   if (Boolean::isTrue.contains(boolean)) {
-    yNode = YNode::make<Boolean>(true, boolean);
+    booleanYNode = YNode::make<Boolean>(true, boolean);
   } else if (Boolean::isFalse.contains(boolean)) {
-    yNode = YNode::make<Boolean>(false, boolean);
+    booleanYNode = YNode::make<Boolean>(false, boolean);
   }
-  if (yNode.isEmpty()) {
+  if (booleanYNode.isEmpty()) {
     source.restore();
   }
-  return yNode;
+  return booleanYNode;
 }
 
 } // namespace YAML_Lib

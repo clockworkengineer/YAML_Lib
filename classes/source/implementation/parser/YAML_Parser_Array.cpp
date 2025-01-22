@@ -20,11 +20,11 @@ namespace YAML_Lib {
 YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
   unsigned long arrayIndent = source.getPosition().second;
   indentLevel++;
-  YNode yNode = YNode::make<Array>();
+  YNode arrayYNode = YNode::make<Array>();
   while (source.more() && isArray(source) &&
          arrayIndent == source.getPosition().second) {
     source.next();
-    YRef<Array>(yNode).add(parseDocument(source, delimiters));
+    YRef<Array>(arrayYNode).add(parseDocument(source, delimiters));
     moveToNextIndent(source);
   }
   if (isArray(source) && indentLevel == 1 &&
@@ -33,7 +33,7 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
                       "Invalid indentation for array element.");
   }
   indentLevel--;
-  return yNode;
+  return arrayYNode;
 }
 /// <summary>
 /// Parse inline array on source stream.
@@ -45,23 +45,23 @@ YNode YAML_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters) {
   Delimiters inLineArrayDelimiters = {delimiters};
   inLineArrayDelimiters.insert({',', ']'});
-  YNode yNode = YNode::make<Array>();
+  YNode arrayYNode = YNode::make<Array>();
   do {
     source.next();
-    YRef<Array>(yNode).add(parseDocument(source, inLineArrayDelimiters));
-    auto &element = YRef<Array>(yNode).value().back();
+    YRef<Array>(arrayYNode).add(parseDocument(source, inLineArrayDelimiters));
+    auto &element = YRef<Array>(arrayYNode).value().back();
     if (isA<String>(element)) {
       if (YRef<String>(element).value().empty() &&
           YRef<String>(element).getQuote() == '\0') {
         if (source.current() != ']') {
           throw SyntaxError("Unexpected ',' in in-line array.");
         } else {
-          YRef<Array>(yNode).value().pop_back();
+          YRef<Array>(arrayYNode).value().pop_back();
         }
       }
     }
   } while (source.current() == ',');
   checkForEnd(source, ']');
-  return yNode;
+  return arrayYNode;
 }
 } // namespace YAML_Lib
