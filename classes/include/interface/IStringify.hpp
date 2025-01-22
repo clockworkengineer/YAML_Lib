@@ -11,15 +11,14 @@ struct YNode;
 // ==================================
 // Interface for YAML stringification
 // ==================================
-class IStringify
-{
+class IStringify {
 public:
   // ================
   // IStringify Error
   // ================
-  struct Error final : std::runtime_error
-  {
-    explicit Error(const std::string &message) : std::runtime_error("IStringify Error: " + message) {}
+  struct Error final : std::runtime_error {
+    explicit Error(const std::string &message)
+        : std::runtime_error("IStringify Error: " + message) {}
   };
   // ========================
   // Constructors/destructors
@@ -28,6 +27,7 @@ public:
   // ====================
   // Stringify YNode tree
   // ====================
-  virtual void stringify(const std::vector<YNode> &yamlTree, IDestination &destination) const = 0;
+  virtual void stringify(const std::vector<YNode> &yamlTree,
+                         IDestination &destination) const = 0;
 };
-}// namespace YAML_Lib
+} // namespace YAML_Lib

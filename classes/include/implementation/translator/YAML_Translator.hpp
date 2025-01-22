@@ -1,10 +1,9 @@
 
 #pragma once
 
-
-#include <vector>
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "ITranslator.hpp"
 #include "YAML_Converter.hpp"
@@ -15,10 +14,10 @@ namespace YAML_Lib {
 // Unicode surrogate ranges
 // ========================
 
-constexpr char16_t kHighSurrogatesBegin{ 0xD800 };
-constexpr char16_t kHighSurrogatesEnd{ 0xDBFF };
-constexpr char16_t kLowSurrogatesBegin{ 0xDC00 };
-constexpr char16_t kLowSurrogatesEnd{ 0xDFFF };
+constexpr char16_t kHighSurrogatesBegin{0xD800};
+constexpr char16_t kHighSurrogatesEnd{0xDBFF};
+constexpr char16_t kLowSurrogatesBegin{0xDC00};
+constexpr char16_t kLowSurrogatesEnd{0xDFFF};
 
 class YAML_Translator final : public ITranslator {
 public:
@@ -36,7 +35,8 @@ public:
   ~YAML_Translator() override = default;
 
   [[nodiscard]] std::string to(const std::string &rawString) const override;
-  [[nodiscard]] std::string from([[maybe_unused]] const std::string &escapedString) const override;
+  [[nodiscard]] std::string
+  from([[maybe_unused]] const std::string &escapedString) const override;
 
 private:
   // To/From escape sequence lookup maps

@@ -33,6 +33,6 @@ public:
   // =================================
   // Return the last character written
   // =================================
-  virtual char last()  = 0;
+  virtual char last() = 0;
 };
 } // namespace YAML_Lib

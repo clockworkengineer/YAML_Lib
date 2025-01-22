@@ -44,7 +44,7 @@ public:
     lineNo = 1;
     column = 1;
   }
-  [[nodiscard]] std::size_t position()  override { return bufferPosition; }
+  [[nodiscard]] std::size_t position() override { return bufferPosition; }
   void save() override {
     contexts.push_back(Context(lineNo, column, bufferPosition));
   }

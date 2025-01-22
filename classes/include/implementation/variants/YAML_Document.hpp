@@ -2,13 +2,13 @@
 
 namespace YAML_Lib {
 
-
-struct Document final : Variant
-{
+struct Document final : Variant {
   using Entry = YNode;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
-  Document() : Variant(Type::document) {} // document treated as an array so passes indexing checks
+  Document()
+      : Variant(Type::document) {
+  } // document treated as an array so passes indexing checks
   Document(const Document &other) = default;
   Document &operator=(const Document &other) = default;
   Document(Document &&other) = default;
@@ -21,22 +21,25 @@ struct Document final : Variant
   // Return reference to document base
   Entries &value() { return yNodeDocument; }
   [[nodiscard]] const Entries &value() const { return yNodeDocument; }
-  YNode &operator[](const std::size_t index)
-  {
-    if (index < yNodeDocument.size()) { return yNodeDocument[index]; }
+  YNode &operator[](const std::size_t index) {
+    if (index < yNodeDocument.size()) {
+      return yNodeDocument[index];
+    }
     throw YNode::Error("Invalid index used to access document.");
   }
-  const YNode &operator[](const std::size_t index) const
-  {
-    if (index < yNodeDocument.size()) { return yNodeDocument[index]; }
+  const YNode &operator[](const std::size_t index) const {
+    if (index < yNodeDocument.size()) {
+      return yNodeDocument[index];
+    }
     throw YNode::Error("Invalid index used to access document.");
   }
   // Resize Document
-  void resize(const std::size_t index)
-  {
+  void resize(const std::size_t index) {
     yNodeDocument.resize(index + 1);
     for (auto &entry : yNodeDocument) {
-      if (entry.isEmpty()) { entry = YNode::make<Hole>(); }
+      if (entry.isEmpty()) {
+        entry = YNode::make<Hole>();
+      }
     }
   }
 
@@ -45,4 +48,4 @@ private:
   Entries yNodeDocument;
 };
 
-}// namespace YAML_Lib
+} // namespace YAML_Lib
