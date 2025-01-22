@@ -17,8 +17,7 @@ struct Variant {
     document
   };
   // Constructors/Destructors
-  explicit Variant(const Type nodeType = Type::base, [[maybe_unused]] unsigned long indent = 0)
-      : yNodeType(nodeType) {}
+  explicit Variant(const Type nodeType = Type::base) : yNodeType(nodeType) {}
   Variant(const Variant &other) = default;
   Variant &operator=(const Variant &other) = default;
   Variant(Variant &&other) = default;
@@ -30,6 +29,7 @@ struct Variant {
   [[nodiscard]] virtual const std::string toString() const { return ""; }
   // Convert variant to a key
   [[nodiscard]] virtual const std::string toKey() const { return ""; }
+
 private:
   Type yNodeType;
 };

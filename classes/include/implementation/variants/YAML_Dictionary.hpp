@@ -39,8 +39,7 @@ struct Dictionary final : Variant {
   using Entry = DictionaryEntry;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
-  explicit Dictionary(const unsigned long indent = 0)
-      : Variant(Type::dictionary, indent) {}
+  explicit Dictionary() : Variant(Type::dictionary) {}
   Dictionary(const Dictionary &other) = default;
   Dictionary &operator=(const Dictionary &other) = default;
   Dictionary(Dictionary &&other) = default;
@@ -81,7 +80,7 @@ struct Dictionary final : Variant {
       dictionary += entryYNode.getKeyYNode().getVariant().toString();
       dictionary += ": ";
       auto type = entryYNode.getYNode().getVariant().getNodeType();
-      if (type==Variant::Type::dictionary || type==Variant::Type::array) {
+      if (type == Variant::Type::dictionary || type == Variant::Type::array) {
         dictionary += entryYNode.getYNode().getVariant().toKey();
       } else {
         dictionary += entryYNode.getYNode().getVariant().toString();

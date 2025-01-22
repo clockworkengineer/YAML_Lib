@@ -26,7 +26,7 @@ YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
       quote = '"';
     }
   }
-  return YNode::make<String>(keyString, quote, 0);
+  return YNode::make<String>(keyString, quote);
 }
 /// <summary>
 /// Does YAML that is  passed in constitute a valid dictionary key?
@@ -136,7 +136,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
     return {};
   }
   unsigned long dictionaryIndent = source.getPosition().second;
-  YNode dictionaryYNode = YNode::make<Dictionary>(dictionaryIndent);
+  YNode dictionaryYNode = YNode::make<Dictionary>();
   while (source.more() && dictionaryIndent == source.getPosition().second) {
     if (isKey(source)) {
       auto entry = parseKeyValue(source, delimiters);
@@ -172,8 +172,7 @@ YNode YAML_Parser::parseInlineDictionary(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters) {
   Delimiters inLineDictionaryDelimiters = {delimiters};
   inLineDictionaryDelimiters.insert({',', '}'});
-  unsigned long dictionaryIndent = source.getPosition().second;
-  YNode dictionaryYNode = YNode::make<Dictionary>(dictionaryIndent);
+  YNode dictionaryYNode = YNode::make<Dictionary>();
   do {
     source.next();
     moveToNextIndent(source);

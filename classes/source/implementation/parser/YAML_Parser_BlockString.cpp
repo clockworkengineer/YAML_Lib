@@ -90,10 +90,9 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
   const BlockChomping chomping{parseBlockChomping(source)};
   moveToNext(source, delimiters);
   moveToNextIndent(source);
-  auto blockIndent = source.getPosition().second;
   std::string yamlString{
       parseBlockString(source, delimiters, kSpace, chomping)};
-  return YNode::make<String>(yamlString, '>', blockIndent);
+  return YNode::make<String>(yamlString, '>');
 }
 /// <summary>
 /// Parse literal block string on source stream.
@@ -106,9 +105,8 @@ YNode YAML_Parser::parseLiteralBlockString(ISource &source,
   const BlockChomping chomping{parseBlockChomping(source)};
   moveToNext(source, delimiters);
   moveToNextIndent(source);
-  auto blockIndent = source.getPosition().second;
   std::string yamlString{
       parseBlockString(source, delimiters, kLineFeed, chomping)};
-  return YNode::make<String>(yamlString, '|', blockIndent);
+  return YNode::make<String>(yamlString, '|');
 }
 } // namespace YAML_Lib
