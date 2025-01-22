@@ -85,8 +85,7 @@ private:
 
   static std::string parseBlockString(ISource &source,
                                       const Delimiters &delimiters,
-                                      char fillerDefault,
-                                      const BlockChomping &chomping);
+                                      char fillerDefault);
   static YNode parseKey(ISource &source);
   static YNode parseFoldedBlockString(ISource &source,
                                       const Delimiters &delimiters);

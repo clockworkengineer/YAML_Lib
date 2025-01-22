@@ -33,12 +33,13 @@ YAML_Parser::BlockChomping YAML_Parser::parseBlockChomping(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used in parsing.</param>
 /// <param name="fillerDefault">Default filler.</param>
-/// <param name="chomping">Comping mode.</param>
 /// <returns>Block string parsed.</returns>
 std::string YAML_Parser::parseBlockString(ISource &source,
                                           const Delimiters &delimiters,
-                                          const char fillerDefault,
-                                          const BlockChomping &chomping) {
+                                          const char fillerDefault) {
+  const BlockChomping chomping{parseBlockChomping(source)};
+  moveToNext(source, delimiters);
+  moveToNextIndent(source);
   const unsigned long blockIndent = source.getPosition().second;
   std::string yamlString{};
   do {
@@ -87,12 +88,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parseFoldedBlockString(ISource &source,
                                           const Delimiters &delimiters) {
-  const BlockChomping chomping{parseBlockChomping(source)};
-  moveToNext(source, delimiters);
-  moveToNextIndent(source);
-  std::string yamlString{
-      parseBlockString(source, delimiters, kSpace, chomping)};
-  return YNode::make<String>(yamlString, '>');
+  return YNode::make<String>(parseBlockString(source, delimiters, kSpace), '>');
 }
 /// <summary>
 /// Parse literal block string on source stream.
@@ -102,11 +98,6 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parseLiteralBlockString(ISource &source,
                                            const Delimiters &delimiters) {
-  const BlockChomping chomping{parseBlockChomping(source)};
-  moveToNext(source, delimiters);
-  moveToNextIndent(source);
-  std::string yamlString{
-      parseBlockString(source, delimiters, kLineFeed, chomping)};
-  return YNode::make<String>(yamlString, '|');
+  return YNode::make<String>(parseBlockString(source, delimiters, kLineFeed), '|');
 }
 } // namespace YAML_Lib
