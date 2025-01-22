@@ -78,7 +78,6 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
     }
   }
   moveToNext(source, delimiters);
-  moveToNextIndent(source);
   return YNode::make<String>(yamlString, quote);
 }
 

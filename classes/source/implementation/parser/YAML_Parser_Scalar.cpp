@@ -25,7 +25,6 @@ YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters) {
                               number.is<long long>() || number.is<float>() ||
                               number.is<double>() || number.is<long double>()) {
     moveToNext(source, delimiters);
-    moveToNextIndent(source);
     yNode = YNode::make<Number>(number);
   }
   if (yNode.isEmpty()) {

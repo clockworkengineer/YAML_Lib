@@ -10,7 +10,6 @@
 
 namespace YAML_Lib {
 
-
 /// <summary>
 /// Parse YAML document on source stream.
 /// </summary>
@@ -23,6 +22,7 @@ YNode YAML_Parser::parseDocument(ISource &source,
   for (const auto &[fst, snd] : parsers) {
     if (fst(source)) {
       if (YNode yNode = snd(source, delimiters); !yNode.isEmpty()) {
+        moveToNextIndent(source);
         return yNode;
       }
     }
