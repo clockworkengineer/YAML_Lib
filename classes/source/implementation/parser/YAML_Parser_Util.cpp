@@ -121,25 +121,6 @@ void YAML_Parser::checkForEnd(ISource &source, const char end) {
   }
   source.next();
 }
-// <summary>
-/// Append character to YAML string performing any necessary newline folding.
-/// </summary>
-/// <param name="source">Source stream.</param>
-/// <param name="yamlString">YAML string appended too.</param>
-void YAML_Parser::appendCharacterToString(ISource &source,
-                                          std::string &yamlString) {
-  if (source.current() == kLineFeed) {
-    source.next();
-    source.ignoreWS();
-    if (source.current() == kLineFeed) {
-      yamlString += source.append();
-      source.ignoreWS();
-    } else {
-      yamlString += kSpace;
-    }
-  } else {
-    yamlString += source.append();
-  }
-}
+
 
 } // namespace YAML_Lib
