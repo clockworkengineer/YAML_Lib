@@ -190,6 +190,7 @@ YNode YAML_Parser::parseInlineDictionary(
     }
 
   } while (source.current() == ',');
+  inlineDictionaryDepth--;
   checkForEnd(source, '}');
   if (source.current() == ':') {
     throw SyntaxError(
@@ -197,7 +198,7 @@ YNode YAML_Parser::parseInlineDictionary(
         "Inline dictionary used as key is meant to be on one line.");
   }
   source.ignoreWS();
-  inlineDictionaryDepth--;
+
   if (source.more() && inlineDictionaryDepth == 0) {
     if (!delimiters.contains(source.current())) {
       throw SyntaxError("Unexpected flow sequence token '" +

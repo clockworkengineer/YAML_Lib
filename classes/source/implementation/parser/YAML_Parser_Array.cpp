@@ -62,9 +62,9 @@ YNode YAML_Parser::parseInlineArray(
       }
     }
   } while (source.current() == ',');
+  inlineArrayDepth--;
   checkForEnd(source, ']');
   source.ignoreWS();
-  inlineArrayDepth--;
   if (source.more() && inlineArrayDepth == 0) {
     if (!delimiters.contains(source.current())) {
       throw SyntaxError("Unexpected flow sequence token '" +

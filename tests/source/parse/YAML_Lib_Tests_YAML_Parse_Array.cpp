@@ -242,7 +242,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
         "YAML Syntax Error: Unexpected flow sequence token '['.");
   }
   SECTION("YAML parse inline array containing '{' at end. "
-          "(example 2).",
+          "(example 3).",
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n test: [1,2,3, [4, 5, 6]] { \n..."};
     REQUIRE_THROWS_WITH(
@@ -250,7 +250,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
         "YAML Syntax Error: Unexpected flow sequence token '{'.");
   }
   SECTION("YAML parse inline array containing '}' at end. "
-          "(example 2).",
+          "(example 4).",
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n test: [1,2,3, [4, 5, 6]] } \n..."};
     REQUIRE_THROWS_WITH(

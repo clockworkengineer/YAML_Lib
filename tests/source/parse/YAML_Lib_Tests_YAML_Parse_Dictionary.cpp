@@ -525,26 +525,44 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     compareYAML(yaml, "---\none: 1\n\"{three: 3}\": null\n...\n");
   }
-  SECTION("YAML parse dictionary with nested array key (example 10).",
+  SECTION("YAML parse inline dictionary containing incorrect bracket numbers "
+          "(example 1).",
           "[YAML][Parse][Dictionary]") {
-    BufferSource source{"{one: 1, [1,2,3, [4,5,6]] }"};
-    REQUIRE_NOTHROW(yaml.parse(source));
-    compareYAML(yaml, "---\none: 1\n\"[1, 2, 3, [4, 5, 6]]\": null\n...\n");
+    BufferSource source{"---\n test: { one: 1, two: 2}}\n..."};
+    REQUIRE_THROWS_WITH(
+        yaml.parse(source),
+        "YAML Syntax Error: Unexpected flow sequence token '}'.");
   }
-  SECTION("YAML parse dictionary with nested array key (example 11).",
-          "[YAML][Parse][Dictionary]") {
-    BufferSource source{
-        "{one: 1, [\"one\",\"two\",\"three\", [\"four\",5,6]] }"};
-    REQUIRE_NOTHROW(yaml.parse(source));
-    compareYAML(
-        yaml, "---\none: 1\n\"[one, two, three, [four, 5, 6]]\": null\n...\n");
+  SECTION("YAML parse inline dictionary containing incorrect bracket numbers "
+          "(example 2).",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\n test: { one: 1, two: 2} { \n..."};
+    REQUIRE_THROWS_WITH(
+        yaml.parse(source),
+        "YAML Syntax Error: Unexpected flow sequence token '{'.");
   }
-  //     SECTION("YAML parse dictionary with nested array key (example 12).",
-  //           "[YAML][Parse][Dictionary]") {
-  //     BufferSource source{
-  //         "{one: 1, [\"one\",\"two\",\"three\", [\"four\",\"]\",6]] }"};
-  //     REQUIRE_NOTHROW(yaml.parse(source));
-  //     compareYAML(
-  //         yaml, "");
-  //   }
+    SECTION("YAML parse inline dictionary containing '[' at end. "
+            "(example 3).",
+            "[YAML][Parse][Array]") {
+      BufferSource source{"---\n test: { one: 1, two: 2} [ \n..."};
+      REQUIRE_THROWS_WITH(
+          yaml.parse(source),
+          "YAML Syntax Error: Unexpected flow sequence token '['.");
+    }
+    SECTION("YAML parse inline dictionary containing ']' at end. "
+            "(example 4).",
+            "[YAML][Parse][Array]") {
+      BufferSource source{"---\n test: { one: 1, two: 2} ] \n..."};
+      REQUIRE_THROWS_WITH(
+          yaml.parse(source),
+          "YAML Syntax Error: Unexpected flow sequence token ']'.");
+    }
+     SECTION("YAML parse dictionary with nested dictionary key (example 5).",
+            "[YAML][Parse][Dictionary]") {
+      BufferSource source{
+          "{one: [\"one\",\"two\",\"three\", [\"four\",\"]\",6]]] }"};
+      REQUIRE_THROWS_WITH(
+          yaml.parse(source),
+          "YAML Syntax Error: Unexpected flow sequence token ']'.");
+    }
 }
