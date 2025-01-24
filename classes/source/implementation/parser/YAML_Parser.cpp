@@ -37,7 +37,8 @@ YNode YAML_Parser::parseDocument(ISource &source,
 std::vector<YNode> YAML_Parser::parse(ISource &source) {
   std::vector<YNode> yNodeTree;
   arrayIndentLevel = 0;
-  inlineDepth=0;
+  inlineArrayDepth=0;
+  inlineDictionaryDepth=0;
   for (bool inDocument = false; source.more();) {
     // Start of a document
     if (isDocumentStart(source)) {

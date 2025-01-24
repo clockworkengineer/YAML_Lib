@@ -139,7 +139,9 @@ private:
   // Array Indent level
   inline static long arrayIndentLevel{0};
   // Inline Array depth
-  inline static long inlineDepth{0};
+  inline static long inlineArrayDepth{0};
+  // Inline Dictionary depth
+  inline static long inlineDictionaryDepth{0};
   // Translator
   inline static std::shared_ptr<ITranslator> yamlTranslator;
 };

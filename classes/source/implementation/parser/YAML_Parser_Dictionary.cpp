@@ -173,6 +173,7 @@ YNode YAML_Parser::parseInlineDictionary(
   Delimiters inLineDictionaryDelimiters = {delimiters};
   inLineDictionaryDelimiters.insert({',', '}'});
   YNode dictionaryYNode = YNode::make<Dictionary>();
+  inlineDictionaryDepth++;
   do {
     source.next();
     moveToNextIndent(source);
@@ -194,6 +195,14 @@ YNode YAML_Parser::parseInlineDictionary(
     throw SyntaxError(
         source.getPosition(),
         "Inline dictionary used as key is meant to be on one line.");
+  }
+  source.ignoreWS();
+  inlineDictionaryDepth--;
+  if (source.more() && inlineDictionaryDepth == 0) {
+    if (!delimiters.contains(source.current())) {
+      throw SyntaxError("Unexpected flow sequence token '" +
+                        std::string(1, source.current()) + "'.");
+    }
   }
   return dictionaryYNode;
 }

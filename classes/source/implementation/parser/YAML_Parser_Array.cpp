@@ -43,7 +43,7 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
 /// <returns>Array YNode.</returns>
 YNode YAML_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters) {
-  inlineDepth++;
+  inlineArrayDepth++;
   Delimiters inLineArrayDelimiters = {delimiters};
   inLineArrayDelimiters.insert({',', ']'});
   YNode arrayYNode = YNode::make<Array>();
@@ -64,8 +64,8 @@ YNode YAML_Parser::parseInlineArray(
   } while (source.current() == ',');
   checkForEnd(source, ']');
   source.ignoreWS();
-  inlineDepth--;
-  if (source.more() && inlineDepth == 0) {
+  inlineArrayDepth--;
+  if (source.more() && inlineArrayDepth == 0) {
     if (!delimiters.contains(source.current())) {
       throw SyntaxError("Unexpected flow sequence token '" +
                         std::string(1, source.current()) + "'.");
