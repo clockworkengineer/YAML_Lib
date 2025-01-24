@@ -136,8 +136,10 @@ private:
       {isAlias, parseAlias},
       {isOverride, parseOverride},
       {isDefault, parsePlainFlowString}};
-  // Indent level
-  inline static long indentLevel{0};
+  // Array Indent level
+  inline static long arrayIndentLevel{0};
+  // Inline Array depth
+  inline static long inlineDepth{0};
   // Translator
   inline static std::shared_ptr<ITranslator> yamlTranslator;
 };

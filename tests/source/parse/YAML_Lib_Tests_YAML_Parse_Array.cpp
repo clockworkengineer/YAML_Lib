@@ -225,20 +225,36 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE_THROWS_WITH(yaml.parse(source),
                         "YAML Syntax Error: Unexpected ',' in in-line array.");
   }
-  // SECTION("YAML parse inline array containing incorrect bracket numbers "
-  //         "(example 1).",
-  //         "[YAML][Parse][Array]") {
-  //   BufferSource source{"---\n test: [1,2,3, [4, 5, 6] ] ]\n..."};
-  //   REQUIRE_THROWS_WITH(
-  //       yaml.parse(source),
-  //       "YAML Syntax Error: Unexpected flow sequence token ']'.");
-  // }
-  // SECTION("YAML parse inline array containing incorrect bracket numbers "
-  //         "(example 2).",
-  //         "[YAML][Parse][Array]") {
-  //   BufferSource source{"---\n test: [1,2,3, [4, 5, 6]] [ \n..."};
-  //   REQUIRE_THROWS_WITH(
-  //       yaml.parse(source),
-  //       "YAML Syntax Error: Unexpected flow sequence token ']'.");
-  // }
+  SECTION("YAML parse inline array containing incorrect bracket numbers "
+          "(example 1).",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\n test: [1,2,3, [4, 5, 6] ] ]\n..."};
+    REQUIRE_THROWS_WITH(
+        yaml.parse(source),
+        "YAML Syntax Error: Unexpected flow sequence token ']'.");
+  }
+  SECTION("YAML parse inline array containing incorrect bracket numbers "
+          "(example 2).",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\n test: [1,2,3, [4, 5, 6]] [ \n..."};
+    REQUIRE_THROWS_WITH(
+        yaml.parse(source),
+        "YAML Syntax Error: Unexpected flow sequence token '['.");
+  }
+  SECTION("YAML parse inline array containing '{' at end. "
+          "(example 2).",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\n test: [1,2,3, [4, 5, 6]] { \n..."};
+    REQUIRE_THROWS_WITH(
+        yaml.parse(source),
+        "YAML Syntax Error: Unexpected flow sequence token '{'.");
+  }
+  SECTION("YAML parse inline array containing '}' at end. "
+          "(example 2).",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\n test: [1,2,3, [4, 5, 6]] } \n..."};
+    REQUIRE_THROWS_WITH(
+        yaml.parse(source),
+        "YAML Syntax Error: Unexpected flow sequence token '}'.");
+  }
 }
