@@ -60,4 +60,16 @@ TEST_CASE("Check YAML parse mapping between sequences.",
         "York Yankees, Atlanta Braves]\": \n  - 2001-07-02\n  - "
         "2001-08-12\n  - 2001-08-14\n...\n");
   }
+
+    SECTION("YAML parse mapping between sequences.",
+          "[YAML][Parse][Sequence Mapping]]") {
+    BufferSource source{
+        "? Mark McGwire\n? Sammy Sosa\n? Ken Griffey"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    // REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    compareYAML(
+        yaml,
+        "");
+  }
 }

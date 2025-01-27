@@ -51,12 +51,12 @@ std::string YAML_Parser::extractKey(ISource &source) {
   Delimiters delimiters;
   if (isInlineDictionary(source)) {
     return extractInLine(source, '{', '}');
+  } else if (isInlineArray(source)) {
+    return extractInLine(source, '[', ']');
   } else if (source.current() == '?') {
     source.next();
     delimiters = {':'};
-  } else if (isInlineArray(source))
-    return extractInLine(source, '[', ']');
-  else {
+  } else {
     delimiters = {':', ',', '}', kLineFeed};
   }
   std::string key = extractToNext(source, delimiters);
