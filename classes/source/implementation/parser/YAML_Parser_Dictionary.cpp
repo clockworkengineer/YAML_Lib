@@ -48,19 +48,16 @@ bool YAML_Parser::isValidKey(const std::string &key) {
 /// <param name="source">Source stream.</param>
 /// <returns>YAML for key value.</returns>
 std::string YAML_Parser::extractKey(ISource &source) {
-  Delimiters delimiters;
   if (isInlineDictionary(source)) {
     return extractInLine(source, '{', '}');
   } else if (isInlineArray(source)) {
     return extractInLine(source, '[', ']');
   } else if (isMapping(source)) {
     source.next();
-    delimiters = {':'};
-  } else {
-    delimiters = {':', ',', '}', kLineFeed};
-  }
-  std::string key = extractToNext(source, delimiters);
-  if (delimiters.contains('}') && source.current() == '}' && key[0] == '{') {
+    return extractToNext(source, {':'});
+  } 
+  std::string key = extractToNext(source, {':', ',', '}', kLineFeed});
+  if (source.current() == '}' && key[0] == '{') {
     key += source.append();
     source.ignoreWS();
   }
