@@ -164,6 +164,14 @@ bool YAML_Parser::isInlineDictionary(const ISource &source) {
   return source.current() == '{';
 }
 /// <summary>
+/// Has a mapping been found on the source stream?
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <returns>==true a mapping has been found./returns>
+bool YAML_Parser::isMapping(const ISource &source) {
+  return source.current() == '?';
+}
+/// <summary>
 /// Has a dictionary been found on the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>

@@ -53,7 +53,7 @@ std::string YAML_Parser::extractKey(ISource &source) {
     return extractInLine(source, '{', '}');
   } else if (isInlineArray(source)) {
     return extractInLine(source, '[', ']');
-  } else if (source.current() == '?') {
+  } else if (isMapping(source)) {
     source.next();
     delimiters = {':'};
   } else {

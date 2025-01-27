@@ -36,53 +36,31 @@ private:
   static std::string extractInLine(ISource &source, char start, char end);
   static void checkForEnd(ISource &source, char end);
   static YNode mergeOverrides(YNode &overrideRoot);
-
   static bool endOfPlainFlowString(ISource &source);
-
   static YNode convertYAMLToStringYNode(const std::string &yamlString);
-
   static bool isValidKey(const std::string &key);
-
   static bool isOverride(ISource &source);
-
   static bool isKey(ISource &source);
-
   static bool isArray(ISource &source);
-
   static bool isBoolean(const ISource &source);
-
   static bool isQuotedString(const ISource &source);
   static bool isNumber(const ISource &source);
-
   static bool isNone(const ISource &source);
-
   static bool isFoldedBlockString(const ISource &source);
-
   static bool isPipedBlockString(const ISource &source);
-
   static bool isComment(const ISource &source);
-
   static bool isAnchor(const ISource &source);
   static bool isAlias(const ISource &source);
-
   static bool isInlineArray(const ISource &source);
-
   static bool isInlineDictionary(const ISource &source);
-
+  static bool isMapping(const ISource &source);
   static bool isDictionary(ISource &source);
-
   static bool isDefault(ISource &source);
-
   static bool isDocumentStart(ISource &source);
-
   static bool isDocumentEnd(ISource &source);
-
   static void appendCharacterToString(ISource &source, std::string &yamlString);
-
   static std::string extractKey(ISource &source);
-
   static BlockChomping parseBlockChomping(ISource &source);
-
   static std::string parseBlockString(ISource &source,
                                       const Delimiters &delimiters,
                                       char fillerDefault);
