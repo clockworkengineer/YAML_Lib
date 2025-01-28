@@ -43,6 +43,15 @@ bool YAML_Parser::isValidKey(const std::string &key) {
   }
 }
 /// <summary>
+/// Extract mapping on source stream..
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <returns>Extracted mapping/.</returns>
+std::string YAML_Parser::extractMapping(ISource &source) {
+  source.next();
+  return extractToNext(source, {':'});
+}
+/// <summary>
 /// Extract YAML used in possible key value from source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
@@ -53,17 +62,16 @@ std::string YAML_Parser::extractKey(ISource &source) {
   } else if (isInlineArray(source)) {
     return extractInLine(source, '[', ']');
   } else if (isMapping(source)) {
-    source.next();
-    return extractToNext(source, {':'});
-  } 
-  std::string key = extractToNext(source, {':', ',', '}', kLineFeed});
-  if (source.current() == '}' && key[0] == '{') {
-    key += source.append();
-    source.ignoreWS();
+    return extractMapping(source);
+  } else {
+    return extractToNext(source, {':', ',', '}', kLineFeed});
   }
-  return key;
 }
-
+// <summary>
+/// Parse dictionary key on source stream.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <returns>Dictionary entry key.</returns>
 YNode YAML_Parser::parseKey(ISource &source) {
   std::string key{extractKey(source)};
   if (source.more() && source.current() != '}' && source.current() != ',') {
