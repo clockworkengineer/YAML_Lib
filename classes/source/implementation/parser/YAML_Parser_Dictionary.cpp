@@ -48,8 +48,27 @@ bool YAML_Parser::isValidKey(const std::string &key) {
 /// <param name="source">Source stream.</param>
 /// <returns>Extracted mapping/.</returns>
 std::string YAML_Parser::extractMapping(ISource &source) {
+  std::string key;
   source.next();
-  return extractToNext(source, {':'});
+  while (source.more() && source.current() == ' ') {
+    key += ' ';
+    source.next();
+  }
+  if (isComment(source)) {
+    moveToNext(source, { kLineFeed} );
+    return extractMapping(source);
+  } else if (isInlineDictionary(source)) {
+    key += extractInLine(source, '{', '}');
+    moveToNext(source, {':'});
+  } else if (isInlineArray(source)) {
+    key += extractInLine(source, '[', ']');
+    moveToNext(source, {':'});
+  } else if (isArray(source)) {
+    key += extractToNext(source, {':'});
+  } else {
+    key += extractToNext(source, {kLineFeed});
+  }
+  return key;
 }
 /// <summary>
 /// Extract YAML used in possible key value from source stream.
@@ -136,10 +155,6 @@ DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
 /// <returns>Dictionary YNode.</returns>
 YNode YAML_Parser::parseDictionary(ISource &source,
                                    const Delimiters &delimiters) {
-
-  if (delimiters.contains('}')) {
-    return {};
-  }
   unsigned long dictionaryIndent = source.getPosition().second;
   YNode dictionaryYNode = YNode::make<Dictionary>();
   while (source.more() && dictionaryIndent == source.getPosition().second) {

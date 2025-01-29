@@ -38,7 +38,7 @@ void YAML_Parser::appendCharacterToString(ISource &source,
 /// <param name="end">== true  then and of string found.</param>
 bool YAML_Parser::endOfPlainFlowString(ISource &source) {
   return isKey(source) || isArray(source) || isComment(source) ||
-         isDocumentStart(source) || isDocumentEnd(source);
+         isDocumentStart(source) || isDocumentEnd(source)|| isMapping(source);
 }
 
 /// <summary>
