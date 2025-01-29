@@ -55,7 +55,7 @@ std::string YAML_Parser::extractMapping(ISource &source) {
     source.next();
   }
   if (isComment(source)) {
-    moveToNext(source, { kLineFeed} );
+    moveToNext(source, {kLineFeed});
     return extractMapping(source);
   } else if (isInlineDictionary(source)) {
     key += extractInLine(source, '{', '}');
@@ -67,6 +67,7 @@ std::string YAML_Parser::extractMapping(ISource &source) {
     key += extractToNext(source, {':'});
   } else {
     key += extractToNext(source, {kLineFeed});
+    key += ':';
   }
   return key;
 }
@@ -93,6 +94,9 @@ std::string YAML_Parser::extractKey(ISource &source) {
 /// <returns>Dictionary entry key.</returns>
 YNode YAML_Parser::parseKey(ISource &source) {
   std::string key{extractKey(source)};
+  if (key.back() == ':') {
+    key.pop_back();
+  }
   if (source.more() && source.current() != '}' && source.current() != ',') {
     source.next();
   }
@@ -114,14 +118,15 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   const unsigned long keyIndent = source.getPosition().second;
   YNode keyYNode = parseKey(source);
   source.ignoreWS();
-  if (isKey(source)) {
+  if (isKey(source) && !isMapping(source)) {
     throw SyntaxError(source.getPosition(),
                       "Only an inline/compact dictionary is allowed.");
   }
   moveToNextIndent(source);
   YNode dictionaryYNode{YNode::make<Null>()};
-  if ((source.getPosition().second > keyIndent || isInlineArray(source) ||
-       isInlineDictionary(source))) {
+  if (source.more() &&
+      ((source.getPosition().second > keyIndent || isInlineArray(source) ||
+        isInlineDictionary(source)))) {
     dictionaryYNode = parseDocument(source, delimiters);
   }
   return {keyYNode, dictionaryYNode};
