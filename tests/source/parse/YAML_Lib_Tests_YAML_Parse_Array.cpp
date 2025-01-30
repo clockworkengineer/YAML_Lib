@@ -213,7 +213,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
   }
-  SECTION("YAML parse array ending with ','.", "[YAML][Parse][Array]") {
+  SECTION("YAML parse array ending with kComma.", "[YAML][Parse][Array]") {
     BufferSource source{"---\n[one ,two, three, ]\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
@@ -223,7 +223,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n[,, three, ]\n..."};
     REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Syntax Error: Unexpected ',' in in-line array.");
+                        "YAML Syntax Error: Unexpected kComma in in-line array.");
   }
   SECTION("YAML parse inline array containing incorrect bracket numbers "
           "(example 1).",

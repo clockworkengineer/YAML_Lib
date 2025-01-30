@@ -20,11 +20,11 @@ namespace YAML_Lib {
 YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
   unsigned long arrayIndent = source.getPosition().second;
   arrayIndentLevel++;
-  YNode arrayYNode = YNode::make<Array>();
-  while (source.more() && isArray(source) &&
-         arrayIndent == source.getPosition().second) {
+  auto arrayYNode = YNode::make<Array>();
+  auto &yamlArray = YRef<Array>(arrayYNode);
+  while (isArray(source) && arrayIndent == source.getPosition().second) {
     source.next();
-    YRef<Array>(arrayYNode).add(parseDocument(source, delimiters));
+    yamlArray.add(parseDocument(source, delimiters));
     moveToNextIndent(source);
   }
   arrayIndentLevel--;
@@ -45,25 +45,25 @@ YNode YAML_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters) {
   inlineArrayDepth++;
   Delimiters inLineArrayDelimiters = {delimiters};
-  inLineArrayDelimiters.insert({',', ']'});
-  YNode arrayYNode = YNode::make<Array>();
+  inLineArrayDelimiters.insert({kComma, kRightSquareBracket});
+  auto arrayYNode = YNode::make<Array>();
+  auto &yamlArray = YRef<Array>(arrayYNode);
   do {
     source.next();
-    YRef<Array>(arrayYNode).add(parseDocument(source, inLineArrayDelimiters));
-    auto &element = YRef<Array>(arrayYNode).value().back();
+    yamlArray.add(parseDocument(source, inLineArrayDelimiters));
+    auto &element = yamlArray.value().back();
     if (isA<String>(element)) {
       if (YRef<String>(element).value().empty() &&
-          YRef<String>(element).getQuote() == '\0') {
-        if (source.current() != ']') {
-          throw SyntaxError("Unexpected ',' in in-line array.");
-        } else {
-          YRef<Array>(arrayYNode).value().pop_back();
-        }
+          YRef<String>(element).getQuote() == kNull) {
+        if (source.current() != kRightSquareBracket) {
+          throw SyntaxError("Unexpected kComma in in-line array.");
+        } 
+        yamlArray.value().pop_back();
       }
     }
-  } while (source.current() == ',');
+  } while (source.current() == kComma);
   inlineArrayDepth--;
-  checkForEnd(source, ']');
+  checkForEnd(source, kRightSquareBracket);
   source.ignoreWS();
   if (source.more() && inlineArrayDepth == 0) {
     if (!delimiters.contains(source.current())) {

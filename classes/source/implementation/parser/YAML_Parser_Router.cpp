@@ -31,7 +31,7 @@ bool YAML_Parser::isKey(ISource &source) {
   source.save();
   bool keyPresent{false};
   std::string key{extractKey(source)};
-  if (source.current() == ':' || key.back() == ':') {
+  if (source.current() == kColon || key.back() == kColon) {
     if (key[0] == '{' || key[0] == '[') {
       if (key.find('\n') != std::string::npos) {
         if (key[0] == '{') {
@@ -49,8 +49,8 @@ bool YAML_Parser::isKey(ISource &source) {
       source.next();
     }
     if (source.current() == ' ' || source.current() == kLineFeed ||
-        key.back() == ':') {
-      if (key.back() == ':') {
+        key.back() == kColon) {
+      if (key.back() == kColon) {
         key.pop_back();
       }
       rightTrim(key);
