@@ -27,17 +27,15 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
     source.ignoreWS();
     if (source.current() != kLineFeed) {
       yamlArray.add(parseDocument(source, delimiters));
-      moveToNextIndent(source);
     } else {
       moveToNextIndent(source);
       if (arrayIndent < source.getPosition().second) {
         yamlArray.add(parseDocument(source, delimiters));
-
       } else {
         yamlArray.add(YNode::make<Null>());
       }
-      moveToNextIndent(source);
     }
+    moveToNextIndent(source);
   }
   arrayIndentLevel--;
   if (isArray(source) && arrayIndentLevel == 0 &&
