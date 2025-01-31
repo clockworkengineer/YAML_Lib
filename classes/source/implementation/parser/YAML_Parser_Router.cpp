@@ -93,7 +93,7 @@ bool YAML_Parser::isBoolean(const ISource &source) {
 /// <returns>==true then a quoted string has been found.</returns>
 bool YAML_Parser::isQuotedString(const ISource &source) {
   const auto ch = source.current();
-  return ch == '\'' || ch == '"';
+  return ch == kApostrophe || ch == kDoubleQuote;
 }
 /// <summary>
 /// Has a possible number been found in the source stream?

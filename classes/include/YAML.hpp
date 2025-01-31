@@ -36,6 +36,8 @@ constexpr char kNull{0x00};
 constexpr char kCarriageReturn{0x0D};
 constexpr char kLineFeed{0x0A};
 constexpr char kSpace{0x20};
+constexpr char kDoubleQuote{0x22};
+constexpr char kApostrophe{0x27};
 constexpr char kComma{0x2C};
 constexpr char kColon{0x3A};
 constexpr char kLeftSquareBracket{0x5B};

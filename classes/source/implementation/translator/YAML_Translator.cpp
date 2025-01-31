@@ -13,7 +13,7 @@
 namespace YAML_Lib {
 
 static const std::vector<std::pair<const char, const char>> escapeSequences{
-    {'\\', '\\'}, {'t', '\t'}, {'"', '\"'}, {'b', '\b'},
+    {'\\', '\\'}, {'t', '\t'}, {kDoubleQuote, '\"'}, {'b', '\b'},
     {'f', '\f'},  {'n', '\n'}, {'r', '\r'}};
 
 /// <summary>
@@ -29,11 +29,11 @@ char16_t decodeUTF16(std::string::const_iterator &current,
     char16_t utf16value{};
     // Hex digits will be ascii so can throw away high order byte of char
     const std::array hexDigits{(current[1]), (current[2]), (current[3]),
-                               (current[4]), '\0'};
+                               (current[4]), kNull};
     char *end;
     utf16value +=
         static_cast<char16_t>(std::strtol(hexDigits.data(), &end, 16));
-    if (*end == '\0') {
+    if (*end == kNull) {
       current += hexDigits.size();
       return utf16value;
     }
@@ -52,11 +52,11 @@ char16_t decodeUTF8(std::string::const_iterator &current,
   if (numberOfCharacters >= 4) {
     char16_t utf16value{};
     // Hex digits will be ascii so can throw away high order byte of char
-    const std::array hexDigits{(current[1]), (current[2]), '\0'};
+    const std::array hexDigits{(current[1]), (current[2]), kNull};
     char *end;
     utf16value +=
         static_cast<char16_t>(std::strtol(hexDigits.data(), &end, 16));
-    if (*end == '\0') {
+    if (*end == kNull) {
       current += hexDigits.size();
       return utf16value;
     }

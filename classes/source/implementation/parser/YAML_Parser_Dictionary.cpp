@@ -23,7 +23,7 @@ YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
   if (isA<String>(keyYNode)) {
     quote = YRef<String>(keyYNode).getQuote();
     if (keyString.empty()) {
-      quote = '"';
+      quote = kDoubleQuote;
     }
   }
   return YNode::make<String>(keyString, quote);
@@ -146,7 +146,7 @@ DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
   }
   if (isA<String>(dictionaryYNode)) {
     if (YRef<String>(dictionaryYNode).value().empty() &&
-        YRef<String>(dictionaryYNode).getQuote() == '\0') {
+        YRef<String>(dictionaryYNode).getQuote() == kNull) {
       dictionaryYNode = YNode::make<Null>();
     }
   }

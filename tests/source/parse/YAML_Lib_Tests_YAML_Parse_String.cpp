@@ -9,7 +9,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
     REQUIRE(YRef<String>(yaml.document(0)).value() == "test string.");
-    REQUIRE(YRef<String>(yaml.document(0)).getQuote() == '\0');
+    REQUIRE(YRef<String>(yaml.document(0)).getQuote() == kNull);
   }
   SECTION("YAML parse a double quoted string.",
           "[YAML][Parse][Scalar][String]") {
@@ -17,7 +17,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
     REQUIRE(YRef<String>(yaml.document(0)).value() == "test string.");
-    REQUIRE(YRef<String>(yaml.document(0)).getQuote() == '"');
+    REQUIRE(YRef<String>(yaml.document(0)).getQuote() == kDoubleQuote);
   }
   SECTION("YAML parse a single quoted string.",
           "[YAML][Parse][Scalar][String]") {
@@ -25,7 +25,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
     REQUIRE(YRef<String>(yaml.document(0)).value() == "test string.");
-    REQUIRE(YRef<String>(yaml.document(0)).getQuote() == '\'');
+    REQUIRE(YRef<String>(yaml.document(0)).getQuote() == kApostrophe);
   }
   SECTION(
       "YAML parse a double quoted string with some common escape sequences in.",

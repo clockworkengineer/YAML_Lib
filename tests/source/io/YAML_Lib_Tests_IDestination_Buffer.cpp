@@ -57,7 +57,7 @@ TEST_CASE("Check IDestination (Buffer) interface.",
     REQUIRE(buffer.toString() == ("65767"));
     REQUIRE(buffer.last() == '7');
     buffer.clear();
-    REQUIRE(buffer.last() == '\0');
+    REQUIRE(buffer.last() == kNull);
     REQUIRE(buffer.size() == 0);
     buffer.add("65767");
     REQUIRE(buffer.size() == 5);

@@ -31,7 +31,7 @@ int BytesToWideChar(const char *bytes, int length,
 /// Convert utf8 <-> utf16 strings.
 /// </summary>
 std::u16string toUtf16(const std::string &utf8) {
-  if (utf8.find('\0') != std::string::npos) {
+  if (utf8.find(kNull) != std::string::npos) {
     throw Error("Tried to convert a null character.");
   }
   std::wstring wideString(
@@ -42,7 +42,7 @@ std::u16string toUtf16(const std::string &utf8) {
 }
 
 std::string toUtf8(const std::u16string &utf16) {
-  if (utf16.find('\0') != std::string::npos) {
+  if (utf16.find(kNull) != std::string::npos) {
     throw Error("Tried to convert a null character.");
   }
   std::wstring wideString{utf16.begin(), utf16.end()};

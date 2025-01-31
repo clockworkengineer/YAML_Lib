@@ -60,7 +60,7 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
       yamlString.pop_back();
     }
   }
-  return YNode::make<String>(yamlString, '\0');
+  return YNode::make<String>(yamlString, kNull);
 }
 /// <summary>
 /// Parse quoted flow string on source stream.
@@ -72,7 +72,7 @@ YNode YAML_Parser::parseQuotedFlowString(ISource &source,
                                          const Delimiters &delimiters) {
   const char quote = source.append();
   std::string yamlString;
-  if (quote == '"') {
+  if (quote == kDoubleQuote) {
     while (source.more() && source.current() != quote) {
       if (source.current() == '\\') {
         yamlString += source.append();

@@ -71,9 +71,9 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
     destination.add(YRef<Number>(yNode).toString());
   } else if (isA<String>(yNode)) {
     if (const char quote = YRef<String>(yNode).getQuote();
-        quote == '\'' || quote == '"') {
+        quote == kApostrophe || quote == kDoubleQuote) {
       std::string yamlString{YRef<String>(yNode).toString()};
-      if (quote == '"') {
+      if (quote == kDoubleQuote) {
         yamlString = yamlTranslator->to(yamlString);
       }
       destination.add(quote + yamlString + quote);
@@ -96,7 +96,7 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
     for (const auto &entryYNode : YRef<Dictionary>(yNode).value()) {
       destination.add(calculateIndent(destination, indent));
       if (const char quote = YRef<String>(entryYNode.getKeyYNode()).getQuote();
-          quote == '\'' || quote == '"') {
+          quote == kApostrophe || quote == kDoubleQuote) {
         destination.add(
             quote + YRef<String>(entryYNode.getKeyYNode()).toString() + quote);
       } else {

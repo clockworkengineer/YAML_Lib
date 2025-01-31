@@ -61,7 +61,7 @@ TEST_CASE("Check IDestination (File) interface.",
     REQUIRE_FALSE(!compareFile("65767", prefixPath(kGeneratedYAMLFile)));
     REQUIRE(source.last() == '7');
     source.clear();
-    REQUIRE(source.last() == '\0');
+    REQUIRE(source.last() == kNull);
     REQUIRE(source.size() == 0);
     source.add("65767");
     REQUIRE(source.size() == 5);
