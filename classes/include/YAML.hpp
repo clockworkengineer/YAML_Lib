@@ -29,6 +29,20 @@ namespace YAML_Lib {
 class YAML_Impl;
 struct YNode;
 
+// ========================
+// YAML character constants
+// ========================
+constexpr char kNull{0x00};
+constexpr char kCarriageReturn{0x0D};
+constexpr char kLineFeed{0x0A};
+constexpr char kSpace{0x20};
+constexpr char kComma{0x2C};
+constexpr char kColon{0x3A};
+constexpr char kLeftSquareBracket{0x5B};
+constexpr char kRightSquareBracket{0x5D};
+constexpr char kLeftCurlyBrace{0x7B};
+constexpr char kRightCurlyBrace{0x7D};
+
 // =====================
 // YAML string constants
 // =====================

@@ -58,10 +58,10 @@ std::string YAML_Parser::extractMapping(ISource &source) {
     moveToNext(source, {kLineFeed});
     return extractMapping(source);
   } else if (isInlineDictionary(source)) {
-    key += extractInLine(source, '{', '}');
+    key += extractInLine(source, kLeftCurlyBrace, kRightCurlyBrace);
     moveToNext(source, {kColon});
   } else if (isInlineArray(source)) {
-    key += extractInLine(source, '[', kRightSquareBracket);
+    key += extractInLine(source, kLeftSquareBracket, kRightSquareBracket);
     moveToNext(source, {kColon});
   } else if (isArray(source)) {
     key += extractToNext(source, {kColon});
@@ -78,13 +78,13 @@ std::string YAML_Parser::extractMapping(ISource &source) {
 /// <returns>YAML for key value.</returns>
 std::string YAML_Parser::extractKey(ISource &source) {
   if (isInlineDictionary(source)) {
-    return extractInLine(source, '{', '}');
+    return extractInLine(source, kLeftCurlyBrace, kRightCurlyBrace);
   } else if (isInlineArray(source)) {
-    return extractInLine(source, '[', kRightSquareBracket);
+    return extractInLine(source, kLeftSquareBracket, kRightSquareBracket);
   } else if (isMapping(source)) {
     return extractMapping(source);
   } else {
-    return extractToNext(source, {kColon, kComma, '}', kLineFeed});
+    return extractToNext(source, {kColon, kComma, kRightCurlyBrace, kLineFeed});
   }
 }
 // <summary>
@@ -97,7 +97,7 @@ YNode YAML_Parser::parseKey(ISource &source) {
   if (key.back() == kColon) {
     key.pop_back();
   }
-  if (source.more() && source.current() != '}' && source.current() != kComma) {
+  if (source.more() && source.current() != kRightCurlyBrace && source.current() != kComma) {
     source.next();
   }
   rightTrim(key);
@@ -196,7 +196,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
 YNode YAML_Parser::parseInlineDictionary(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters) {
   Delimiters inLineDictionaryDelimiters = {delimiters};
-  inLineDictionaryDelimiters.insert({kComma, '}'});
+  inLineDictionaryDelimiters.insert({kComma, kRightCurlyBrace});
   YNode dictionaryYNode = YNode::make<Dictionary>();
   inlineDictionaryDepth++;
   do {
@@ -204,7 +204,7 @@ YNode YAML_Parser::parseInlineDictionary(
     moveToNextIndent(source);
     if (source.current() == kComma) {
       throw SyntaxError("Unexpected ',' in in-line dictionary.");
-    } else if (source.current() != '}') {
+    } else if (source.current() != kRightCurlyBrace) {
       auto entry = parseInlineKeyValue(source, inLineDictionaryDelimiters);
       if (YRef<Dictionary>(dictionaryYNode).contains(entry.getKey())) {
         throw SyntaxError(source.getPosition(),
@@ -216,7 +216,7 @@ YNode YAML_Parser::parseInlineDictionary(
 
   } while (source.current() == kComma);
   inlineDictionaryDepth--;
-  checkForEnd(source, '}');
+  checkForEnd(source, kRightCurlyBrace);
   if (source.current() == kColon) {
     throw SyntaxError(
         source.getPosition(),

@@ -28,7 +28,7 @@ struct Array final : Variant {
   [[nodiscard]] const Entries &value() const { return yNodeArray; }
   // Convert variant to a key
   [[nodiscard]] const std::string toKey() const override {
-    std::string array{'['};
+    std::string array{kLeftSquareBracket};
     if (!yNodeArray.empty()) {
       size_t commaCount = yNodeArray.size() - 1;
       for (auto &entryYNode : yNodeArray) {

@@ -56,8 +56,8 @@ YNode YAML_Parser::parseInlineArray(
       if (YRef<String>(element).value().empty() &&
           YRef<String>(element).getQuote() == kNull) {
         if (source.current() != kRightSquareBracket) {
-          throw SyntaxError("Unexpected kComma in in-line array.");
-        } 
+          throw SyntaxError("Unexpected ',' in in-line array.");
+        }
         yamlArray.value().pop_back();
       }
     }

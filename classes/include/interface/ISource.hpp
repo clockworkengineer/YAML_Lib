@@ -4,17 +4,6 @@
 
 namespace YAML_Lib {
 
-// ========================
-// YAML character constants
-// ========================
-constexpr char kNull{0x00};
-constexpr char kCarriageReturn{0x0D};
-constexpr char kLineFeed{0x0A};
-constexpr char kSpace{0x20};
-constexpr char kComma{0x2C};
-constexpr char kColon{0x3A};
-constexpr char kRightSquareBracket{0x5D};
-
 // =======================================================
 // Interface for reading source stream during YAML parsing
 // =======================================================
@@ -56,7 +45,7 @@ public:
   // ===================================
   [[nodiscard]] bool isWS() const {
     const auto ch = current();
-    return ch == kSpace || ch == '\t';
+    return ch == ' ' || ch == '\t';
   }
   // ==================================
   // Ignore whitespace on source stream

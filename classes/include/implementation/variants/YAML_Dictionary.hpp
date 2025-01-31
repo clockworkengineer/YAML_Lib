@@ -74,7 +74,7 @@ struct Dictionary final : Variant {
   [[nodiscard]] const Entries &value() const { return yNodeDictionary; }
   // Convert variant to a key
   [[nodiscard]] const std::string toKey() const override {
-    std::string dictionary{'{'};
+    std::string dictionary{kLeftCurlyBrace};
     size_t commaCount = yNodeDictionary.size() - 1;
     for (auto &entryYNode : yNodeDictionary) {
       dictionary += entryYNode.getKeyYNode().getVariant().toString();

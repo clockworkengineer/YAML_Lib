@@ -32,9 +32,9 @@ bool YAML_Parser::isKey(ISource &source) {
   bool keyPresent{false};
   std::string key{extractKey(source)};
   if (source.current() == kColon || key.back() == kColon) {
-    if (key[0] == '{' || key[0] == '[') {
+    if (key[0] == kLeftCurlyBrace || key[0] == kLeftSquareBracket) {
       if (key.find('\n') != std::string::npos) {
-        if (key[0] == '{') {
+        if (key[0] == kLeftCurlyBrace) {
           throw SyntaxError(
               source.getPosition(),
               "Inline dictionary used as key is meant to be on one line.");
@@ -159,7 +159,7 @@ bool YAML_Parser::isAlias(const ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>==true an inline array has been found.</returns>
 bool YAML_Parser::isInlineArray(const ISource &source) {
-  return source.current() == '[';
+  return source.current() == kLeftSquareBracket;
 }
 /// <summary>
 /// Has an inline dictionary been found on the source stream?
@@ -167,7 +167,7 @@ bool YAML_Parser::isInlineArray(const ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>==true an inline dictionary has been found./returns>
 bool YAML_Parser::isInlineDictionary(const ISource &source) {
-  return source.current() == '{';
+  return source.current() == kLeftCurlyBrace;
 }
 /// <summary>
 /// Has a mapping been found on the source stream?
