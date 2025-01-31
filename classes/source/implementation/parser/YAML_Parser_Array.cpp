@@ -24,8 +24,20 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
   auto &yamlArray = YRef<Array>(arrayYNode);
   while (isArray(source) && arrayIndent == source.getPosition().second) {
     source.next();
-    yamlArray.add(parseDocument(source, delimiters));
-    moveToNextIndent(source);
+    source.ignoreWS();
+    if (source.current() != kLineFeed) {
+      yamlArray.add(parseDocument(source, delimiters));
+      moveToNextIndent(source);
+    } else {
+      moveToNextIndent(source);
+      if (arrayIndent < source.getPosition().second) {
+        yamlArray.add(parseDocument(source, delimiters));
+
+      } else {
+        yamlArray.add(YNode::make<Null>());
+      }
+      moveToNextIndent(source);
+    }
   }
   arrayIndentLevel--;
   if (isArray(source) && arrayIndentLevel == 0 &&

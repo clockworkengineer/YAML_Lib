@@ -6,6 +6,24 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     BufferSource source{"---\n   - 'One'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
+  SECTION("YAML parse array with an empty element.",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\n - \n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
+    REQUIRE(YRef<Array>(yaml.document(0)).size() == 1);
+    REQUIRE_FALSE(!isA<Null>(yaml.document(0)[0]));
+    compareYAML(yaml, "---\n- null\n...\n");
+  }
+    SECTION("YAML parse array with 4 empty elements.",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\n - \n - \n - \n - \n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
+    REQUIRE(YRef<Array>(yaml.document(0)).size() == 4);
+    REQUIRE_FALSE(!isA<Null>(yaml.document(0)[0]));
+    compareYAML(yaml, "---\n- null\n- null\n- null\n- null\n...\n");
+  }
   SECTION("YAML parse array with two elements.", "[YAML][Parse][Array]") {
     BufferSource source{"---\n   - 'One'\n   - 'Two'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
