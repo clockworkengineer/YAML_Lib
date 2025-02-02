@@ -37,8 +37,8 @@ YNode YAML_Parser::parseDocument(ISource &source,
 std::vector<YNode> YAML_Parser::parse(ISource &source) {
   std::vector<YNode> yNodeTree;
   arrayIndentLevel = 0;
-  inlineArrayDepth=0;
-  inlineDictionaryDepth=0;
+  inlineArrayDepth = 0;
+  inlineDictionaryDepth = 0;
   for (bool inDocument = false; source.more();) {
     // Start of a document
     if (isDocumentStart(source)) {
@@ -63,8 +63,12 @@ std::vector<YNode> YAML_Parser::parse(ISource &source) {
         yNodeTree.push_back(YNode::make<Document>());
       }
       inDocument = true;
-      YRef<Document>(yNodeTree.back())
-          .add(parseDocument(source, {kLineFeed, '#'}));
+      if (YRef<Document>(yNodeTree.back()).size() == 0) {
+        YRef<Document>(yNodeTree.back())
+            .add(parseDocument(source, {kLineFeed, '#'}));
+      } else {
+        throw SyntaxError(source.getPosition(), "Invalid YAML encountered.");
+      }
     }
   }
 

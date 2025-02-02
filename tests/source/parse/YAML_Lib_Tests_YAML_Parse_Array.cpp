@@ -275,4 +275,9 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
         yaml.parse(source),
         "YAML Syntax Error: Unexpected flow sequence token '}'.");
   }
+    SECTION("YAML parse array and then key/value pait at end. ",
+          "[YAML][Parse][Array]") {
+    BufferSource source{"---\n- 1\n- 2\n- 3\nfour: 4\n"};
+    REQUIRE_THROWS_WITH(yaml.parse(source), "YAML Syntax Error [Line: 5 Column: 1]: Invalid YAML encountered.");
+  }
 }
