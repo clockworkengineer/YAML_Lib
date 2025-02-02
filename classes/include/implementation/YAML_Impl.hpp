@@ -21,54 +21,47 @@ public:
   static std::string version();
   // Get number of documents
   [[nodiscard]] unsigned long getNumberOfDocuments() const {
-    // unsigned long numberOfDocuments = 0;
-    // for (auto &yNode : yamlTree) {
-    //   // if (isA<Document>(yNode)) {
-    //     numberOfDocuments++;
-    //   // }
-    // yamlTree.size();
-  // }
-  return  yamlTree.size();
-}
+    return yamlTree.size();
+  }
   // Parse YAML into YNode tree
   void parse(ISource &source);
-// Create YAML text string from YNode tree
-void stringify(IDestination &destination) const;
-// Get the root of YAML tree
-[[nodiscard]] std::vector<YNode> &root() { return yamlTree; }
-[[nodiscard]] const std::vector<YNode> &root() const { return yamlTree; }
-// Get the document
-[[nodiscard]] YNode &document(const unsigned long index) {
-  if (index >= yamlTree.size()) {
-    throw Error("Document does not exist.");
+  // Create YAML text string from YNode tree
+  void stringify(IDestination &destination) const;
+  // Get the root of YAML tree
+  [[nodiscard]] std::vector<YNode> &root() { return yamlTree; }
+  [[nodiscard]] const std::vector<YNode> &root() const { return yamlTree; }
+  // Get the document
+  [[nodiscard]] YNode &document(const unsigned long index) {
+    if (index >= yamlTree.size()) {
+      throw Error("Document does not exist.");
+    }
+    return yamlTree[index][0];
   }
-  return yamlTree[index][0];
-}
-[[nodiscard]] const YNode &document(const unsigned long index) const {
-  if (index >= yamlTree.size()) {
-    throw Error("Document does not exist.");
+  [[nodiscard]] const YNode &document(const unsigned long index) const {
+    if (index >= yamlTree.size()) {
+      throw Error("Document does not exist.");
+    }
+    return yamlTree[index][0];
   }
-  return yamlTree[index][0];
-}
-// Traverse YAML tree
-void traverse(IAction &action);
-void traverse(IAction &action) const;
-// Search for YAML object entry with a given key
-YNode &operator[](const std::string &key);
-const YNode &operator[](const std::string &key) const;
-// Get YAML array element at index
-YNode &operator[](std::size_t index);
-const YNode &operator[](std::size_t index) const;
+  // Traverse YAML tree
+  void traverse(IAction &action);
+  void traverse(IAction &action) const;
+  // Search for YAML object entry with a given key
+  YNode &operator[](const std::string &key);
+  const YNode &operator[](const std::string &key) const;
+  // Get YAML array element at index
+  YNode &operator[](std::size_t index);
+  const YNode &operator[](std::size_t index) const;
 
 private:
-// Traverse JSON tree
-template <typename T> static void traverseYNodes(T &yNode, IAction &action);
-// Pointer to YAML parser interface
-inline static std::unique_ptr<IParser> yamlParser;
-// Pointer to YAML stringify interface
-inline static std::unique_ptr<IStringify> yamlStringify;
-// YAML tree
-std::vector<YNode> yamlTree;
+  // Traverse JSON tree
+  template <typename T> static void traverseYNodes(T &yNode, IAction &action);
+  // Pointer to YAML parser interface
+  inline static std::unique_ptr<IParser> yamlParser;
+  // Pointer to YAML stringify interface
+  inline static std::unique_ptr<IStringify> yamlStringify;
+  // YAML tree
+  std::vector<YNode> yamlTree;
 };
 
 /// <summary>
