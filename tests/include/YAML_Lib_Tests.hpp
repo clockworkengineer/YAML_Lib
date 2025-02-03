@@ -27,7 +27,7 @@ bool compareFile(const std::string &str, const std::string &fileName);
        "testfile007.yaml", "testfile008.yaml", "testfile009.yaml",             \
        "testfile010.yaml", "testfile011.yaml", "testfile012.yaml",             \
        "testfile013.yaml", "testfile014.yaml", "testfile015.yaml",             \
-       "testfile016.yaml", /*"testfile017.yaml",*/ "testfile018.yaml",             \
+       "testfile016.yaml", "testfile017.yaml", "testfile018.yaml",             \
        "testfile019.yaml", "testfile020.yaml", "testfile021.yaml",             \
        "testfile022.yaml", "testfile023.yaml", "testfile024.yaml",             \
        "testfile025.yaml", "testfile026.yaml", "testfile027.yaml",             \
