@@ -15,6 +15,7 @@ namespace YAML_Lib {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse document.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>Document root YNode.</returns>
 YNode YAML_Parser::parseDocument(ISource &source,
                                  const Delimiters &delimiters,

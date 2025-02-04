@@ -115,6 +115,7 @@ YNode YAML_Parser::parseKey(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse a key/value pair.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>Dictionary entry for key/value.</returns>
 DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
                                            const Delimiters &delimiters,
@@ -140,6 +141,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse a key/value pair.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>Dictionary entry for key/value.</returns>
 DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
                                                  const Delimiters &delimiters,
@@ -162,6 +164,7 @@ DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse dictionary.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>Dictionary YNode.</returns>
 YNode YAML_Parser::parseDictionary(ISource &source,
                                    const Delimiters &delimiters,
@@ -198,6 +201,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse inline
+/// <param name="indentation">Parent indentation.</param>
 /// dictionary.</param> <returns>Dictionary YNode.</returns>
 YNode YAML_Parser::parseInlineDictionary(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters,

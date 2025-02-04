@@ -43,6 +43,7 @@ YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse comment.<</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>Comment YNode.</returns>
 YNode YAML_Parser::parseComment(ISource &source,
                                 [[maybe_unused]] const Delimiters &delimiters,
@@ -60,6 +61,7 @@ YNode YAML_Parser::parseComment(ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse anchor.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>Anchor YNode.</returns>
 YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
                                unsigned long indentation) {
@@ -88,6 +90,7 @@ YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse alias.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>Alias anchor.</returns>
 YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
                               unsigned long indentation) {
@@ -103,6 +106,7 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse alias.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>Alias anchor with overrides.</returns>
 YNode YAML_Parser::parseOverride(ISource &source, const Delimiters &delimiters,
                                  unsigned long indentation) {

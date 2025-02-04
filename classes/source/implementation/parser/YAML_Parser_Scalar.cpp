@@ -15,6 +15,7 @@ namespace YAML_Lib {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse number./param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>Number YNode.</returns>
 YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
                                unsigned long indentation) {
@@ -38,6 +39,7 @@ YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse None.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>None YNode.</returns>
 YNode YAML_Parser::parseNone(ISource &source, const Delimiters &delimiters,
                              unsigned long indentation) {
@@ -58,6 +60,7 @@ YNode YAML_Parser::parseNone(ISource &source, const Delimiters &delimiters,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse boolean.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>Boolean YNode.</returns>
 YNode YAML_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
                                 unsigned long indentation) {

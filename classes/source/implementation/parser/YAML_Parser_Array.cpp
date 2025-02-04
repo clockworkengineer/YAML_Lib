@@ -16,6 +16,7 @@ namespace YAML_Lib {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse the array.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>Array YNode.</returns>
 YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters,  unsigned long indentation) {
   unsigned long arrayIndent = source.getPosition().second;
@@ -50,6 +51,7 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters,  un
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse the inline array.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>Array YNode.</returns>
 YNode YAML_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters,  unsigned long indentation) {

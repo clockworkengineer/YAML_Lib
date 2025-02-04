@@ -32,6 +32,7 @@ YAML_Parser::BlockChomping YAML_Parser::parseBlockChomping(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used in parsing.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <param name="fillerDefault">Default filler.</param>
 /// <returns>Block string parsed.</returns>
 std::string YAML_Parser::parseBlockString(ISource &source,
@@ -86,6 +87,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse string.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parseFoldedBlockString(ISource &source,
                                           const Delimiters &delimiters,
@@ -97,6 +99,7 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse string.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parseLiteralBlockString(ISource &source,
                                            const Delimiters &delimiters,

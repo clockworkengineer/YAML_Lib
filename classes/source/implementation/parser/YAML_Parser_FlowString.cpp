@@ -36,6 +36,7 @@ void YAML_Parser::appendCharacterToString(ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse string.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parsePlainFlowString(ISource &source,
                                         const Delimiters &delimiters,
@@ -60,6 +61,7 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse string.</param>
+/// <param name="indentation">Parent indentation.</param>
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parseQuotedFlowString(ISource &source,
                                          const Delimiters &delimiters,
