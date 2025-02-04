@@ -31,6 +31,7 @@ private:
   static void rightTrim(std::string &str);
   static void moveToNext(ISource &source, const Delimiters &delimiters);
   static void moveToNextIndent(ISource &source);
+  static std::string extractString(ISource &source, char quote);
   static std::string extractToNext(ISource &source,
                                    const Delimiters &delimiters);
   static std::string extractInLine(ISource &source, char start, char end);

@@ -81,19 +81,8 @@ std::string YAML_Parser::extractKey(ISource &source) {
     return extractInLine(source, kLeftCurlyBrace, kRightCurlyBrace);
   } else if (isInlineArray(source)) {
     return extractInLine(source, kLeftSquareBracket, kRightSquareBracket);
-  } else if (source.current() == '"') {
-    std::string extracted{'"'};
-    source.next();
-    while (source.more() && source.current() != '"') {
-      extracted += source.current();
-      source.next();
-    }
-    extracted += '"';
-    if (source.more()) {
-      source.next();
-    }
-    source.ignoreWS();
-    return extracted;
+  } else if (isQuotedString(source)) {
+    return extractString(source,source.current());
   } else if (isMapping(source)) {
     return extractMapping(source);
   } else {

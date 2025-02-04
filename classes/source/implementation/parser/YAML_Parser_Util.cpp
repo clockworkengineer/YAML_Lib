@@ -70,6 +70,26 @@ void YAML_Parser::moveToNextIndent(ISource &source) {
   }
 }
 /// <summary>
+/// Extract quoted from source stream.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <param name="quote"></param>
+/// <returns>Extracted characters.</returns>
+std::string YAML_Parser::extractString(ISource &source, char quote) {
+    std::string extracted{quote};
+    source.next();
+    while (source.more() && source.current() != quote) {
+      extracted += source.current();
+      source.next();
+    }
+    extracted += quote;
+    if (source.more()) {
+      source.next();
+    }
+    source.ignoreWS();
+    return extracted;
+}
+/// <summary>
 /// Extract characters from source stream up to a delimiter.
 /// </summary>
 /// <param name="source">Source stream.</param>
