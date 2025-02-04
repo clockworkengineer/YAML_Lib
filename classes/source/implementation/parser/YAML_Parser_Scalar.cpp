@@ -16,7 +16,8 @@ namespace YAML_Lib {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse number./param>
 /// <returns>Number YNode.</returns>
-YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters) {
+YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
+                               unsigned long indentation) {
   YNode numberYNode;
   source.save();
   std::string numeric{extractToNext(source, delimiters)};
@@ -38,7 +39,8 @@ YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters) {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse None.</param>
 /// <returns>None YNode.</returns>
-YNode YAML_Parser::parseNone(ISource &source, const Delimiters &delimiters) {
+YNode YAML_Parser::parseNone(ISource &source, const Delimiters &delimiters,
+                             unsigned long indentation) {
   YNode noneYNode;
   source.save();
   std::string none{extractToNext(source, delimiters)};
@@ -57,7 +59,8 @@ YNode YAML_Parser::parseNone(ISource &source, const Delimiters &delimiters) {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse boolean.</param>
 /// <returns>Boolean YNode.</returns>
-YNode YAML_Parser::parseBoolean(ISource &source, const Delimiters &delimiters) {
+YNode YAML_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
+                                unsigned long indentation) {
   YNode booleanYNode;
   source.save();
   std::string boolean{extractToNext(source, delimiters)};

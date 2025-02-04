@@ -45,7 +45,8 @@ YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
 /// <param name="delimiters">Delimiters used to parse comment.<</param>
 /// <returns>Comment YNode.</returns>
 YNode YAML_Parser::parseComment(ISource &source,
-                                [[maybe_unused]] const Delimiters &delimiters) {
+                                [[maybe_unused]] const Delimiters &delimiters,
+                                unsigned long indentation) {
   source.next();
   std::string comment{extractToNext(source, {kLineFeed})};
   if (source.more()) {
@@ -60,7 +61,8 @@ YNode YAML_Parser::parseComment(ISource &source,
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse anchor.</param>
 /// <returns>Anchor YNode.</returns>
-YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters) {
+YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
+                               unsigned long indentation) {
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.ignoreWS();
@@ -79,7 +81,7 @@ YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters) {
   }
   yamlAliasMap[name] = unparsed;
   BufferSource anchor{unparsed};
-  return parseDocument(anchor, delimiters);
+  return parseDocument(anchor, delimiters, indentation);
 }
 /// <summary>
 /// Parse alias on source stream and substitute alias.
@@ -87,13 +89,14 @@ YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters) {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse alias.</param>
 /// <returns>Alias anchor.</returns>
-YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters) {
+YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
+                              unsigned long indentation) {
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.next();
   const std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
-  return parseDocument(anchor, delimiters);
+  return parseDocument(anchor, delimiters, indentation);
 }
 /// <summary>
 /// Parse alias on source stream, substitute alias, and any overrides.
@@ -101,8 +104,8 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters) {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse alias.</param>
 /// <returns>Alias anchor with overrides.</returns>
-YNode YAML_Parser::parseOverride(ISource &source,
-                                 const Delimiters &delimiters) {
+YNode YAML_Parser::parseOverride(ISource &source, const Delimiters &delimiters,
+                                 unsigned long indentation) {
   source.next();
   source.next();
   source.next();
@@ -115,7 +118,7 @@ YNode YAML_Parser::parseOverride(ISource &source,
   source.next();
   const std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
-  YNode parsed = parseDocument(anchor, delimiters);
+  YNode parsed = parseDocument(anchor, delimiters, indentation);
   return parsed;
 }
 

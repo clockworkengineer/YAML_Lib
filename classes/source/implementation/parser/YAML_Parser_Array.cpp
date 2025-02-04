@@ -17,7 +17,7 @@ namespace YAML_Lib {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse the array.</param>
 /// <returns>Array YNode.</returns>
-YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
+YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters,  unsigned long indentation) {
   unsigned long arrayIndent = source.getPosition().second;
   arrayIndentLevel++;
   auto arrayYNode = YNode::make<Array>();
@@ -26,11 +26,11 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
     source.next();
     source.ignoreWS();
     if (source.current() != kLineFeed) {
-      yamlArray.add(parseDocument(source, delimiters));
+      yamlArray.add(parseDocument(source, delimiters, arrayIndent));
     } else {
       moveToNextIndent(source);
       if (arrayIndent < source.getPosition().second) {
-        yamlArray.add(parseDocument(source, delimiters));
+        yamlArray.add(parseDocument(source, delimiters, arrayIndent));
       } else {
         yamlArray.add(YNode::make<Null>());
       }
@@ -52,7 +52,7 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters) {
 /// <param name="delimiters">Delimiters used to parse the inline array.</param>
 /// <returns>Array YNode.</returns>
 YNode YAML_Parser::parseInlineArray(
-    ISource &source, [[maybe_unused]] const Delimiters &delimiters) {
+    ISource &source, [[maybe_unused]] const Delimiters &delimiters,  unsigned long indentation) {
   inlineArrayDepth++;
   Delimiters inLineArrayDelimiters = {delimiters};
   inLineArrayDelimiters.insert({kComma, kRightSquareBracket});
@@ -60,7 +60,7 @@ YNode YAML_Parser::parseInlineArray(
   auto &yamlArray = YRef<Array>(arrayYNode);
   do {
     source.next();
-    yamlArray.add(parseDocument(source, inLineArrayDelimiters));
+    yamlArray.add(parseDocument(source, inLineArrayDelimiters, indentation));
     auto &element = yamlArray.value().back();
     if (isA<String>(element)) {
       if (YRef<String>(element).value().empty() &&

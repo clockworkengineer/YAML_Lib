@@ -32,31 +32,21 @@ void YAML_Parser::appendCharacterToString(ISource &source,
   }
 }
 /// <summary>
-/// Check for the end of a plain flow string on source stream.
-/// </summary>
-/// <param name="source">Source stream.</param>
-/// <param name="end">== true  then and of string found.</param>
-// bool YAML_Parser::endOfPlainFlowString(ISource &source) {
-//   return isKey(source) || isArray(source) || isComment(source) ||
-//          isDocumentStart(source) || isDocumentEnd(source) || isMapping(source);
-// }
-
-/// <summary>
 /// Parse plain flow string on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parsePlainFlowString(ISource &source,
-                                        const Delimiters &delimiters) {
-  unsigned long arrayIndent = source.getPosition().second;
+                                        const Delimiters &delimiters,
+                                        unsigned long indentation) {
   std::string yamlString{extractToNext(source, delimiters)};
   if (source.current() != kLineFeed) {
     rightTrim(yamlString);
   } else {
     moveToNextIndent(source);
-    while (source.more() && arrayIndent <= source.getPosition().second) {
-      yamlString += " "+extractToNext(source, {kLineFeed});
+    while (source.more() && indentation < source.getPosition().second) {
+      yamlString += " " + extractToNext(source, {kLineFeed});
       moveToNextIndent(source);
     }
     if (yamlString.back() == kSpace || yamlString.back() == kLineFeed) {
@@ -72,7 +62,8 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parseQuotedFlowString(ISource &source,
-                                         const Delimiters &delimiters) {
+                                         const Delimiters &delimiters,
+                                         unsigned long indentation) {
   const char quote = source.append();
   std::string yamlString;
   if (quote == kDoubleQuote) {

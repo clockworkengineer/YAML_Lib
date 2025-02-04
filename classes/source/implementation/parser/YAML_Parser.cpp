@@ -17,11 +17,12 @@ namespace YAML_Lib {
 /// <param name="delimiters">Delimiters used to parse document.</param>
 /// <returns>Document root YNode.</returns>
 YNode YAML_Parser::parseDocument(ISource &source,
-                                 const Delimiters &delimiters) {
+                                 const Delimiters &delimiters,
+                                 unsigned long indentation) {
   moveToNextIndent(source);
   for (const auto &[fst, snd] : parsers) {
     if (fst(source)) {
-      if (YNode yNode = snd(source, delimiters); !yNode.isEmpty()) {
+      if (YNode yNode = snd(source, delimiters, indentation); !yNode.isEmpty()) {
         moveToNextIndent(source);
         return yNode;
       }
@@ -56,7 +57,7 @@ std::vector<YNode> YAML_Parser::parse(ISource &source) {
       inDocument = false;
       // Inter document comment
     } else if (isComment(source) && !inDocument) {
-      parseComment(source, {kLineFeed});
+      parseComment(source, {kLineFeed}, 0);
       // Parse document contents
     } else {
       if (!inDocument) {
@@ -65,7 +66,7 @@ std::vector<YNode> YAML_Parser::parse(ISource &source) {
       inDocument = true;
       if (YRef<Document>(yNodeTree.back()).size() == 0) {
         YRef<Document>(yNodeTree.back())
-            .add(parseDocument(source, {kLineFeed, '#'}));
+            .add(parseDocument(source, {kLineFeed, '#'}, 0));
       } else {
         throw SyntaxError(source.getPosition(), "Invalid YAML encountered.");
       }

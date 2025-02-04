@@ -65,40 +65,59 @@ private:
   static BlockChomping parseBlockChomping(ISource &source);
   static std::string parseBlockString(ISource &source,
                                       const Delimiters &delimiters,
+                                      unsigned long indentation,
                                       char fillerDefault);
   static YNode parseKey(ISource &source);
   static YNode parseFoldedBlockString(ISource &source,
-                                      const Delimiters &delimiters);
+                                      const Delimiters &delimiters,
+                                      unsigned long indentation);
   static YNode parseLiteralBlockString(ISource &source,
-                                       const Delimiters &delimiters);
+                                       const Delimiters &delimiters,
+                                       unsigned long indentation);
   static YNode parsePlainFlowString(ISource &source,
-                                    const Delimiters &delimiters);
+                                    const Delimiters &delimiters,
+                                    unsigned long indentation);
   static YNode parseQuotedFlowString(ISource &source,
-                                     const Delimiters &delimiters);
+                                     const Delimiters &delimiters,
+                                     unsigned long indentation);
   static YNode parseComment(ISource &source,
-                            [[maybe_unused]] const Delimiters &delimiters);
-  static YNode parseNumber(ISource &source, const Delimiters &delimiters);
-  static YNode parseNone(ISource &source, const Delimiters &delimiters);
-  static YNode parseBoolean(ISource &source, const Delimiters &delimiters);
-  static YNode parseAnchor(ISource &source, const Delimiters &delimiters);
-  static YNode parseAlias(ISource &source, const Delimiters &delimiters);
-  static YNode parseOverride(ISource &source, const Delimiters &delimiters);
-  static YNode parseArray(ISource &source, const Delimiters &delimiters);
+                            [[maybe_unused]] const Delimiters &delimiters,
+                            unsigned long indentation);
+  static YNode parseNumber(ISource &source, const Delimiters &delimiters,
+                           unsigned long indentation);
+  static YNode parseNone(ISource &source, const Delimiters &delimiters,
+                         unsigned long indentation);
+  static YNode parseBoolean(ISource &source, const Delimiters &delimiters,
+                            unsigned long indentation);
+  static YNode parseAnchor(ISource &source, const Delimiters &delimiters,
+                           unsigned long indentation);
+  static YNode parseAlias(ISource &source, const Delimiters &delimiters,
+                          unsigned long indentation);
+  static YNode parseOverride(ISource &source, const Delimiters &delimiters,
+                             unsigned long indentation);
+  static YNode parseArray(ISource &source, const Delimiters &delimiters,
+                          unsigned long indentation);
   static YNode parseInlineArray(ISource &source,
-                                [[maybe_unused]] const Delimiters &delimiters);
+                                [[maybe_unused]] const Delimiters &delimiters,
+                                unsigned long indentation);
   static DictionaryEntry parseKeyValue(ISource &source,
-                                       const Delimiters &delimiters);
+                                       const Delimiters &delimiters,
+                                       unsigned long indentation);
   static DictionaryEntry parseInlineKeyValue(ISource &source,
-                                             const Delimiters &delimiters);
-  static YNode parseDictionary(ISource &source, const Delimiters &delimiters);
+                                             const Delimiters &delimiters,
+                                             unsigned long indentation);
+  static YNode parseDictionary(ISource &source, const Delimiters &delimiters,
+                               unsigned long indentation);
   static YNode
   parseInlineDictionary(ISource &source,
-                        [[maybe_unused]] const Delimiters &delimiters);
+                        [[maybe_unused]] const Delimiters &delimiters,
+                        unsigned long indentation);
   static YNode parseDocument(ISource &source,
-                             [[maybe_unused]] const Delimiters &delimiters);
+                             [[maybe_unused]] const Delimiters &delimiters,
+                             unsigned long indentation);
   // YAML parser routing table
   using IsAFunc = std::function<bool(ISource &)>;
-  using ParseFunc = std::function<YNode(ISource &, const Delimiters &)>;
+  using ParseFunc = std::function<YNode(ISource &, const Delimiters &, unsigned long)>;
   inline static std::vector<std::pair<IsAFunc, ParseFunc>> parsers{
       // Mappings
       {isArray, parseArray},

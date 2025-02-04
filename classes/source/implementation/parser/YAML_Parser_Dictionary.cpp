@@ -17,7 +17,7 @@ namespace YAML_Lib {
 /// <param name="yamlString">YAML string.</param>
 YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
   BufferSource yamlKey{yamlString + kLineFeed};
-  auto keyYNode = parseDocument(yamlKey, {kLineFeed});
+  auto keyYNode = parseDocument(yamlKey, {kLineFeed}, 0);
   std::string keyString{YRef<Variant>(keyYNode).toKey()};
   char quote = '\"';
   if (isA<String>(keyYNode)) {
@@ -36,7 +36,7 @@ YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
 bool YAML_Parser::isValidKey(const std::string &key) {
   try {
     BufferSource yamlKey{key + kLineFeed};
-    const YNode keyYNode = parseDocument(yamlKey, {kLineFeed});
+    const YNode keyYNode = parseDocument(yamlKey, {kLineFeed}, 0);
     return !keyYNode.isEmpty() && !isA<Comment>(keyYNode);
   } catch ([[maybe_unused]] const std::exception &e) {
     return false;
@@ -82,7 +82,7 @@ std::string YAML_Parser::extractKey(ISource &source) {
   } else if (isInlineArray(source)) {
     return extractInLine(source, kLeftSquareBracket, kRightSquareBracket);
   } else if (isQuotedString(source)) {
-    return extractString(source,source.current());
+    return extractString(source, source.current());
   } else if (isMapping(source)) {
     return extractMapping(source);
   } else {
@@ -117,7 +117,8 @@ YNode YAML_Parser::parseKey(ISource &source) {
 /// <param name="delimiters">Delimiters used to parse a key/value pair.</param>
 /// <returns>Dictionary entry for key/value.</returns>
 DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
-                                           const Delimiters &delimiters) {
+                                           const Delimiters &delimiters,
+                                           unsigned long indentation) {
   const unsigned long keyIndent = source.getPosition().second;
   YNode keyYNode = parseKey(source);
   source.ignoreWS();
@@ -130,7 +131,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   if (source.more() &&
       ((source.getPosition().second > keyIndent || isInlineArray(source) ||
         isInlineDictionary(source)))) {
-    dictionaryYNode = parseDocument(source, delimiters);
+    dictionaryYNode = parseDocument(source, delimiters, indentation);
   }
   return {keyYNode, dictionaryYNode};
 }
@@ -141,11 +142,12 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
 /// <param name="delimiters">Delimiters used to parse a key/value pair.</param>
 /// <returns>Dictionary entry for key/value.</returns>
 DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
-                                                 const Delimiters &delimiters) {
+                                                 const Delimiters &delimiters,
+                                                 unsigned long indentation) {
   YNode keyYNode = parseKey(source);
   YNode dictionaryYNode{YNode::make<Null>()};
   if (source.current() != kComma) {
-    dictionaryYNode = parseDocument(source, delimiters);
+    dictionaryYNode = parseDocument(source, delimiters, indentation);
   }
   if (isA<String>(dictionaryYNode)) {
     if (YRef<String>(dictionaryYNode).value().empty() &&
@@ -162,12 +164,13 @@ DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
 /// <param name="delimiters">Delimiters used to parse dictionary.</param>
 /// <returns>Dictionary YNode.</returns>
 YNode YAML_Parser::parseDictionary(ISource &source,
-                                   const Delimiters &delimiters) {
+                                   const Delimiters &delimiters,
+                                   unsigned long indentation) {
   unsigned long dictionaryIndent = source.getPosition().second;
   YNode dictionaryYNode = YNode::make<Dictionary>();
   while (source.more() && dictionaryIndent == source.getPosition().second) {
     if (isKey(source)) {
-      auto entry = parseKeyValue(source, delimiters);
+      auto entry = parseKeyValue(source, delimiters, dictionaryIndent);
       if (YRef<Dictionary>(dictionaryYNode).contains(entry.getKey())) {
         throw SyntaxError(source.getPosition(),
                           "Dictionary already contains key '" + entry.getKey() +
@@ -197,7 +200,8 @@ YNode YAML_Parser::parseDictionary(ISource &source,
 /// <param name="delimiters">Delimiters used to parse inline
 /// dictionary.</param> <returns>Dictionary YNode.</returns>
 YNode YAML_Parser::parseInlineDictionary(
-    ISource &source, [[maybe_unused]] const Delimiters &delimiters) {
+    ISource &source, [[maybe_unused]] const Delimiters &delimiters,
+    unsigned long indentation) {
   Delimiters inLineDictionaryDelimiters = {delimiters};
   inLineDictionaryDelimiters.insert({kComma, kRightCurlyBrace});
   YNode dictionaryYNode = YNode::make<Dictionary>();
@@ -208,7 +212,7 @@ YNode YAML_Parser::parseInlineDictionary(
     if (source.current() == kComma) {
       throw SyntaxError("Unexpected ',' in in-line dictionary.");
     } else if (source.current() != kRightCurlyBrace) {
-      auto entry = parseInlineKeyValue(source, inLineDictionaryDelimiters);
+      auto entry = parseInlineKeyValue(source, inLineDictionaryDelimiters, indentation);
       if (YRef<Dictionary>(dictionaryYNode).contains(entry.getKey())) {
         throw SyntaxError(source.getPosition(),
                           "Dictionary already contains key '" + entry.getKey() +

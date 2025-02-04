@@ -36,6 +36,7 @@ YAML_Parser::BlockChomping YAML_Parser::parseBlockChomping(ISource &source) {
 /// <returns>Block string parsed.</returns>
 std::string YAML_Parser::parseBlockString(ISource &source,
                                           const Delimiters &delimiters,
+                                          unsigned long indentation,
                                           const char fillerDefault) {
   const BlockChomping chomping{parseBlockChomping(source)};
   moveToNext(source, delimiters);
@@ -87,8 +88,9 @@ std::string YAML_Parser::parseBlockString(ISource &source,
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parseFoldedBlockString(ISource &source,
-                                          const Delimiters &delimiters) {
-  return YNode::make<String>(parseBlockString(source, delimiters, kSpace), '>');
+                                          const Delimiters &delimiters,
+                                          unsigned long indentation) {
+  return YNode::make<String>(parseBlockString(source, delimiters, indentation, kSpace), '>');
 }
 /// <summary>
 /// Parse literal block string on source stream.
@@ -97,7 +99,9 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parseLiteralBlockString(ISource &source,
-                                           const Delimiters &delimiters) {
-  return YNode::make<String>(parseBlockString(source, delimiters, kLineFeed), '|');
+                                           const Delimiters &delimiters,
+                                           unsigned long indentation) {
+  return YNode::make<String>(parseBlockString(source, delimiters, indentation, kLineFeed),
+                             '|');
 }
 } // namespace YAML_Lib
