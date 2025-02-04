@@ -36,10 +36,10 @@ void YAML_Parser::appendCharacterToString(ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="end">== true  then and of string found.</param>
-bool YAML_Parser::endOfPlainFlowString(ISource &source) {
-  return isKey(source) || isArray(source) || isComment(source) ||
-         isDocumentStart(source) || isDocumentEnd(source)|| isMapping(source);
-}
+// bool YAML_Parser::endOfPlainFlowString(ISource &source) {
+//   return isKey(source) || isArray(source) || isComment(source) ||
+//          isDocumentStart(source) || isDocumentEnd(source) || isMapping(source);
+// }
 
 /// <summary>
 /// Parse plain flow string on source stream.
@@ -49,12 +49,15 @@ bool YAML_Parser::endOfPlainFlowString(ISource &source) {
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parsePlainFlowString(ISource &source,
                                         const Delimiters &delimiters) {
+  unsigned long arrayIndent = source.getPosition().second;
   std::string yamlString{extractToNext(source, delimiters)};
   if (source.current() != kLineFeed) {
     rightTrim(yamlString);
   } else {
-    while (source.more() && !endOfPlainFlowString(source)) {
-      appendCharacterToString(source, yamlString);
+    moveToNextIndent(source);
+    while (source.more() && arrayIndent <= source.getPosition().second) {
+      yamlString += " "+extractToNext(source, {kLineFeed});
+      moveToNextIndent(source);
     }
     if (yamlString.back() == kSpace || yamlString.back() == kLineFeed) {
       yamlString.pop_back();

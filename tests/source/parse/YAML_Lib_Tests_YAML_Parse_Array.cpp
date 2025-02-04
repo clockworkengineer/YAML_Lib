@@ -6,8 +6,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     BufferSource source{"---\n   - 'One'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-  SECTION("YAML parse array with an empty element.",
-          "[YAML][Parse][Array]") {
+  SECTION("YAML parse array with an empty element.", "[YAML][Parse][Array]") {
     BufferSource source{"---\n - \n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
@@ -15,8 +14,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE_FALSE(!isA<Null>(yaml.document(0)[0]));
     compareYAML(yaml, "---\n- null\n...\n");
   }
-    SECTION("YAML parse array with 4 empty elements.",
-          "[YAML][Parse][Array]") {
+  SECTION("YAML parse array with 4 empty elements.", "[YAML][Parse][Array]") {
     BufferSource source{"---\n - \n - \n - \n - \n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
@@ -275,9 +273,16 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
         yaml.parse(source),
         "YAML Syntax Error: Unexpected flow sequence token '}'.");
   }
-    SECTION("YAML parse array and then key/value pait at end. ",
+  SECTION("YAML parse array and then key/value pair at end. ",
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n- 1\n- 2\n- 3\nfour: 4\n"};
-    REQUIRE_THROWS_WITH(yaml.parse(source), "YAML Syntax Error [Line: 5 Column: 1]: Invalid YAML encountered.");
+    REQUIRE_THROWS_WITH(
+        yaml.parse(source),
+        "YAML Syntax Error [Line: 5 Column: 1]: Invalid YAML encountered.");
+  }
+  SECTION("YAML parse string follows by an array. ", "[YAML][Parse][Array]") {
+    BufferSource source{"---\ntest string 1\n- 2\n- 3\n- 4\n- 5\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    compareYAML(yaml, "---\ntest string 1 - 2 - 3 - 4 - 5\n...\n");
   }
 }

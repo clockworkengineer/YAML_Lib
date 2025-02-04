@@ -352,8 +352,8 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
   }
   SECTION("YAML parse a plain string block terminated by indentation level.",
           "[YAML][Parse][Scalar][String]") {
-    BufferSource source{"---\ntest1:\n   Mark McGwire\'s\n  year was "
-                        "crippled\n by a knee injury.\ntest2: Mark Twain\n"};
+    BufferSource source{"---\ntest1:\n   Mark McGwire\'s\n   year was "
+                        "crippled\n   by a knee injury.\ntest2: Mark Twain\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     REQUIRE(YRef<String>(yaml.document(0)["test1"]).value() ==
