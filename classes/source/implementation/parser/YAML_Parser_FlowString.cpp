@@ -27,6 +27,8 @@ void YAML_Parser::appendCharacterToString(ISource &source,
     } else {
       yamlString += kSpace;
     }
+  } else if (source.match(": ")) {
+    throw SyntaxError("Invalid YAML encountered.");
   } else {
     yamlString += source.append();
   }

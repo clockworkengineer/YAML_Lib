@@ -578,8 +578,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
   SECTION("YAML parse string with wit dictionary after.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\ntest string 0\ntest1: 1\ntest2: 2\ntest3: 4\n"};
-    //      REQUIRE_THROWS_WITH(yaml.parse(source), "");
-    REQUIRE_NOTHROW(yaml.parse(source));
-    compareYAML(yaml, "");
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        "YAML Syntax Error: Invalid YAML encountered.");
   }
 }
