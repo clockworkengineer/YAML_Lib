@@ -27,8 +27,6 @@ void YAML_Parser::appendCharacterToString(ISource &source,
     } else {
       yamlString += kSpace;
     }
-  } else if (source.match(": ")) {
-    throw SyntaxError("Invalid YAML encountered.");
   } else {
     yamlString += source.append();
   }
@@ -50,6 +48,9 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
     moveToNextIndent(source);
     while (source.more() && indentation < source.getPosition().second) {
       appendCharacterToString(source, yamlString);
+      if (source.match(": ")) {
+        throw SyntaxError("Invalid YAML encountered.");
+      }
     }
     if (yamlString.back() == kSpace || yamlString.back() == kLineFeed) {
       yamlString.pop_back();
