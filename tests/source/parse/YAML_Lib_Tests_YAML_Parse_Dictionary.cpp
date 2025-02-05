@@ -575,4 +575,11 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
                       "2001-07-23\n\"[New York Yankees, Atlanta Braves]\": \n  "
                       "- 2001-07-02\n  - 2001-08-12\n  - 2001-08-14\n...\n");
   }
+  SECTION("YAML parse string with wit dictionary after.",
+          "[YAML][Parse][Dictionary]") {
+    BufferSource source{"---\ntest string 0\ntest1: 1\ntest2: 2\ntest3: 4\n"};
+    //      REQUIRE_THROWS_WITH(yaml.parse(source), "");
+    REQUIRE_NOTHROW(yaml.parse(source));
+    compareYAML(yaml, "");
+  }
 }
