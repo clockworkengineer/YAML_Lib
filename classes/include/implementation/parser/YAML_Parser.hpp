@@ -38,7 +38,6 @@ private:
   static std::string extractMapping(ISource &source);
   static void checkForEnd(ISource &source, char end);
   static YNode mergeOverrides(YNode &overrideRoot);
-  static bool endOfPlainFlowString(ISource &source);
   static YNode convertYAMLToStringYNode(const std::string &yamlString);
   static bool isValidKey(const std::string &key);
   static bool isOverride(ISource &source);

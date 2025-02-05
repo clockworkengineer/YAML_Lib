@@ -19,6 +19,7 @@ namespace YAML_Lib {
 void YAML_Parser::appendCharacterToString(ISource &source,
                                           std::string &yamlString) {
   if (source.current() == kLineFeed) {
+
     source.next();
     source.ignoreWS();
     if (source.current() == kLineFeed) {
@@ -45,10 +46,21 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
   if (source.current() != kLineFeed) {
     rightTrim(yamlString);
   } else {
+    yamlString += kSpace;
     moveToNextIndent(source);
     while (source.more() && indentation < source.getPosition().second) {
-      yamlString += " " + extractToNext(source, {kLineFeed});
-      moveToNextIndent(source);
+      if (source.current() == kLineFeed) {
+        source.next();
+        source.ignoreWS();
+        if (source.current() == kLineFeed) {
+          yamlString += source.append();
+          source.ignoreWS();
+        } else {
+          yamlString += kSpace;
+        }
+      } else {
+        yamlString += source.append();
+      }
     }
     if (yamlString.back() == kSpace || yamlString.back() == kLineFeed) {
       yamlString.pop_back();
