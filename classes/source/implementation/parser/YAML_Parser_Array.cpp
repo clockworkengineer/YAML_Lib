@@ -22,20 +22,19 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters,  un
   unsigned long arrayIndent = source.getPosition().second;
   arrayIndentLevel++;
   auto arrayYNode = YNode::make<Array>();
-  auto &yamlArray = YRef<Array>(arrayYNode);
   while (isArray(source) && arrayIndent == source.getPosition().second) {
     source.next();
     source.ignoreWS();
+    YNode yNode = YNode::make<Null>();
     if (source.current() != kLineFeed) {
-      yamlArray.add(parseDocument(source, delimiters, arrayIndent));
+      yNode = parseDocument(source, delimiters, arrayIndent);
     } else {
       moveToNextIndent(source);
       if (arrayIndent < source.getPosition().second) {
-        yamlArray.add(parseDocument(source, delimiters, arrayIndent));
-      } else {
-        yamlArray.add(YNode::make<Null>());
+        yNode = parseDocument(source, delimiters, arrayIndent);
       }
     }
+    YRef<Array>(arrayYNode).add(std::move(yNode));
     moveToNextIndent(source);
   }
   arrayIndentLevel--;
