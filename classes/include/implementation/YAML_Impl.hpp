@@ -52,9 +52,14 @@ public:
   // Get YAML array element at index
   YNode &operator[](std::size_t index);
   const YNode &operator[](std::size_t index) const;
+  // Read/Write YAML from a file
+  static std::string fromFile(const std::string &fileName);
+  static void toFile(const std::string &fileName, const std::string &yamlString, YAML::Format format);
+  // Get YAML file format
+  static YAML::Format getFileFormat(const std::string &fileName);
 
 private:
-  // Traverse JSON tree
+  // Traverse YAML tree
   template <typename T> static void traverseYNodes(T &yNode, IAction &action);
   // Pointer to YAML parser interface
   inline static std::unique_ptr<IParser> yamlParser;

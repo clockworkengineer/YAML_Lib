@@ -63,6 +63,15 @@ public:
   // Dictionary initializer list
   using DictionaryInitializer =
       std::initializer_list<std::pair<std::string, InitializerListTypes>>;
+  // YAML file formats
+  enum class Format : uint8_t {
+    utf8 = 0,
+    utf8BOM,
+    utf16BE,
+    utf16LE,
+    utf32BE,
+    utf32LE
+  };
   // Pass any user defined parser/stringifier here
   explicit YAML(IStringify *stringify = nullptr, IParser *parser = nullptr);
   // Pass in default YAML to parse
@@ -102,13 +111,12 @@ public:
   // Get YAML array entry at index
   YNode &operator[](std::size_t index);
   const YNode &operator[](std::size_t index) const;
-
-  static std::string fromFile(const std::string &yamlFileName) {
-    std::ifstream yamlFile{yamlFileName, std::ios_base::binary};
-    std::ostringstream yamlFileBuffer;
-    yamlFileBuffer << yamlFile.rdbuf();
-    return yamlFileBuffer.str();
-  }
+  // Read/write YAML file
+  static std::string fromFile(const std::string &yamlFileName);
+  static void toFile(const std::string &fileName, const std::string &yamlString,
+                     Format format = Format::utf8);
+  // Get YAML file format
+  static Format getFileFormat(const std::string &fileName);
 
 private:
   // YAML implementation

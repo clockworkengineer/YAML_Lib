@@ -22,6 +22,7 @@ set(YAML_LIBRARY_NAME ${PROJECT_NAME})
 set(YAML_SOURCES
   ./classes/source/YAML.cpp
   ./classes/source/implementation/YAML_Impl.cpp
+  ./classes/source/implementation/file/YAML_File.cpp
   ./classes/source/implementation/parser/YAML_Parser.cpp
   ./classes/source/implementation/parser/YAML_Parser_Array.cpp
   ./classes/source/implementation/parser/YAML_Parser_BlockString.cpp

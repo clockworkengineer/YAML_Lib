@@ -130,4 +130,28 @@ YNode &YAML::operator[](const std::size_t index) {
 const YNode &YAML::operator[](const std::size_t index) const {
   return (*implementation)[index];
 }
+/// <summary>
+/// Open a YAML file, read its contents into a string buffer and return
+/// the buffer.
+/// </summary>
+/// <param name="fileName">YAML file name</param>
+/// <returns>YAML string.</returns>
+std::string YAML::fromFile(const std::string &fileName) { return YAML_Impl::fromFile(fileName); }
+
+/// <summary>
+/// Create an YAML file and write YAML string to it.
+/// </summary>
+/// <param name="fileName">YAML file name</param>
+/// <param name="YAMLString">YAML string</param>
+/// <param name="format">YAML file format</param>
+void YAML::toFile(const std::string &fileName, const std::string &YAMLString, const Format format)
+{
+    YAML_Impl::toFile(fileName, YAMLString, format);
+}
+/// <summary>
+/// Return format of YAML file.
+/// </summary>
+/// <param name="fileName">YAML file name</param>
+/// <returns>YAML file format.</returns>
+YAML::Format YAML::getFileFormat(const std::string &fileName) { return YAML_Impl::getFileFormat(fileName); }
 } // namespace YAML_Lib
