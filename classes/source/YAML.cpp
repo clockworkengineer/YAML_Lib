@@ -83,12 +83,6 @@ void YAML::stringify(IDestination &&destination) const {
   implementation->stringify(destination);
 }
 /// <summary>
-/// Return root of YNode tree.
-/// </summary>
-/// <returns></returns>
-std::vector<YNode> &YAML::root() { return implementation->root(); }
-const std::vector<YNode> &YAML::root() const { return implementation->root(); }
-/// <summary>
 /// Return YNode of the index document within YAML tree.
 /// </summary>
 /// <param name="index"></param>

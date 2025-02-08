@@ -96,10 +96,7 @@ public:
   // Create YAML text string from YNode tree (no whitespace)
   void stringify(IDestination &destination) const;
   void stringify(IDestination &&destination) const;
-  // Get the root of YAML tree
-  [[nodiscard]] std::vector<YNode> &root();
-  [[nodiscard]] const std::vector<YNode> &root() const;
-  // Get vector of YAML document
+  // Get index of YAML document
   [[nodiscard]] YNode &document(unsigned long index);
   [[nodiscard]] const YNode &document(unsigned long index) const;
   // Traverse YAML tree
