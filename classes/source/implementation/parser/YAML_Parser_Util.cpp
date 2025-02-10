@@ -16,7 +16,7 @@ namespace YAML_Lib {
 /// </summary>
 /// <param name="str">Target string.</param>
 /// <param name="substr">Ends with string.</param>
-/// <returns>==true, then ends with substr.</returns>
+/// <returns>If true, str then ends with substr.</returns>
 bool YAML_Parser::endsWith(const std::string &str, const std::string &substr) {
   const auto strLen = str.size();
   const auto substrLen = substr.size();
@@ -75,7 +75,7 @@ void YAML_Parser::moveToNextIndent(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <param name="quote"></param>
 /// <returns>Extracted characters.</returns>
-std::string YAML_Parser::extractString(ISource &source, char quote) {
+std::string YAML_Parser::extractString(ISource &source, const char quote) {
     std::string extracted{quote};
     source.next();
     while (source.more() && source.current() != quote) {
@@ -109,10 +109,10 @@ std::string YAML_Parser::extractToNext(ISource &source,
 /// Extract characters from source stream up to a last end character.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="start character".></param>
-/// <param name="end character".></param>
+/// <param name="start">Start character.</param>
+/// <param name="end">End character.</param>
 /// <returns>Extracted characters.</returns>
-std::string YAML_Parser::extractInLine(ISource &source, char start, char end) {
+std::string YAML_Parser::extractInLine(ISource &source, const char start, const char end) {
   std::string extracted;
   unsigned long depth{1};
   extracted += start;

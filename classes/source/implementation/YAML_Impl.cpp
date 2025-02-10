@@ -83,4 +83,7 @@ YNode &YAML_Impl::operator[](const std::size_t index) {
   }
 }
 
+const YNode & YAML_Impl::operator[](const std::size_t index) const {
+  return document(0)[index];
+}
 } // namespace YAML_Lib

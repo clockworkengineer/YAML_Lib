@@ -31,8 +31,8 @@ YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
 /// <summary>
 /// Does YAML that is  passed in constitute a valid dictionary key?
 /// </summary>
-/// <param name="key">YAML sequence to be converted to be used as the
-/// key.</param> <returns>==true value is a valid key.</returns>
+/// <param name="key">YAML sequence to be converted to be used as the key.</param>
+/// <returns> If true value is a valid key.</returns>
 bool YAML_Parser::isValidKey(const std::string &key) {
   try {
     BufferSource yamlKey{key + kLineFeed};
@@ -43,7 +43,7 @@ bool YAML_Parser::isValidKey(const std::string &key) {
   }
 }
 /// <summary>
-/// Extract mapping on source stream..
+/// Extract mapping on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>Extracted mapping/.</returns>
@@ -57,7 +57,8 @@ std::string YAML_Parser::extractMapping(ISource &source) {
   if (isComment(source)) {
     moveToNext(source, {kLineFeed});
     return extractMapping(source);
-  } else if (isInlineDictionary(source)) {
+  }
+  if (isInlineDictionary(source)) {
     key += extractInLine(source, kLeftCurlyBrace, kRightCurlyBrace);
     moveToNext(source, {kColon});
   } else if (isInlineArray(source)) {
@@ -79,17 +80,19 @@ std::string YAML_Parser::extractMapping(ISource &source) {
 std::string YAML_Parser::extractKey(ISource &source) {
   if (isInlineDictionary(source)) {
     return extractInLine(source, kLeftCurlyBrace, kRightCurlyBrace);
-  } else if (isInlineArray(source)) {
-    return extractInLine(source, kLeftSquareBracket, kRightSquareBracket);
-  } else if (isQuotedString(source)) {
-    return extractString(source, source.current());
-  } else if (isMapping(source)) {
-    return extractMapping(source);
-  } else {
-    return extractToNext(source, {kColon, kComma, kRightCurlyBrace, kLineFeed});
   }
+  if (isInlineArray(source)) {
+    return extractInLine(source, kLeftSquareBracket, kRightSquareBracket);
+  }
+  if (isQuotedString(source)) {
+    return extractString(source, source.current());
+  }
+  if (isMapping(source)) {
+    return extractMapping(source);
+  }
+  return extractToNext(source, {kColon, kComma, kRightCurlyBrace, kLineFeed});
 }
-// <summary>
+/// <summary>
 /// Parse dictionary key on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
@@ -110,7 +113,7 @@ YNode YAML_Parser::parseKey(ISource &source) {
   }
   return convertYAMLToStringYNode(key);
 }
-// <summary>
+/// <summary>
 /// Parse dictionary key/value pair on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
@@ -119,7 +122,7 @@ YNode YAML_Parser::parseKey(ISource &source) {
 /// <returns>Dictionary entry for key/value.</returns>
 DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
                                            const Delimiters &delimiters,
-                                           unsigned long indentation) {
+                                           const unsigned long indentation) {
   const unsigned long keyIndent = source.getPosition().second;
   YNode keyYNode = parseKey(source);
   source.ignoreWS();
@@ -130,8 +133,8 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
   moveToNextIndent(source);
   YNode dictionaryYNode{YNode::make<Null>()};
   if (source.more() &&
-      ((source.getPosition().second > keyIndent || isInlineArray(source) ||
-        isInlineDictionary(source)))) {
+      (source.getPosition().second > keyIndent || isInlineArray(source) ||
+       isInlineDictionary(source))) {
     dictionaryYNode = parseDocument(source, delimiters, indentation);
   }
   return {keyYNode, dictionaryYNode};
@@ -145,7 +148,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
 /// <returns>Dictionary entry for key/value.</returns>
 DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
                                                  const Delimiters &delimiters,
-                                                 unsigned long indentation) {
+                                                 const unsigned long indentation) {
   YNode keyYNode = parseKey(source);
   YNode dictionaryYNode{YNode::make<Null>()};
   if (source.current() != kComma) {
@@ -168,8 +171,8 @@ DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
 /// <returns>Dictionary YNode.</returns>
 YNode YAML_Parser::parseDictionary(ISource &source,
                                    const Delimiters &delimiters,
-                                   unsigned long indentation) {
-  unsigned long dictionaryIndent = source.getPosition().second;
+                                   [[maybe_unused]] unsigned long indentation) {
+  const unsigned long dictionaryIndent = source.getPosition().second;
   YNode dictionaryYNode = YNode::make<Dictionary>();
   while (source.more() && dictionaryIndent == source.getPosition().second) {
     if (isKey(source)) {
@@ -200,12 +203,12 @@ YNode YAML_Parser::parseDictionary(ISource &source,
 /// Parse inline dictionary on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters">Delimiters used to parse inline
+/// <param name="delimiters">Delimiters used to parse inline dictionary.</param>
 /// <param name="indentation">Parent indentation.</param>
-/// dictionary.</param> <returns>Dictionary YNode.</returns>
+/// <returns>Dictionary YNode.</returns>
 YNode YAML_Parser::parseInlineDictionary(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters,
-    unsigned long indentation) {
+    const unsigned long indentation) {
   Delimiters inLineDictionaryDelimiters = {delimiters};
   inLineDictionaryDelimiters.insert({kComma, kRightCurlyBrace});
   YNode dictionaryYNode = YNode::make<Dictionary>();
@@ -215,16 +218,16 @@ YNode YAML_Parser::parseInlineDictionary(
     moveToNextIndent(source);
     if (source.current() == kComma) {
       throw SyntaxError("Unexpected ',' in in-line dictionary.");
-    } else if (source.current() != kRightCurlyBrace) {
+    }
+    if (source.current() != kRightCurlyBrace) {
       auto entry = parseInlineKeyValue(source, inLineDictionaryDelimiters, indentation);
       if (YRef<Dictionary>(dictionaryYNode).contains(entry.getKey())) {
         throw SyntaxError(source.getPosition(),
                           "Dictionary already contains key '" + entry.getKey() +
-                              "'.");
+                          "'.");
       }
       YRef<Dictionary>(dictionaryYNode).add(std::move(entry));
     }
-
   } while (source.current() == kComma);
   inlineDictionaryDepth--;
   checkForEnd(source, kRightCurlyBrace);

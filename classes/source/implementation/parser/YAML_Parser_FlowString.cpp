@@ -11,7 +11,7 @@
 
 namespace YAML_Lib {
 
-// <summary>
+/// <summary>
 /// Append character to YAML string performing any necessary newline folding.
 /// </summary>
 /// <param name="source">Source stream.</param>
@@ -40,7 +40,7 @@ void YAML_Parser::appendCharacterToString(ISource &source,
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parsePlainFlowString(ISource &source,
                                         const Delimiters &delimiters,
-                                        unsigned long indentation) {
+                                        const unsigned long indentation) {
   std::string yamlString{extractToNext(source, delimiters) + kSpace};
   if (source.current() != kLineFeed) {
     rightTrim(yamlString);
@@ -67,7 +67,7 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
 /// <returns>String YNode.</returns>
 YNode YAML_Parser::parseQuotedFlowString(ISource &source,
                                          const Delimiters &delimiters,
-                                         unsigned long indentation) {
+                                         [[maybe_unused]] unsigned long indentation) {
   const char quote = source.append();
   std::string yamlString;
   if (quote == kDoubleQuote) {

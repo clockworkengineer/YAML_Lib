@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
 #include "YAML_Translator.hpp"
@@ -12,7 +14,7 @@ public:
   using Delimiters = std::set<char>;
   enum class BlockChomping : uint8_t { clip = 0, strip, keep };
   explicit YAML_Parser(std::shared_ptr<ITranslator> translator) {
-    yamlTranslator = translator;
+    yamlTranslator = std::move(translator);
   }
   YAML_Parser(const YAML_Parser &other) = delete;
   YAML_Parser &operator=(const YAML_Parser &other) = delete;
@@ -80,8 +82,7 @@ private:
                                      const Delimiters &delimiters,
                                      unsigned long indentation);
   static YNode parseComment(ISource &source,
-                            [[maybe_unused]] const Delimiters &delimiters,
-                            unsigned long indentation);
+                            [[maybe_unused]] const Delimiters &delimiters);
   static YNode parseNumber(ISource &source, const Delimiters &delimiters,
                            unsigned long indentation);
   static YNode parseNone(ISource &source, const Delimiters &delimiters,

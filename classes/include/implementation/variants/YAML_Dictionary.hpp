@@ -79,8 +79,7 @@ struct Dictionary final : Variant {
     for (auto &entryYNode : yNodeDictionary) {
       dictionary += entryYNode.getKeyYNode().getVariant().toString();
       dictionary += ": ";
-      auto type = entryYNode.getYNode().getVariant().getNodeType();
-      if (type == Variant::Type::dictionary || type == Variant::Type::array) {
+      if (const auto type = entryYNode.getYNode().getVariant().getNodeType(); type == Type::dictionary || type == Type::array) {
         dictionary += entryYNode.getYNode().getVariant().toKey();
       } else {
         dictionary += entryYNode.getYNode().getVariant().toString();

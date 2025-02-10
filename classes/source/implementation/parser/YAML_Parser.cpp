@@ -19,7 +19,7 @@ namespace YAML_Lib {
 /// <returns>Document root YNode.</returns>
 YNode YAML_Parser::parseDocument(ISource &source,
                                  const Delimiters &delimiters,
-                                 unsigned long indentation) {
+                                 const unsigned long indentation) {
   moveToNextIndent(source);
   for (const auto &[fst, snd] : parsers) {
     if (fst(source)) {
@@ -58,7 +58,7 @@ std::vector<YNode> YAML_Parser::parse(ISource &source) {
       inDocument = false;
       // Inter document comment
     } else if (isComment(source) && !inDocument) {
-      parseComment(source, {kLineFeed}, 0);
+      parseComment(source, {kLineFeed});
       // Parse document contents
     } else {
       if (!inDocument) {

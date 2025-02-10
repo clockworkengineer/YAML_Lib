@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
 #include "YAML_Translator.hpp"
@@ -9,7 +11,7 @@ namespace YAML_Lib {
 class YAML_Stringify final : public IStringify {
 public:
   explicit YAML_Stringify(std::shared_ptr<ITranslator> translator) {
-    yamlTranslator = translator;
+    yamlTranslator = std::move(translator);
   }
   YAML_Stringify(const YAML_Stringify &other) = delete;
   YAML_Stringify &operator=(const YAML_Stringify &other) = delete;

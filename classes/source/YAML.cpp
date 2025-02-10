@@ -31,7 +31,7 @@ YAML::~YAML() = default;
 YAML::YAML(const std::string &yamlString) : YAML() {
   parse(BufferSource{yamlString});
 }
-// <summary>
+/// <summary>
 /// YAML constructor (array).
 /// </summary>
 /// <param name="array">Initializer list of single values or YNode.</param>
@@ -46,7 +46,7 @@ YAML::YAML(const ArrayInitializer &array) : YAML() {
 /// <summary>
 /// YAML constructor (object).
 /// </summary>
-/// <param name="object">Initializer list of key/value(YNode) pairs.</param>
+/// <param name="dictionary">Initializer list of key/value(YNode) pairs.</param>
 YAML::YAML(const DictionaryInitializer &dictionary) : YAML() {
   if (getNumberOfDocuments() == 0) {
     BufferSource source("---\n null : null\n...\n");
@@ -128,19 +128,19 @@ const YNode &YAML::operator[](const std::size_t index) const {
 /// Open a YAML file, read its contents into a string buffer and return
 /// the buffer.
 /// </summary>
-/// <param name="fileName">YAML file name</param>
+/// <param name="yamlFileName">YAML file name</param>
 /// <returns>YAML string.</returns>
-std::string YAML::fromFile(const std::string &fileName) { return YAML_Impl::fromFile(fileName); }
+std::string YAML::fromFile(const std::string &yamlFileName) { return YAML_Impl::fromFile(yamlFileName); }
 
 /// <summary>
 /// Create an YAML file and write YAML string to it.
 /// </summary>
 /// <param name="fileName">YAML file name</param>
-/// <param name="YAMLString">YAML string</param>
+/// <param name="yamlString">YAML string</param>
 /// <param name="format">YAML file format</param>
-void YAML::toFile(const std::string &fileName, const std::string &YAMLString, const Format format)
+void YAML::toFile(const std::string &fileName, const std::string &yamlString, const Format format)
 {
-    YAML_Impl::toFile(fileName, YAMLString, format);
+    YAML_Impl::toFile(fileName, yamlString, format);
 }
 /// <summary>
 /// Return format of YAML file.

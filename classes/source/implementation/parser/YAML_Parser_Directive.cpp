@@ -42,12 +42,10 @@ YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
 /// Parse a comment on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <param name="delimiters">Delimiters used to parse comment.<</param>
-/// <param name="indentation">Parent indentation.</param>
+/// <param name="delimiters">Delimiters used to parse comment.</param>
 /// <returns>Comment YNode.</returns>
 YNode YAML_Parser::parseComment(ISource &source,
-                                [[maybe_unused]] const Delimiters &delimiters,
-                                unsigned long indentation) {
+                                [[maybe_unused]] const Delimiters &delimiters) {
   source.next();
   std::string comment{extractToNext(source, {kLineFeed})};
   if (source.more()) {
@@ -64,7 +62,7 @@ YNode YAML_Parser::parseComment(ISource &source,
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Anchor YNode.</returns>
 YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
-                               unsigned long indentation) {
+                               const unsigned long indentation) {
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.ignoreWS();
@@ -93,7 +91,7 @@ YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Alias anchor.</returns>
 YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
-                              unsigned long indentation) {
+                              const unsigned long indentation) {
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.next();
@@ -109,7 +107,7 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Alias anchor with overrides.</returns>
 YNode YAML_Parser::parseOverride(ISource &source, const Delimiters &delimiters,
-                                 unsigned long indentation) {
+                                 const unsigned long indentation) {
   source.next();
   source.next();
   source.next();

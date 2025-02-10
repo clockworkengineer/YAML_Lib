@@ -18,8 +18,8 @@ namespace YAML_Lib {
 /// <param name="delimiters">Delimiters used to parse the array.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Array YNode.</returns>
-YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters,  unsigned long indentation) {
-  unsigned long arrayIndent = source.getPosition().second;
+YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters, [[maybe_unused]] unsigned long indentation) {
+  const unsigned long arrayIndent = source.getPosition().second;
   arrayIndentLevel++;
   auto arrayYNode = YNode::make<Array>();
   while (isArray(source) && arrayIndent == source.getPosition().second) {
@@ -53,7 +53,7 @@ YNode YAML_Parser::parseArray(ISource &source, const Delimiters &delimiters,  un
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Array YNode.</returns>
 YNode YAML_Parser::parseInlineArray(
-    ISource &source, [[maybe_unused]] const Delimiters &delimiters,  unsigned long indentation) {
+    ISource &source, [[maybe_unused]] const Delimiters &delimiters, const unsigned long indentation) {
   inlineArrayDepth++;
   Delimiters inLineArrayDelimiters = {delimiters};
   inLineArrayDelimiters.insert({kComma, kRightSquareBracket});
@@ -62,8 +62,7 @@ YNode YAML_Parser::parseInlineArray(
   do {
     source.next();
     yamlArray.add(parseDocument(source, inLineArrayDelimiters, indentation));
-    auto &element = yamlArray.value().back();
-    if (isA<String>(element)) {
+    if (auto &element = yamlArray.value().back(); isA<String>(element)) {
       if (YRef<String>(element).value().empty() &&
           YRef<String>(element).getQuote() == kNull) {
         if (source.current() != kRightSquareBracket) {
