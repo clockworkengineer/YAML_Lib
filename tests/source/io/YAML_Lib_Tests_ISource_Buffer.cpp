@@ -20,14 +20,14 @@ TEST_CASE("Check ISource (Buffer) interface.", "[YAML][ISource][Buffer]") {
   SECTION("Create BufferSource and that it is positioned on the correct first "
           "character.",
           "[YAML][ISource][Buffer][Position]") {
-    BufferSource source{BufferSource(buffer)};
+    auto source{BufferSource(buffer)};
     REQUIRE_FALSE(!source.more());
     REQUIRE(static_cast<char>(source.current()) == '-');
   }
   SECTION("Create BufferSource and then check next positions to correct next "
           "character",
           "[YAML][ISource][Buffer][Next]") {
-    BufferSource source{BufferSource(buffer)};
+    auto source{BufferSource(buffer)};
     source.next();
     source.next();
     source.next();
@@ -37,7 +37,7 @@ TEST_CASE("Check ISource (Buffer) interface.", "[YAML][ISource][Buffer]") {
   SECTION("Create BufferSource move past last character, check it and the "
           "bytes moved.",
           "[YAML][ISource][Buffer][More]") {
-    BufferSource source{BufferSource(buffer)};
+    auto source{BufferSource(buffer)};
     while (source.more()) {
       source.next();
     }
@@ -47,7 +47,7 @@ TEST_CASE("Check ISource (Buffer) interface.", "[YAML][ISource][Buffer]") {
   SECTION("Create BufferSource, move past last character, reset and then check "
           "back at the beginning.",
           "[YAML][ISource][Buffer][Reset]") {
-    BufferSource source{BufferSource(buffer)};
+    auto source{BufferSource(buffer)};
     while (source.more()) {
       source.next();
     }
@@ -72,7 +72,7 @@ TEST_CASE("Check ISource (Buffer) interface.", "[YAML][ISource][Buffer]") {
   }
   SECTION("Create BufferSource and then try to read off the end.",
           "[YAML][ISource][Buffer][Exception]") {
-    BufferSource source{BufferSource(buffer)};
+    auto source{BufferSource(buffer)};
     while (source.more()) {
       source.next();
     }

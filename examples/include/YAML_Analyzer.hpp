@@ -64,7 +64,7 @@ public:
   // Add object details to analysis
   void onDictionary(const YAML_Lib::YNode &yNode) override {
     const auto &yNodeDictionary = YRef<YAML_Lib::Dictionary>(yNode);
-    totalDictionarys++;
+    totalDictionaries++;
     sizeInBytes += sizeof(YAML_Lib::Dictionary);
     maxDictionarySize =
         std::max(yNodeDictionary.value().size(), maxDictionarySize);
@@ -85,7 +85,7 @@ public:
     os << "YAML Tree size " << sizeInBytes << " in bytes.\n";
     os << "------------------YAML YAML_Lib::Dictionary "
           "Stats------------------\n";
-    os << "YAML Tree contains " << totalDictionarys << " objectEntries.\n";
+    os << "YAML Tree contains " << totalDictionaries << " objectEntries.\n";
     os << "YAML Tree max object size " << maxDictionarySize << ".\n";
     os << "YAML Tree total " << totalKeys << " keys.\n";
     os << "YAML Tree contains " << uniqueKeys.size() << " unique keys.\n";
@@ -150,7 +150,7 @@ private:
   int64_t totalNodes{};
   size_t sizeInBytes{};
   // YAML_Lib::Dictionary
-  int64_t totalDictionarys{};
+  int64_t totalDictionaries{};
   size_t maxDictionarySize{};
   int64_t totalKeys{};
   size_t maxKeySize{};

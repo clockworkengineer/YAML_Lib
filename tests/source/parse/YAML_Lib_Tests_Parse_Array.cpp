@@ -34,7 +34,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(YRef<Array>(yaml.document(0)).size() == 1);
     REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "One");
   }
-  SECTION("YAML parse array with multiplw integer elemenrs and check result.",
+  SECTION("YAML parse array with multiple integer elements and check result.",
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n- 1\n- 1\n- 2\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));

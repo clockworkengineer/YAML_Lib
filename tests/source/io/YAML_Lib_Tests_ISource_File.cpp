@@ -16,7 +16,7 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
   }
   SECTION("Check that FileSource position() works correctly.",
           "[YAML][ISource][File][Position]") {
-    FileSource source{FileSource(prefixPath(kSingleYAMLFile))};
+    auto source{FileSource(prefixPath(kSingleYAMLFile))};
     while (source.more() && !source.match("deer")) {
       source.next();
     }

@@ -339,7 +339,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     compareYAML(yaml, "---\n\"{one: 1, two: 2}\": \'test\'\n...\n");
   }
-  SECTION("YAML parse dictionariy with non string keys (nested inline "
+  SECTION("YAML parse dictionary with non string keys (nested inline "
           "dictionary 1).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n{one: 1, { three: 3} }: 'test'\n...\n"};
@@ -348,14 +348,14 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     compareYAML(yaml, "---\n\"{one: 1, {three: 3}: null}\": \'test\'\n...\n");
   }
   SECTION(
-      "YAML parse dictionariy with non string keys (nested inline dictionary).",
+      "YAML parse dictionary with non string keys (nested inline dictionary).",
       "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n{one: 1, two: { three: 3} }: 'test'\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     compareYAML(yaml, "---\n\"{one: 1, two: {three: 3}}\": \'test\'\n...\n");
   }
-  SECTION("YAML parse dictionariy with non string keys (nested inline array).",
+  SECTION("YAML parse dictionary with non string keys (nested inline array).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n[1,2,3,[4,5,6]]: 'test'\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -560,7 +560,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
   SECTION("YAML parse dictionary with nested dictionary key (example 5).",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{
-        "{one: [\"one\",\"two\",\"three\", [\"four\",\"]\",6]]] }"};
+        R"({one: ["one","two","three", ["four","]",6]]] })"};
     REQUIRE_THROWS_WITH(
         yaml.parse(source),
         "YAML Syntax Error: Unexpected flow sequence token ']'.");
