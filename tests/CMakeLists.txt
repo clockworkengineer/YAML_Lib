@@ -20,22 +20,22 @@ set(TEST_EXECUTABLE ${YAML_LIBRARY_NAME}_Unit_Tests)
 
 set(TEST_SOURCES
         source/yaml/YAML_Lib_Tests_YAML.cpp
-        source/yaml/YAML_Lib_Tests_YAML_Create_Array.cpp
-        source/yaml/YAML_Lib_Tests_YAML_Create_Complex.cpp
-        source/yaml/YAML_Lib_Tests_YAML_Create_Dictionary.cpp
-        source/document/YAML_Lib_Tests_YAML_Document.cpp
-        source/parse/YAML_Lib_Tests_YAML_Parse.cpp
-        source/parse/YAML_Lib_Tests_YAML_Parse_Array.cpp
-        source/parse/YAML_Lib_Tests_YAML_Parse_Anchors.cpp
-        source/parse/YAML_Lib_Tests_YAML_Parse_Dictionary.cpp
-        source/parse/YAML_Lib_Tests_YAML_Parse_Boolean.cpp
-        source/parse/YAML_Lib_Tests_YAML_Parse_Numeric.cpp
-        source/parse/YAML_Lib_Tests_YAML_Parse_String.cpp
-        source/parse/YAML_Lib_Tests_YAML_Parse_Comment.cpp
-        source/parse/YAML_Lib_Tests_YAML_Parse_Misc.cpp
-        source/parse/YAML_Lib_Tests_YAML_Parse_Null.cpp
-        source/parse/YAML_Lib_Tests_YAML_Parse_Sequence_Mapping.cpp
-        source/stringify/YAML_Lib_Tests_YAML_Stringify.cpp
+        source/yaml/YAML_Lib_Tests_Create_Array.cpp
+        source/yaml/YAML_Lib_Tests_Create_Complex.cpp
+        source/yaml/YAML_Lib_Tests_Create_Dictionary.cpp
+        source/document/YAML_Lib_Tests_Document.cpp
+        source/parse/YAML_Lib_Tests_Parse.cpp
+        source/parse/YAML_Lib_Tests_Parse_Array.cpp
+        source/parse/YAML_Lib_Tests_Parse_Anchors.cpp
+        source/parse/YAML_Lib_Tests_Parse_Dictionary.cpp
+        source/parse/YAML_Lib_Tests_Parse_Boolean.cpp
+        source/parse/YAML_Lib_Tests_Parse_Numeric.cpp
+        source/parse/YAML_Lib_Tests_Parse_String.cpp
+        source/parse/YAML_Lib_Tests_Parse_Comment.cpp
+        source/parse/YAML_Lib_Tests_Parse_Misc.cpp
+        source/parse/YAML_Lib_Tests_Parse_Null.cpp
+        source/parse/YAML_Lib_Tests_Parse_Sequence_Mapping.cpp
+        source/stringify/YAML_Lib_Tests_Stringify.cpp
         source/io/YAML_Lib_Tests_ISource_Buffer.cpp
         source/io/YAML_Lib_Tests_IDestination_Buffer.cpp
         source/io/YAML_Lib_Tests_IDestination_File.cpp
@@ -44,6 +44,7 @@ set(TEST_SOURCES
         source/io/YAML_Lib_Tests_File_FromFile.cpp
         source/io/YAML_Lib_Tests_File_ToFile.cpp
         source/traverse/YAML_Lib_Tests_Traverse.cpp
+        source/ynode/YAML_Lib_Tests_YNode_Assignment.cpp
         source/misc/YAML_Lib_Tests_Helper.cpp)
 
 add_executable(${TEST_EXECUTABLE} ${TEST_SOURCES})
