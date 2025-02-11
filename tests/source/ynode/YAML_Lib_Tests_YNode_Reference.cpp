@@ -17,7 +17,7 @@ TEST_CASE("Check YNode reference functions work.", "[YAML][YNode][Reference]")
     }
     SECTION("Boolean reference.", "[YAML][YNode][Reference][Boolean]")
     {
-        BufferSource yamlSource{ R"(true)" };
+        BufferSource yamlSource{ R"(True)" };
         yaml.parse(yamlSource);
         REQUIRE(YRef<Boolean>(yaml.document(0)).value() == true);
     }
