@@ -131,7 +131,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
                       "Only an inline/compact dictionary is allowed.");
   }
   moveToNextIndent(source);
-  YNode dictionaryYNode{YNode::make<Null>()};
+  YNode dictionaryYNode = YNode::make<Null>();
   if (source.more() &&
       (source.getPosition().second > keyIndent || isInlineArray(source) ||
        isInlineDictionary(source))) {
@@ -150,7 +150,7 @@ DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
                                                  const Delimiters &delimiters,
                                                  const unsigned long indentation) {
   YNode keyYNode = parseKey(source);
-  YNode dictionaryYNode{YNode::make<Null>()};
+  YNode dictionaryYNode = YNode::make<Null>();
   if (source.current() != kComma) {
     dictionaryYNode = parseDocument(source, delimiters, indentation);
   }

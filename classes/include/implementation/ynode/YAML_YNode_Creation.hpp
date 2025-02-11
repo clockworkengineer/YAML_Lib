@@ -10,7 +10,7 @@ template <typename T> YNode::YNode(T value) {
   } else if constexpr (std::is_arithmetic_v<T>) {
     *this = YNode::make<Number>(value);
   } else if constexpr (std::is_same_v<T, std::nullptr_t>) {
-    *this = make<Null>();
+    *this = YNode::make<Null>();
   } else if constexpr (std::is_same_v<T, const char *> ||
                        std::is_same_v<T, std::string>) {
     *this = YNode::make<String>(value);

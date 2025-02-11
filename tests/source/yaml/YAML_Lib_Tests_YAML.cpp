@@ -15,4 +15,8 @@ TEST_CASE("Check YAML creation.", "[YAML][API]") {
     REQUIRE_NOTHROW(yaml.parse(buffer));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
   }
+  SECTION("Create Null YNode.", "[YAML][API][Parse]") {
+    YNode yNode = YNode::make<Null>() ;
+    REQUIRE_FALSE(!isA<Null>(yNode));
+  }
 }
