@@ -28,7 +28,6 @@ TEST_CASE("Check YNode invalid number conversion.",
       REQUIRE(YRef<String>(yaml.document(0)).value()=="78.5454.545");
   }
 }
-
 TEST_CASE("Check YNode Number API(s) for all supported number types.",
           "[YAML][YNode][Number]") {
   YAML yaml;
