@@ -1,40 +1,32 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YNode Number conversion exceptions.",
-          "[YAML][YNode][Number][Exceptions]") {
+TEST_CASE("Check YNode invalid number conversion.",
+          "[YAML][YNode][Number][Invalid]"){
   const YAML yaml;
-  // SECTION("Check integer with invalid characters.",
-  // "[YAML][YNode][Number][Exceptions]")
-  // {
-  //     BufferSource yamlSource{ "4345u334u" };
-  //     REQUIRE_THROWS_AS(yaml.parse(yamlSource), SyntaxError);
-  //     yamlSource.reset();
-  //     REQUIRE_THROWS_WITH(yaml.parse(yamlSource), "YAML Syntax Error [Line: 1
-  //     Column: 10]: Invalid numeric value.");
-  // }
-  SECTION("Check floating point with exponent.",
-          "[YAML][YNode][Number][Exceptions]") {
-    BufferSource yamlSource{"78.43e-2"};
-    REQUIRE_NOTHROW(yaml.parse(yamlSource));
+  SECTION("Check integer with invalid characters.",
+  "[YAML][YNode][Number][Invalid]")
+  {
+      BufferSource yamlSource{ "4345u334u" };
+      REQUIRE_NOTHROW(yaml.parse(yamlSource));
+      REQUIRE_FALSE(!isA<String>(yaml.document(0)));
+      REQUIRE(YRef<String>(yaml.document(0)).value()=="4345u334u");
   }
-  // SECTION("Check floating point with invalid exponent.",
-  // "[YAML][YNode][Number][Exceptions]")
-  // {
-  //     BufferSource yamlSource{ "78.e43e-2" };
-  //     REQUIRE_THROWS_AS(yaml.parse(yamlSource), SyntaxError);
-  //     yamlSource.reset();
-  //     REQUIRE_THROWS_WITH(yaml.parse(yamlSource), "YAML Syntax Error [Line: 1
-  //     Column: 10]: Invalid numeric value.");
-  // }
-  // SECTION("Check floating point with multiple decimal points.",
-  // "[YAML][YNode][Number][Exceptions]")
-  // {
-  //     BufferSource yamlSource{ "78.5454.545" };
-  //     REQUIRE_THROWS_AS(yaml.parse(yamlSource), SyntaxError);
-  //     yamlSource.reset();
-  //     REQUIRE_THROWS_WITH(yaml.parse(yamlSource), "YAML Syntax Error [Line: 1
-  //     Column: 12]: Invalid numeric value.");
-  // }
+  SECTION("Check floating point with invalid exponent.",
+  "[YAML][YNode][Number][Invalid]")
+  {
+      BufferSource yamlSource{ "78.e43e-2" };
+      REQUIRE_NOTHROW(yaml.parse(yamlSource));
+      REQUIRE_FALSE(!isA<String>(yaml.document(0)));
+      REQUIRE(YRef<String>(yaml.document(0)).value()=="78.e43e-2");
+  }
+  SECTION("Check floating point with multiple decimal points.",
+  "[YAML][YNode][Number][Invalid]")
+  {
+      BufferSource yamlSource{ "78.5454.545" };
+      REQUIRE_NOTHROW(yaml.parse(yamlSource));
+      REQUIRE_FALSE(!isA<String>(yaml.document(0)));
+      REQUIRE(YRef<String>(yaml.document(0)).value()=="78.5454.545");
+  }
 }
 
 TEST_CASE("Check YNode Number API(s) for all supported number types.",
