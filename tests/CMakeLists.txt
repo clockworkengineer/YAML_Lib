@@ -47,6 +47,7 @@ set(TEST_SOURCES
         source/number/YAML_Lib_Tests_Number_Conversion.cpp
         source/number/YAML_Lib_Tests_Number_Misc.cpp
         source/number/YAML_Lib_Tests_Number_Notation.cpp
+        source/number/YAML_Lib_Tests_Number_Precision.cpp
         source/traverse/YAML_Lib_Tests_Traverse.cpp
         source/ynode/YAML_Lib_Tests_YNode_Assignment.cpp
         source/ynode/YAML_Lib_Tests_YNode_Construct.cpp
