@@ -28,10 +28,10 @@ void processYAMLFile(const std::string &fileName) {
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
   // Initialise logging.
-  plog::init(plog::debug, "YAML_Analyze_File.log");
+  init(plog::debug, "YAML_Analyze_File.log");
   PLOG_INFO << "YAML_Analyze_File started ...";
   // Output YAML Lib version and data structure metrics
-  PLOG_INFO << yl::YAML().version();
+  PLOG_INFO << YAML_Lib::YAML::version();
   PLOG_INFO << YAML_Analyzer::dumpNumericSizes();
   PLOG_INFO << YAML_Analyzer::dumpYNodeSizes();
   // Analyze YAML files.

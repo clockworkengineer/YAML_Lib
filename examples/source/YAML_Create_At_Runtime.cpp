@@ -15,10 +15,10 @@ namespace fs = std::filesystem;
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
   try {
     // Initialise logging.
-    plog::init(plog::debug, "YAML_Create_At_Runtime.log");
+    init(plog::debug, "YAML_Create_At_Runtime.log");
     PLOG_INFO << "YAML_Create_At_Runtime started ...";
     // Log version
-    PLOG_INFO << yl::YAML().version();
+    PLOG_INFO << YAML_Lib::YAML::version();
     // create an empty structure (null)
     yl::YAML yaml;
     // add a number that is stored as double (note the implicit conversion of
@@ -45,7 +45,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     destination.clear();
     // create YAML using an initializer list and nesting array/objects using
     // YNode{}.
-    yl::YAML yaml2 = {
+    const yl::YAML yaml2 = {
         {"pi", 3.141},
         {"sad", true},
         {"first_name", "Niels"},

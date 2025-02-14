@@ -54,7 +54,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     init(plog::debug, "YAML_Fibonacci.log");
     PLOG_INFO << "YAML_Fibonacci started ...";
     // Log version
-    PLOG_INFO << yml::YAML().version();
+    PLOG_INFO << YAML_Lib::YAML::version();
     // Update current sequence
     nextFibonacci();
   } catch (std::exception &ex) {
