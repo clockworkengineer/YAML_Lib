@@ -29,5 +29,10 @@ public:
   // ====================
   virtual void stringify(const std::vector<YNode> &yamlTree,
                          IDestination &destination) const = 0;
+
 };
+// Make custom stringify to pass to JSON constructor: Note pointer is tidied up internally.
+template <typename T> IStringify *makeStringify() {
+    return std::make_unique<T>().release();
+}
 } // namespace YAML_Lib

@@ -53,6 +53,7 @@ set(YAML_INCLUDES
   ./classes/include/implementation/io/YAML_Sources.hpp
   ./classes/include/implementation/io/YAML_Destinations.hpp
   ./classes/include/implementation/stringify/YAML_Stringify.hpp
+  ./classes/include/implementation/stringify/Bencode_Stringify.hpp
   ./classes/include/implementation/parser/YAML_Parser.hpp
   ./classes/include/implementation/converter/YAML_Converter.hpp
   ./classes/include/implementation/translator/YAML_Translator.hpp
