@@ -58,13 +58,8 @@ void stringifyAnyBlockStyle(IDestination &destination, const YNode &yNode) {
     }
   }
 }
-/// <summary>
-///
-/// </summary>
-/// <param name="destination"></param>
-/// <param name="yNode"></param>
-/// <param name="indent"></param>
-void YAML_Stringify::stringifyYAML( const YNode &yNode, IDestination &destination, const unsigned long indent) {
+
+void YAML_Stringify::stringify(const YNode &yNode, IDestination &destination, const unsigned long indent) const {
   if (isA<Number>(yNode)) {
     destination.add(YRef<Number>(yNode).toString());
   } else if (isA<String>(yNode)) {
@@ -106,7 +101,7 @@ void YAML_Stringify::stringifyYAML( const YNode &yNode, IDestination &destinatio
           isA<Dictionary>(entryYNode.getYNode())) {
         destination.add(kLineFeed);
       }
-      stringifyYAML(entryYNode.getYNode(), destination,
+      stringify(entryYNode.getYNode(), destination,
                     indent + yamlIndentation);
       if (!isA<Array>(entryYNode.getYNode()) &&
           !isA<Dictionary>(entryYNode.getYNode()) &&
@@ -118,7 +113,7 @@ void YAML_Stringify::stringifyYAML( const YNode &yNode, IDestination &destinatio
     for (const auto &entryYNode : YRef<Array>(yNode).value()) {
       destination.add(calculateIndent(destination, indent) + "- ");
       stringifyAnyBlockStyle(destination, entryYNode);
-      stringifyYAML( entryYNode, destination,indent + yamlIndentation);
+      stringify( entryYNode, destination,indent + yamlIndentation);
       if (destination.last() != kLineFeed) {
         destination.add(kLineFeed);
       }
@@ -132,7 +127,7 @@ void YAML_Stringify::stringifyYAML( const YNode &yNode, IDestination &destinatio
       }
     }
     for (const auto &entryYNode : YRef<Document>(yNode).value()) {
-      stringifyYAML( entryYNode, destination, 0);
+      stringify( entryYNode, destination, 0);
     }
     if (destination.last() != kLineFeed) {
       destination.add(kLineFeed);
@@ -143,16 +138,15 @@ void YAML_Stringify::stringifyYAML( const YNode &yNode, IDestination &destinatio
     throw Error("Unknown YNode type encountered during stringification.");
   }
 }
-/// <summary>
-///
-/// </summary>
-/// <param name="yamlTree"></param>
-/// <param name="destination"></param>
-void YAML_Stringify::stringify(const std::vector<YNode> &yamlTree,
-                               IDestination &destination, const unsigned long indent) const {
-  for (const auto &document : yamlTree) {
-    stringifyYAML(document, destination, 0);
-  }
-}
+
+// /// <summary>
+// ///
+// /// </summary>
+// /// <param name="yamlTree"></param>
+// /// <param name="destination"></param>
+// void YAML_Stringify::stringify( const YNode &yNode,
+//                                IDestination &destination, const unsigned long indent) const {
+//     stringify(yNode, destination, 0);
+// }
 
 } // namespace YAML_Lib
