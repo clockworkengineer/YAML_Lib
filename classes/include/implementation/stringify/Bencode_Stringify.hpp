@@ -21,7 +21,7 @@ public:
     /// <param name="yNode">YNode structure to be traversed.</param>
     /// <param name="destination">Destination stream for stringified YAML.</param>
     /// <param name="indent">Current print indentation.</param>
-    void stringify(const YNode &yNode, IDestination &destination, const unsigned long indent) const
+    void stringify(const YNode &yNode, IDestination &destination, const unsigned long indent) const override
     {;
         if (isA<Document>(yNode)) {
             stringify(YRef<Document>(yNode)[0], destination, indent);
