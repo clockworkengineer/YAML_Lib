@@ -15,10 +15,6 @@ public:
   }
   YAML_Stringify(const YAML_Stringify &other) = delete;
   YAML_Stringify &operator=(const YAML_Stringify &other) = delete;
-
-  void stringify(const YNode &yNode, IDestination &destination,
-                 unsigned long indent);
-
   YAML_Stringify(YAML_Stringify &&other) = delete;
   YAML_Stringify &operator=(YAML_Stringify &&other) = delete;
   ~YAML_Stringify() override = default;
