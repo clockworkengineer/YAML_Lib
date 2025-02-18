@@ -35,7 +35,7 @@ std::string YAML_Impl::version() {
 void YAML_Impl::parse(ISource &source) { yamlTree = yamlParser->parse(source); }
 
 void YAML_Impl::stringify(IDestination &destination) const {
-  yamlStringify->stringify(yamlTree, destination);
+  yamlStringify->stringify(yamlTree, destination, 0);
 }
 
 void YAML_Impl::traverse(IAction &action) {

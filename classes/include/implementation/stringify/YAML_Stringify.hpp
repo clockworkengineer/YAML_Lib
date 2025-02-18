@@ -20,7 +20,7 @@ public:
   ~YAML_Stringify() override = default;
   // Stringify YNode tree
   void stringify(const std::vector<YNode> &yamlTree,
-                 IDestination &destination) const override;
+                 IDestination &destination, const unsigned long indent) const override;
   // Indentation increment
   static void setIndentation(const unsigned long indentation) {
     yamlIndentation = indentation;
@@ -28,8 +28,8 @@ public:
 
 private:
   // Stringify root
-  static void stringifyYAML(IDestination &destination, const YNode &yNode,
-                            unsigned long indent);
+  static void stringifyYAML(const YNode &yNode, IDestination &destination,
+                            const unsigned long indent);
   // Current indentation level
   inline static unsigned long yamlIndentation{2};
   // Translator

@@ -14,17 +14,9 @@ public:
   Bencode_Stringify(Bencode_Stringify &&other) = delete;
   Bencode_Stringify &operator=(Bencode_Stringify &&other) = delete;
   ~Bencode_Stringify() override = default;
-
-  /// <summary>
-  /// Recursively traverse YNode structure encoding it into YAML string on
-  /// the destination stream passed in.
-  /// </summary>
-  /// <param name="yNode">YNode structure to be traversed.</param>
-  /// <param name="destination">Destination stream for stringified YAML.</param>
-  /// <param name="indent">Current print indentation.</param>
-  void stringify(const std::vector<YNode> &yamlTree, IDestination &destination) const override
+  void stringify(const std::vector<YNode> &yamlTree, IDestination &destination, const unsigned long indent) const override
   {
-    stringifyYAML(YRef<Document>(yamlTree[0])[0], destination);
+    stringifyYAML(YRef<Document>(yamlTree[0])[0], destination, indent);
   }
 
 private:
@@ -35,7 +27,7 @@ private:
   /// <param name="yNode">YNode structure to be traversed.</param>
   /// <param name="destination">Destination stream for stringified YAML.</param>
   /// <param name="indent">Current print indentation.</param>
-  void stringifyYAML(const YNode &yNode, IDestination &destination) const
+  void stringifyYAML(const YNode &yNode, IDestination &destination, const unsigned long indent) const
   {;
       if (isA<Number>(yNode)) {
           destination.add("i" + std::to_string(YRef<Number>(yNode).value<long long>()) + "e");
@@ -54,13 +46,13 @@ private:
       } else if (isA<Dictionary>(yNode)) {
           destination.add('d');
           for (auto &entry : YRef<Dictionary>(yNode).value()) {
-              stringifyYAML(entry.getKeyYNode(), destination);
-              stringifyYAML(entry.getYNode(), destination);
+              stringifyYAML(entry.getKeyYNode(), destination, indent);
+              stringifyYAML(entry.getYNode(), destination, indent);
           }
           destination.add("e");
       } else if (isA<Array>(yNode)) {
           destination.add('l');
-          for (auto &entry : YRef<Array>(yNode).value()) { stringifyYAML(entry, destination); }
+          for (auto &entry : YRef<Array>(yNode).value()) { stringifyYAML(entry, destination, indent); }
           destination.add("e");
       } else {
           throw Error("Unknown YNode type encountered during stringification.");

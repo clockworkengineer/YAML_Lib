@@ -64,9 +64,7 @@ void stringifyAnyBlockStyle(IDestination &destination, const YNode &yNode) {
 /// <param name="destination"></param>
 /// <param name="yNode"></param>
 /// <param name="indent"></param>
-void YAML_Stringify::stringifyYAML(IDestination &destination,
-                                   const YNode &yNode,
-                                   const unsigned long indent) {
+void YAML_Stringify::stringifyYAML( const YNode &yNode, IDestination &destination, const unsigned long indent) {
   if (isA<Number>(yNode)) {
     destination.add(YRef<Number>(yNode).toString());
   } else if (isA<String>(yNode)) {
@@ -108,7 +106,7 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
           isA<Dictionary>(entryYNode.getYNode())) {
         destination.add(kLineFeed);
       }
-      stringifyYAML(destination, entryYNode.getYNode(),
+      stringifyYAML(entryYNode.getYNode(), destination,
                     indent + yamlIndentation);
       if (!isA<Array>(entryYNode.getYNode()) &&
           !isA<Dictionary>(entryYNode.getYNode()) &&
@@ -120,7 +118,7 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
     for (const auto &entryYNode : YRef<Array>(yNode).value()) {
       destination.add(calculateIndent(destination, indent) + "- ");
       stringifyAnyBlockStyle(destination, entryYNode);
-      stringifyYAML(destination, entryYNode, indent + yamlIndentation);
+      stringifyYAML( entryYNode, destination,indent + yamlIndentation);
       if (destination.last() != kLineFeed) {
         destination.add(kLineFeed);
       }
@@ -134,7 +132,7 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
       }
     }
     for (const auto &entryYNode : YRef<Document>(yNode).value()) {
-      stringifyYAML(destination, entryYNode, 0);
+      stringifyYAML( entryYNode, destination, 0);
     }
     if (destination.last() != kLineFeed) {
       destination.add(kLineFeed);
@@ -151,9 +149,9 @@ void YAML_Stringify::stringifyYAML(IDestination &destination,
 /// <param name="yamlTree"></param>
 /// <param name="destination"></param>
 void YAML_Stringify::stringify(const std::vector<YNode> &yamlTree,
-                               IDestination &destination) const {
+                               IDestination &destination, const unsigned long indent) const {
   for (const auto &document : yamlTree) {
-    stringifyYAML(destination, document, 0);
+    stringifyYAML(document, destination, 0);
   }
 }
 
