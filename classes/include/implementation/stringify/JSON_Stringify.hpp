@@ -26,7 +26,7 @@ public:
         if (isA<Document>(yNode)) {
             stringify(YRef<Document>(yNode)[0], destination, indent);
         } else if (isA<Number>(yNode)) {
-            destination.add(std::to_string(YRef<Number>(yNode).value<long long>()) );
+            destination.add(YRef<Number>(yNode).toString());
         } else if (isA<String>(yNode)) {
             const auto yamlString = YRef<String>(yNode).value();
             destination.add("\""+yamlString+"\"");

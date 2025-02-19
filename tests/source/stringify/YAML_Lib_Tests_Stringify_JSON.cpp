@@ -43,17 +43,16 @@ TEST_CASE("Check YAML stringification to JSON of simple types.", "[YAML][Stringi
     {
         BufferDestination yamlDestination;
         yaml.parse(BufferSource{ "55.6667" });
-        // REQUIRE(YRef<Number>(yaml.document(0)).value<float>()==2.0);
         yaml.stringify(yamlDestination);
         REQUIRE(yamlDestination.toString() == "55.6667");
     }
-    // SECTION("Stringify a floating point (-55.6667) to JSON.", "[YAML][Stringify][Float][JSON]")
-    // {
-    //     BufferDestination yamlDestination;
-    //     yaml.parse(BufferSource{ "-55.6667" });
-    //     yaml.stringify(yamlDestination);
-    //     REQUIRE(yamlDestination.toString() == "i-55e");
-    // }
+    SECTION("Stringify a floating point (-55.6667) to JSON.", "[YAML][Stringify][Float][JSON]")
+    {
+        BufferDestination yamlDestination;
+        yaml.parse(BufferSource{ "-55.6667" });
+        yaml.stringify(yamlDestination);
+        REQUIRE(yamlDestination.toString() == "-55.6667");
+    }
     SECTION("Stringify a null to JSON.", "[YAML][Stringify][Simple][JSON]")
     {
         BufferDestination yamlDestination;
@@ -61,13 +60,13 @@ TEST_CASE("Check YAML stringification to JSON of simple types.", "[YAML][Stringi
         yaml.stringify(yamlDestination);
         REQUIRE(yamlDestination.toString() == "null");
     }
-    // SECTION("Stringify an array to JSON.", "[YAML][Stringify][Array][JSON]")
-    // {
-    //     BufferDestination yamlDestination;
-    //     yaml.parse(BufferSource{ { "[1,444,555,666,67.99]" } });
-    //     yaml.stringify(yamlDestination);
-    //     REQUIRE(yamlDestination.toString() == "[1,444,555,666,67.99]");
-    // }
+    SECTION("Stringify an array to JSON.", "[YAML][Stringify][Array][JSON]")
+    {
+        BufferDestination yamlDestination;
+        yaml.parse(BufferSource{ { "[1,444,555,666,67.99]" } });
+        yaml.stringify(yamlDestination);
+        REQUIRE(yamlDestination.toString() == "[1,444,555,666,67.99]");
+    }
     SECTION("Stringify an empty array to JSON.", "[YAML][Stringify][Array][JSON]")
     {
         BufferDestination yamlDestination;
@@ -97,14 +96,14 @@ TEST_CASE("Check YAML stringification to JSON of simple types.", "[YAML][Stringi
         yaml.stringify(yamlDestination);
         REQUIRE(yamlDestination.toString() == R"({"City":"London","Population":[1,2,3,4,5]})");
     }
-    // SECTION(R"(Stringify a nested object ([true,"Out of time",7.89043e+18,{"key":4444}]) to a JSON.)",
-    //         "[YAML][Stringify][Object][JSON]")
-    // {
-    //     BufferDestination yamlDestination;
-    //     yaml.parse(BufferSource{ R"([True,"Out of time",7.89043e+18,{"key":4444}])" });
-    //     yaml.stringify(yamlDestination);
-    //     REQUIRE(yamlDestination.toString() == "l4:True11:Out of timei7890430242211233792ed3:keyi4444eee");
-    // }
+    SECTION(R"(Stringify a nested object ([true,"Out of time",7.89043e+18,{"key":4444}]) to a JSON.)",
+            "[YAML][Stringify][Object][JSON]")
+    {
+        BufferDestination yamlDestination;
+        yaml.parse(BufferSource{ R"([True,"Out of time",7.89043e+18,{"key":4444}])" });
+        yaml.stringify(yamlDestination);
+        REQUIRE(yamlDestination.toString() == R"([true,"Out of time",7.89043e+18,{"key":4444}])");
+    }
     SECTION(R"(Stringify [{},{},{}] to a JSON.)", "[YAML][Stringify][Object][JSON]")
     {
         BufferDestination yamlDestination;
