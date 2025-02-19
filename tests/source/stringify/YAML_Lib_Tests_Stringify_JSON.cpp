@@ -39,13 +39,14 @@ TEST_CASE("Check YAML stringification to JSON of simple types.", "[YAML][Stringi
         yaml.stringify(yamlDestination);
         REQUIRE(yamlDestination.toString() == "-98345");
     }
-    // SECTION("Stringify a floating point (55.6667) to JSON.", "[YAML][Stringify][Float][JSON]")
-    // {
-    //     BufferDestination yamlDestination;
-    //     yaml.parse(BufferSource{ "55.6667" });
-    //     yaml.stringify(yamlDestination);
-    //     REQUIRE(yamlDestination.toString() == "55.6667");
-    // }
+    SECTION("Stringify a floating point (55.6667) to JSON.", "[YAML][Stringify][Float][JSON]")
+    {
+        BufferDestination yamlDestination;
+        yaml.parse(BufferSource{ "55.6667" });
+        // REQUIRE(YRef<Number>(yaml.document(0)).value<float>()==2.0);
+        yaml.stringify(yamlDestination);
+        REQUIRE(yamlDestination.toString() == "55.6667");
+    }
     // SECTION("Stringify a floating point (-55.6667) to JSON.", "[YAML][Stringify][Float][JSON]")
     // {
     //     BufferDestination yamlDestination;
