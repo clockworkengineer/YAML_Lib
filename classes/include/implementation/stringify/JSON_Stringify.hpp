@@ -26,30 +26,37 @@ public:
         if (isA<Document>(yNode)) {
             stringify(YRef<Document>(yNode)[0], destination, indent);
         } else if (isA<Number>(yNode)) {
-            destination.add("i" + std::to_string(YRef<Number>(yNode).value<long long>()) + "e");
+            destination.add(std::to_string(YRef<Number>(yNode).value<long long>()) );
         } else if (isA<String>(yNode)) {
             const auto yamlString = YRef<String>(yNode).value();
-            destination.add(std::to_string(static_cast<int>(yamlString.length())) + ":" + yamlString);
+            destination.add("\""+yamlString+"\"");
         } else if (isA<Boolean>(yNode)) {
             if (YRef<Boolean>(yNode).value()) {
-                destination.add("4:True");
+                destination.add("true");
             } else {
-                destination.add("5:False");
+                destination.add("false");
             }
         } else if (isA<Null>(yNode)) {
-            destination.add("4:null");
+            destination.add("null");
         } else if (isA<Hole>(yNode)) {
         } else if (isA<Dictionary>(yNode)) {
-            destination.add('d');
+            auto comma=YRef<Dictionary>(yNode).value().size()-1;
+            destination.add('{');
             for (auto &entry : YRef<Dictionary>(yNode).value()) {
                 stringify(entry.getKeyYNode(), destination, indent);
+                destination.add(":");
                 stringify(entry.getYNode(), destination, indent);
+                if (comma-- > 0) {destination.add(","); }
             }
-            destination.add("e");
+            destination.add("}");
         } else if (isA<Array>(yNode)) {
-            destination.add('l');
-            for (auto &entry : YRef<Array>(yNode).value()) { stringify(entry, destination, indent); }
-            destination.add("e");
+            auto comma=YRef<Array>(yNode).value().size()-1;
+            destination.add('[');
+            for (auto &entry : YRef<Array>(yNode).value()) {
+                stringify(entry, destination, indent);
+                if (comma-- > 0) {destination.add(","); }
+            }
+            destination.add("]");
         } else {
             throw Error("Unknown YNode type encountered during stringification.");
         }
