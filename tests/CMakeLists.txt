@@ -38,6 +38,7 @@ set(TEST_SOURCES
         source/stringify/YAML_Lib_Tests_Stringify.cpp
         source/stringify/YAML_Lib_Tests_Stringify_Bencode.cpp
         source/stringify/YAML_Lib_Tests_Stringify_JSON.cpp
+        source/stringify/YAML_Lib_Tests_Stringify_XML.cpp
         source/io/YAML_Lib_Tests_ISource_Buffer.cpp
         source/io/YAML_Lib_Tests_IDestination_Buffer.cpp
         source/io/YAML_Lib_Tests_IDestination_File.cpp

@@ -59,7 +59,7 @@ public:
   }
 
 private:
-  YAML_Translator bencodeTranslator;
+  // YAML_Translator bencodeTranslator;
 };
 
 } // namespace YAML_Lib
