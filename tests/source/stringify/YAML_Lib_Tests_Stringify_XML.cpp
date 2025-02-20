@@ -39,22 +39,22 @@ TEST_CASE("Check YAML stringification to XML of simple types.", "[YAML][Stringif
     REQUIRE(destination.toString()
             == R"(<?xml version="1.0" encoding="UTF-8"?><root>abcdefghijklmnopqrstuvwxyz&#x0001;&#x0002;</root>)");
   }
-  // SECTION("XML encode an string with unprintable characters (1-127) ", "[YAML][Stringify][XML][String]")
-  // {
-  //   std::string escaped{ "\"abcdefghijklmnopqrstuvwxyz" };
-  //   // Add all ASCII except '"' and '\'
-  //   for (int ch = 1; ch < 128; ch++) {
-  //     if (static_cast<char>(ch) != '"' && static_cast<char>(ch) != '\\') { escaped += static_cast<char>(ch); }
-  //   }
-  //   escaped += '"';
-  //   BufferSource source{ escaped };
-  //   BufferDestination destination;
-  //   yaml.parse(source);
-  //   yaml.stringify(destination);
-  //   REQUIRE(
-  //     destination.toString()
-  //     == R"(<?xml version="1.0" encoding="UTF-8"?><root>abcdefghijklmnopqrstuvwxyz&#x0001;&#x0002;&#x0003;&#x0004;&#x0005;&#x0006;&#x0007;&#x0008;&#x0009;&#x000A;&#x000B;&#x000C;&#x000D;&#x000E;&#x000F;&#x0010;&#x0011;&#x0012;&#x0013;&#x0014;&#x0015;&#x0016;&#x0017;&#x0018;&#x0019;&#x001A;&#x001B;&#x001C;&#x001D;&#x001E;&#x001F; !#$%&amp;&apos;()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~&#x007F;</root>)");
-  // }
+  SECTION("XML encode an string with unprintable characters (1-127) ", "[YAML][Stringify][XML][String]")
+  {
+    std::string escaped{ "\"abcdefghijklmnopqrstuvwxyz" };
+    // Add all ASCII except '"' and '\'
+    for (int ch = 1; ch < 128; ch++) {
+      if (static_cast<char>(ch) != '"' && static_cast<char>(ch) != '\\'  && static_cast<char>(ch) != '\n') { escaped += static_cast<char>(ch); }
+    }
+    escaped += '"';
+    BufferSource source{ escaped };
+    BufferDestination destination;
+    yaml.parse(source);
+    yaml.stringify(destination);
+    REQUIRE(
+      destination.toString()
+      == R"(<?xml version="1.0" encoding="UTF-8"?><root>abcdefghijklmnopqrstuvwxyz&#x0001;&#x0002;&#x0003;&#x0004;&#x0005;&#x0006;&#x0007;&#x0008;&#x0009;&#x000B;&#x000C;&#x000D;&#x000E;&#x000F;&#x0010;&#x0011;&#x0012;&#x0013;&#x0014;&#x0015;&#x0016;&#x0017;&#x0018;&#x0019;&#x001A;&#x001B;&#x001C;&#x001D;&#x001E;&#x001F; !#$%&amp;&apos;()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~&#x007F;</root>)");
+  }
   // // Disable tests for present
   // // SECTION("XML encode an string with unprintable characters (128-255) ", "[YAML][Stringify][XML][String]")
   // // {
