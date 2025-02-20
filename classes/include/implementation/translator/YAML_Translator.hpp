@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "ITranslator.hpp"
-
 #include "YAML.hpp"
 #include "YAML_Converter.hpp"
 
