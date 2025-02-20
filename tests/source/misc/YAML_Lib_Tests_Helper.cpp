@@ -41,3 +41,17 @@ bool compareFile(const std::string &str, const std::string &fileName) {
   }
   return fileContents.str() == str;
 }
+
+std::string generateEscapes(const unsigned char first, const unsigned char last)
+{
+  std::string result;
+  for (char16_t utf16Char = first; utf16Char < last + 1; utf16Char++) {
+    const auto digits = "0123456789ABCDEF";
+    result += "\\u";
+    result += digits[utf16Char >> 12 & 0x0f];
+    result += digits[utf16Char >> 8 & 0x0f];
+    result += digits[utf16Char >> 4 & 0x0f];
+    result += digits[utf16Char&0x0f];
+  }
+  return result;
+}
