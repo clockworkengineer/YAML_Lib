@@ -1,7 +1,7 @@
 //
 // Program:  YAML_YAML_Torrent_Files_To_XML
 //
-// Description: Use YAML_Lib to read in torrent file then write
+// Description: Use YAML_Lib to read in YAML file then write
 // it out as XML using a custom encoder.
 //
 // Dependencies: C++20, PLOG,  YAML_Lib.
