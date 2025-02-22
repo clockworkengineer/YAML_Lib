@@ -2,7 +2,7 @@
 
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
-#include "YAML_Translator.hpp"
+#include "Bencode_Translator.hpp"
 
 namespace YAML_Lib {
 
@@ -59,7 +59,7 @@ public:
   }
 
 private:
-  // YAML_Translator bencodeTranslator;
+  Bencode_Translator bEncodeTranslator;
 };
 
 } // namespace YAML_Lib

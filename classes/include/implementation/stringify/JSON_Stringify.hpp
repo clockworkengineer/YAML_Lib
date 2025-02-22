@@ -2,7 +2,7 @@
 
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
-#include "YAML_Translator.hpp"
+#include "JSON_Translator.hpp"
 
 namespace YAML_Lib {
 
@@ -29,7 +29,7 @@ public:
             destination.add(YRef<Number>(yNode).toString());
         } else if (isA<String>(yNode)) {
             const auto yamlString = YRef<String>(yNode).value();
-            destination.add("\""+yamlString+"\"");
+            destination.add("\""+jsonTranslator.to(yamlString)+"\"");
         } else if (isA<Boolean>(yNode)) {
             if (YRef<Boolean>(yNode).value()) {
                 destination.add("true");
@@ -63,7 +63,7 @@ public:
     }
 
 private:
-//  YAML_Translator bencodeTranslator;
+  JSON_Translator jsonTranslator;
 };
     
 }// namespace YAML_Lib
