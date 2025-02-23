@@ -19,7 +19,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
         // Initialise logging.
         init(plog::debug, "YAML_Files_To_JSON.log");
         PLOG_INFO << "YAML_Files_To_YAML started ...";
-        PLOG_INFO << yaml.version();
+        PLOG_INFO << YAML_Lib::YAML::version();
         for (const auto &yamlFileName : Utility::createYAMLFileList()) {
             yaml.parse(yl::FileSource(yamlFileName));
             yaml.stringify(yl::FileDestination(

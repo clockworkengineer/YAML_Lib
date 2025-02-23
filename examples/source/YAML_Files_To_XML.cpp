@@ -1,10 +1,10 @@
 //
-// Program:  YAML_YAML_Torrent_Files_To_XML
+// Program: YAML_YAML_Torrent_Files_To_XML
 //
 // Description: Use YAML_Lib to read in YAML file then write
 // it out as XML using a custom encoder.
 //
-// Dependencies: C++20, PLOG,  YAML_Lib.
+// Dependencies: C++20, PLOG, YAML_Lib.
 //
 
 #include "YAML_Utility.hpp"
@@ -18,7 +18,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
         // Initialise logging.
         init(plog::debug, "YAML_Files_To_XML.log");
         PLOG_INFO << "YAML_Torrent_Files_To_XML started ...";
-        PLOG_INFO << yaml.version();
+        PLOG_INFO << YAML_Lib::YAML::version();
         for (const auto &torrentFileName : Utility::createYAMLFileList()) {
             yaml.parse(yl::FileSource(torrentFileName));
             yaml.stringify(yl::FileDestination(
