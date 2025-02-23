@@ -14,8 +14,7 @@ file(GLOB EXAMPLE_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/source/ "${CMAKE_
 
 foreach(EXAMPLE_PROGRAM ${EXAMPLE_SOURCES})
   string(REPLACE ".cpp" "" EXAMPLE_TARGET ${EXAMPLE_PROGRAM})
-  add_executable(${EXAMPLE_TARGET} ${CMAKE_CURRENT_SOURCE_DIR}/source/${EXAMPLE_PROGRAM}
-          source/YAML_Files_To_XML.cpp)
+  add_executable(${EXAMPLE_TARGET} ${CMAKE_CURRENT_SOURCE_DIR}/source/${EXAMPLE_PROGRAM})
   target_link_libraries(${EXAMPLE_TARGET} YAML_Lib)
   target_include_directories(${EXAMPLE_TARGET} PUBLIC ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/include/external)
   install(TARGETS ${EXAMPLE_TARGET} DESTINATION bin)
