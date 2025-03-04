@@ -60,6 +60,7 @@ TEST_CASE("Check JNode Number floating point precision.", "[YAML][JNode][Number]
         } else if constexpr (std::numeric_limits<long double>::digits10 + 1 == 19) {
           REQUIRE(yamlDestination.toString() == "---\n\"latitude\": 39.06834030151367188\n\"longitude\": -70.74161529541015625\n...\n");
         } else {
+          REQUIRE(yamlDestination.toString() == "");
           REQUIRE(std::numeric_limits<long double>::digits10 + 1 == 0);
         }
       }
