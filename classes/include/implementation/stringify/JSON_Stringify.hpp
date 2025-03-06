@@ -2,7 +2,7 @@
 
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
-#include "JSON_Translator.hpp"
+#include "Default_Translator.hpp"
 
 namespace YAML_Lib {
 
@@ -63,7 +63,7 @@ public:
     }
 
 private:
-  JSON_Translator jsonTranslator;
+  Default_Translator jsonTranslator;
 };
     
 }// namespace YAML_Lib

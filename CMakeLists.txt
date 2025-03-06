@@ -33,7 +33,7 @@ set(YAML_SOURCES
   ./classes/source/implementation/parser/YAML_Parser_Scalar.cpp
   ./classes/source/implementation/parser/YAML_Parser_Util.cpp
   ./classes/source/implementation/stringify/YAML_Stringify.cpp
-  ./classes/source/implementation/translator/YAML_Translator.cpp
+  ./classes/source/implementation/translator/Default_Translator.cpp
 )
 
 list(APPEND YAML_SOURCES "./classes/source/implementation/converter/${PLATFORM}/YAML_Converter.cpp")
@@ -58,9 +58,8 @@ set(YAML_INCLUDES
   ./classes/include/implementation/stringify/XML_Stringify.hpp
   ./classes/include/implementation/parser/YAML_Parser.hpp
   ./classes/include/implementation/converter/YAML_Converter.hpp
-  ./classes/include/implementation/translator/JSON_Translator.hpp
   ./classes/include/implementation/translator/XML_Translator.hpp
-  ./classes/include/implementation/translator/YAML_Translator.hpp
+  ./classes/include/implementation/translator/Default_Translator.hpp
   ./classes/include/implementation/variants/YAML_Hole.hpp
   ./classes/include/implementation/variants/YAML_Array.hpp
   ./classes/include/implementation/variants/YAML_Boolean.hpp

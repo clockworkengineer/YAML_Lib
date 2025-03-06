@@ -1,5 +1,5 @@
 //
-// Class: YAML_Translator
+// Class: Default_Translator
 //
 // Description: Translate to/from YAML string escapes within source
 // strings. This is the default translator but is possible to write
@@ -8,7 +8,7 @@
 // Dependencies: C++20 - Language standard features used.
 //
 
-#include "YAML_Translator.hpp"
+#include "Default_Translator.hpp"
 
 namespace YAML_Lib {
 
@@ -38,7 +38,7 @@ char16_t decodeUTF16(std::string::const_iterator &current,
       return utf16value;
     }
   }
-  throw YAML_Translator::Error("Syntax error detected.");
+  throw Default_Translator::Error("Syntax error detected.");
 }
 /// <summary>
 /// Convert "\x00" escape sequences in a string to their correct sequence
@@ -61,7 +61,7 @@ char16_t decodeUTF8(std::string::const_iterator &current,
       return utf16value;
     }
   }
-  throw YAML_Translator::Error("Syntax error detected.");
+  throw Default_Translator::Error("Syntax error detected.");
 }
 
 /// <summary>
@@ -133,7 +133,7 @@ bool isASCII(const char16_t utf16Char) {
 /// <summary>
 /// YAML translator constructor.
 /// </summary>
-YAML_Translator::YAML_Translator() {
+Default_Translator::Default_Translator() {
   // Initialise tables used to convert to/from single character
   // escape sequences within a YAML string.
   for (const auto &[key, value] : escapeSequences) {
@@ -149,7 +149,7 @@ YAML_Translator::YAML_Translator() {
 /// </summary>
 /// <param name="escapedString">YAML string to process.</param>
 /// <returns>String with escapes translated.</returns>
-std::string YAML_Translator::from(const std::string &escapedString) const {
+std::string Default_Translator::from(const std::string &escapedString) const {
   std::u16string utf16Buffer;
   for (auto current = escapedString.begin(); current != escapedString.end();) {
     // Normal character
@@ -199,7 +199,7 @@ std::string YAML_Translator::from(const std::string &escapedString) const {
 /// </summary>
 /// <param name="rawString">String to convert.</param>
 /// <returns>YAML string with escapes.</returns>
-std::string YAML_Translator::to(const std::string &rawString) const {
+std::string Default_Translator::to(const std::string &rawString) const {
   std::string escapedString;
   for (char16_t utf16Char : toUtf16(rawString)) {
     // Control characters
