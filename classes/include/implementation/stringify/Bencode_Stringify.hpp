@@ -12,6 +12,7 @@ public:
   Bencode_Stringify(Bencode_Stringify &&other) = delete;
   Bencode_Stringify &operator=(Bencode_Stringify &&other) = delete;
   ~Bencode_Stringify() override = default;
+
   /// <summary>
   /// Recursively traverse YNode structure encoding it into YAML string on
   /// the destination stream passed in.
@@ -22,42 +23,70 @@ public:
   void stringify(const YNode &yNode, IDestination &destination,
                  const unsigned long indent) const override {
     if (isA<Document>(yNode)) {
-      stringify(YRef<Document>(yNode)[0], destination, indent);
+stringifyDocument(yNode, destination, 0);
     } else if (isA<Number>(yNode)) {
-      destination.add(
-          "i" + std::to_string(YRef<Number>(yNode).value<long long>()) + "e");
+      stringifyNumber(yNode, destination);
     } else if (isA<String>(yNode)) {
-      const auto yamlString = YRef<String>(yNode).value();
-      destination.add(std::to_string(static_cast<int>(yamlString.length())) +
-                      ":" + yamlString);
-    } else if (isA<Boolean>(yNode)) {
-      if (YRef<Boolean>(yNode).value()) {
-        destination.add("4:True");
-      } else {
-        destination.add("5:False");
-      }
+      stringifyString(yNode, destination);
+     } else if (isA<Boolean>(yNode)) {
+       stringifyBoolean(yNode, destination);
     } else if (isA<Null>(yNode)) {
-      destination.add("4:null");
+      stringifyNull(yNode, destination);
     } else if (isA<Hole>(yNode)) {
     } else if (isA<Dictionary>(yNode)) {
-      destination.add('d');
-      for (auto &entry : YRef<Dictionary>(yNode).value()) {
-        stringify(entry.getKeyYNode(), destination, indent);
-        stringify(entry.getYNode(), destination, indent);
-      }
-      destination.add("e");
+      stringifyDictionary(yNode, destination);
     } else if (isA<Array>(yNode)) {
-      destination.add('l');
-      for (auto &entry : YRef<Array>(yNode).value()) {
-        stringify(entry, destination, indent);
-      }
-      destination.add("e");
+      stringifyAray(yNode, destination);
     } else {
       throw Error("Unknown YNode type encountered during stringification.");
     }
   }
 
-private:
+  void stringifyDocument(const YNode &yNode, IDestination &destination, const long indent) const {
+    stringify(YRef<Document>(yNode)[0], destination, indent);
+  }
+
+  static void stringifyNumber(const YNode &yNode, IDestination &destination) {
+    destination.add(
+      "i" + std::to_string(YRef<Number>(yNode).value<long long>()) + "e");
+  }
+
+  static void stringifyString(const YNode &yNode, IDestination &destination) {
+    const auto yamlString = YRef<String>(yNode).value();
+    destination.add(std::to_string(static_cast<int>(yamlString.length())) +
+                    ":" + yamlString);
+
+  }
+
+  static void stringifyBoolean(const YNode &yNode, IDestination &destination) {
+    if (YRef<Boolean>(yNode).value()) {
+      destination.add("4:True");
+    } else {
+      destination.add("5:False");
+    }
+
+  }
+
+  static void stringifyNull([[maybe_unused]]const YNode &yNode, IDestination &destination) {
+    destination.add("4:null");
+  }
+
+  void stringifyDictionary(const YNode &yNode, IDestination &destination) const {
+    destination.add('d');
+    for (auto &entry : YRef<Dictionary>(yNode).value()) {
+      stringify(entry.getKeyYNode(), destination, 0);
+      stringify(entry.getYNode(), destination, 0);
+    }
+    destination.add("e");
+  }
+  void stringifyAray(const YNode &yNode, IDestination &destination) const {
+    destination.add('l');
+    for (auto &entry : YRef<Array>(yNode).value()) {
+      stringify(entry, destination, 0);
+    }
+    destination.add("e");
+  }
+
 };
 
 } // namespace YAML_Lib

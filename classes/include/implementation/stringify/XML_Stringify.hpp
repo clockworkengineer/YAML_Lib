@@ -6,7 +6,7 @@
 
 namespace YAML_Lib {
 
-class XML_Stringify : public IStringify {
+class XML_Stringify final : public IStringify {
 public:
   XML_Stringify() = default;
   XML_Stringify(const XML_Stringify &other) = delete;
@@ -62,7 +62,7 @@ private:
     stringifyXML(YRef<Document>(yNode)[0], destination, indent);
   }
 
-  void stringifyNumber(const YNode &yNode, IDestination &destination) const {
+  static void stringifyNumber(const YNode &yNode, IDestination &destination) {
     destination.add(std::to_string(YRef<Number>(yNode).value<long long>()));
   }
 
@@ -70,7 +70,7 @@ private:
     destination.add(xmlTranslator.to(YRef<String>(yNode).value()));
   }
 
-  void stringifyBoolean(const YNode &yNode, IDestination &destination) const {
+  static void stringifyBoolean(const YNode &yNode, IDestination &destination) {
     if (YRef<Boolean>(yNode).value()) {
       destination.add("True");
     } else {
@@ -78,7 +78,7 @@ private:
     }
   }
 
-  void stringifyNull(const YNode &yNode, IDestination &destination) const {
+  static void stringifyNull([[maybe_unused]]const YNode &yNode, [[maybe_unused]]IDestination &destination) {
 
   }
 
@@ -101,33 +101,6 @@ private:
       }
     }
   }
-
-  // void stringifyDocument(const YNode &yNode, IDestination &destination, const long indent) const {
-  //
-  // }
-  //
-  // void stringifyNumber(const YNode &yNode, IDestination &destination) const {
-  //
-  // }
-  //
-  // void stringifyString(const YNode &yNode, IDestination &destination) const {
-  //
-  // }
-  //
-  // void stringifyBoolean(const YNode &yNode, IDestination &destination) const {
-  //
-  // }
-  //
-  // void stringifyNull(const YNode &yNode, IDestination &destination) const {
-  //
-  // }
-  //
-  // void stringifyDictionary(const YNode &yNode, IDestination &destination) const {
-  //
-  // }
-  // void stringifyAray(const YNode &yNode, IDestination &destination) const {
-  //
-  // }
 
   XML_Translator xmlTranslator;
 

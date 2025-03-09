@@ -27,7 +27,7 @@ public:
     // ====================
     // Stringify YNode tree
     // ====================
-    virtual void stringify(const YNode &yNode, IDestination &destination, const unsigned long indent) const = 0;
+    virtual void stringify(const YNode &yNode, IDestination &destination,  unsigned long indent) const = 0;
     // =========================
     // Set/Get print indentation
     // =========================
