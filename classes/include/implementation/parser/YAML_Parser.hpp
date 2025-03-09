@@ -4,7 +4,7 @@
 
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
-#include "YAML_Translator.hpp"
+#include "Default_Translator.hpp"
 
 namespace YAML_Lib {
 
