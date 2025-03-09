@@ -19,7 +19,7 @@ public:
   ~YAML_Stringify() override = default;
   // Stringify YNode tree
   void stringify(const YNode &yNode, IDestination &destination,
-                  unsigned long indent) const override;
+                 unsigned long indent) const override;
   // Indentation increment
   static void setIndentation(const unsigned long indentation) {
     yamlIndentation = indentation;

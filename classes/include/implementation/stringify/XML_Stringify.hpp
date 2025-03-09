@@ -1,8 +1,8 @@
 #pragma once
 
+#include "XML_Translator.hpp"
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
-#include "XML_Translator.hpp"
 
 namespace YAML_Lib {
 
@@ -22,8 +22,8 @@ public:
   /// <param name="yNode">YNode structure to be traversed.</param>
   /// <param name="destination">Destination stream for stringified YAML.</param>
   /// <param name="indent">Current print indentation.</param>
-  void stringify(const YNode &yNode, IDestination &destination, [[maybe_unused]] const unsigned long indent) const override
-  {
+  void stringify(const YNode &yNode, IDestination &destination,
+                 [[maybe_unused]] const unsigned long indent) const override {
     destination.add(R"(<?xml version="1.0" encoding="UTF-8"?>)");
     destination.add("<root>");
     stringifyXML(yNode, destination, 0);
@@ -38,8 +38,8 @@ private:
   /// <param name="yNode">YNode structure to be traversed.</param>
   /// <param name="destination">Destination stream for stringified XML.</param>
   /// <param name="indent">Current print indentation.</param>
-  void stringifyXML(const YNode &yNode, IDestination &destination, const long indent) const
-  {
+  void stringifyXML(const YNode &yNode, IDestination &destination,
+                    const long indent) const {
     if (isA<Document>(yNode)) {
       stringifyDocument(yNode, destination, indent);
     } else if (isA<Number>(yNode)) {
@@ -48,7 +48,7 @@ private:
       stringifyString(yNode, destination);
     } else if (isA<Boolean>(yNode)) {
       stringifyBoolean(yNode, destination);
-    } else if (isA<Null>(yNode)||isA<Hole>(yNode)) {
+    } else if (isA<Null>(yNode) || isA<Hole>(yNode)) {
     } else if (isA<Dictionary>(yNode)) {
       stringifyDictionary(yNode, destination);
     } else if (isA<Array>(yNode)) {
@@ -58,7 +58,8 @@ private:
     }
   }
 
-  void stringifyDocument(const YNode &yNode, IDestination &destination, const long indent) const {
+  void stringifyDocument(const YNode &yNode, IDestination &destination,
+                         const long indent) const {
     stringifyXML(YRef<Document>(yNode)[0], destination, indent);
   }
 
@@ -78,11 +79,11 @@ private:
     }
   }
 
-  static void stringifyNull([[maybe_unused]]const YNode &yNode, [[maybe_unused]]IDestination &destination) {
+  static void stringifyNull([[maybe_unused]] const YNode &yNode,
+                            [[maybe_unused]] IDestination &destination) {}
 
-  }
-
-  void stringifyDictionary(const YNode &yNode, IDestination &destination) const {
+  void stringifyDictionary(const YNode &yNode,
+                           IDestination &destination) const {
     for (const auto &yNodeNext : YRef<Dictionary>(yNode).value()) {
       auto elementName = yNodeNext.getKey();
       std::ranges::replace(elementName, ' ', '-');
@@ -90,7 +91,6 @@ private:
       stringifyXML(yNodeNext.getYNode(), destination, 0);
       destination.add("</" + elementName + ">");
     }
-
   }
   void stringifyArray(const YNode &yNode, IDestination &destination) const {
     if (YRef<Array>(yNode).value().size() > 1) {
@@ -103,7 +103,6 @@ private:
   }
 
   XML_Translator xmlTranslator;
-
 };
 
-}// namespace YAML_Lib
+} // namespace YAML_Lib
