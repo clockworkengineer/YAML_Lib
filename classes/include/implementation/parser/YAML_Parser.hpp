@@ -13,7 +13,7 @@ class YAML_Parser final : public IParser {
 public:
   using Delimiters = std::set<char>;
   enum class BlockChomping : uint8_t { clip = 0, strip, keep };
-  explicit YAML_Parser(std::shared_ptr<ITranslator> translator) {
+  explicit YAML_Parser(std::unique_ptr<ITranslator> translator) {
     yamlTranslator = std::move(translator);
   }
   YAML_Parser(const YAML_Parser &other) = delete;
@@ -142,7 +142,7 @@ private:
   // Inline Dictionary depth
   inline static long inlineDictionaryDepth{0};
   // Translator
-  inline static std::shared_ptr<ITranslator> yamlTranslator;
+  inline static std::unique_ptr<ITranslator> yamlTranslator;
 };
 
 } // namespace YAML_Lib

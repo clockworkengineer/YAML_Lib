@@ -7,7 +7,7 @@ namespace YAML_Lib {
 
 class YAML_Stringify final : public IStringify {
 public:
-  explicit YAML_Stringify(std::shared_ptr<ITranslator> translator) {
+  explicit YAML_Stringify(std::unique_ptr<ITranslator> translator) {
     yamlTranslator = std::move(translator);
   }
   YAML_Stringify(const YAML_Stringify &other) = delete;
@@ -27,7 +27,7 @@ private:
   // Current indentation level
   inline static unsigned long yamlIndentation{2};
   // Translator
-  inline static std::shared_ptr<ITranslator> yamlTranslator;
+   std::unique_ptr<ITranslator> yamlTranslator;
 };
 
 } // namespace YAML_Lib
