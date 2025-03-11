@@ -23,13 +23,13 @@ public:
   void stringify(const YNode &yNode, IDestination &destination,
                  const unsigned long indent) const override {
     if (isA<Document>(yNode)) {
-      stringifyDocument(yNode, destination, 0);
+stringifyDocument(yNode, destination, 0);
     } else if (isA<Number>(yNode)) {
       stringifyNumber(yNode, destination);
     } else if (isA<String>(yNode)) {
       stringifyString(yNode, destination);
-    } else if (isA<Boolean>(yNode)) {
-      stringifyBoolean(yNode, destination);
+     } else if (isA<Boolean>(yNode)) {
+       stringifyBoolean(yNode, destination);
     } else if (isA<Null>(yNode)) {
       stringifyNull(yNode, destination);
     } else if (isA<Hole>(yNode)) {
@@ -42,20 +42,20 @@ public:
     }
   }
 
-  void stringifyDocument(const YNode &yNode, IDestination &destination,
-                         const long indent) const {
+  void stringifyDocument(const YNode &yNode, IDestination &destination, const long indent) const {
     stringify(YRef<Document>(yNode)[0], destination, indent);
   }
 
   static void stringifyNumber(const YNode &yNode, IDestination &destination) {
     destination.add(
-        "i" + std::to_string(YRef<Number>(yNode).value<long long>()) + "e");
+      "i" + std::to_string(YRef<Number>(yNode).value<long long>()) + "e");
   }
 
   static void stringifyString(const YNode &yNode, IDestination &destination) {
     const auto yamlString = YRef<String>(yNode).value();
     destination.add(std::to_string(static_cast<int>(yamlString.length())) +
                     ":" + yamlString);
+
   }
 
   static void stringifyBoolean(const YNode &yNode, IDestination &destination) {
@@ -64,15 +64,14 @@ public:
     } else {
       destination.add("5:False");
     }
+
   }
 
-  static void stringifyNull([[maybe_unused]] const YNode &yNode,
-                            IDestination &destination) {
+  static void stringifyNull([[maybe_unused]]const YNode &yNode, IDestination &destination) {
     destination.add("4:null");
   }
 
-  void stringifyDictionary(const YNode &yNode,
-                           IDestination &destination) const {
+  void stringifyDictionary(const YNode &yNode, IDestination &destination) const {
     destination.add('d');
     for (auto &entry : YRef<Dictionary>(yNode).value()) {
       stringify(entry.getKeyYNode(), destination, 0);
@@ -87,6 +86,7 @@ public:
     }
     destination.add("e");
   }
+
 };
 
 } // namespace YAML_Lib
