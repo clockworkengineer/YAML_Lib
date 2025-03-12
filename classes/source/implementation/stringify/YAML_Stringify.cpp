@@ -139,14 +139,4 @@ void YAML_Stringify::stringify(const YNode &yNode, IDestination &destination, co
   }
 }
 
-// /// <summary>
-// ///
-// /// </summary>
-// /// <param name="yamlTree"></param>
-// /// <param name="destination"></param>
-// void YAML_Stringify::stringify( const YNode &yNode,
-//                                IDestination &destination, const unsigned long indent) const {
-//     stringify(yNode, destination, 0);
-// }
-
 } // namespace YAML_Lib
