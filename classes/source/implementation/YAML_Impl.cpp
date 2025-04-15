@@ -19,7 +19,7 @@ YAML_Impl::YAML_Impl(IStringify *stringify, IParser *parser) {
     yamlParser.reset(parser);
   }
   if (stringify == nullptr) {
-    yamlStringify = std::make_unique<YAML_Stringify>( std::make_unique<Default_Translator>());
+    yamlStringify = std::make_unique<Default_Stringify>( std::make_unique<Default_Translator>());
   } else {
     yamlStringify.reset(stringify);
   }

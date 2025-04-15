@@ -1,23 +1,33 @@
+#pragma once
 
-//
-// Class: YAML_Stringify
-//
-// Description: Default YAML stringifier.
-//
-// Dependencies: C++20 - Language standard features used.
-//
-
-#include "YAML_Impl.hpp"
+#include "YAML.hpp"
+#include "YAML_Core.hpp"
 
 namespace YAML_Lib {
-/// <summary>
-///
-/// </summary>
-/// <param name="target"></param>
-/// <param name="delimiter"></param>
-/// <returns></returns>
+
+class Default_Stringify final : public IStringify {
+public:
+  explicit Default_Stringify(std::unique_ptr<ITranslator> translator) {
+    yamlTranslator = std::move(translator);
+  }
+  Default_Stringify(const Default_Stringify &other) = delete;
+  Default_Stringify &operator=(const Default_Stringify &other) = delete;
+  Default_Stringify(Default_Stringify &&other) = delete;
+  Default_Stringify &operator=(Default_Stringify &&other) = delete;
+  ~Default_Stringify() override = default;
+  // Stringify YNode tree
+  void stringify(const YNode &yNode, IDestination &destination,
+                 unsigned long indent) const override {
+    stringifyYAML(yNode, destination, indent);
+  }
+  // Indentation increment
+  static void setIndentation(const unsigned long indentation) {
+    yamlIndentation = indentation;
+  }
+
+private:
 std::vector<std::string> splitString(const std::string &target,
-                                     const char delimiter) {
+                                     const char delimiter) const {
 
   std::vector<std::string> splitStrings;
   if (!target.empty()) {
@@ -32,24 +42,16 @@ std::vector<std::string> splitString(const std::string &target,
   }
   return splitStrings;
 }
-/// <summary>
-///
-/// </summary>
-/// <param name="destination"></param>
-/// <param name="indent"></param>
-/// <returns></returns>
-auto calculateIndent(IDestination &destination, const unsigned long indent) {
+
+auto calculateIndent(IDestination &destination, const unsigned long indent) const
+  {
   if (destination.last() == kLineFeed) {
     return std::string(indent, kSpace);
   }
   return std::string("");
 }
-/// <summary>
-///
-/// </summary>
-/// <param name="destination"></param>
-/// <param name="yNode"></param>
-void stringifyAnyBlockStyle(IDestination &destination, const YNode &yNode) {
+
+void stringifyAnyBlockStyle(IDestination &destination, const YNode &yNode) const{
   if (isA<String>(yNode)) {
     if (const auto quote = YRef<String>(yNode).getQuote();
         quote == '>' || quote == '|') {
@@ -59,7 +61,7 @@ void stringifyAnyBlockStyle(IDestination &destination, const YNode &yNode) {
   }
 }
 
-void YAML_Stringify::stringify(const YNode &yNode, IDestination &destination, const unsigned long indent) const {
+void stringifyYAML( const YNode &yNode, IDestination &destination, const unsigned long indent) const {
   if (isA<Number>(yNode)) {
     destination.add(YRef<Number>(yNode).toString());
   } else if (isA<String>(yNode)) {
@@ -138,5 +140,10 @@ void YAML_Stringify::stringify(const YNode &yNode, IDestination &destination, co
     throw Error("Unknown YNode type encountered during stringification.");
   }
 }
+  // Current indentation level
+  inline static unsigned long yamlIndentation{2};
+  // Translator
+   std::unique_ptr<ITranslator> yamlTranslator;
+};
 
 } // namespace YAML_Lib

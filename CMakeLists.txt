@@ -32,7 +32,6 @@ set(YAML_SOURCES
   ./classes/source/implementation/parser/YAML_Parser_Router.cpp
   ./classes/source/implementation/parser/YAML_Parser_Scalar.cpp
   ./classes/source/implementation/parser/YAML_Parser_Util.cpp
-  ./classes/source/implementation/stringify/YAML_Stringify.cpp
   ./classes/source/implementation/translator/Default_Translator.cpp
 )
 
@@ -52,7 +51,7 @@ set(YAML_INCLUDES
   ./classes/include/implementation/common/YAML_Error.hpp
   ./classes/include/implementation/io/YAML_Sources.hpp
   ./classes/include/implementation/io/YAML_Destinations.hpp
-  ./classes/include/implementation/stringify/YAML_Stringify.hpp
+  ./classes/include/implementation/stringify/Default_Stringify.hpp
   ./classes/include/implementation/stringify/Bencode_Stringify.hpp
   ./classes/include/implementation/stringify/JSON_Stringify.hpp
   ./classes/include/implementation/stringify/XML_Stringify.hpp

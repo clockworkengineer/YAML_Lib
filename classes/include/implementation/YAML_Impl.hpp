@@ -4,7 +4,7 @@
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
 #include "YAML_Parser.hpp"
-#include "YAML_Stringify.hpp"
+#include "Default_Stringify.hpp"
 
 namespace YAML_Lib {
 
