@@ -15,6 +15,7 @@ public:
   Default_Stringify(Default_Stringify &&other) = delete;
   Default_Stringify &operator=(Default_Stringify &&other) = delete;
   ~Default_Stringify() override = default;
+
   /// <summary>
   /// Recursively traverse YNode structure encoding it into YAML string on
   /// the destination stream passed in.
@@ -24,27 +25,7 @@ public:
   // <param name="indent">Current print indentation.</param>
   void stringify(const YNode &yNode, IDestination &destination,
                  unsigned long indent) const override {
-    if (isA<Number>(yNode)) {
-      stringifyNumber(yNode, destination, indent);
-    } else if (isA<String>(yNode)) {
-      stringifyString(yNode, destination, indent);
-    } else if (isA<Comment>(yNode)) {
-      stringifyComment(yNode, destination, indent);
-    } else if (isA<Boolean>(yNode)) {
-      stringifyBoolean(yNode, destination, indent);
-    } else if (isA<Null>(yNode)) {
-      stringifyNull(yNode,destination, indent);
-    } else if (isA<Hole>(yNode)) {
-      stringifyHole(yNode, destination, indent);
-    } else if (isA<Dictionary>(yNode)) {
-      stringifyDictionary(yNode, destination, indent);
-     } else if (isA<Array>(yNode)) {
-       stringifyArray(yNode, destination, indent);
-    } else if (isA<Document>(yNode)) {
-      stringifyDocument(yNode, destination, indent);
-     } else {
-      throw Error("Unknown YNode type encountered during stringification.");
-    }
+   stringifyYNodes(yNode, destination, indent);
   }
   // Indentation increment
   static void setIndentation(const unsigned long indentation) {
@@ -54,7 +35,6 @@ public:
 private:
   static std::vector<std::string> splitString(const std::string &target,
                                               const char delimiter) {
-
     std::vector<std::string> splitStrings;
     if (!target.empty()) {
       std::stringstream sourceStream(target);
@@ -85,11 +65,35 @@ private:
       }
     }
   }
+  static void stringifyYNodes(const YNode &yNode, IDestination &destination,
+                 unsigned long indent)  {
+    if (isA<Number>(yNode)) {
+      stringifyNumber(yNode, destination, indent);
+    } else if (isA<String>(yNode)) {
+      stringifyString(yNode, destination, indent);
+    } else if (isA<Comment>(yNode)) {
+      stringifyComment(yNode, destination, indent);
+    } else if (isA<Boolean>(yNode)) {
+      stringifyBoolean(yNode, destination, indent);
+    } else if (isA<Null>(yNode)) {
+      stringifyNull(yNode,destination, indent);
+    } else if (isA<Hole>(yNode)) {
+      stringifyHole(yNode, destination, indent);
+    } else if (isA<Dictionary>(yNode)) {
+      stringifyDictionary(yNode, destination, indent);
+    } else if (isA<Array>(yNode)) {
+      stringifyArray(yNode, destination, indent);
+    } else if (isA<Document>(yNode)) {
+      stringifyDocument(yNode, destination, indent);
+    } else {
+      throw Error("Unknown YNode type encountered during stringification.");
+    }
+  }
   static void stringifyNumber(const YNode &yNode, IDestination &destination,
                               const unsigned long indent) {
     destination.add(YRef<Number>(yNode).toString());
   }
-  void stringifyString(const YNode &yNode, IDestination &destination, const unsigned long indent) const {
+  static void stringifyString(const YNode &yNode, IDestination &destination, const unsigned long indent)  {
     if (const char quote = YRef<String>(yNode).getQuote();
      quote == kApostrophe || quote == kDoubleQuote) {
       std::string yamlString{YRef<String>(yNode).toString()};
@@ -117,7 +121,7 @@ private:
   static void stringifyHole(const YNode &yNode, IDestination &destination, const unsigned long indent) {
     destination.add(YRef<Hole>(yNode).toString());
   }
-  void stringifyDictionary(const YNode &yNode, IDestination &destination, const unsigned long indent) const {
+  static void stringifyDictionary(const YNode &yNode, IDestination &destination, const unsigned long indent)  {
     for (const auto &entryYNode : YRef<Dictionary>(yNode).value()) {
       destination.add(calculateIndent(destination, indent));
       if (const char quote =
@@ -135,7 +139,7 @@ private:
           isA<Dictionary>(entryYNode.getYNode())) {
         destination.add(kLineFeed);
           }
-      stringify(entryYNode.getYNode(), destination, indent + yamlIndentation);
+      stringifyYNodes(entryYNode.getYNode(), destination, indent + yamlIndentation);
       if (!isA<Array>(entryYNode.getYNode()) &&
           !isA<Dictionary>(entryYNode.getYNode()) &&
           !isA<Comment>(entryYNode.getYNode())) {
@@ -143,17 +147,17 @@ private:
           }
     }
   }
-  void stringifyArray(const YNode &yNode, IDestination &destination, const unsigned long indent) const {
+  static void stringifyArray(const YNode &yNode, IDestination &destination, const unsigned long indent)  {
     for (const auto &entryYNode : YRef<Array>(yNode).value()) {
       destination.add(calculateIndent(destination, indent) + "- ");
       stringifyAnyBlockStyle(destination, entryYNode);
-      stringify(entryYNode, destination, indent + yamlIndentation);
+      stringifyYNodes(entryYNode, destination, indent + yamlIndentation);
       if (destination.last() != kLineFeed) {
         destination.add(kLineFeed);
       }
     }
   }
-  void stringifyDocument(const YNode &yNode, IDestination &destination, const unsigned long indent) const {
+  static void stringifyDocument(const YNode &yNode, IDestination &destination, const unsigned long indent)  {
     destination.add("---");
     if (!YRef<Document>(yNode).value().empty()) {
       stringifyAnyBlockStyle(destination, YRef<Document>(yNode)[0]);
@@ -162,7 +166,7 @@ private:
       }
     }
     for (const auto &entryYNode : YRef<Document>(yNode).value()) {
-      stringify(entryYNode, destination, 0);
+      stringifyYNodes(entryYNode, destination, 0);
     }
     if (destination.last() != kLineFeed) {
       destination.add(kLineFeed);
@@ -174,7 +178,7 @@ private:
   // Current indentation level
   inline static unsigned long yamlIndentation{2};
   // Translator
-  std::unique_ptr<ITranslator> yamlTranslator;
+  inline static std::unique_ptr<ITranslator> yamlTranslator;
 };
 
 } // namespace YAML_Lib

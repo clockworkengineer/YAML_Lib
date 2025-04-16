@@ -8,7 +8,9 @@ namespace YAML_Lib {
 
 class JSON_Stringify final : public IStringify {
 public:
-  JSON_Stringify() = default;
+  explicit JSON_Stringify(std::unique_ptr<ITranslator> translator =
+                            std::make_unique<Default_Translator>())
+  {jsonTranslator = std::move(translator);}
   JSON_Stringify &operator=(const JSON_Stringify &other) = delete;
   JSON_Stringify(JSON_Stringify &&other) = delete;
   JSON_Stringify &operator=(JSON_Stringify &&other) = delete;
@@ -23,6 +25,12 @@ public:
   /// <param name="indent">Current print indentation.</param>
   void stringify(const YNode &yNode, IDestination &destination,
                  const unsigned long indent) const override {
+   stringifyYNodes(yNode,destination, indent);
+  }
+
+private:
+  static void stringifyYNodes(const YNode &yNode, IDestination &destination,
+                 const unsigned long indent)   {
     if (isA<Document>(yNode)) {
       stringifyDocument(yNode, destination, 0);
     } else if (isA<Number>(yNode)) {
@@ -43,17 +51,16 @@ public:
     }
   }
 
-private:
-  void stringifyDocument(const YNode &yNode, IDestination &destination,
-                         const long indent) const {
-    stringify(YRef<Document>(yNode)[0], destination, indent);
+  static void stringifyDocument(const YNode &yNode, IDestination &destination,
+                         const long indent)  {
+    stringifyYNodes(YRef<Document>(yNode)[0], destination, indent);
   }
   static void stringifyNumber(const YNode &yNode, IDestination &destination) {
     destination.add(YRef<Number>(yNode).toString());
   }
-  void stringifyString(const YNode &yNode, IDestination &destination) const {
+  static void stringifyString(const YNode &yNode, IDestination &destination)  {
     const auto yamlString = YRef<String>(yNode).value();
-    destination.add("\"" + jsonTranslator.to(yamlString) + "\"");
+    destination.add("\"" + jsonTranslator->to(yamlString) + "\"");
   }
   static void stringifyBoolean(const YNode &yNode, IDestination &destination) {
     if (YRef<Boolean>(yNode).value()) {
@@ -66,25 +73,25 @@ private:
                             IDestination &destination) {
     destination.add("null");
   }
-  void stringifyDictionary(const YNode &yNode,
-                           IDestination &destination) const {
+  static void stringifyDictionary(const YNode &yNode,
+                           IDestination &destination)  {
     auto comma = YRef<Dictionary>(yNode).value().size() - 1;
     destination.add('{');
     for (auto &entry : YRef<Dictionary>(yNode).value()) {
-      stringify(entry.getKeyYNode(), destination, 0);
+      stringifyYNodes(entry.getKeyYNode(), destination, 0);
       destination.add(":");
-      stringify(entry.getYNode(), destination, 0);
+      stringifyYNodes(entry.getYNode(), destination, 0);
       if (comma-- > 0) {
         destination.add(",");
       }
     }
     destination.add("}");
   }
-  void stringifyAray(const YNode &yNode, IDestination &destination) const {
+  static void stringifyAray(const YNode &yNode, IDestination &destination)  {
     auto comma = YRef<Array>(yNode).value().size() - 1;
     destination.add('[');
     for (auto &entry : YRef<Array>(yNode).value()) {
-      stringify(entry, destination, 0);
+      stringifyYNodes(entry, destination, 0);
       if (comma-- > 0) {
         destination.add(",");
       }
@@ -92,7 +99,7 @@ private:
     destination.add("]");
   }
 
-  Default_Translator jsonTranslator;
+  inline static std::unique_ptr<ITranslator> jsonTranslator;
 };
 
 } // namespace YAML_Lib

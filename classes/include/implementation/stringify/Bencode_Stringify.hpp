@@ -22,6 +22,12 @@ public:
   /// Bencode.</param> <param name="indent">Current print indentation.</param>
   void stringify(const YNode &yNode, IDestination &destination,
                  const unsigned long indent) const override {
+    stringifyYNodes(yNode,destination, indent);
+  }
+
+private:
+  static void stringifyYNodes(const YNode &yNode, IDestination &destination,
+               const unsigned long indent)   {
     if (isA<Document>(yNode)) {
       stringifyDocument(yNode, destination, 0);
     } else if (isA<Number>(yNode)) {
@@ -41,11 +47,9 @@ public:
       throw Error("Unknown YNode type encountered during stringification.");
     }
   }
-
-private:
-  void stringifyDocument(const YNode &yNode, IDestination &destination,
-                         const long indent) const {
-    stringify(YRef<Document>(yNode)[0], destination, indent);
+  static void stringifyDocument(const YNode &yNode, IDestination &destination,
+                         const long indent)  {
+    stringifyYNodes(YRef<Document>(yNode)[0], destination, indent);
   }
 
   static void stringifyNumber(const YNode &yNode, IDestination &destination) {
@@ -68,19 +72,19 @@ private:
                             IDestination &destination) {
     destination.add("4:null");
   }
-  void stringifyDictionary(const YNode &yNode,
-                           IDestination &destination) const {
+  static void stringifyDictionary(const YNode &yNode,
+                           IDestination &destination)  {
     destination.add('d');
     for (auto &entry : YRef<Dictionary>(yNode).value()) {
-      stringify(entry.getKeyYNode(), destination, 0);
-      stringify(entry.getYNode(), destination, 0);
+      stringifyYNodes(entry.getKeyYNode(), destination, 0);
+      stringifyYNodes(entry.getYNode(), destination, 0);
     }
     destination.add("e");
   }
-  void stringifyAray(const YNode &yNode, IDestination &destination) const {
+  static void stringifyAray(const YNode &yNode, IDestination &destination)  {
     destination.add('l');
     for (auto &entry : YRef<Array>(yNode).value()) {
-      stringify(entry, destination, 0);
+      stringifyYNodes(entry, destination, 0);
     }
     destination.add("e");
   }
