@@ -1,7 +1,4 @@
-
 #pragma once
-
-#include "ISource.hpp"
 
 namespace YAML_Lib {
 

@@ -1,26 +1,23 @@
 #pragma once
 
-#include <utility>
-
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
-#include "Default_Translator.hpp"
 
 namespace YAML_Lib {
 
-class YAML_Parser final : public IParser {
+class Default_Parser final : public IParser {
 
 public:
   using Delimiters = std::set<char>;
   enum class BlockChomping : uint8_t { clip = 0, strip, keep };
-  explicit YAML_Parser(std::unique_ptr<ITranslator> translator) {
+  explicit Default_Parser(std::unique_ptr<ITranslator> translator) {
     yamlTranslator = std::move(translator);
   }
-  YAML_Parser(const YAML_Parser &other) = delete;
-  YAML_Parser &operator=(const YAML_Parser &other) = delete;
-  YAML_Parser(YAML_Parser &&other) = delete;
-  YAML_Parser &operator=(YAML_Parser &&other) = delete;
-  ~YAML_Parser() override = default;
+  Default_Parser(const Default_Parser &other) = delete;
+  Default_Parser &operator=(const Default_Parser &other) = delete;
+  Default_Parser(Default_Parser &&other) = delete;
+  Default_Parser &operator=(Default_Parser &&other) = delete;
+  ~Default_Parser() override = default;
 
   std::vector<YNode> parse(ISource &source) override;
 

@@ -17,7 +17,7 @@ namespace YAML_Lib {
 /// <param name="delimiters">Delimiters used to parse document.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Document root YNode.</returns>
-YNode YAML_Parser::parseDocument(ISource &source,
+YNode Default_Parser::parseDocument(ISource &source,
                                  const Delimiters &delimiters,
                                  const unsigned long indentation) {
   moveToNextIndent(source);
@@ -36,7 +36,7 @@ YNode YAML_Parser::parseDocument(ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>Array of YAML documents.</returns>
-std::vector<YNode> YAML_Parser::parse(ISource &source) {
+std::vector<YNode> Default_Parser::parse(ISource &source) {
   std::vector<YNode> yNodeTree;
   arrayIndentLevel = 0;
   inlineArrayDepth = 0;

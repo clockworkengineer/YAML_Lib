@@ -16,7 +16,7 @@ namespace YAML_Lib {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="yamlString">YAML string appended too.</param>
-void YAML_Parser::appendCharacterToString(ISource &source,
+void Default_Parser::appendCharacterToString(ISource &source,
                                           std::string &yamlString) {
   if (source.current() == kLineFeed) {
     source.next();
@@ -38,7 +38,7 @@ void YAML_Parser::appendCharacterToString(ISource &source,
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>String YNode.</returns>
-YNode YAML_Parser::parsePlainFlowString(ISource &source,
+YNode Default_Parser::parsePlainFlowString(ISource &source,
                                         const Delimiters &delimiters,
                                         const unsigned long indentation) {
   std::string yamlString{extractToNext(source, delimiters) + kSpace};
@@ -65,7 +65,7 @@ YNode YAML_Parser::parsePlainFlowString(ISource &source,
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>String YNode.</returns>
-YNode YAML_Parser::parseQuotedFlowString(ISource &source,
+YNode Default_Parser::parseQuotedFlowString(ISource &source,
                                          const Delimiters &delimiters,
                                          [[maybe_unused]] unsigned long indentation) {
   const char quote = source.append();

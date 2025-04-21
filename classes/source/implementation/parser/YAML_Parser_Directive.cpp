@@ -14,7 +14,7 @@ namespace YAML_Lib {
 /// Merge overrides/extensions in dictionary. Overrides will have
 /// "<<" keys; this function edits them into the YAML tree.
 /// </summary>
-YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
+YNode Default_Parser::mergeOverrides(YNode &overrideRoot) {
   if (isA<Dictionary>(overrideRoot) &&
       YRef<Dictionary>(overrideRoot).contains(kOverride)) {
     auto &dictionary = YRef<Dictionary>(overrideRoot);
@@ -44,7 +44,7 @@ YNode YAML_Parser::mergeOverrides(YNode &overrideRoot) {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse comment.</param>
 /// <returns>Comment YNode.</returns>
-YNode YAML_Parser::parseComment(ISource &source,
+YNode Default_Parser::parseComment(ISource &source,
                                 [[maybe_unused]] const Delimiters &delimiters) {
   source.next();
   std::string comment{extractToNext(source, {kLineFeed})};
@@ -61,7 +61,7 @@ YNode YAML_Parser::parseComment(ISource &source,
 /// <param name="delimiters">Delimiters used to parse anchor.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Anchor YNode.</returns>
-YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
+YNode Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
                                const unsigned long indentation) {
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
@@ -90,7 +90,7 @@ YNode YAML_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
 /// <param name="delimiters">Delimiters used to parse alias.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Alias anchor.</returns>
-YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
+YNode Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
                               const unsigned long indentation) {
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
@@ -106,7 +106,7 @@ YNode YAML_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
 /// <param name="delimiters">Delimiters used to parse alias.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Alias anchor with overrides.</returns>
-YNode YAML_Parser::parseOverride(ISource &source, const Delimiters &delimiters,
+YNode Default_Parser::parseOverride(ISource &source, const Delimiters &delimiters,
                                  const unsigned long indentation) {
   source.next();
   source.next();

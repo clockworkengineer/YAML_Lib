@@ -7,9 +7,8 @@
 //
 
 #include "Windows.h"
-
-#include "YAML_Converter.hpp"
-#include "YAML_Error.hpp"
+#include "YAML.hpp"
+#include "YAML_Core.hpp"
 
 namespace YAML_Lib {
 

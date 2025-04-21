@@ -16,7 +16,7 @@ namespace YAML_Lib {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>Specified block chomping.</returns>
-YAML_Parser::BlockChomping YAML_Parser::parseBlockChomping(ISource &source) {
+Default_Parser::BlockChomping Default_Parser::parseBlockChomping(ISource &source) {
   source.next();
   if (const auto ch = source.current(); ch == '-') {
     return BlockChomping::strip;
@@ -35,7 +35,7 @@ YAML_Parser::BlockChomping YAML_Parser::parseBlockChomping(ISource &source) {
 /// <param name="indentation">Parent indentation.</param>
 /// <param name="fillerDefault">Default filler.</param>
 /// <returns>Block string parsed.</returns>
-std::string YAML_Parser::parseBlockString(ISource &source,
+std::string Default_Parser::parseBlockString(ISource &source,
                                           const Delimiters &delimiters,
                                           [[maybe_unused]] unsigned long indentation,
                                           const char fillerDefault) {
@@ -89,7 +89,7 @@ std::string YAML_Parser::parseBlockString(ISource &source,
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>String YNode.</returns>
-YNode YAML_Parser::parseFoldedBlockString(ISource &source,
+YNode Default_Parser::parseFoldedBlockString(ISource &source,
                                           const Delimiters &delimiters,
                                           const unsigned long indentation) {
   return YNode::make<String>(parseBlockString(source, delimiters, indentation, kSpace), '>');
@@ -101,7 +101,7 @@ YNode YAML_Parser::parseFoldedBlockString(ISource &source,
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>String YNode.</returns>
-YNode YAML_Parser::parseLiteralBlockString(ISource &source,
+YNode Default_Parser::parseLiteralBlockString(ISource &source,
                                            const Delimiters &delimiters,
                                            const unsigned long indentation) {
   return YNode::make<String>(parseBlockString(source, delimiters, indentation, kLineFeed),

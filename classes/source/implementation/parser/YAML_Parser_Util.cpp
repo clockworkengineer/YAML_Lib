@@ -17,7 +17,7 @@ namespace YAML_Lib {
 /// <param name="str">Target string.</param>
 /// <param name="substr">Ends with string.</param>
 /// <returns>If true, str then ends with substr.</returns>
-bool YAML_Parser::endsWith(const std::string &str, const std::string &substr) {
+bool Default_Parser::endsWith(const std::string &str, const std::string &substr) {
   const auto strLen = str.size();
   const auto substrLen = substr.size();
   if (strLen < substrLen)
@@ -29,7 +29,7 @@ bool YAML_Parser::endsWith(const std::string &str, const std::string &substr) {
 /// Remove any spaces at the end of str.
 /// </summary>
 /// <param name="str">Target string.</param>
-void YAML_Parser::rightTrim(std::string &str) {
+void Default_Parser::rightTrim(std::string &str) {
   str.erase(
       std::find_if(str.rbegin(), str.rend(),
                    [](const unsigned char ch) { return !std::isspace(ch); })
@@ -41,7 +41,7 @@ void YAML_Parser::rightTrim(std::string &str) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Set of possible delimiter characters.</param>
-void YAML_Parser::moveToNext(ISource &source, const Delimiters &delimiters) {
+void Default_Parser::moveToNext(ISource &source, const Delimiters &delimiters) {
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
       source.next();
@@ -53,7 +53,7 @@ void YAML_Parser::moveToNext(ISource &source, const Delimiters &delimiters) {
 /// lines and stripping amy comments.
 /// </summary>
 /// <param name="source">Source stream.</param>
-void YAML_Parser::moveToNextIndent(ISource &source) {
+void Default_Parser::moveToNextIndent(ISource &source) {
   bool indentFound{false};
   while (!indentFound) {
     while (source.more() && (source.isWS() || source.current() == kLineFeed)) {
@@ -75,7 +75,7 @@ void YAML_Parser::moveToNextIndent(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <param name="quote"></param>
 /// <returns>Extracted characters.</returns>
-std::string YAML_Parser::extractString(ISource &source, const char quote) {
+std::string Default_Parser::extractString(ISource &source, const char quote) {
     std::string extracted{quote};
     source.next();
     while (source.more() && source.current() != quote) {
@@ -95,7 +95,7 @@ std::string YAML_Parser::extractString(ISource &source, const char quote) {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns>Extracted characters.</returns>
-std::string YAML_Parser::extractToNext(ISource &source,
+std::string Default_Parser::extractToNext(ISource &source,
                                        const Delimiters &delimiters) {
   std::string extracted;
   if (!delimiters.empty()) {
@@ -112,7 +112,7 @@ std::string YAML_Parser::extractToNext(ISource &source,
 /// <param name="start">Start character.</param>
 /// <param name="end">End character.</param>
 /// <returns>Extracted characters.</returns>
-std::string YAML_Parser::extractInLine(ISource &source, const char start, const char end) {
+std::string Default_Parser::extractInLine(ISource &source, const char start, const char end) {
   std::string extracted;
   unsigned long depth{1};
   extracted += start;
@@ -134,7 +134,7 @@ std::string YAML_Parser::extractInLine(ISource &source, const char start, const 
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="end">End character.</param>
-void YAML_Parser::checkForEnd(ISource &source, const char end) {
+void Default_Parser::checkForEnd(ISource &source, const char end) {
   if (source.current() != end) {
     throw SyntaxError(source.getPosition(),
                       std::string("Missing closing ") + end + ".");

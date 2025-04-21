@@ -15,7 +15,7 @@ namespace YAML_Lib {
 /// Convert YAML key to a string YNode
 /// </summary>
 /// <param name="yamlString">YAML string.</param>
-YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
+YNode Default_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
   BufferSource yamlKey{yamlString + kLineFeed};
   auto keyYNode = parseDocument(yamlKey, {kLineFeed}, 0);
   std::string keyString{YRef<Variant>(keyYNode).toKey()};
@@ -33,7 +33,7 @@ YNode YAML_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
 /// </summary>
 /// <param name="key">YAML sequence to be converted to be used as the key.</param>
 /// <returns> If true value is a valid key.</returns>
-bool YAML_Parser::isValidKey(const std::string &key) {
+bool Default_Parser::isValidKey(const std::string &key) {
   try {
     BufferSource yamlKey{key + kLineFeed};
     const YNode keyYNode = parseDocument(yamlKey, {kLineFeed}, 0);
@@ -47,7 +47,7 @@ bool YAML_Parser::isValidKey(const std::string &key) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>Extracted mapping/.</returns>
-std::string YAML_Parser::extractMapping(ISource &source) {
+std::string Default_Parser::extractMapping(ISource &source) {
   std::string key;
   source.next();
   while (source.more() && source.current() == kSpace) {
@@ -77,7 +77,7 @@ std::string YAML_Parser::extractMapping(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>YAML for key value.</returns>
-std::string YAML_Parser::extractKey(ISource &source) {
+std::string Default_Parser::extractKey(ISource &source) {
   if (isInlineDictionary(source)) {
     return extractInLine(source, kLeftCurlyBrace, kRightCurlyBrace);
   }
@@ -97,7 +97,7 @@ std::string YAML_Parser::extractKey(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>Dictionary entry key.</returns>
-YNode YAML_Parser::parseKey(ISource &source) {
+YNode Default_Parser::parseKey(ISource &source) {
   std::string key{extractKey(source)};
   if (key.back() == kColon) {
     key.pop_back();
@@ -120,7 +120,7 @@ YNode YAML_Parser::parseKey(ISource &source) {
 /// <param name="delimiters">Delimiters used to parse a key/value pair.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Dictionary entry for key/value.</returns>
-DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
+DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
                                            const Delimiters &delimiters,
                                            const unsigned long indentation) {
   const unsigned long keyIndent = source.getPosition().second;
@@ -146,7 +146,7 @@ DictionaryEntry YAML_Parser::parseKeyValue(ISource &source,
 /// <param name="delimiters">Delimiters used to parse a key/value pair.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Dictionary entry for key/value.</returns>
-DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
+DictionaryEntry Default_Parser::parseInlineKeyValue(ISource &source,
                                                  const Delimiters &delimiters,
                                                  const unsigned long indentation) {
   YNode keyYNode = parseKey(source);
@@ -169,7 +169,7 @@ DictionaryEntry YAML_Parser::parseInlineKeyValue(ISource &source,
 /// <param name="delimiters">Delimiters used to parse dictionary.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Dictionary YNode.</returns>
-YNode YAML_Parser::parseDictionary(ISource &source,
+YNode Default_Parser::parseDictionary(ISource &source,
                                    const Delimiters &delimiters,
                                    [[maybe_unused]] unsigned long indentation) {
   const unsigned long dictionaryIndent = source.getPosition().second;
@@ -206,7 +206,7 @@ YNode YAML_Parser::parseDictionary(ISource &source,
 /// <param name="delimiters">Delimiters used to parse inline dictionary.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Dictionary YNode.</returns>
-YNode YAML_Parser::parseInlineDictionary(
+YNode Default_Parser::parseInlineDictionary(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters,
     const unsigned long indentation) {
   Delimiters inLineDictionaryDelimiters = {delimiters};

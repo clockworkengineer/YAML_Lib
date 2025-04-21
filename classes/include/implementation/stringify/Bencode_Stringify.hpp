@@ -2,7 +2,6 @@
 
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
-#include "Default_Translator.hpp"
 
 namespace YAML_Lib {
 class Bencode_Stringify final : public IStringify {

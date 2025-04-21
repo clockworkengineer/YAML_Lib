@@ -11,7 +11,6 @@
 // Dependencies: C++20 - Language standard features used.
 //
 
-#include "YAML.hpp"
 #include "YAML_Impl.hpp"
 
 namespace YAML_Lib {

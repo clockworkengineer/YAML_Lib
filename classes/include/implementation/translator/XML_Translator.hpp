@@ -1,9 +1,7 @@
-
-
 #pragma once
 
-#include "ITranslator.hpp"
 #include "YAML.hpp"
+#include "YAML_Core.hpp"
 #include "YAML_Converter.hpp"
 
 namespace YAML_Lib {

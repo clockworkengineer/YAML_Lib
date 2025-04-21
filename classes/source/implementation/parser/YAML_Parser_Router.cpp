@@ -16,7 +16,7 @@ namespace YAML_Lib {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true value is an override.</returns>
-bool YAML_Parser::isOverride(ISource &source) {
+bool Default_Parser::isOverride(ISource &source) {
   source.save();
   const bool isOverride{source.match("<<:")};
   source.restore();
@@ -27,7 +27,7 @@ bool YAML_Parser::isOverride(ISource &source) {
 // </summary>
 // <param name="source">Source stream.</param>
 // <returns>== true if a dictionary key has been found.</returns>
-bool YAML_Parser::isKey(ISource &source) {
+bool Default_Parser::isKey(ISource &source) {
   source.save();
   bool keyPresent{false};
   if (std::string key{extractKey(source)}; source.current() == kColon || key.back() == kColon) {
@@ -63,7 +63,7 @@ bool YAML_Parser::isKey(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an array element has been found.</returns>
-bool YAML_Parser::isArray(ISource &source) {
+bool Default_Parser::isArray(ISource &source) {
   source.save();
   auto ch = source.current();
   auto arrayPresent{false};
@@ -80,7 +80,7 @@ bool YAML_Parser::isArray(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a boolean value has been found.</returns>
-bool YAML_Parser::isBoolean(const ISource &source) {
+bool Default_Parser::isBoolean(const ISource &source) {
   const auto ch = source.current();
   return ch == 'T' || ch == 'F' || ch == 'O' || ch == 'Y' || ch == 'N';
 }
@@ -89,7 +89,7 @@ bool YAML_Parser::isBoolean(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, then a quoted string has been found.</returns>
-bool YAML_Parser::isQuotedString(const ISource &source) {
+bool Default_Parser::isQuotedString(const ISource &source) {
   const auto ch = source.current();
   return ch == kApostrophe || ch == kDoubleQuote;
 }
@@ -98,7 +98,7 @@ bool YAML_Parser::isQuotedString(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, then a number has been found.</returns>
-bool YAML_Parser::isNumber(const ISource &source) {
+bool Default_Parser::isNumber(const ISource &source) {
   const auto ch = source.current();
   return (ch >= '0' && ch <= '9') || ch == '-' || ch == '+';
 }
@@ -107,7 +107,7 @@ bool YAML_Parser::isNumber(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a null (none) value has been found.</returns>
-bool YAML_Parser::isNone(const ISource &source) {
+bool Default_Parser::isNone(const ISource &source) {
   const auto second = source.current();
   return second == 'n' || second == '~';
 }
@@ -116,7 +116,7 @@ bool YAML_Parser::isNone(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a founded block string has been found.</returns>
-bool YAML_Parser::isFoldedBlockString(const ISource &source) {
+bool Default_Parser::isFoldedBlockString(const ISource &source) {
   return source.current() == '>';
 }
 /// <summary>
@@ -124,7 +124,7 @@ bool YAML_Parser::isFoldedBlockString(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a piped block string has been found.</returns>
-bool YAML_Parser::isPipedBlockString(const ISource &source) {
+bool Default_Parser::isPipedBlockString(const ISource &source) {
   return source.current() == '|';
 }
 /// <summary>
@@ -132,7 +132,7 @@ bool YAML_Parser::isPipedBlockString(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a comment has been found.</returns>
-bool YAML_Parser::isComment(const ISource &source) {
+bool Default_Parser::isComment(const ISource &source) {
   return source.current() == '#';
 }
 /// <summary>
@@ -140,7 +140,7 @@ bool YAML_Parser::isComment(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an anchor has been found.</returns>
-bool YAML_Parser::isAnchor(const ISource &source) {
+bool Default_Parser::isAnchor(const ISource &source) {
   return source.current() == '&';
 }
 /// <summary>
@@ -148,7 +148,7 @@ bool YAML_Parser::isAnchor(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an alias has been found.</returns>
-bool YAML_Parser::isAlias(const ISource &source) {
+bool Default_Parser::isAlias(const ISource &source) {
   return source.current() == '*';
 }
 /// <summary>
@@ -156,7 +156,7 @@ bool YAML_Parser::isAlias(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an inline array has been found.</returns>
-bool YAML_Parser::isInlineArray(const ISource &source) {
+bool Default_Parser::isInlineArray(const ISource &source) {
   return source.current() == kLeftSquareBracket;
 }
 /// <summary>
@@ -164,7 +164,7 @@ bool YAML_Parser::isInlineArray(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an inline dictionary has been found.</returns>
-bool YAML_Parser::isInlineDictionary(const ISource &source) {
+bool Default_Parser::isInlineDictionary(const ISource &source) {
   return source.current() == kLeftCurlyBrace;
 }
 /// <summary>
@@ -172,7 +172,7 @@ bool YAML_Parser::isInlineDictionary(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a mapping has been found.</returns>
-bool YAML_Parser::isMapping(const ISource &source) {
+bool Default_Parser::isMapping(const ISource &source) {
   return source.current() == '?';
 }
 /// <summary>
@@ -180,13 +180,13 @@ bool YAML_Parser::isMapping(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a dictionary has been found.</returns>
-bool YAML_Parser::isDictionary(ISource &source) { return isKey(source); }
+bool Default_Parser::isDictionary(ISource &source) { return isKey(source); }
 /// <summary>
 /// Has document start been found on the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true,a start of document has been found.</returns>
-bool YAML_Parser::isDocumentStart(ISource &source) {
+bool Default_Parser::isDocumentStart(ISource &source) {
   source.save();
   const bool isStart{source.match(kStartDocument)};
   source.restore();
@@ -197,7 +197,7 @@ bool YAML_Parser::isDocumentStart(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an end document has been found.</returns>
-bool YAML_Parser::isDocumentEnd(ISource &source) {
+bool Default_Parser::isDocumentEnd(ISource &source) {
   source.save();
   const bool isEnd{source.match(kEndDocument)};
   source.restore();
@@ -208,6 +208,6 @@ bool YAML_Parser::isDocumentEnd(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>True</returns>
-bool YAML_Parser::isDefault([[maybe_unused]] ISource &source) { return true; }
+bool Default_Parser::isDefault([[maybe_unused]] ISource &source) { return true; }
 
 } // namespace YAML_Lib

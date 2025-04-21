@@ -17,7 +17,7 @@ namespace YAML_Lib {
 /// <param name="delimiters">Delimiters used to parse number./param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Number YNode.</returns>
-YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
+YNode Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
                                [[maybe_unused]] unsigned long indentation) {
   YNode numberYNode;
   source.save();
@@ -41,7 +41,7 @@ YNode YAML_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
 /// <param name="delimiters">Delimiters used to parse None.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>None YNode.</returns>
-YNode YAML_Parser::parseNone(ISource &source, const Delimiters &delimiters,
+YNode Default_Parser::parseNone(ISource &source, const Delimiters &delimiters,
                              [[maybe_unused]] unsigned long indentation) {
   YNode noneYNode;
   source.save();
@@ -62,7 +62,7 @@ YNode YAML_Parser::parseNone(ISource &source, const Delimiters &delimiters,
 /// <param name="delimiters">Delimiters used to parse boolean.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Boolean YNode.</returns>
-YNode YAML_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
+YNode Default_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
                                 [[maybe_unused]] unsigned long indentation) {
   YNode booleanYNode;
   source.save();

@@ -1,7 +1,4 @@
-
 #pragma once
-
-#include <string>
 
 namespace YAML_Lib {
 

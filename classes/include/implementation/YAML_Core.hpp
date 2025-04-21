@@ -33,3 +33,8 @@
 
 // Error
 #include "YAML_Error.hpp"
+
+// Defaults
+#include "Default_Translator.hpp"
+#include "Default_Parser.hpp"
+#include "Default_Stringify.hpp"
