@@ -22,6 +22,8 @@ public:
   // Add bytes to destination
   // ========================
   virtual void add(const std::string &bytes) = 0;
+  virtual void add(const char* bytes) = 0;
+  virtual void add(const std::string_view &bytes) = 0;
   // ============================
   // Add character to destination
   // ============================

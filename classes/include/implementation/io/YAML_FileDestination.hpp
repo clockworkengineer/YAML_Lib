@@ -31,6 +31,17 @@ public:
     }
     lastChar = bytes.back();
   }
+  void add(const char *bytes) override {
+    int len = strlen(bytes);
+    for (int index=0; index<len; index++) { add(bytes[index]); }
+    destination.flush();
+    lastChar = bytes[len - 1];
+  }
+  void add( const std::string_view &bytes) override {
+    for (const auto ch : bytes) { add(ch); }
+    destination.flush();
+    lastChar = bytes.back();
+  }
   void clear() override {
     if (destination.is_open()) {
       destination.close();

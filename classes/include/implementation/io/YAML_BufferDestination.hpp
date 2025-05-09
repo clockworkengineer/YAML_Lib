@@ -14,6 +14,16 @@ public:
   void add(const std::string &bytes) override {
     std::ranges::copy(bytes, std::back_inserter(buffer));
   }
+  void add(const char * bytes) override {
+    for (std::size_t index=0; index<strlen(bytes); index++) {
+      buffer.push_back(static_cast<char>(bytes[index]));
+    }
+  }
+  void add(const std::string_view &bytes) override {
+    for (auto ch : bytes) {
+      buffer.push_back(static_cast<char>(ch));
+    }
+  }
   void add(const char ch) override { buffer.push_back(ch); }
   void clear() override { buffer.clear(); }
 
