@@ -11,8 +11,8 @@ public:
   // ISource Error
   // =============
   struct Error final : std::runtime_error {
-    explicit Error(const std::string &message)
-        : std::runtime_error("ISource Error: " + message) {}
+    explicit Error(const std::string_view &message)
+        : std::runtime_error(std::string("ISource Error: ").append(message)) {}
   };
   // ========================
   // Constructors/destructors
