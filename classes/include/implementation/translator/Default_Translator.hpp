@@ -31,9 +31,9 @@ public:
   Default_Translator &operator=(Default_Translator &&other) = delete;
   ~Default_Translator() override = default;
 
-  [[nodiscard]] std::string to(const std::string &rawString) const override;
+  [[nodiscard]] std::string to(const std::string_view &rawString) const override;
   [[nodiscard]] std::string
-  from([[maybe_unused]] const std::string &escapedString) const override;
+  from([[maybe_unused]] const std::string_view &escapedString) const override;
 
 private:
   // To/From escape sequence lookup maps

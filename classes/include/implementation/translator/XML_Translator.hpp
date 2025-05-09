@@ -23,12 +23,12 @@ public:
   ~XML_Translator() override = default;
 
   // Convert to/from XML escaped characters
-  [[nodiscard]] std::string from([[maybe_unused]] const std::string &escapedString) const override { return escapedString; }
+  [[nodiscard]] std::string from([[maybe_unused]] const std::string_view &escapedString) const override { return std::string(escapedString); }
 
-  [[nodiscard]] std::string to(const std::string &rawString) const override
+  [[nodiscard]] std::string to(const std::string_view &rawString) const override
   {
     std::string translated;
-    for (const char16_t ch : toUtf16(rawString)) {
+    for (const char16_t ch : toUtf16(std::string(rawString))) {
       if (isASCII(ch) && std::isprint(ch)) {
         if (ch == '&') {
           translated += "&amp;";
