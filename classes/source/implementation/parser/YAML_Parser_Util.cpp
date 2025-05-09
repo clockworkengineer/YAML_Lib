@@ -17,7 +17,7 @@ namespace YAML_Lib {
 /// <param name="str">Target string.</param>
 /// <param name="substr">Ends with string.</param>
 /// <returns>If true, str then ends with substr.</returns>
-bool Default_Parser::endsWith(const std::string &str, const std::string &substr) {
+bool Default_Parser::endsWith(const std::string_view &str, const std::string_view &substr) {
   const auto strLen = str.size();
   const auto substrLen = substr.size();
   if (strLen < substrLen)

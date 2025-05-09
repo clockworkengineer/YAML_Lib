@@ -15,8 +15,8 @@ namespace YAML_Lib {
 /// Convert YAML key to a string YNode
 /// </summary>
 /// <param name="yamlString">YAML string.</param>
-YNode Default_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
-  BufferSource yamlKey{yamlString + kLineFeed};
+YNode Default_Parser::convertYAMLToStringYNode(const std::string_view &yamlString) {
+  BufferSource yamlKey{std::string(yamlString) + kLineFeed};
   auto keyYNode = parseDocument(yamlKey, {kLineFeed}, 0);
   std::string keyString{YRef<Variant>(keyYNode).toKey()};
   char quote = '\"';
@@ -33,9 +33,9 @@ YNode Default_Parser::convertYAMLToStringYNode(const std::string &yamlString) {
 /// </summary>
 /// <param name="key">YAML sequence to be converted to be used as the key.</param>
 /// <returns> If true value is a valid key.</returns>
-bool Default_Parser::isValidKey(const std::string &key) {
+bool Default_Parser::isValidKey(const std::string_view &key) {
   try {
-    BufferSource yamlKey{key + kLineFeed};
+    BufferSource yamlKey{std::string(key) + kLineFeed};
     const YNode keyYNode = parseDocument(yamlKey, {kLineFeed}, 0);
     return !keyYNode.isEmpty() && !isA<Comment>(keyYNode);
   } catch ([[maybe_unused]] const std::exception &e) {

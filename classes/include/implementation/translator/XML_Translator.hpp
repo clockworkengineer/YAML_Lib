@@ -2,7 +2,6 @@
 
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
-#include "YAML_Converter.hpp"
 
 namespace YAML_Lib {
 
@@ -12,7 +11,7 @@ public:
   // XML translator error
   struct Error final : std::runtime_error
   {
-    explicit Error(const std::string &message) : std::runtime_error("XML Translator Error: " + message) {}
+    explicit Error(const std::string_view &message) : std::runtime_error(std::string("XML Translator Error: ").append(message)) {}
   };
 
   XML_Translator() = default;
@@ -22,7 +21,7 @@ public:
   XML_Translator &operator=(XML_Translator &&other) = delete;
   ~XML_Translator() override = default;
 
-  // Convert to/from XML escaped characters
+  // Convert to/from XML-escaped characters
   [[nodiscard]] std::string from([[maybe_unused]] const std::string_view &escapedString) const override { return std::string(escapedString); }
 
   [[nodiscard]] std::string to(const std::string_view &rawString) const override

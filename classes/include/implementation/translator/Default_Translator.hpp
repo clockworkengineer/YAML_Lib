@@ -3,7 +3,7 @@
 
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
-#include "YAML_Converter.hpp"
+
 
 namespace YAML_Lib {
 
@@ -20,8 +20,8 @@ class Default_Translator final : public ITranslator {
 public:
   // YAML translator error
   struct Error final : std::runtime_error {
-    explicit Error(const std::string &message)
-        : std::runtime_error("YAML Translator Error: " + message) {}
+    explicit Error(const std::string_view &message)
+        : std::runtime_error(std::string("YAML Translator Error: ").append(message)) {}
   };
 
   Default_Translator();

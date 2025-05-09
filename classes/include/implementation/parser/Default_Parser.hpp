@@ -26,7 +26,7 @@ public:
 
 private:
   // YAML parser
-  static bool endsWith(const std::string &str, const std::string &substr);
+  static bool endsWith(const std::string_view &str, const std::string_view &substr);
   static void rightTrim(std::string &str);
   static void moveToNext(ISource &source, const Delimiters &delimiters);
   static void moveToNextIndent(ISource &source);
@@ -37,8 +37,8 @@ private:
   static std::string extractMapping(ISource &source);
   static void checkForEnd(ISource &source, char end);
   static YNode mergeOverrides(YNode &overrideRoot);
-  static YNode convertYAMLToStringYNode(const std::string &yamlString);
-  static bool isValidKey(const std::string &key);
+  static YNode convertYAMLToStringYNode(const std::string_view &yamlString);
+  static bool isValidKey(const std::string_view &key);
   static bool isOverride(ISource &source);
   static bool isKey(ISource &source);
   static bool isArray(ISource &source);
