@@ -3,16 +3,16 @@
 namespace YAML_Lib {
 
 // Dictionary error
-struct DictionaryError final : std::runtime_error {
-  explicit DictionaryError(const std::string &message)
-      : std::runtime_error("Dictionary Error: " + message) {}
-};
+  struct DictionaryError final : std::runtime_error {
+    explicit DictionaryError(const std::string_view &message)
+        : std::runtime_error(std::string("Dictionary Error: ").append(message)) {}
+  };
 
 // Dictionary entry
 struct DictionaryEntry {
-  DictionaryEntry(const std::string &key, YNode &yNode)
+  DictionaryEntry(const std::string_view &key, YNode &yNode)
       : key(YNode::make<String>(key, kNull)), yNode(std::move(yNode)) {}
-  DictionaryEntry(const std::string &key, YNode &&yNode)
+  DictionaryEntry(const std::string_view &key, YNode &&yNode)
       : key(YNode::make<String>(key, kNull)), yNode(std::move(yNode)) {}
   DictionaryEntry(YNode &keyYNode, YNode &yNode)
       : key(std::move(keyYNode)), yNode(std::move(yNode)) {}
@@ -50,7 +50,7 @@ struct Dictionary final : Variant {
     yNodeDictionary.emplace_back(std::forward<T>(entry));
   }
   // Return true if a dictionary contains a given key
-  [[nodiscard]] bool contains(const std::string &key) const {
+  [[nodiscard]] bool contains(const std::string_view &key) const {
     try {
       [[maybe_unused]] auto _ = findKey(yNodeDictionary, key);
     } catch ([[maybe_unused]] const Error &e) {
@@ -63,10 +63,10 @@ struct Dictionary final : Variant {
     return static_cast<int>(yNodeDictionary.size());
   }
   // Return dictionary entry for a given key
-  YNode &operator[](const std::string &key) {
+  YNode &operator[](const std::string_view &key) {
     return findKey(yNodeDictionary, key)->getYNode();
   }
-  const YNode &operator[](const std::string &key) const {
+  const YNode &operator[](const std::string_view &key) const {
     return findKey(yNodeDictionary, key)->getYNode();
   }
   // Return reference to base of dictionary entries
@@ -95,16 +95,16 @@ struct Dictionary final : Variant {
 private:
   // Search for a given entry given a key and dictionary list
   [[nodiscard]] static Entries::iterator findKey(Entries &dictionary,
-                                                 const std::string &key);
+                                                 const std::string_view &key);
   [[nodiscard]] static Entries::const_iterator
-  findKey(const Entries &dictionary, const std::string &key);
+  findKey(const Entries &dictionary, const std::string_view &key);
 
   // Dictionary entries list
   Entries yNodeDictionary;
 };
 
 inline Dictionary::Entries::iterator
-Dictionary::findKey(Entries &dictionary, const std::string &key) {
+Dictionary::findKey(Entries &dictionary, const std::string_view &key) {
   const auto it =
       std::ranges::find_if(dictionary, [&key](Entry &entry) -> bool {
         return entry.getKey() == key;
@@ -115,7 +115,7 @@ Dictionary::findKey(Entries &dictionary, const std::string &key) {
   return it;
 }
 inline Dictionary::Entries::const_iterator
-Dictionary::findKey(const Entries &dictionary, const std::string &key) {
+Dictionary::findKey(const Entries &dictionary, const std::string_view &key) {
   const auto it =
       std::ranges::find_if(dictionary, [&key](const Entry &entry) -> bool {
         return entry.getKey() == key;

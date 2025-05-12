@@ -8,8 +8,8 @@ struct Number final : Variant {
                               double, long double>;
   // YNode Number Error
   struct Error final : std::runtime_error {
-    explicit Error(const std::string &message)
-        : std::runtime_error("YNode Number Error: " + message) {}
+    explicit Error(const std::string_view &message)
+        : std::runtime_error(std::string("Number Error: ").append(message)) {}
   };
   // All string conversion base default
   static constexpr int kStringConversionBase{10};

@@ -5,7 +5,7 @@ namespace YAML_Lib {
 struct String final : Variant {
   // Constructors/Destructors
   String() : Variant(Type::string) {}
-  explicit String(std::string string, const char quotes = kDoubleQuote)
+  explicit String(const std::string_view &string, const char quotes = kDoubleQuote)
       : Variant(Type::string), yNodeString(std::move(string)), quote(quotes) {}
   String(const String &other) = default;
   String &operator=(const String &other) = default;

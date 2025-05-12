@@ -7,7 +7,7 @@ namespace YAML_Lib {
 struct Boolean final : Variant {
   // Constructors/Destructors
   Boolean() : Variant(Type::boolean) {}
-  Boolean(const bool boolean, std::string value)
+  Boolean(const bool boolean, const std::string_view & value)
       : Variant(Type::boolean), yNodeBoolean(boolean),
         booleanString(std::move(value)) {}
   Boolean(const Boolean &other) = default;
@@ -27,8 +27,8 @@ struct Boolean final : Variant {
     return yNodeBoolean ? "true" : "false";
   }
   // Valid values for true/false
-  inline static const std::set<std::string> isTrue{"True", "On", "Yes"};
-  inline static const std::set<std::string> isFalse{"False", "Off", "No"};
+  inline static const std::set<std::string_view> isTrue{"True", "On", "Yes"};
+  inline static const std::set<std::string_view> isFalse{"False", "Off", "No"};
 
 private:
   bool yNodeBoolean{};

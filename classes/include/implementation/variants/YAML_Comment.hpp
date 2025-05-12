@@ -4,7 +4,7 @@ namespace YAML_Lib {
 
 struct Comment final : Variant {
   // Constructors/Destructors
-  explicit Comment(std::string comment = "")
+  explicit Comment(const std::string_view & comment = "")
       : Variant(Type::comment), yamlComment(std::move(comment)) {}
   Comment(const Comment &other) = default;
   Comment &operator=(const Comment &other) = default;

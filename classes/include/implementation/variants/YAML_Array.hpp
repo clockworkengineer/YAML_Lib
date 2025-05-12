@@ -4,8 +4,8 @@ namespace YAML_Lib {
 
 // Array error
 struct ArrayError final : std::runtime_error {
-  explicit ArrayError(const std::string &message)
-      : std::runtime_error("Array Error: " + message) {}
+  explicit ArrayError(const std::string_view &message)
+      : std::runtime_error(std::string("Array Error: ").append(message)) {}
 };
 
 struct Array final : Variant {
@@ -21,7 +21,7 @@ struct Array final : Variant {
   ~Array() override = default;
   // Add array element
   void add(Entry yNode) { yNodeArray.emplace_back(std::move(yNode)); }
-  // Return the size of array
+  // Return the size of an array
   [[nodiscard]] std::size_t size() const { return yNodeArray.size(); }
   // Return reference to array base
   Entries &value() { return yNodeArray; }
