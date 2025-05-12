@@ -53,7 +53,7 @@ void YAML_Impl::traverse(IAction &action) const {
   traverseYNodes(yamlTree[0][0], action);
 }
 
-YNode &YAML_Impl::operator[](const std::string &key) {
+YNode &YAML_Impl::operator[](const std::string_view &key) {
   try {
     if (getNumberOfDocuments() == 0) {
       BufferSource source("---\n...\n");
@@ -67,7 +67,7 @@ YNode &YAML_Impl::operator[](const std::string &key) {
     return document(0)[key];
   }
 }
-const YNode &YAML_Impl::operator[](const std::string &key) const {
+const YNode &YAML_Impl::operator[](const std::string_view &key) const {
   return document(0)[0][key];
 }
 

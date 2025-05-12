@@ -41,16 +41,16 @@ public:
   void traverse(IAction &action);
   void traverse(IAction &action) const;
   // Search for YAML object entry with a given key
-  YNode &operator[](const std::string &key);
-  const YNode &operator[](const std::string &key) const;
+  YNode &operator[](const std::string_view &key);
+  const YNode &operator[](const std::string_view &key) const;
   // Get YAML array element at index
   YNode &operator[](std::size_t index);
   const YNode &operator[](std::size_t index) const;
   // Read/Write YAML from a file
-  static std::string fromFile(const std::string &fileName);
+  static std::string fromFile(const std::string_view &fileName);
   static void toFile(const std::string &fileName, const std::string &yamlString, YAML::Format format);
   // Get YAML file format
-  static YAML::Format getFileFormat(const std::string &fileName);
+  static YAML::Format getFileFormat(const std::string_view &fileName);
 
 private:
   // Traverse YAML tree

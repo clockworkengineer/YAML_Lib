@@ -88,9 +88,9 @@ std::u16string readYAMLString(std::ifstream &yamlFile, const YAML::Format format
 /// </summary>
 /// <param name="fileName">YAML file name</param>
 /// <returns>YAML file format.</returns>
-YAML::Format YAML_Impl::getFileFormat(const std::string &fileName)
+YAML::Format YAML_Impl::getFileFormat(const std::string_view &fileName)
 {
-    std::ifstream yamlFile{ fileName, std::ios_base::binary };
+    std::ifstream yamlFile{ fileName.data(), std::ios_base::binary };
     uint32_t byteOrderMark = static_cast<unsigned char>(yamlFile.get()) << 24;
     byteOrderMark |= static_cast<unsigned char>(yamlFile.get()) << 16;
     byteOrderMark |= static_cast<unsigned char>(yamlFile.get()) << 8;
@@ -111,13 +111,13 @@ YAML::Format YAML_Impl::getFileFormat(const std::string &fileName)
 /// </summary>
 /// <param name="fileName">YAML file name</param>
 /// <returns>YAML string.</returns>
-std::string YAML_Impl::fromFile(const std::string &fileName)
+std::string YAML_Impl::fromFile(const std::string_view &fileName)
 {
     const auto kCRLF = "\x0D\x0A";
     // Get file format
     const YAML::Format format = getFileFormat(fileName);
     // Read in YAML
-    std::ifstream yamlFile{ fileName, std::ios_base::binary };
+    std::ifstream yamlFile{ fileName.data(), std::ios_base::binary };
     std::string translated;
     switch (format) {
     case YAML::Format::utf8BOM:
