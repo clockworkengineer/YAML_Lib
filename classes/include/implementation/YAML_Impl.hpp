@@ -48,7 +48,7 @@ public:
   const YNode &operator[](std::size_t index) const;
   // Read/Write YAML from a file
   static std::string fromFile(const std::string_view &fileName);
-  static void toFile(const std::string &fileName, const std::string &yamlString, YAML::Format format);
+  static void toFile(const std::string_view &fileName, const std::string_view &yamlString, YAML::Format format);
   // Get YAML file format
   static YAML::Format getFileFormat(const std::string_view &fileName);
 

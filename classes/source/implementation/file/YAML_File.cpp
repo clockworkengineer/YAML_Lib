@@ -20,7 +20,7 @@ namespace YAML_Lib {
 /// </summary>
 /// <param name="yamlFile">YAML file stream</param>
 /// <param name="yamlString">YAML string</param>
-void writeYAMLString(std::ofstream &yamlFile, const std::string &yamlString) { yamlFile << yamlString; }
+void writeYAMLString(std::ofstream &yamlFile, const std::string_view &yamlString) { yamlFile << yamlString; }
 /// <summary>
 /// Write YAML string to a file stream.
 /// </summary>
@@ -149,9 +149,9 @@ std::string YAML_Impl::fromFile(const std::string_view &fileName)
 /// <param name="fileName">YAML file name</param>
 /// <param name="yamlString">YAML string</param>
 /// <param name="format">YAML file format</param>
-void YAML_Impl::toFile(const std::string &fileName, const std::string &yamlString, const YAML::Format format)
+void YAML_Impl::toFile(const std::string_view &fileName, const std::string_view &yamlString, const YAML::Format format)
 {
-    std::ofstream yamlFile{ fileName, std::ios::binary };
+    std::ofstream yamlFile{ fileName.data(), std::ios::binary };
     switch (format) {
     case YAML::Format::utf8BOM:
         yamlFile << static_cast<unsigned char>(0xEF) << static_cast<unsigned char>(0xBB)
@@ -161,7 +161,7 @@ void YAML_Impl::toFile(const std::string &fileName, const std::string &yamlStrin
         break;
     case YAML::Format::utf16BE:
     case YAML::Format::utf16LE:
-        writeYAMLString(yamlFile, toUtf16(yamlString), format);
+        writeYAMLString(yamlFile, toUtf16(std::string(yamlString)), format);
         break;
     default:
         throw Error("Unsupported YAML file format (Byte Order Mark) specified.");
