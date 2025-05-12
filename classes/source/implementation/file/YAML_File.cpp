@@ -161,7 +161,7 @@ void YAML_Impl::toFile(const std::string_view &fileName, const std::string_view 
         break;
     case YAML::Format::utf16BE:
     case YAML::Format::utf16LE:
-        writeYAMLString(yamlFile, toUtf16(std::string(yamlString)), format);
+        writeYAMLString(yamlFile, toUtf16(yamlString), format);
         break;
     default:
         throw Error("Unsupported YAML file format (Byte Order Mark) specified.");

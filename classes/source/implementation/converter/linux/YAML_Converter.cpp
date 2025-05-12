@@ -17,17 +17,17 @@ static std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>
 /// <summary>
 /// Convert utf8 <-> utf16 strings.
 /// </summary>
-std::u16string toUtf16(const std::string &utf8) {
+std::u16string toUtf16(const std::string_view &utf8) {
   if (utf8.find(kNull) != std::string::npos) {
     throw Error("Tried to convert a null character.");
   }
-  return utf16Converter.from_bytes(utf8);
+  return utf16Converter.from_bytes(std::string(utf8));
 }
-std::string toUtf8(const std::u16string &utf16) {
+std::string toUtf8(const std::u16string_view &utf16) {
   if (utf16.find(static_cast<char16_t>(kNull)) != std::string::npos) {
     throw Error("Tried to convert a null character.");
   }
-  return utf16Converter.to_bytes(utf16);
+  return utf16Converter.to_bytes(std::u16string(utf16));
 }
 
 } // namespace YAML_Lib

@@ -29,18 +29,18 @@ int BytesToWideChar(const char *bytes, int length,
 /// <summary>
 /// Convert utf8 <-> utf16 strings.
 /// </summary>
-std::u16string toUtf16(const std::string &utf8) {
+std::u16string toUtf16(const std::string_view &utf8) {
   if (utf8.find(kNull) != std::string::npos) {
     throw Error("Tried to convert a null character.");
   }
   std::wstring wideString(
-      BytesToWideChar(utf8.c_str(), static_cast<int>(utf8.length())), 0);
-  BytesToWideChar(utf8.c_str(), static_cast<int>(utf8.length()), &wideString[0],
+      BytesToWideChar(utf8.data(), static_cast<int>(utf8.length())), 0);
+  BytesToWideChar(utf8.data(), static_cast<int>(utf8.length()), &wideString[0],
                   static_cast<int>(wideString.length()));
   return (std::u16string{wideString.begin(), wideString.end()});
 }
 
-std::string toUtf8(const std::u16string &utf16) {
+std::string toUtf8(const std::u16string_view &utf16) {
   if (utf16.find(kNull) != std::string::npos) {
     throw Error("Tried to convert a null character.");
   }
