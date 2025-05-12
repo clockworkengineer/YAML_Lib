@@ -5,8 +5,8 @@ namespace YAML_Lib {
 struct YNode {
   // YNode Error
   struct Error final : std::runtime_error {
-    explicit Error(const std::string &message)
-        : std::runtime_error("YNode Error: " + message) {}
+    explicit Error(const std::string_view &message)
+        : std::runtime_error(std::string("YNode Error: ").append(message)) {}
   };
   // Constructors/Destructors
   YNode() = default;
@@ -25,8 +25,8 @@ struct YNode {
   // Has the variant been created?
   [[nodiscard]] bool isEmpty() const { return yNodeVariant == nullptr; }
   // Indexing operators
-  YNode &operator[](const std::string &key);
-  const YNode &operator[](const std::string &key) const;
+  YNode &operator[](const std::string_view &key);
+  const YNode &operator[](const std::string_view &key) const;
   YNode &operator[](std::size_t index);
   const YNode &operator[](std::size_t index) const;
   // Get reference to YNode variant

@@ -4,7 +4,7 @@
 namespace YAML_Lib {
 
 // Dictionary
-inline YNode &YNode::operator[](const std::string &key) {
+inline YNode &YNode::operator[](const std::string_view &key) {
   if (isA<Hole>(*this)) {
     *this = make<Dictionary>();
     YRef<Dictionary>(*this).add(Dictionary::Entry(key, make<Hole>()));
@@ -12,7 +12,7 @@ inline YNode &YNode::operator[](const std::string &key) {
   }
   return YRef<Dictionary>(*this)[key];
 }
-inline const YNode &YNode::operator[](const std::string &key) const {
+inline const YNode &YNode::operator[](const std::string_view &key) const {
   return YRef<const Dictionary>(*this)[key];
 }
 // Array
