@@ -75,7 +75,7 @@ public:
   // Pass any user defined parser/stringifier here
   explicit YAML(IStringify *stringify = nullptr, IParser *parser = nullptr);
   // Pass in default YAML to parse
-  explicit YAML(const std::string &yamlString);
+  explicit YAML(const std::string_view &yamlString);
   // Construct an array
   YAML(const ArrayInitializer &array);
   // Construct object
@@ -103,17 +103,17 @@ public:
   void traverse(IAction &action);
   void traverse(IAction &action) const;
   // Search for YAML object entry with a given key
-  YNode &operator[](const std::string &key);
-  const YNode &operator[](const std::string &key) const;
+  YNode &operator[](const std::string_view &key);
+  const YNode &operator[](const std::string_view &key) const;
   // Get YAML array entry at index
   YNode &operator[](std::size_t index);
   const YNode &operator[](std::size_t index) const;
   // Read/write YAML file
-  static std::string fromFile(const std::string &yamlFileName);
-  static void toFile(const std::string &fileName, const std::string &yamlString,
+  static std::string fromFile(const std::string_view &yamlFileName);
+  static void toFile(const std::string_view &fileName, const std::string_view &yamlString,
                      Format format = Format::utf8);
   // Get YAML file format
-  static Format getFileFormat(const std::string &fileName);
+  static Format getFileFormat(const std::string_view &fileName);
 
 private:
   // YAML implementation

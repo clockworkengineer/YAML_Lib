@@ -28,7 +28,7 @@ YAML::~YAML() = default;
 /// YAML constructor. Pass a YAML string to be initially parsed.
 /// </summary>
 /// <param name="yamlString">YAML string.</param>
-YAML::YAML(const std::string &yamlString) : YAML() {
+YAML::YAML(const std::string_view &yamlString) : YAML() {
   parse(BufferSource{yamlString});
 }
 /// <summary>
@@ -108,10 +108,10 @@ void YAML::traverse(IAction &action) const {
 /// Return object entry for the passed in keys.
 /// </summary>
 /// <param name="key">Object entry (YNode) key.</param>
-YNode &YAML::operator[](const std::string &key) {
+YNode &YAML::operator[](const std::string_view &key) {
   return (*implementation)[key];
 }
-const YNode &YAML::operator[](const std::string &key) const {
+const YNode &YAML::operator[](const std::string_view &key) const {
   return (*implementation)[key];
 }
 /// <summary>
@@ -130,7 +130,7 @@ const YNode &YAML::operator[](const std::size_t index) const {
 /// </summary>
 /// <param name="yamlFileName">YAML file name</param>
 /// <returns>YAML string.</returns>
-std::string YAML::fromFile(const std::string &yamlFileName) { return YAML_Impl::fromFile(yamlFileName); }
+std::string YAML::fromFile(const std::string_view &yamlFileName) { return YAML_Impl::fromFile(yamlFileName); }
 
 /// <summary>
 /// Create an YAML file and write YAML string to it.
@@ -138,7 +138,7 @@ std::string YAML::fromFile(const std::string &yamlFileName) { return YAML_Impl::
 /// <param name="fileName">YAML file name</param>
 /// <param name="yamlString">YAML string</param>
 /// <param name="format">YAML file format</param>
-void YAML::toFile(const std::string &fileName, const std::string &yamlString, const Format format)
+void YAML::toFile(const std::string_view &fileName, const std::string_view &yamlString, const Format format)
 {
     YAML_Impl::toFile(fileName, yamlString, format);
 }
@@ -147,5 +147,5 @@ void YAML::toFile(const std::string &fileName, const std::string &yamlString, co
 /// </summary>
 /// <param name="fileName">YAML file name</param>
 /// <returns>YAML file format.</returns>
-YAML::Format YAML::getFileFormat(const std::string &fileName) { return YAML_Impl::getFileFormat(fileName); }
+YAML::Format YAML::getFileFormat(const std::string_view &fileName) { return YAML_Impl::getFileFormat(fileName); }
 } // namespace YAML_Lib
