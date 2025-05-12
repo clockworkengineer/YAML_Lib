@@ -2,14 +2,7 @@
 
 namespace YAML_Lib {
 
-// Array error
-struct ArrayError final : std::runtime_error {
-  explicit ArrayError(const std::string_view &message)
-      : std::runtime_error(std::string("Array Error: ").append(message)) {}
-};
-
 struct Array final : Variant {
-  using Error = ArrayError;
   using Entry = YNode;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors

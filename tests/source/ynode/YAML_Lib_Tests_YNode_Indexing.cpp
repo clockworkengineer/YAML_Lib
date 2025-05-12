@@ -31,8 +31,8 @@ TEST_CASE("Check use of YNode indexing operators.", "[YAML][YNode][Index]")
     {
         BufferSource yamlSource{ R"({"City":"Southampton","Population":500000})" };
         yaml.parse(yamlSource);
-        REQUIRE_THROWS_AS(isA<Dictionary>(yaml.document(0)["Cityy"]), Dictionary::Error);
-        REQUIRE_THROWS_WITH(isA<Dictionary>(yaml.document(0)["Cityy"]), "Dictionary Error: Invalid key used to access dictionary.");
+        REQUIRE_THROWS_AS(isA<Dictionary>(yaml.document(0)["Cityy"]), YNode::Error);
+        REQUIRE_THROWS_WITH(isA<Dictionary>(yaml.document(0)["Cityy"]), "YNode Error: Invalid key used to access dictionary.");
     }
     SECTION("Parse array and check an invalid index generates exception.", "[YAML][YNode][Index]")
     {

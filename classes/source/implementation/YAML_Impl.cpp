@@ -61,7 +61,7 @@ YNode &YAML_Impl::operator[](const std::string_view &key) {
       YRef<Document>(yamlTree[0]).add(YNode::make<Dictionary>());
     }
     return document(0)[key];
-  } catch ([[maybe_unused]] Dictionary::Error &error) {
+  } catch ([[maybe_unused]] YNode::Error &error) {
     YRef<Dictionary>(document(0))
         .add(Dictionary::Entry(key, YNode::make<Hole>()));
     return document(0)[key];

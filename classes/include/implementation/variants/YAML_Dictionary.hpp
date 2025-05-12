@@ -2,12 +2,6 @@
 
 namespace YAML_Lib {
 
-// Dictionary error
-  struct DictionaryError final : std::runtime_error {
-    explicit DictionaryError(const std::string_view &message)
-        : std::runtime_error(std::string("Dictionary Error: ").append(message)) {}
-  };
-
 // Dictionary entry
 struct DictionaryEntry {
   DictionaryEntry(const std::string_view &key, YNode &yNode)
@@ -35,7 +29,6 @@ private:
 };
 
 struct Dictionary final : Variant {
-  using Error = DictionaryError;
   using Entry = DictionaryEntry;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
@@ -53,7 +46,7 @@ struct Dictionary final : Variant {
   [[nodiscard]] bool contains(const std::string_view &key) const {
     try {
       [[maybe_unused]] auto _ = findKey(yNodeDictionary, key);
-    } catch ([[maybe_unused]] const Error &e) {
+    } catch ([[maybe_unused]] const YNode::Error &e) {
       return false;
     }
     return true;
@@ -110,7 +103,7 @@ Dictionary::findKey(Entries &dictionary, const std::string_view &key) {
         return entry.getKey() == key;
       });
   if (it == dictionary.end()) {
-    throw Error("Invalid key used to access dictionary.");
+    throw YNode::Error("Invalid key used to access dictionary.");
   }
   return it;
 }
@@ -121,7 +114,7 @@ Dictionary::findKey(const Entries &dictionary, const std::string_view &key) {
         return entry.getKey() == key;
       });
   if (it == dictionary.end()) {
-    throw Error("Invalid key used to access dictionary.");
+    throw YNode::Error("Invalid key used to access dictionary.");
   }
   return it;
 }

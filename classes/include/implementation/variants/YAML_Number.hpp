@@ -6,11 +6,7 @@ struct Number final : Variant {
   // Number values variant
   using Values = std::variant<std::monostate, int, long, long long, float,
                               double, long double>;
-  // YNode Number Error
-  struct Error final : std::runtime_error {
-    explicit Error(const std::string_view &message)
-        : std::runtime_error(std::string("Number Error: ").append(message)) {}
-  };
+
   // All string conversion base default
   static constexpr int kStringConversionBase{10};
   // Floating point notation
@@ -170,6 +166,6 @@ template <typename T> T Number::getAs() const {
   if (const auto pValue = std::get_if<long double>(&yNodeNumber)) {
     return convertTo<T>(*pValue);
   }
-  throw Error("Could not convert unknown type.");
+  throw YNode::Error("Could not convert unknown type.");
 }
 } // namespace YAML_Lib
