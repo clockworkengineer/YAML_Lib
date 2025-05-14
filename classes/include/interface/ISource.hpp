@@ -56,7 +56,7 @@ public:
   // ===============================================================
   // Is current string a match at the current source stream position
   // ===============================================================
-  [[nodiscard]] bool match(const std::string &targetString) {
+  [[nodiscard]] bool match(const std::string_view &targetString) {
     long index = 0;
     while (more() && current() == targetString[index]) {
       next();

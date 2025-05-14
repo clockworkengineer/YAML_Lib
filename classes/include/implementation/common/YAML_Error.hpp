@@ -4,12 +4,12 @@ namespace YAML_Lib {
 
 // YAML error types
 struct Error final : std::runtime_error {
-    explicit Error(std::string_view message)
+    explicit Error(const std::string_view &message)
         : std::runtime_error(std::string("YAML Error: ").append(message)) {
     }
 
     explicit Error(const std::pair<unsigned long, unsigned long> &position,
-                   std::string_view message = "")
+                   const std::string_view &message = "")
         : std::runtime_error(
             std::string("YAML Error [Line: ").append(std::to_string(position.first))
             .append(" Column: ").append(std::to_string(position.second))
@@ -18,7 +18,7 @@ struct Error final : std::runtime_error {
 };
 
 struct SyntaxError final : std::runtime_error {
-    explicit SyntaxError(std::string_view message)
+    explicit SyntaxError(const std::string_view &message)
         : std::runtime_error(std::string("YAML Syntax Error: ").append(message)) {
     }
 

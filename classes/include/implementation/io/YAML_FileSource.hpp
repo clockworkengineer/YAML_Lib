@@ -4,8 +4,8 @@ namespace YAML_Lib {
 
 class FileSource final : public ISource {
 public:
-  explicit FileSource(const std::string &filename) : filename(filename) {
-    source.open(filename.c_str(), std::ios_base::binary);
+  explicit FileSource(const std::string_view &filename) : filename(filename) {
+    source.open(filename.data(), std::ios_base::binary);
     if (!source.is_open()) {
       throw Error("File input stream failed to open or does not exist.");
     }

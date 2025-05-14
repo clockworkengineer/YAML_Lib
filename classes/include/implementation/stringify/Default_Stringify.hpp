@@ -33,11 +33,11 @@ public:
   }
 
 private:
-  static std::vector<std::string> splitString(const std::string &target,
+  static std::vector<std::string> splitString(const std::string_view &target,
                                               const char delimiter) {
     std::vector<std::string> splitStrings;
     if (!target.empty()) {
-      std::stringstream sourceStream(target);
+      std::stringstream sourceStream{target.data()};
 
       for (std::string splitOffItem{};
            std::getline(sourceStream, splitOffItem, delimiter);) {

@@ -44,7 +44,7 @@ struct Number final : Variant {
 
 private:
   // Convert string to specific numeric type (returns true on success)
-  template <typename T> bool stringToNumber(const std::string &number);
+  template <typename T> bool stringToNumber(const std::string_view &number);
   // Number to string
   template <typename T>
   [[nodiscard]] std::string numberToString(const T &number) const;
@@ -54,7 +54,7 @@ private:
   template <typename T> [[nodiscard]] T getAs() const;
   // Find the smallest type that can represent a number. Please note that if it
   // cannot be held as an integer, then floating point types are tried.
-  void convertNumber(const std::string &number) {
+  void convertNumber(const std::string_view &number) {
     [[maybe_unused]] auto ok =
         stringToNumber<int>(number) || stringToNumber<long>(number) ||
         stringToNumber<long long>(number) || stringToNumber<float>(number) ||
@@ -75,7 +75,7 @@ template <typename T> Number::Number(T value) : Variant(Type::number) {
   }
 }
 // Convert string to specific numeric type (returns true on success)
-template <typename T> bool Number::stringToNumber(const std::string &number) {
+template <typename T> bool Number::stringToNumber(const std::string_view &number) {
   {
     try {
       std::size_t end = 0;
@@ -90,17 +90,17 @@ template <typename T> bool Number::stringToNumber(const std::string &number) {
         }
       }
       if constexpr (std::is_same_v<T, int>) {
-        value = std::stoi(number, &end, integerConversionBase);
+        value = std::stoi(number.data(), &end, integerConversionBase);
       } else if constexpr (std::is_same_v<T, long>) {
-        value = std::stol(number, &end, integerConversionBase);
+        value = std::stol(number.data(), &end, integerConversionBase);
       } else if constexpr (std::is_same_v<T, long long>) {
-        value = std::stoll(number, &end, integerConversionBase);
+        value = std::stoll(number.data(), &end, integerConversionBase);
       } else if constexpr (std::is_same_v<T, float>) {
-        value = std::stof(number, &end);
+        value = std::stof(number.data(), &end);
       } else if constexpr (std::is_same_v<T, double>) {
-        value = std::stod(number, &end);
+        value = std::stod(number.data(), &end);
       } else if constexpr (std::is_same_v<T, long double>) {
-        value = std::stold(number, &end);
+        value = std::stold(number.data(), &end);
       }
       if (end != number.size()) {
         return false;

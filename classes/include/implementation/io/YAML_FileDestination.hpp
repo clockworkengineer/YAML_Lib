@@ -4,8 +4,8 @@ namespace YAML_Lib {
 
 class FileDestination final : public IDestination {
 public:
-  explicit FileDestination(const std::string &filename) : filename(filename) {
-    destination.open(filename.c_str(),
+  explicit FileDestination(const std::string_view &filename) : filename(filename) {
+    destination.open(filename.data(),
                      std::ios_base::binary | std::ios_base::trunc);
   }
   FileDestination() = delete;
