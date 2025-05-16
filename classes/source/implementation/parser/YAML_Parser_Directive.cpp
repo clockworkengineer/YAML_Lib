@@ -21,7 +21,7 @@ YNode Default_Parser::mergeOverrides(YNode &overrideRoot) {
     std::set<std::string> overrideKeys;
     for (auto &entry : dictionary.value()) {
       if (entry.getKey() != kOverride) {
-        overrideKeys.insert(entry.getKey());
+        overrideKeys.insert(std::string(entry.getKey()));
       }
     }
     auto &innerDictionary = YRef<Dictionary>(dictionary[kOverride]);

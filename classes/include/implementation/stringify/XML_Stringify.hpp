@@ -77,7 +77,7 @@ private:
   static void stringifyDictionary(const YNode &yNode,
                            IDestination &destination) {
     for (const auto &yNodeNext : YRef<Dictionary>(yNode).value()) {
-      auto elementName = yNodeNext.getKey();
+      std::string elementName { yNodeNext.getKey()};
       std::ranges::replace(elementName, ' ', '-');
       destination.add("<" + elementName + ">");
       stringifyYNodes(yNodeNext.getYNode(), destination, 0);

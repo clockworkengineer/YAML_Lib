@@ -58,7 +58,7 @@ private:
   static void stringifyString(const YNode &yNode, IDestination &destination) {
     const auto yamlString = YRef<String>(yNode).value();
     destination.add(std::to_string(static_cast<int>(yamlString.length())) +
-                    ":" + yamlString);
+                    ":" + std::string(yamlString));
   }
   static void stringifyBoolean(const YNode &yNode, IDestination &destination) {
     if (YRef<Boolean>(yNode).value()) {

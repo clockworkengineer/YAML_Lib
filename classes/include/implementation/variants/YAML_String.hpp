@@ -13,8 +13,8 @@ struct String final : Variant {
   String &operator=(String &&other) = default;
   ~String() override = default;
   // Return reference to string
-  [[nodiscard]] std::string &value() { return yNodeString; }
-  [[nodiscard]] const std::string &value() const { return yNodeString; }
+  [[nodiscard]] std::string_view value() { return yNodeString; }
+  [[nodiscard]] const std::string_view value() const { return yNodeString; }
   // Return string representation of value
   [[nodiscard]] const std::string toString() const override {
     return yNodeString;

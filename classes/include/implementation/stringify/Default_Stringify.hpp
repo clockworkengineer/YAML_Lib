@@ -110,7 +110,7 @@ private:
      }
   }
   static void stringifyComment(const YNode &yNode, IDestination &destination, const unsigned long indent) {
-    destination.add("#" + YRef<Comment>(yNode).value() + kLineFeed);
+    destination.add("#" + std::string(YRef<Comment>(yNode).value()) + kLineFeed);
   }
   static void stringifyBoolean(const YNode &yNode, IDestination &destination, const unsigned long indent) {
     destination.add(YRef<Boolean>(yNode).toString());

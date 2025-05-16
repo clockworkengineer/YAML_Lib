@@ -179,7 +179,7 @@ YNode Default_Parser::parseDictionary(ISource &source,
       auto entry = parseKeyValue(source, delimiters, dictionaryIndent);
       if (YRef<Dictionary>(dictionaryYNode).contains(entry.getKey())) {
         throw SyntaxError(source.getPosition(),
-                          "Dictionary already contains key '" + entry.getKey() +
+                          "Dictionary already contains key '" + std::string(entry.getKey()) +
                               "'.");
       }
       YRef<Dictionary>(dictionaryYNode).add(std::move(entry));
@@ -223,7 +223,7 @@ YNode Default_Parser::parseInlineDictionary(
       auto entry = parseInlineKeyValue(source, inLineDictionaryDelimiters, indentation);
       if (YRef<Dictionary>(dictionaryYNode).contains(entry.getKey())) {
         throw SyntaxError(source.getPosition(),
-                          "Dictionary already contains key '" + entry.getKey() +
+                          "Dictionary already contains key '" + std::string(entry.getKey()) +
                           "'.");
       }
       YRef<Dictionary>(dictionaryYNode).add(std::move(entry));

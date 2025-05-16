@@ -12,7 +12,7 @@ struct Comment final : Variant {
   Comment &operator=(Comment &&other) = default;
   ~Comment() override = default;
   // Return reference to comment
-  [[nodiscard]] const std::string &value() const { return yamlComment; }
+  [[nodiscard]] const std::string_view value() const { return yamlComment; }
   // Return string representation of value
   [[nodiscard]] const std::string toString() const override {
     return "# " + yamlComment;
