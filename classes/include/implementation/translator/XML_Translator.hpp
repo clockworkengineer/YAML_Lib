@@ -8,12 +8,6 @@ namespace YAML_Lib {
 class XML_Translator final : public ITranslator
 {
 public:
-  // XML translator error
-  struct Error final : std::runtime_error
-  {
-    explicit Error(const std::string_view &message) : std::runtime_error(std::string("XML Translator Error: ").append(message)) {}
-  };
-
   XML_Translator() = default;
   XML_Translator(const XML_Translator &other) = delete;
   XML_Translator &operator=(const XML_Translator &other) = delete;
