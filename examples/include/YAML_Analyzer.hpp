@@ -154,13 +154,13 @@ private:
   size_t maxDictionarySize{};
   int64_t totalKeys{};
   size_t maxKeySize{};
-  std::set<std::string> uniqueKeys{};
+  std::set<std::string_view> uniqueKeys{};
   // YAML_Lib::Array
   size_t maxArraySize{};
   int64_t totalArrays{};
   // YAML_Lib::String
   int64_t totalStrings{};
-  std::set<std::string> uniqueStrings{};
+  std::set<std::string_view> uniqueStrings{};
   size_t maxStringSize{};
   // YAML_Lib::Number
   int64_t totalNumbers{};
