@@ -18,16 +18,18 @@
 #include <variant>
 #include <vector>
 
-#include "YAML_Config.hpp"
-#include "YAML_Interfaces.hpp"
-
 namespace YAML_Lib {
 
 // =========================
 // YAML forward declarations
 // =========================
-class YAML_Impl;
-struct YNode;
+  class IStringify;
+  class IParser;
+  class ISource;
+  class IDestination;
+  class IAction;
+  class YAML_Impl;
+  struct YNode;
 
 // ========================
 // YAML character constants

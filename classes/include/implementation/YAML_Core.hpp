@@ -3,6 +3,7 @@
 // ==========
 // YAML Core
 // ==========
+#include "YAML_Config.hpp"
 #include "YAML_Interfaces.hpp"
 #include "YAML_Variant.hpp"
 #include "YAML_YNode.hpp"
