@@ -7,7 +7,7 @@
 /// <param name="yamlFileName">Test YAML data file name</param>
 /// <returns>Full path to a test data file</returns>
 std::string prefixPath(const std::string &yamlFileName) {
-  return (std::filesystem::current_path() / "files" / yamlFileName).string();
+  return (std::filesystem::current_path() / "../files" / yamlFileName).string();
 }
 
 /// <summary>

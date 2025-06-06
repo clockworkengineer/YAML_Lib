@@ -17,6 +17,8 @@
 #include <utility>
 #include <variant>
 #include <vector>
+#include <array>
+#include <sstream>
 
 namespace YAML_Lib {
 
@@ -91,7 +93,7 @@ public:
   // Get YAML library version
   [[nodiscard]] static std::string version();
   // Get YAML library version
-  [[nodiscard]] unsigned int getNumberOfDocuments() const;
+  [[nodiscard]] unsigned long getNumberOfDocuments() const;
   // Parse YAML into a tree
   void parse(ISource &source) const;
   void parse(ISource &&source) const;

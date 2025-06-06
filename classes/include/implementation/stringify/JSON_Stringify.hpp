@@ -29,7 +29,7 @@ public:
 
 private:
   static void stringifyYNodes(const YNode &yNode, IDestination &destination,
-                 const unsigned long indent)   {
+                [[maybe_unused]]  const unsigned long indent)   {
     if (isA<Document>(yNode)) {
       stringifyDocument(yNode, destination, 0);
     } else if (isA<Number>(yNode)) {

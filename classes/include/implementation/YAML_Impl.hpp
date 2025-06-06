@@ -17,7 +17,7 @@ public:
   // Get YAML_Lib version
   static std::string version();
   // Get number of documents
-  [[nodiscard]] unsigned long getNumberOfDocuments() const {
+  [[nodiscard]] auto getNumberOfDocuments() const {
     return yamlTree.size();
   }
   // Parse YAML into YNode tree

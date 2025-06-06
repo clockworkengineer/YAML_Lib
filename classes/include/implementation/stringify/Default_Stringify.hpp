@@ -90,7 +90,7 @@ private:
     }
   }
   static void stringifyNumber(const YNode &yNode, IDestination &destination,
-                              const unsigned long indent) {
+                              [[maybe_unused]] const unsigned long indent) {
     destination.add(YRef<Number>(yNode).toString());
   }
   static void stringifyString(const YNode &yNode, IDestination &destination, const unsigned long indent)  {
@@ -109,16 +109,16 @@ private:
             }
      }
   }
-  static void stringifyComment(const YNode &yNode, IDestination &destination, const unsigned long indent) {
+  static void stringifyComment(const YNode &yNode, IDestination &destination, [[maybe_unused]]const unsigned long indent) {
     destination.add("#" + std::string(YRef<Comment>(yNode).value()) + kLineFeed);
   }
-  static void stringifyBoolean(const YNode &yNode, IDestination &destination, const unsigned long indent) {
+  static void stringifyBoolean(const YNode &yNode, IDestination &destination, [[maybe_unused]]const unsigned long indent) {
     destination.add(YRef<Boolean>(yNode).toString());
   }
-  static void stringifyNull(const YNode &yNode, IDestination &destination, const unsigned long indent) {
+  static void stringifyNull(const YNode &yNode, IDestination &destination, [[maybe_unused]]const unsigned long indent) {
     destination.add(YRef<Null>(yNode).toString());
   }
-  static void stringifyHole(const YNode &yNode, IDestination &destination, const unsigned long indent) {
+  static void stringifyHole(const YNode &yNode, IDestination &destination, [[maybe_unused]] const unsigned long indent) {
     destination.add(YRef<Hole>(yNode).toString());
   }
   static void stringifyDictionary(const YNode &yNode, IDestination &destination, const unsigned long indent)  {
@@ -157,7 +157,7 @@ private:
       }
     }
   }
-  static void stringifyDocument(const YNode &yNode, IDestination &destination, const unsigned long indent)  {
+  static void stringifyDocument(const YNode &yNode, IDestination &destination, [[maybe_unused]] const unsigned long indent)  {
     destination.add("---");
     if (!YRef<Document>(yNode).value().empty()) {
       stringifyAnyBlockStyle(destination, YRef<Document>(yNode)[0]);

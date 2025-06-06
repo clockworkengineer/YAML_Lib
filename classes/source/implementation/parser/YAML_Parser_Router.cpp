@@ -30,7 +30,7 @@ bool Default_Parser::isOverride(ISource &source) {
 bool Default_Parser::isKey(ISource &source) {
   source.save();
   bool keyPresent{false};
-  if (std::string key{extractKey(source)}; source.current() == kColon || key.back() == kColon) {
+  if (std::string key{extractKey(source)}; (source.current() == kColon || (!key.empty() && key.back() == kColon))) {
     if (key[0] == kLeftCurlyBrace || key[0] == kLeftSquareBracket) {
       if (key.find('\n') != std::string::npos) {
         if (key[0] == kLeftCurlyBrace) {
@@ -47,8 +47,8 @@ bool Default_Parser::isKey(ISource &source) {
       source.next();
     }
     if (source.current() == ' ' || source.current() == kLineFeed ||
-        key.back() == kColon) {
-      if (key.back() == kColon) {
+        (!key.empty() && key.back() == kColon)) {
+      if (!key.empty() && key.back() == kColon) {
         key.pop_back();
       }
       rightTrim(key);

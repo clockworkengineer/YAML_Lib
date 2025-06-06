@@ -99,7 +99,7 @@ std::string Default_Parser::extractKey(ISource &source) {
 /// <returns>Dictionary entry key.</returns>
 YNode Default_Parser::parseKey(ISource &source) {
   std::string key{extractKey(source)};
-  if (key.back() == kColon) {
+  if (!key.empty() && key.back() == kColon) {
     key.pop_back();
   }
   if (source.more() && source.current() != kRightCurlyBrace &&
