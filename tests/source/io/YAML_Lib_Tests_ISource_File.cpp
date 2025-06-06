@@ -20,11 +20,16 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
     while (source.more() && !source.match("deer")) {
       source.next();
     }
+#ifdef WIN32
+    REQUIRE(source.position() == 18);
+#else
     REQUIRE(source.position() == 17);
+#endif
     while (source.more()) {
       source.next();
     }
-    REQUIRE(source.position() == 330);
+    REQUIRE(source.position() ==
+            std::filesystem::file_size(prefixPath(kSingleYAMLFile)));
   }
   SECTION("Create FileSource and that it is positioned on the correct first "
           "character.",
@@ -50,8 +55,9 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
     while (source.more()) {
       source.next();
     }
-    REQUIRE(source.position() == 330);                   // eof
-    REQUIRE(source.current() == static_cast<char>(EOF)); // eof
+    REQUIRE(source.position() ==
+            std::filesystem::file_size(prefixPath(kSingleYAMLFile))); // eof
+    REQUIRE(source.current() == static_cast<char>(EOF));              // eof
   }
   SECTION("Create FileSource, move past last character, reset and then check "
           "back at the beginning.",
@@ -71,11 +77,19 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
     while (source.more() && source.current() != 'd') {
       source.next();
     }
+#ifdef WIN32
+    REQUIRE(source.position() == 6);
+    REQUIRE_FALSE(source.match("dow")); // Not there
+    REQUIRE(source.position() == 6);
+    REQUIRE_FALSE(!source.match("doe")); // Match
+    REQUIRE(source.position() == 9);     // new positio
+#else
     REQUIRE(source.position() == 5);
     REQUIRE_FALSE(source.match("dow")); // Not there
     REQUIRE(source.position() == 5);
     REQUIRE_FALSE(!source.match("doe")); // Match
     REQUIRE(source.position() == 8);     // new position
+#endif
   }
   SECTION("Create FileSource and then try to read off the end.",
           "[YAML][ISource][File][Exception]") {
@@ -94,9 +108,15 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
       source.next();
     }
     source.save();
+#ifdef WIN32
+    REQUIRE(source.position() == 6);
+    source.restore();
+    REQUIRE(source.position() == 6);
+#else
     REQUIRE(source.position() == 5);
     source.restore();
     REQUIRE(source.position() == 5);
+#endif
   }
   SECTION("Check that FileSource works with line array that has newlines.",
           "[YAML][ISource][File][Match]") {
