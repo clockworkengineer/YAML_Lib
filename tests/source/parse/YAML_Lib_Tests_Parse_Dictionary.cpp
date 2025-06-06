@@ -144,7 +144,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
   }
   SECTION("Parse Dictionary from file and verify.",
           "[YAML][Parse][Examples][File]") {
-    BufferSource yamlSource{YAML::fromFile(prefixPath("testfile001.yaml"))};
+    BufferSource yamlSource{YAML::fromFile(prefixTestDataPath("testfile001.yaml"))};
     REQUIRE_NOTHROW(yaml.parse(yamlSource));
     REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)).contains("french-hens"));
     REQUIRE(YRef<Number>(yaml.document(0)["french-hens"]).value<int>() == 3);

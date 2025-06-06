@@ -1,7 +1,7 @@
 #include "YAML_Lib_Tests.hpp"
 
 TEST_CASE("Check ISource (Buffer) interface.", "[YAML][ISource][Buffer]") {
-  const std::string buffer{YAML::fromFile(prefixPath(kSingleYAMLFile))};
+  const std::string buffer{YAML::fromFile(prefixTestDataPath(kSingleYAMLFile))};
   SECTION("Create BufferSource.", "[YAML][ISource][Buffer][Construct]") {
     REQUIRE_NOTHROW(BufferSource(buffer));
   }

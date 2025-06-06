@@ -2,7 +2,7 @@
 
 TEST_CASE("Checks for toFile() api.", "[YAML][ToFile]") {
   SECTION("Check that toFile() works with UTF8.", "[YAML][ToFile][UTF8]") {
-    std::string testFile{prefixPath(kGeneratedYAMLFile)};
+    std::string testFile{prefixTestDataPath(kGeneratedYAMLFile)};
     std::string expected{
         "version: \"3.9\"\n\nservices:\n  production-db:\n    image: "
         "mysql:5.7\n    volumes:\n      - db_data:/var/lib/mysql\n    restart: "
@@ -17,7 +17,7 @@ TEST_CASE("Checks for toFile() api.", "[YAML][ToFile]") {
   }
   SECTION("Check that toFile() works with UTF8BOM.",
           "[YAML][ToFile][UTF8BOM]") {
-    std::string testFile{prefixPath(kGeneratedYAMLFile)};
+    std::string testFile{prefixTestDataPath(kGeneratedYAMLFile)};
     std::string expected{
         "version: \"3.9\"\n\nservices:\n  production-db:\n    image: "
         "mysql:5.7\n    volumes:\n      - db_data:/var/lib/mysql\n    restart: "
@@ -32,7 +32,7 @@ TEST_CASE("Checks for toFile() api.", "[YAML][ToFile]") {
   }
   SECTION("Check that toFile() works with UTF16BE.",
           "[YAML][ToFile][UTF16BE]") {
-    std::string testFile{prefixPath(kGeneratedYAMLFile)};
+    std::string testFile{prefixTestDataPath(kGeneratedYAMLFile)};
     std::string expected{
         "version: \"3.9\"\n\nservices:\n  production-db:\n    image: "
         "mysql:5.7\n    volumes:\n      - db_data:/var/lib/mysql\n    restart: "
@@ -47,7 +47,7 @@ TEST_CASE("Checks for toFile() api.", "[YAML][ToFile]") {
   }
   SECTION("Check that toFile() works with UTF16BLE.",
           "[YAML][ToFile][UTF16LE]") {
-    std::string testFile{prefixPath(kGeneratedYAMLFile)};
+    std::string testFile{prefixTestDataPath(kGeneratedYAMLFile)};
     std::string expected{
         "version: \"3.9\"\n\nservices:\n  production-db:\n    image: "
         "mysql:5.7\n    volumes:\n      - db_data:/var/lib/mysql\n    restart: "

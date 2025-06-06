@@ -3,20 +3,20 @@
 TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
   const YAML yaml;
   SECTION("Create FileSource.", "[YAML][ISource][File][Construct]") {
-    REQUIRE_NOTHROW(FileSource(prefixPath(kSingleSmallYAMLFile)));
+    REQUIRE_NOTHROW(FileSource(prefixTestDataPath(kSingleSmallYAMLFile)));
   }
   SECTION("Create FileSource from testfile000.yaml and parse",
           "[YAML][ISource][File][Parse]") {
-    REQUIRE_NOTHROW(yaml.parse(FileSource(prefixPath(kSingleSmallYAMLFile))));
+    REQUIRE_NOTHROW(yaml.parse(FileSource(prefixTestDataPath(kSingleSmallYAMLFile))));
   }
   SECTION("Create FileSource from testfile000.yaml, parse and stringify.",
           "[YAML][ISource][File][Parse]") {
-    REQUIRE_NOTHROW(yaml.parse(FileSource(prefixPath(kSingleSmallYAMLFile))));
+    REQUIRE_NOTHROW(yaml.parse(FileSource(prefixTestDataPath(kSingleSmallYAMLFile))));
     compareYAML(yaml, "---\n- 1\n- 1\n- 2\n...\n");
   }
   SECTION("Check that FileSource position() works correctly.",
           "[YAML][ISource][File][Position]") {
-    auto source{FileSource(prefixPath(kSingleYAMLFile))};
+    auto source{FileSource(prefixTestDataPath(kSingleYAMLFile))};
     while (source.more() && !source.match("deer")) {
       source.next();
     }
@@ -29,19 +29,19 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
       source.next();
     }
     REQUIRE(source.position() ==
-            std::filesystem::file_size(prefixPath(kSingleYAMLFile)));
+            std::filesystem::file_size(prefixTestDataPath(kSingleYAMLFile)));
   }
   SECTION("Create FileSource and that it is positioned on the correct first "
           "character.",
           "[YAML][ISource][File][Position]") {
-    FileSource source{prefixPath(kSingleSmallYAMLFile)};
+    FileSource source{prefixTestDataPath(kSingleSmallYAMLFile)};
     REQUIRE_FALSE(!source.more());
     REQUIRE(static_cast<char>(source.current()) == '-');
   }
   SECTION("Create FileSource and then check next positions to correct next "
           "character",
           "[YAML][ISource][File][Next]") {
-    FileSource source{prefixPath(kSingleSmallYAMLFile)};
+    FileSource source{prefixTestDataPath(kSingleSmallYAMLFile)};
     source.next();
     source.next();
     source.next();
@@ -51,18 +51,18 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
   SECTION("Create FileSource move past last character, check it and the "
           "bytes moved.",
           "[YAML][ISource][File][More]") {
-    FileSource source{prefixPath(kSingleYAMLFile)};
+    FileSource source{prefixTestDataPath(kSingleYAMLFile)};
     while (source.more()) {
       source.next();
     }
     REQUIRE(source.position() ==
-            std::filesystem::file_size(prefixPath(kSingleYAMLFile))); // eof
+            std::filesystem::file_size(prefixTestDataPath(kSingleYAMLFile))); // eof
     REQUIRE(source.current() == static_cast<char>(EOF));              // eof
   }
   SECTION("Create FileSource, move past last character, reset and then check "
           "back at the beginning.",
           "[YAML][ISource][File][Reset]") {
-    FileSource source{prefixPath(kSingleYAMLFile)};
+    FileSource source{prefixTestDataPath(kSingleYAMLFile)};
     while (source.more()) {
       source.next();
     }
@@ -73,7 +73,7 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
   SECTION("Check that FileSource finds a string at the current position and "
           "moves on past it in stream.",
           "[YAML][ISource][File][Match]") {
-    FileSource source{prefixPath(kSingleYAMLFile)};
+    FileSource source{prefixTestDataPath(kSingleYAMLFile)};
     while (source.more() && source.current() != 'd') {
       source.next();
     }
@@ -93,7 +93,7 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
   }
   SECTION("Create FileSource and then try to read off the end.",
           "[YAML][ISource][File][Exception]") {
-    FileSource source{prefixPath(kSingleYAMLFile)};
+    FileSource source{prefixTestDataPath(kSingleYAMLFile)};
     while (source.more()) {
       source.next();
     }
@@ -103,7 +103,7 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
   }
   SECTION("Check that FileSource finds sav/restore working.",
           "[YAML][ISource][File][Match]") {
-    FileSource source{prefixPath(kSingleYAMLFile)};
+    FileSource source{prefixTestDataPath(kSingleYAMLFile)};
     while (source.more() && source.current() != 'd') {
       source.next();
     }
@@ -120,13 +120,13 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
   }
   SECTION("Check that FileSource works with line array that has newlines.",
           "[YAML][ISource][File][Match]") {
-    FileSource source{prefixPath("testfile032.yaml")};
+    FileSource source{prefixTestDataPath("testfile032.yaml")};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
   SECTION("Check that FileSource finds sav/restore working when reached end of "
           "file before restore.",
           "[YAML][ISource][File][Match]") {
-    FileSource source{prefixPath("testfile032.yaml")};
+    FileSource source{prefixTestDataPath("testfile032.yaml")};
     source.save();
     while (source.more()) {
       source.next();
