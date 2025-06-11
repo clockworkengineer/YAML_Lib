@@ -8,7 +8,7 @@
 /// <returns>Full path to a test data file</returns>
 std::string prefixTestDataPath(const std::string &yamlFileName) {
   if (std::filesystem::is_directory("./files")) {
-    return (std::filesystem::current_path() / "../files" / yamlFileName)
+    return (std::filesystem::current_path() / "./files" / yamlFileName)
         .string();
   } else {
     return (std::filesystem::current_path() / "../files" / yamlFileName)
