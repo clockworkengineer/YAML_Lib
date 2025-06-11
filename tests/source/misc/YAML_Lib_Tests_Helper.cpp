@@ -7,11 +7,13 @@
 /// <param name="yamlFileName">Test YAML data file name</param>
 /// <returns>Full path to a test data file</returns>
 std::string prefixTestDataPath(const std::string &yamlFileName) {
-#if _WIN32
-  return (std::filesystem::current_path() / "./files" / yamlFileName).string();
-#else
-  return (std::filesystem::current_path() / "../files" / yamlFileName).string();
-#endif
+  if (std::filesystem::is_directory("./files")) {
+    return (std::filesystem::current_path() / "../files" / yamlFileName)
+        .string();
+  } else {
+    return (std::filesystem::current_path() / "../files" / yamlFileName)
+        .string();
+  }
 }
 
 /// <summary>
@@ -20,8 +22,7 @@ std::string prefixTestDataPath(const std::string &yamlFileName) {
 /// <param name="yaml"></param>
 /// <param name="destinationYAML">YAML parser instance</param>
 /// <returns>Full path to a test data file</returns>
-void compareYAML(const YAML &yaml,
-                 const std::string &destinationYAML) {
+void compareYAML(const YAML &yaml, const std::string &destinationYAML) {
   BufferDestination destination;
   REQUIRE_NOTHROW(yaml.stringify(destination));
   REQUIRE(destination.toString() == destinationYAML);
@@ -46,8 +47,8 @@ bool compareFile(const std::string &str, const std::string &fileName) {
   return fileContents.str() == str;
 }
 
-std::string generateEscapes(const unsigned char first, const unsigned char last)
-{
+std::string generateEscapes(const unsigned char first,
+                            const unsigned char last) {
   std::string result;
   for (char16_t utf16Char = first; utf16Char < last + 1; utf16Char++) {
     const auto digits = "0123456789ABCDEF";
@@ -55,7 +56,7 @@ std::string generateEscapes(const unsigned char first, const unsigned char last)
     result += digits[utf16Char >> 12 & 0x0f];
     result += digits[utf16Char >> 8 & 0x0f];
     result += digits[utf16Char >> 4 & 0x0f];
-    result += digits[utf16Char&0x0f];
+    result += digits[utf16Char & 0x0f];
   }
   return result;
 }
