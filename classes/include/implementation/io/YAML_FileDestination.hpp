@@ -54,7 +54,7 @@ public:
     fileSize = 0;
     lastChar = 0;
   }
-  void close() { destination.flush(); }
+  void close() { destination.close(); }
 
   [[nodiscard]] std::size_t size() const { return fileSize; }
 

@@ -20,7 +20,7 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
     while (source.more() && !source.match("deer")) {
       source.next();
     }
-#ifdef WIN32
+#ifdef _WIN32
     REQUIRE(source.position() == 18);
 #else
     REQUIRE(source.position() == 17);
@@ -77,7 +77,7 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
     while (source.more() && source.current() != 'd') {
       source.next();
     }
-#ifdef WIN32
+#ifdef _WIN32
     REQUIRE(source.position() == 6);
     REQUIRE_FALSE(source.match("dow")); // Not there
     REQUIRE(source.position() == 6);
@@ -108,7 +108,7 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
       source.next();
     }
     source.save();
-#ifdef WIN32
+#ifdef _WIN32
     REQUIRE(source.position() == 6);
     source.restore();
     REQUIRE(source.position() == 6);
