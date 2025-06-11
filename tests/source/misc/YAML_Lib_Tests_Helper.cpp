@@ -6,8 +6,12 @@
 /// </summary>
 /// <param name="yamlFileName">Test YAML data file name</param>
 /// <returns>Full path to a test data file</returns>
-std::string prefixPath(const std::string &yamlFileName) {
+std::string prefixTestDataPath(const std::string &yamlFileName) {
+#if _WIN32
+  return (std::filesystem::current_path() / "./files" / yamlFileName).string();
+#else
   return (std::filesystem::current_path() / "../files" / yamlFileName).string();
+#endif
 }
 
 /// <summary>

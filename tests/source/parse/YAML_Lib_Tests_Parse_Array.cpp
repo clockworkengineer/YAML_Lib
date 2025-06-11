@@ -100,7 +100,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
   }
   SECTION("Parse Array from file and verify.",
           "[YAML][Parse][Examples][File]") {
-    BufferSource yamlSource{YAML::fromFile(prefixPath("testfile003.yaml"))};
+    BufferSource yamlSource{YAML::fromFile(prefixTestDataPath("testfile003.yaml"))};
     REQUIRE_NOTHROW(yaml.parse(yamlSource));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
     REQUIRE(YRef<Array>(yaml.document(0)).size() == 3);

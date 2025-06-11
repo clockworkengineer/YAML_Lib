@@ -33,7 +33,7 @@ public:
   }
   void add(const char *bytes) override {
     auto  len = strlen(bytes);
-    for (int index=0; index<len; index++) { add(bytes[index]); }
+    for (std::size_t  index=0; index<len; index++) { add(bytes[index]); }
     destination.flush();
     lastChar = bytes[len - 1];
   }
