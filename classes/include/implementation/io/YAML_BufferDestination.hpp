@@ -16,12 +16,12 @@ public:
   }
   void add(const char *bytes) override {
     for (std::size_t index = 0; index < strlen(bytes); index++) {
-      buffer.push_back(static_cast<char>(bytes[index]));
+      buffer.push_back(bytes[index]);
     }
   }
   void add(const std::string_view &bytes) override {
     for (const auto ch : bytes) {
-      buffer.push_back(static_cast<char>(ch));
+      buffer.push_back(ch);
     }
   }
   void add(const char ch) override { buffer.push_back(ch); }
@@ -32,9 +32,8 @@ public:
   [[nodiscard]] char last() override {
     if (!buffer.empty()) {
       return buffer.back();
-    } else {
-      return kNull;
     }
+    return kNull;
   }
 
 private:

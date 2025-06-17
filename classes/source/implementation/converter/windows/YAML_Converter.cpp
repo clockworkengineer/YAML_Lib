@@ -17,13 +17,13 @@ namespace YAML_Lib {
 // ============================================================
 int WideCharToBytes(const wchar_t *wideString, const int wideStringLength,
                     char *bytes = nullptr, const int length = 0) {
-  return (WideCharToMultiByte(CP_UTF8, 0, wideString, wideStringLength, bytes,
-                              length, nullptr, nullptr));
+  return WideCharToMultiByte(CP_UTF8, 0, wideString, wideStringLength, bytes,
+                             length, nullptr, nullptr);
 }
 int BytesToWideChar(const char *bytes, const int length,
                     wchar_t *sideString = nullptr, const int wideStringLength = 0) {
-  return (MultiByteToWideChar(CP_UTF8, 0, bytes, length, sideString,
-                              wideStringLength));
+  return MultiByteToWideChar(CP_UTF8, 0, bytes, length, sideString,
+                             wideStringLength);
 }
 
 /// <summary>
@@ -37,11 +37,11 @@ std::u16string toUtf16(const std::string_view &utf8) {
       BytesToWideChar(utf8.data(), static_cast<int>(utf8.length())), 0);
   BytesToWideChar(utf8.data(), static_cast<int>(utf8.length()), &wideString[0],
                   static_cast<int>(wideString.length()));
-  return (std::u16string{wideString.begin(), wideString.end()});
+  return std::u16string{wideString.begin(), wideString.end()};
 }
 
 std::string toUtf8(const std::u16string_view &utf16) {
-  if (utf16.find(kNull) != std::string::npos) {
+  if (utf16.find(static_cast<char16_t>(kNull)) != std::string::npos) {
     throw Error("Tried to convert a null character.");
   }
   const std::wstring wideString{utf16.begin(), utf16.end()};

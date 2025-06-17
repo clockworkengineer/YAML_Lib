@@ -56,7 +56,7 @@ public:
 
 protected:
   void backup(const unsigned long length) override {
-    if (static_cast<long>(column) - length < 1) {
+    if (column - length < 1) {
       throw Error("Backup past start column.");
     }
     bufferPosition -= length;

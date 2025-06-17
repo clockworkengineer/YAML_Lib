@@ -24,7 +24,7 @@ struct Variant {
   Variant &operator=(Variant &&other) = default;
   virtual ~Variant() = default;
   // Get BNode type
-  [[nodiscard]] Type getNodeType() const { return (yNodeType); }
+  [[nodiscard]] Type getNodeType() const { return yNodeType; }
   // Convert variant to a string
   [[nodiscard]] virtual std::string toString() const { return ""; }
   // Convert variant to a key
