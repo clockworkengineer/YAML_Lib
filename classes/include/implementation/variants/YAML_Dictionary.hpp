@@ -15,7 +15,7 @@ struct DictionaryEntry {
   [[nodiscard]] std::string_view getKey() {
     return dynamic_cast<String &>(key.getVariant()).value();
   }
-  [[nodiscard]] const std::string_view getKey() const {
+  [[nodiscard]] std::string_view getKey() const {
     return dynamic_cast<const String &>(key.getVariant()).value();
   }
   [[nodiscard]] YNode &getKeyYNode() { return key; }
@@ -66,7 +66,7 @@ struct Dictionary final : Variant {
   Entries &value() { return yNodeDictionary; }
   [[nodiscard]] const Entries &value() const { return yNodeDictionary; }
   // Convert variant to a key
-  [[nodiscard]] const std::string toKey() const override {
+  [[nodiscard]]  std::string toKey() const override {
     std::string dictionary{kLeftCurlyBrace};
     size_t commaCount = yNodeDictionary.size() - 1;
     for (auto &entryYNode : yNodeDictionary) {

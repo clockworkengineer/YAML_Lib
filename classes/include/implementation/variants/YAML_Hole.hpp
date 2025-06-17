@@ -11,6 +11,6 @@ struct Hole final : Variant {
   Hole &operator=(Hole &&other) = default;
   ~Hole() override = default;
   // Return string representation of value
-  [[nodiscard]] const std::string toString() const override { return "null"; }
+  [[nodiscard]]  std::string toString() const override { return "null"; }
 };
 } // namespace YAML_Lib

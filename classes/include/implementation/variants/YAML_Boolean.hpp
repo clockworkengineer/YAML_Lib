@@ -19,11 +19,11 @@ struct Boolean final : Variant {
   [[nodiscard]] bool &value() { return yNodeBoolean; }
   [[nodiscard]] const bool &value() const { return yNodeBoolean; }
   // Return string representation of value
-  [[nodiscard]] const std::string toString() const override {
+  [[nodiscard]]  std::string toString() const override {
     return booleanString;
   }
   // Convert variant to a key
-  [[nodiscard]] const std::string toKey() const override {
+  [[nodiscard]]  std::string toKey() const override {
     return yNodeBoolean ? "true" : "false";
   }
   // Valid values for true/false

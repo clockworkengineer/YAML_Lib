@@ -47,7 +47,7 @@ public:
     contexts.push_back(Context(lineNo, column, bufferPosition));
   }
   void restore() override {
-    Context context{contexts.back()};
+    const Context context{contexts.back()};
     contexts.pop_back();
     lineNo = context.lineNo;
     column = context.column;

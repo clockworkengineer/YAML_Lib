@@ -20,7 +20,7 @@ public:
     }
   }
   void add(const std::string_view &bytes) override {
-    for (auto ch : bytes) {
+    for (const auto ch : bytes) {
       buffer.push_back(static_cast<char>(ch));
     }
   }

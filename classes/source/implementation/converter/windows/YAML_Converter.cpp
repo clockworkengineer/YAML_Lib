@@ -15,13 +15,13 @@ namespace YAML_Lib {
 // ============================================================
 // Windows API for converting between byte and wide characters.
 // ============================================================
-int WideCharToBytes(wchar_t *wideString, int wideStringLength,
-                    char *bytes = nullptr, int length = 0) {
+int WideCharToBytes(const wchar_t *wideString, const int wideStringLength,
+                    char *bytes = nullptr, const int length = 0) {
   return (WideCharToMultiByte(CP_UTF8, 0, wideString, wideStringLength, bytes,
                               length, nullptr, nullptr));
 }
-int BytesToWideChar(const char *bytes, int length,
-                    wchar_t *sideString = nullptr, int wideStringLength = 0) {
+int BytesToWideChar(const char *bytes, const int length,
+                    wchar_t *sideString = nullptr, const int wideStringLength = 0) {
   return (MultiByteToWideChar(CP_UTF8, 0, bytes, length, sideString,
                               wideStringLength));
 }
@@ -44,7 +44,7 @@ std::string toUtf8(const std::u16string_view &utf16) {
   if (utf16.find(kNull) != std::string::npos) {
     throw Error("Tried to convert a null character.");
   }
-  std::wstring wideString{utf16.begin(), utf16.end()};
+  const std::wstring wideString{utf16.begin(), utf16.end()};
   std::string bytes(
       WideCharToBytes(&wideString[0], static_cast<int>(wideString.length())),
       0);

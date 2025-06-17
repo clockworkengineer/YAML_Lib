@@ -22,9 +22,9 @@ public:
   /// </summary>
   /// <param name="yNode">YNode structure to be traversed.</param>
   /// <param name="destination">Destination stream for stringified YAML.</param>
-  // <param name="indent">Current print indentation.</param>
+  /// <param name="indent">Current print indentation.</param>
   void stringify(const YNode &yNode, IDestination &destination,
-                 unsigned long indent) const override {
+                 const unsigned long indent) const override {
    stringifyYNodes(yNode, destination, indent);
   }
   // Indentation increment
@@ -66,7 +66,7 @@ private:
     }
   }
   static void stringifyYNodes(const YNode &yNode, IDestination &destination,
-                 unsigned long indent)  {
+                 const unsigned long indent)  {
     if (isA<Number>(yNode)) {
       stringifyNumber(yNode, destination, indent);
     } else if (isA<String>(yNode)) {

@@ -26,9 +26,9 @@ struct Variant {
   // Get BNode type
   [[nodiscard]] Type getNodeType() const { return (yNodeType); }
   // Convert variant to a string
-  [[nodiscard]] virtual const std::string toString() const { return ""; }
+  [[nodiscard]] virtual std::string toString() const { return ""; }
   // Convert variant to a key
-  [[nodiscard]] virtual const std::string toKey() const { return ""; }
+  [[nodiscard]] virtual std::string toKey() const { return ""; }
 
 private:
   Type yNodeType;

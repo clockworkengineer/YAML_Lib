@@ -23,7 +23,7 @@ struct SyntaxError final : std::runtime_error {
     }
 
     explicit SyntaxError(const std::pair<unsigned long, unsigned long> &position,
-                         std::string_view message = "")
+                         const std::string_view message = "")
         : std::runtime_error(
             std::string("YAML Syntax Error [Line: ").append(std::to_string(position.first))
             .append(" Column: ").append(std::to_string(position.second))

@@ -13,8 +13,8 @@ struct Null final : Variant {
   // Return null value
   [[nodiscard]] static void *value() { return nullptr; }
   // Return string representation of value
-  [[nodiscard]] const std::string toString() const override { return "null"; }
+  [[nodiscard]]  std::string toString() const override { return "null"; }
   // Convert variant to a key
-  [[nodiscard]] const std::string toKey() const override { return ""; }
+  [[nodiscard]]  std::string toKey() const override { return ""; }
 };
 } // namespace YAML_Lib

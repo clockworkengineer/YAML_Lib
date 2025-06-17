@@ -32,7 +32,7 @@ public:
     lastChar = bytes.back();
   }
   void add(const char *bytes) override {
-    auto  len = strlen(bytes);
+    const auto  len = strlen(bytes);
     for (std::size_t  index=0; index<len; index++) { add(bytes[index]); }
     destination.flush();
     lastChar = bytes[len - 1];
