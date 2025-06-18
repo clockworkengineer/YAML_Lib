@@ -69,7 +69,7 @@ public:
     maxDictionarySize =
         std::max(yNodeDictionary.value().size(), maxDictionarySize);
     for (auto &entry : yNodeDictionary.value()) {
-      auto &key = entry.getKey();
+      auto key = entry.getKey();
       uniqueKeys.insert(key);
       maxKeySize = std::max(key.size(), maxKeySize);
       sizeInBytes += key.size();
