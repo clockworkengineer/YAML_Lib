@@ -15,7 +15,7 @@ namespace YAML_Lib {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse number./param>
-/// <param name="indentation">Parent indentation.</param>
+/// <param name="indentation">Parent indentation.</param
 /// <returns>Number YNode.</returns>
 YNode Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
                                [[maybe_unused]] unsigned long indentation) {
