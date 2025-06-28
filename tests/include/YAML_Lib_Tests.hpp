@@ -9,7 +9,6 @@
 #include <fstream>
 
 // Unit test constants
-constexpr char kGeneratedYAMLFile[] = "generated.yaml";
 constexpr char kSingleSmallYAMLFile[] = "testfile000.yaml";
 constexpr char kSingleYAMLFile[] = "testfile001.yaml";
 constexpr char kNonExistantYAMLFile[] = "doesntexist.yaml";
