@@ -19,6 +19,7 @@ void compareYAML(const YAML_Lib::YAML &yaml,
                  const std::string &destinationYAML);
 bool compareFile(const std::string &str, const std::string &fileName);
 std::string generateEscapes(unsigned char first, unsigned char last);
+std::string generateRandomFileName(void );
 
 // Test files macro
 #define TEST_FILE_LIST(file)                                                   \

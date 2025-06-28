@@ -69,7 +69,8 @@ public:
     source.seekg(context.bufferPosition, std::ios_base::beg);
     bufferPosition = source.tellg();
   }
-
+  std::string getFileName() { return filename; }
+  void close() { source.close(); }
 protected:
   void backup(const unsigned long length) override {
     if (column - length < 1) {

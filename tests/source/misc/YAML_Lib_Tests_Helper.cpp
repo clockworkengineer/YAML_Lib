@@ -46,7 +46,14 @@ bool compareFile(const std::string &str, const std::string &fileName) {
   }
   return fileContents.str() == str;
 }
-
+/// <summary>
+/// Generate unique file name.
+/// </summary>
+/// <returns>Unique torrent file name</returns>
+std::string generateRandomFileName(void) {
+  std::string name1 = std::tmpnam(nullptr);
+  return name1;
+}
 std::string generateEscapes(const unsigned char first,
                             const unsigned char last) {
   std::string result;

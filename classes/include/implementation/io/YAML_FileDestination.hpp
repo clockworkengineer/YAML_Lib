@@ -4,7 +4,8 @@ namespace YAML_Lib {
 
 class FileDestination final : public IDestination {
 public:
-  explicit FileDestination(const std::string_view &filename) : filename(filename) {
+  explicit FileDestination(const std::string_view &filename)
+      : filename(filename) {
     destination.open(filename.data(),
                      std::ios_base::binary | std::ios_base::trunc);
   }
@@ -32,13 +33,17 @@ public:
     lastChar = bytes.back();
   }
   void add(const char *bytes) override {
-    const auto  len = strlen(bytes);
-    for (std::size_t  index=0; index<len; index++) { add(bytes[index]); }
+    const auto len = strlen(bytes);
+    for (std::size_t index = 0; index < len; index++) {
+      add(bytes[index]);
+    }
     destination.flush();
     lastChar = bytes[len - 1];
   }
-  void add( const std::string_view &bytes) override {
-    for (const auto ch : bytes) { add(ch); }
+  void add(const std::string_view &bytes) override {
+    for (const auto ch : bytes) {
+      add(ch);
+    }
     destination.flush();
     lastChar = bytes.back();
   }
@@ -54,6 +59,7 @@ public:
     fileSize = 0;
     lastChar = 0;
   }
+  std::string getFileName() { return filename; }
   void close() { destination.close(); }
 
   [[nodiscard]] std::size_t size() const { return fileSize; }
