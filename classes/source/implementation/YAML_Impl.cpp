@@ -44,48 +44,48 @@ void YAML_Impl::traverse(IAction &action) {
   if (yamlTree.empty()) {
     throw Error("No YAML to traverse.");
   }
-  traverseYNodes(yamlTree[0][0], action);
+  traverseNodes(yamlTree[0][0], action);
 }
 void YAML_Impl::traverse(IAction &action) const {
   if (yamlTree.empty()) {
     throw Error("No YAML to traverse.");
   }
-  traverseYNodes(yamlTree[0][0], action);
+  traverseNodes(yamlTree[0][0], action);
 }
 
-YNode &YAML_Impl::operator[](const std::string_view &key) {
+Node &YAML_Impl::operator[](const std::string_view &key) {
   try {
     if (getNumberOfDocuments() == 0) {
       BufferSource source("---\n...\n");
       parse(source);
-      YRef<Document>(yamlTree[0]).add(YNode::make<Dictionary>());
+      YRef<Document>(yamlTree[0]).add(Node::make<Dictionary>());
     }
     return document(0)[key];
-  } catch ([[maybe_unused]] YNode::Error &error) {
+  } catch ([[maybe_unused]] Node::Error &error) {
     YRef<Dictionary>(document(0))
-        .add(Dictionary::Entry(key, YNode::make<Hole>()));
+        .add(Dictionary::Entry(key, Node::make<Hole>()));
     return document(0)[key];
   }
 }
-const YNode &YAML_Impl::operator[](const std::string_view &key) const {
+const Node &YAML_Impl::operator[](const std::string_view &key) const {
   return document(0)[0][key];
 }
 
-YNode &YAML_Impl::operator[](const std::size_t index) {
+Node &YAML_Impl::operator[](const std::size_t index) {
   try {
     if (getNumberOfDocuments() == 0) {
       BufferSource source("---\n...\n");
       parse(source);
-      YRef<Document>(yamlTree[0]).add(YNode::make<Array>());
+      YRef<Document>(yamlTree[0]).add(Node::make<Array>());
     }
     return document(0)[index];
-  } catch ([[maybe_unused]] YNode::Error &error) {
+  } catch ([[maybe_unused]] Node::Error &error) {
     YRef<Array>(document(0)).resize(index);
     return document(0)[index];
   }
 }
 
-const YNode & YAML_Impl::operator[](const std::size_t index) const {
+const Node & YAML_Impl::operator[](const std::size_t index) const {
   return document(0)[index];
 }
 } // namespace YAML_Lib

@@ -31,7 +31,7 @@ namespace YAML_Lib {
   class IDestination;
   class IAction;
   class YAML_Impl;
-  struct YNode;
+  struct Node;
 
 // ========================
 // YAML character constants
@@ -61,7 +61,7 @@ public:
   // Possible YAML Node initializer list types
   using InitializerListTypes =
       std::variant<int, long, long long, float, double, long double, bool,
-                   std::string, std::nullptr_t, YNode>;
+                   std::string, std::nullptr_t, Node>;
   // Array initializer list
   using ArrayInitializer = std::initializer_list<InitializerListTypes>;
   // Dictionary initializer list
@@ -97,21 +97,21 @@ public:
   // Parse YAML into a tree
   void parse(ISource &source) const;
   void parse(ISource &&source) const;
-  // Create YAML text string from YNode tree (no whitespace)
+  // Create YAML text string from Node tree (no whitespace)
   void stringify(IDestination &destination) const;
   void stringify(IDestination &&destination) const;
   // Get index of YAML document
-  [[nodiscard]] YNode &document(unsigned long index);
-  [[nodiscard]] const YNode &document(unsigned long index) const;
+  [[nodiscard]] Node &document(unsigned long index);
+  [[nodiscard]] const Node &document(unsigned long index) const;
   // Traverse YAML tree
   void traverse(IAction &action);
   void traverse(IAction &action) const;
   // Search for YAML object entry with a given key
-  YNode &operator[](const std::string_view &key);
-  const YNode &operator[](const std::string_view &key) const;
+  Node &operator[](const std::string_view &key);
+  const Node &operator[](const std::string_view &key) const;
   // Get YAML array entry at index
-  YNode &operator[](std::size_t index);
-  const YNode &operator[](std::size_t index) const;
+  Node &operator[](std::size_t index);
+  const Node &operator[](std::size_t index) const;
   // Read/write YAML file
   static std::string fromFile(const std::string_view &yamlFileName);
   static void toFile(const std::string_view &fileName, const std::string_view &yamlString,

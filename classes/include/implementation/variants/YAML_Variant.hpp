@@ -3,7 +3,7 @@
 namespace YAML_Lib {
 
 struct Variant {
-  // YNode Variant Types
+  // Node Variant Types
   enum class Type : uint8_t {
     base = 0,
     dictionary,

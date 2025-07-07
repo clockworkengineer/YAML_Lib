@@ -55,7 +55,7 @@ set(YAML_INCLUDES
   ./classes/include/implementation/stringify/Bencode_Stringify.hpp
   ./classes/include/implementation/stringify/JSON_Stringify.hpp
   ./classes/include/implementation/stringify/XML_Stringify.hpp
-        classes/include/implementation/parser/Default_Parser.hpp
+  ./classes/include/implementation/parser/Default_Parser.hpp
   ./classes/include/implementation/converter/YAML_Converter.hpp
   ./classes/include/implementation/translator/XML_Translator.hpp
   ./classes/include/implementation/translator/Default_Translator.hpp
@@ -68,10 +68,10 @@ set(YAML_INCLUDES
   ./classes/include/implementation/variants/YAML_Number.hpp
   ./classes/include/implementation/variants/YAML_Dictionary.hpp
   ./classes/include/implementation/variants/YAML_String.hpp
-  ./classes/include/implementation/ynode/YAML_YNode.hpp
-  ./classes/include/implementation/ynode/YAML_YNode_Creation.hpp
-  ./classes/include/implementation/ynode/YAML_YNode_Index.hpp
-  ./classes/include/implementation/ynode/YAML_YNode_Reference.hpp
+  ./classes/include/implementation/node/YAML_Node.hpp
+  ./classes/include/implementation/node/YAML_Node_Creation.hpp
+  ./classes/include/implementation/node/YAML_Node_Index.hpp
+  ./classes/include/implementation/node/YAML_Node_Reference.hpp
   ./classes/include/implementation/YAML_Impl.hpp
   ./classes/include/implementation/YAML_Core.hpp
 )
@@ -86,7 +86,7 @@ target_include_directories(${YAML_LIBRARY_NAME} PUBLIC
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/io
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/parser
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/variants
-  ${PROJECT_SOURCE_DIR}/classes/include/implementation/ynode
+  ${PROJECT_SOURCE_DIR}/classes/include/implementation/node
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/parser
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/stringify
   ${PROJECT_SOURCE_DIR}/classes/include/implementation/translator

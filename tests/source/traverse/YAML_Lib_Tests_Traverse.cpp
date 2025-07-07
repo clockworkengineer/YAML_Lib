@@ -5,16 +5,16 @@ public:
   YAML_Analyzer() = default;
 
   ~YAML_Analyzer() override = default;
-  // Add YNode details to analysis
-  void onYNode([[maybe_unused]] const YNode &yNode) override {
+  // Add Node details to analysis
+  void onNode([[maybe_unused]] const Node &yNode) override {
     totalNodes++;
   }
   // Add string details to analysis
-  void onString([[maybe_unused]] const YNode &yNode) override {
+  void onString([[maybe_unused]] const Node &yNode) override {
     totalStrings++;
   }
   // Add number details to analysis
-  void onNumber(const YNode &yNode) override {
+  void onNumber(const Node &yNode) override {
     const auto &yNodeNumber = YRef<Number>(yNode);
     totalNumbers++;
 
@@ -33,19 +33,19 @@ public:
     }
   }
 
-  void onBoolean([[maybe_unused]] const YNode &yNode) override {
+  void onBoolean([[maybe_unused]] const Node &yNode) override {
     totalBoolean++;
   }
   // Add null details to analysis
-  void onNull([[maybe_unused]] const YNode &yNode) override {
+  void onNull([[maybe_unused]] const Node &yNode) override {
     totalNull++;
   }
   // Add array details to analysis
-  void onArray([[maybe_unused]] const YNode &yNode) override {
+  void onArray([[maybe_unused]] const Node &yNode) override {
     totalArrays++;
   }
   // Add object details to analysis
-  void onDictionary([[maybe_unused]] const YNode &yNode) override {
+  void onDictionary([[maybe_unused]] const Node &yNode) override {
     totalDictionaries++;
   }
 
@@ -72,7 +72,7 @@ public:
   int64_t totalNull{};
 };
 
-TEST_CASE("YAML YNode tree traverse tests ", "[YAML][Traverse]") {
+TEST_CASE("YAML Node tree traverse tests ", "[YAML][Traverse]") {
   const YAML yaml;
   SECTION("Parse an Integer (266) and traverse", "[YAML][Traverse][Integer]") {
     BufferSource source{"266"};

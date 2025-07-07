@@ -3,7 +3,7 @@
 namespace YAML_Lib {
 
 struct Array final : Variant {
-  using Entry = YNode;
+  using Entry = Node;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
   Array() : Variant(Type::array) {}
@@ -24,11 +24,11 @@ struct Array final : Variant {
     std::string array{kLeftSquareBracket};
     if (!yNodeArray.empty()) {
       size_t commaCount = yNodeArray.size() - 1;
-      for (auto &entryYNode : yNodeArray) {
-        if (const auto type = entryYNode.getVariant().getNodeType(); type == Type::dictionary || type == Type::array) {
-          array += entryYNode.getVariant().toKey();
+      for (auto &entryNode : yNodeArray) {
+        if (const auto type = entryNode.getVariant().getNodeType(); type == Type::dictionary || type == Type::array) {
+          array += entryNode.getVariant().toKey();
         } else {
-          array += entryYNode.getVariant().toString();
+          array += entryNode.getVariant().toString();
         }
 
         if (commaCount-- > 0) {
@@ -40,24 +40,24 @@ struct Array final : Variant {
     return array;
   }
   // Array indexing operators
-  YNode &operator[](const std::size_t index) {
+  Node &operator[](const std::size_t index) {
     if (index < yNodeArray.size()) {
       return yNodeArray[index];
     }
-    throw YNode::Error("Invalid index used to access array.");
+    throw Node::Error("Invalid index used to access array.");
   }
-  const YNode &operator[](const std::size_t index) const {
+  const Node &operator[](const std::size_t index) const {
     if (index < yNodeArray.size()) {
       return yNodeArray[index];
     }
-    throw YNode::Error("Invalid index used to access array.");
+    throw Node::Error("Invalid index used to access array.");
   }
   // Resize Array
   void resize(const std::size_t index) {
     yNodeArray.resize(index + 1);
     for (auto &entry : yNodeArray) {
       if (entry.isEmpty()) {
-        entry = YNode::make<Hole>();
+        entry = Node::make<Hole>();
       }
     }
   }

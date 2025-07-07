@@ -3,7 +3,7 @@
 namespace YAML_Lib {
 
 struct Document final : Variant {
-  using Entry = YNode;
+  using Entry = Node;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
   Document()
@@ -21,24 +21,24 @@ struct Document final : Variant {
   // Return reference to document base
   Entries &value() { return yNodeDocument; }
   [[nodiscard]] const Entries &value() const { return yNodeDocument; }
-  YNode &operator[](const std::size_t index) {
+  Node &operator[](const std::size_t index) {
     if (index < yNodeDocument.size()) {
       return yNodeDocument[index];
     }
-    throw YNode::Error("Invalid index used to access document.");
+    throw Node::Error("Invalid index used to access document.");
   }
-  const YNode &operator[](const std::size_t index) const {
+  const Node &operator[](const std::size_t index) const {
     if (index < yNodeDocument.size()) {
       return yNodeDocument[index];
     }
-    throw YNode::Error("Invalid index used to access document.");
+    throw Node::Error("Invalid index used to access document.");
   }
   // Resize Document
   void resize(const std::size_t index) {
     yNodeDocument.resize(index + 1);
     for (auto &entry : yNodeDocument) {
       if (entry.isEmpty()) {
-        entry = YNode::make<Hole>();
+        entry = Node::make<Hole>();
       }
     }
   }

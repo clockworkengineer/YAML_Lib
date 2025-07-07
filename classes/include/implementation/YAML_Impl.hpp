@@ -20,18 +20,18 @@ public:
   [[nodiscard]] auto getNumberOfDocuments() const {
     return yamlTree.size();
   }
-  // Parse YAML into YNode tree
+  // Parse YAML into Node tree
   void parse(ISource &source);
-  // Create YAML text string from YNode tree
+  // Create YAML text string from Node tree
   void stringify(IDestination &destination) const;
   // Get the document
-  [[nodiscard]] YNode &document(const unsigned long index) {
+  [[nodiscard]] Node &document(const unsigned long index) {
     if (index >= yamlTree.size()) {
       throw Error("Document does not exist.");
     }
     return yamlTree[index][0];
   }
-  [[nodiscard]] const YNode &document(const unsigned long index) const {
+  [[nodiscard]] const Node &document(const unsigned long index) const {
     if (index >= yamlTree.size()) {
       throw Error("Document does not exist.");
     }
@@ -41,11 +41,11 @@ public:
   void traverse(IAction &action);
   void traverse(IAction &action) const;
   // Search for YAML object entry with a given key
-  YNode &operator[](const std::string_view &key);
-  const YNode &operator[](const std::string_view &key) const;
+  Node &operator[](const std::string_view &key);
+  const Node &operator[](const std::string_view &key) const;
   // Get YAML array element at index
-  YNode &operator[](std::size_t index);
-  const YNode &operator[](std::size_t index) const;
+  Node &operator[](std::size_t index);
+  const Node &operator[](std::size_t index) const;
   // Read/Write YAML from a file
   static std::string fromFile(const std::string_view &fileName);
   static void toFile(const std::string_view &fileName, const std::string_view &yamlString, YAML::Format format);
@@ -54,24 +54,24 @@ public:
 
 private:
   // Traverse YAML tree
-  template <typename T> static void traverseYNodes(T &yNode, IAction &action);
+  template <typename T> static void traverseNodes(T &yNode, IAction &action);
   // Pointer to YAML parser interface
   inline static std::unique_ptr<IParser> yamlParser;
   // Pointer to YAML stringify interface
   inline static std::unique_ptr<IStringify> yamlStringify;
   // YAML tree
-  std::vector<YNode> yamlTree;
+  std::vector<Node> yamlTree;
 };
 
 /// <summary>
-/// Recursively traverse YNode tree calling IAction methods and possibly
+/// Recursively traverse Node tree calling IAction methods and possibly
 /// modifying the tree contents or even structure.
 /// </summary>
-/// <param name="yNode">YNode tree to be traversed.</param>
+/// <param name="yNode">Node tree to be traversed.</param>
 /// <param name="action">Action methods to call during traversal.</param>
 template <typename T>
-void YAML_Impl::traverseYNodes(T &yNode, IAction &action) {
-  action.onYNode(yNode);
+void YAML_Impl::traverseNodes(T &yNode, IAction &action) {
+  action.onNode(yNode);
   if (isA<Number>(yNode)) {
     action.onNumber(yNode);
   } else if (isA<String>(yNode)) {
@@ -83,15 +83,15 @@ void YAML_Impl::traverseYNodes(T &yNode, IAction &action) {
   } else if (isA<Dictionary>(yNode)) {
     action.onDictionary(yNode);
     for (auto &entry : YRef<Dictionary>(yNode).value()) {
-      traverseYNodes(entry.getYNode(), action);
+      traverseNodes(entry.getNode(), action);
     }
   } else if (isA<Array>(yNode)) {
     action.onArray(yNode);
     for (auto &entry : YRef<Array>(yNode).value()) {
-      traverseYNodes(entry, action);
+      traverseNodes(entry, action);
     }
   } else if (!isA<Hole>(yNode)) {
-    throw Error("Unknown YNode type encountered during tree traversal.");
+    throw Error("Unknown Node type encountered during tree traversal.");
   }
 }
 } // namespace YAML_Lib

@@ -4,28 +4,28 @@ namespace YAML_Lib {
 
 // Dictionary entry
 struct DictionaryEntry {
-  DictionaryEntry(const std::string_view &key, YNode &yNode)
-      : key(YNode::make<String>(key, kNull)), yNode(std::move(yNode)) {}
-  DictionaryEntry(const std::string_view &key, YNode &&yNode)
-      : key(YNode::make<String>(key, kNull)), yNode(std::move(yNode)) {}
-  DictionaryEntry(YNode &keyYNode, YNode &yNode)
-      : key(std::move(keyYNode)), yNode(std::move(yNode)) {}
-  DictionaryEntry(YNode &keyYNode, YNode &&yNode)
-      : key(std::move(keyYNode)), yNode(std::move(yNode)) {}
+  DictionaryEntry(const std::string_view &key, Node &yNode)
+      : key(Node::make<String>(key, kNull)), yNode(std::move(yNode)) {}
+  DictionaryEntry(const std::string_view &key, Node &&yNode)
+      : key(Node::make<String>(key, kNull)), yNode(std::move(yNode)) {}
+  DictionaryEntry(Node &keyNode, Node &yNode)
+      : key(std::move(keyNode)), yNode(std::move(yNode)) {}
+  DictionaryEntry(Node &keyNode, Node &&yNode)
+      : key(std::move(keyNode)), yNode(std::move(yNode)) {}
   [[nodiscard]] std::string_view getKey() {
     return dynamic_cast<String &>(key.getVariant()).value();
   }
   [[nodiscard]] std::string_view getKey() const {
     return dynamic_cast<const String &>(key.getVariant()).value();
   }
-  [[nodiscard]] YNode &getKeyYNode() { return key; }
-  [[nodiscard]] const YNode &getKeyYNode() const { return key; }
-  [[nodiscard]] YNode &getYNode() { return yNode; }
-  [[nodiscard]] const YNode &getYNode() const { return yNode; }
+  [[nodiscard]] Node &getKeyNode() { return key; }
+  [[nodiscard]] const Node &getKeyNode() const { return key; }
+  [[nodiscard]] Node &getNode() { return yNode; }
+  [[nodiscard]] const Node &getNode() const { return yNode; }
 
 private:
-  YNode key;
-  YNode yNode;
+  Node key;
+  Node yNode;
 };
 
 struct Dictionary final : Variant {
@@ -46,7 +46,7 @@ struct Dictionary final : Variant {
   [[nodiscard]] bool contains(const std::string_view &key) const {
     try {
       [[maybe_unused]] auto _ = findKey(yNodeDictionary, key);
-    } catch ([[maybe_unused]] const YNode::Error &e) {
+    } catch ([[maybe_unused]] const Node::Error &e) {
       return false;
     }
     return true;
@@ -56,11 +56,11 @@ struct Dictionary final : Variant {
     return static_cast<int>(yNodeDictionary.size());
   }
   // Return dictionary entry for a given key
-  YNode &operator[](const std::string_view &key) {
-    return findKey(yNodeDictionary, key)->getYNode();
+  Node &operator[](const std::string_view &key) {
+    return findKey(yNodeDictionary, key)->getNode();
   }
-  const YNode &operator[](const std::string_view &key) const {
-    return findKey(yNodeDictionary, key)->getYNode();
+  const Node &operator[](const std::string_view &key) const {
+    return findKey(yNodeDictionary, key)->getNode();
   }
   // Return reference to base of dictionary entries
   Entries &value() { return yNodeDictionary; }
@@ -69,13 +69,13 @@ struct Dictionary final : Variant {
   [[nodiscard]]  std::string toKey() const override {
     std::string dictionary{kLeftCurlyBrace};
     size_t commaCount = yNodeDictionary.size() - 1;
-    for (auto &entryYNode : yNodeDictionary) {
-      dictionary += entryYNode.getKeyYNode().getVariant().toString();
+    for (auto &entryNode : yNodeDictionary) {
+      dictionary += entryNode.getKeyNode().getVariant().toString();
       dictionary += ": ";
-      if (const auto type = entryYNode.getYNode().getVariant().getNodeType(); type == Type::dictionary || type == Type::array) {
-        dictionary += entryYNode.getYNode().getVariant().toKey();
+      if (const auto type = entryNode.getNode().getVariant().getNodeType(); type == Type::dictionary || type == Type::array) {
+        dictionary += entryNode.getNode().getVariant().toKey();
       } else {
-        dictionary += entryYNode.getYNode().getVariant().toString();
+        dictionary += entryNode.getNode().getVariant().toString();
       }
       if (commaCount-- > 0) {
         dictionary += ", ";
@@ -103,7 +103,7 @@ Dictionary::findKey(Entries &dictionary, const std::string_view &key) {
         return entry.getKey() == key;
       });
   if (it == dictionary.end()) {
-    throw YNode::Error("Invalid key used to access dictionary.");
+    throw Node::Error("Invalid key used to access dictionary.");
   }
   return it;
 }
@@ -114,7 +114,7 @@ Dictionary::findKey(const Entries &dictionary, const std::string_view &key) {
         return entry.getKey() == key;
       });
   if (it == dictionary.end()) {
-    throw YNode::Error("Invalid key used to access dictionary.");
+    throw Node::Error("Invalid key used to access dictionary.");
   }
   return it;
 }

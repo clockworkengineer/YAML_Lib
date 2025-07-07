@@ -17,15 +17,15 @@ namespace YAML_Lib {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse the array.</param>
 /// <param name="indentation">Parent indentation.</param>
-/// <returns>Array YNode.</returns>
-YNode Default_Parser::parseArray(ISource &source, const Delimiters &delimiters, [[maybe_unused]] unsigned long indentation) {
+/// <returns>Array Node.</returns>
+Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters, [[maybe_unused]] unsigned long indentation) {
   const unsigned long arrayIndent = source.getPosition().second;
   arrayIndentLevel++;
-  auto arrayYNode = YNode::make<Array>();
+  auto arrayNode = Node::make<Array>();
   while (isArray(source) && arrayIndent == source.getPosition().second) {
     source.next();
     source.ignoreWS();
-    YNode yNode = YNode::make<Null>();
+    Node yNode = Node::make<Null>();
     if (source.current() != kLineFeed) {
       yNode = parseDocument(source, delimiters, arrayIndent);
     } else {
@@ -34,7 +34,7 @@ YNode Default_Parser::parseArray(ISource &source, const Delimiters &delimiters, 
         yNode = parseDocument(source, delimiters, arrayIndent);
       }
     }
-    YRef<Array>(arrayYNode).add(std::move(yNode));
+    YRef<Array>(arrayNode).add(std::move(yNode));
     moveToNextIndent(source);
   }
   arrayIndentLevel--;
@@ -43,7 +43,7 @@ YNode Default_Parser::parseArray(ISource &source, const Delimiters &delimiters, 
     throw SyntaxError(source.getPosition(),
                       "Invalid indentation for array element.");
   }
-  return arrayYNode;
+  return arrayNode;
 }
 /// <summary>
 /// Parse inline array on source stream.
@@ -51,14 +51,14 @@ YNode Default_Parser::parseArray(ISource &source, const Delimiters &delimiters, 
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse the inline array.</param>
 /// <param name="indentation">Parent indentation.</param>
-/// <returns>Array YNode.</returns>
-YNode Default_Parser::parseInlineArray(
+/// <returns>Array Node.</returns>
+Node Default_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters, const unsigned long indentation) {
   inlineArrayDepth++;
   Delimiters inLineArrayDelimiters = {delimiters};
   inLineArrayDelimiters.insert({kComma, kRightSquareBracket});
-  auto arrayYNode = YNode::make<Array>();
-  auto &yamlArray = YRef<Array>(arrayYNode);
+  auto arrayNode = Node::make<Array>();
+  auto &yamlArray = YRef<Array>(arrayNode);
   do {
     source.next();
     yamlArray.add(parseDocument(source, inLineArrayDelimiters, indentation));
@@ -81,6 +81,6 @@ YNode Default_Parser::parseInlineArray(
                         std::string(1, source.current()) + "'.");
     }
   }
-  return arrayYNode;
+  return arrayNode;
 }
 } // namespace YAML_Lib

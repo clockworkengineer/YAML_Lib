@@ -17,15 +17,15 @@ public:
   ~Default_Stringify() override = default;
 
   /// <summary>
-  /// Recursively traverse YNode structure encoding it into YAML string on
+  /// Recursively traverse Node structure encoding it into YAML string on
   /// the destination stream passed in.
   /// </summary>
-  /// <param name="yNode">YNode structure to be traversed.</param>
+  /// <param name="yNode">Node structure to be traversed.</param>
   /// <param name="destination">Destination stream for stringified YAML.</param>
   /// <param name="indent">Current print indentation.</param>
-  void stringify(const YNode &yNode, IDestination &destination,
+  void stringify(const Node &yNode, IDestination &destination,
                  const unsigned long indent) const override {
-   stringifyYNodes(yNode, destination, indent);
+   stringifyNodes(yNode, destination, indent);
   }
   // Indentation increment
   static void setIndentation(const unsigned long indentation) {
@@ -56,7 +56,7 @@ private:
     return std::string("");
   }
   static void stringifyAnyBlockStyle(IDestination &destination,
-                                     const YNode &yNode) {
+                                     const Node &yNode) {
     if (isA<String>(yNode)) {
       if (const auto quote = YRef<String>(yNode).getQuote();
           quote == '>' || quote == '|') {
@@ -65,7 +65,7 @@ private:
       }
     }
   }
-  static void stringifyYNodes(const YNode &yNode, IDestination &destination,
+  static void stringifyNodes(const Node &yNode, IDestination &destination,
                  const unsigned long indent)  {
     if (isA<Number>(yNode)) {
       stringifyNumber(yNode, destination, indent);
@@ -86,14 +86,14 @@ private:
     } else if (isA<Document>(yNode)) {
       stringifyDocument(yNode, destination, indent);
     } else {
-      throw Error("Unknown YNode type encountered during stringification.");
+      throw Error("Unknown Node type encountered during stringification.");
     }
   }
-  static void stringifyNumber(const YNode &yNode, IDestination &destination,
+  static void stringifyNumber(const Node &yNode, IDestination &destination,
                               [[maybe_unused]] const unsigned long indent) {
     destination.add(YRef<Number>(yNode).toString());
   }
-  static void stringifyString(const YNode &yNode, IDestination &destination, const unsigned long indent)  {
+  static void stringifyString(const Node &yNode, IDestination &destination, const unsigned long indent)  {
     if (const char quote = YRef<String>(yNode).getQuote();
      quote == kApostrophe || quote == kDoubleQuote) {
       std::string yamlString{YRef<String>(yNode).toString()};
@@ -109,55 +109,55 @@ private:
             }
      }
   }
-  static void stringifyComment(const YNode &yNode, IDestination &destination, [[maybe_unused]]const unsigned long indent) {
+  static void stringifyComment(const Node &yNode, IDestination &destination, [[maybe_unused]]const unsigned long indent) {
     destination.add("#" + std::string(YRef<Comment>(yNode).value()) + kLineFeed);
   }
-  static void stringifyBoolean(const YNode &yNode, IDestination &destination, [[maybe_unused]]const unsigned long indent) {
+  static void stringifyBoolean(const Node &yNode, IDestination &destination, [[maybe_unused]]const unsigned long indent) {
     destination.add(YRef<Boolean>(yNode).toString());
   }
-  static void stringifyNull(const YNode &yNode, IDestination &destination, [[maybe_unused]]const unsigned long indent) {
+  static void stringifyNull(const Node &yNode, IDestination &destination, [[maybe_unused]]const unsigned long indent) {
     destination.add(YRef<Null>(yNode).toString());
   }
-  static void stringifyHole(const YNode &yNode, IDestination &destination, [[maybe_unused]] const unsigned long indent) {
+  static void stringifyHole(const Node &yNode, IDestination &destination, [[maybe_unused]] const unsigned long indent) {
     destination.add(YRef<Hole>(yNode).toString());
   }
-  static void stringifyDictionary(const YNode &yNode, IDestination &destination, const unsigned long indent)  {
-    for (const auto &entryYNode : YRef<Dictionary>(yNode).value()) {
+  static void stringifyDictionary(const Node &yNode, IDestination &destination, const unsigned long indent)  {
+    for (const auto &entryNode : YRef<Dictionary>(yNode).value()) {
       destination.add(calculateIndent(destination, indent));
       if (const char quote =
-              YRef<String>(entryYNode.getKeyYNode()).getQuote();
+              YRef<String>(entryNode.getKeyNode()).getQuote();
           quote == kApostrophe || quote == kDoubleQuote) {
         destination.add(quote +
-                        YRef<String>(entryYNode.getKeyYNode()).toString() +
+                        YRef<String>(entryNode.getKeyNode()).toString() +
                         quote);
           } else {
-            destination.add(YRef<String>(entryYNode.getKeyYNode()).toString());
+            destination.add(YRef<String>(entryNode.getKeyNode()).toString());
           }
       destination.add(": ");
-      stringifyAnyBlockStyle(destination, entryYNode.getYNode());
-      if (isA<Array>(entryYNode.getYNode()) ||
-          isA<Dictionary>(entryYNode.getYNode())) {
+      stringifyAnyBlockStyle(destination, entryNode.getNode());
+      if (isA<Array>(entryNode.getNode()) ||
+          isA<Dictionary>(entryNode.getNode())) {
         destination.add(kLineFeed);
           }
-      stringifyYNodes(entryYNode.getYNode(), destination, indent + yamlIndentation);
-      if (!isA<Array>(entryYNode.getYNode()) &&
-          !isA<Dictionary>(entryYNode.getYNode()) &&
-          !isA<Comment>(entryYNode.getYNode())) {
+      stringifyNodes(entryNode.getNode(), destination, indent + yamlIndentation);
+      if (!isA<Array>(entryNode.getNode()) &&
+          !isA<Dictionary>(entryNode.getNode()) &&
+          !isA<Comment>(entryNode.getNode())) {
         destination.add(kLineFeed);
           }
     }
   }
-  static void stringifyArray(const YNode &yNode, IDestination &destination, const unsigned long indent)  {
-    for (const auto &entryYNode : YRef<Array>(yNode).value()) {
+  static void stringifyArray(const Node &yNode, IDestination &destination, const unsigned long indent)  {
+    for (const auto &entryNode : YRef<Array>(yNode).value()) {
       destination.add(calculateIndent(destination, indent) + "- ");
-      stringifyAnyBlockStyle(destination, entryYNode);
-      stringifyYNodes(entryYNode, destination, indent + yamlIndentation);
+      stringifyAnyBlockStyle(destination, entryNode);
+      stringifyNodes(entryNode, destination, indent + yamlIndentation);
       if (destination.last() != kLineFeed) {
         destination.add(kLineFeed);
       }
     }
   }
-  static void stringifyDocument(const YNode &yNode, IDestination &destination, [[maybe_unused]] const unsigned long indent)  {
+  static void stringifyDocument(const Node &yNode, IDestination &destination, [[maybe_unused]] const unsigned long indent)  {
     destination.add("---");
     if (!YRef<Document>(yNode).value().empty()) {
       stringifyAnyBlockStyle(destination, YRef<Document>(yNode)[0]);
@@ -165,8 +165,8 @@ private:
         destination.add(kLineFeed);
       }
     }
-    for (const auto &entryYNode : YRef<Document>(yNode).value()) {
-      stringifyYNodes(entryYNode, destination, 0);
+    for (const auto &entryNode : YRef<Document>(yNode).value()) {
+      stringifyNodes(entryNode, destination, 0);
     }
     if (destination.last() != kLineFeed) {
       destination.add(kLineFeed);

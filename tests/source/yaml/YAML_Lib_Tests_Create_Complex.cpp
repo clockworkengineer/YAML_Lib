@@ -69,7 +69,7 @@ TEST_CASE("Check YAML create complex YAML structures.",
     yaml["nothing"] = nullptr;
     yaml["answer"]["everything"] = 42;
     yaml["list"] = {1, 0, 2};
-    yaml["object"] = {{"currency", "USD"}, {"value", YNode{1, 2, 3, 4, 5}}};
+    yaml["object"] = {{"currency", "USD"}, {"value", Node{1, 2, 3, 4, 5}}};
     BufferDestination yamlDestination;
     REQUIRE_NOTHROW(yaml.stringify(yamlDestination));
     REQUIRE(yamlDestination.toString() ==
@@ -89,7 +89,7 @@ TEST_CASE("Check YAML create complex YAML structures.",
     yaml["answer"]["everything"] = 42;
     yaml["list"] = {1, 0, 2};
     yaml["object"] = {{"currency", "USD"},
-                      {"value", YNode{{"key1", 22}, {"key2", 99.899}}}};
+                      {"value", Node{{"key1", 22}, {"key2", 99.899}}}};
     BufferDestination yamlDestination;
     REQUIRE_NOTHROW(yaml.stringify(yamlDestination));
     REQUIRE(
@@ -115,15 +115,15 @@ TEST_CASE("Check YAML create complex YAML structures.",
   }
   SECTION("Object creation completely using a nested initializer list.",
           "[YAML][Create][Complex][Initializer") {
-    // Note: For the moment has to explicitly uses YNode to create a
+    // Note: For the moment has to explicitly uses Node to create a
     // nested object/array
     YAML yaml = {{"pi", 3.141},
                  {"happy", true},
                  {"name", "Niels"},
                  {"nothing", nullptr},
-                 {"answer", YNode{{"everything", 42}}},
-                 {"list", YNode{1, 0, 2}},
-                 {"object", YNode{{"currency", "USD"}, {"value", 42.99}}}};
+                 {"answer", Node{{"everything", 42}}},
+                 {"list", Node{1, 0, 2}},
+                 {"object", Node{{"currency", "USD"}, {"value", 42.99}}}};
     BufferDestination yamlDestination;
     REQUIRE_NOTHROW(yaml.stringify(yamlDestination));
     REQUIRE(yamlDestination.toString() ==

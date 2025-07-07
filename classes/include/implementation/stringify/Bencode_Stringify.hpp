@@ -13,19 +13,19 @@ public:
   ~Bencode_Stringify() override = default;
 
   /// <summary>
-  /// Recursively traverse YNode structure encoding it into Bencode string on
+  /// Recursively traverse Node structure encoding it into Bencode string on
   /// the destination stream passed in.
   /// </summary>
-  /// <param name="yNode">YNode structure to be traversed.</param>
+  /// <param name="yNode">Node structure to be traversed.</param>
   /// <param name="destination">Destination stream for stringified
   /// Bencode.</param> <param name="indent">Current print indentation.</param>
-  void stringify(const YNode &yNode, IDestination &destination,
+  void stringify(const Node &yNode, IDestination &destination,
                  const unsigned long indent) const override {
-    stringifyYNodes(yNode,destination, indent);
+    stringifyNodes(yNode,destination, indent);
   }
 
 private:
-  static void stringifyYNodes(const YNode &yNode, IDestination &destination,
+  static void stringifyNodes(const Node &yNode, IDestination &destination,
                [[maybe_unused]] const unsigned long indent)   {
     if (isA<Document>(yNode)) {
       stringifyDocument(yNode, destination, 0);
@@ -43,47 +43,47 @@ private:
     } else if (isA<Array>(yNode)) {
       stringifyAray(yNode, destination);
     } else {
-      throw Error("Unknown YNode type encountered during stringification.");
+      throw Error("Unknown Node type encountered during stringification.");
     }
   }
-  static void stringifyDocument(const YNode &yNode, IDestination &destination,
+  static void stringifyDocument(const Node &yNode, IDestination &destination,
                          const long indent)  {
-    stringifyYNodes(YRef<Document>(yNode)[0], destination, indent);
+    stringifyNodes(YRef<Document>(yNode)[0], destination, indent);
   }
 
-  static void stringifyNumber(const YNode &yNode, IDestination &destination) {
+  static void stringifyNumber(const Node &yNode, IDestination &destination) {
     destination.add(
         "i" + std::to_string(YRef<Number>(yNode).value<long long>()) + "e");
   }
-  static void stringifyString(const YNode &yNode, IDestination &destination) {
+  static void stringifyString(const Node &yNode, IDestination &destination) {
     const auto yamlString = YRef<String>(yNode).value();
     destination.add(std::to_string(static_cast<int>(yamlString.length())) +
                     ":" + std::string(yamlString));
   }
-  static void stringifyBoolean(const YNode &yNode, IDestination &destination) {
+  static void stringifyBoolean(const Node &yNode, IDestination &destination) {
     if (YRef<Boolean>(yNode).value()) {
       destination.add("4:True");
     } else {
       destination.add("5:False");
     }
   }
-  static void stringifyNull([[maybe_unused]] const YNode &yNode,
+  static void stringifyNull([[maybe_unused]] const Node &yNode,
                             IDestination &destination) {
     destination.add("4:null");
   }
-  static void stringifyDictionary(const YNode &yNode,
+  static void stringifyDictionary(const Node &yNode,
                            IDestination &destination)  {
     destination.add('d');
     for (auto &entry : YRef<Dictionary>(yNode).value()) {
-      stringifyYNodes(entry.getKeyYNode(), destination, 0);
-      stringifyYNodes(entry.getYNode(), destination, 0);
+      stringifyNodes(entry.getKeyNode(), destination, 0);
+      stringifyNodes(entry.getNode(), destination, 0);
     }
     destination.add("e");
   }
-  static void stringifyAray(const YNode &yNode, IDestination &destination)  {
+  static void stringifyAray(const Node &yNode, IDestination &destination)  {
     destination.add('l');
     for (auto &entry : YRef<Array>(yNode).value()) {
-      stringifyYNodes(entry, destination, 0);
+      stringifyNodes(entry, destination, 0);
     }
     destination.add("e");
   }

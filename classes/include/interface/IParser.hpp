@@ -7,7 +7,7 @@ namespace YAML_Lib {
 // ====================
 
 class ISource;
-struct YNode;
+struct Node;
 
 // =========================
 // Interface for YAML parser
@@ -28,6 +28,6 @@ public:
   // =================
   // Parse YAML source
   // =================
-  virtual std::vector<YNode> parse(ISource &source) = 0;
+  virtual std::vector<Node> parse(ISource &source) = 0;
 };
 } // namespace YAML_Lib

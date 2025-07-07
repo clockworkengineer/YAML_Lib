@@ -1,10 +1,10 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YNode invalid number conversion.",
-          "[YAML][YNode][Number][Invalid]"){
+TEST_CASE("Check Node invalid number conversion.",
+          "[YAML][Node][Number][Invalid]"){
   const YAML yaml;
   SECTION("Check integer with invalid characters.",
-  "[YAML][YNode][Number][Invalid]")
+  "[YAML][Node][Number][Invalid]")
   {
       BufferSource yamlSource{ "4345u334u" };
       REQUIRE_NOTHROW(yaml.parse(yamlSource));
@@ -12,7 +12,7 @@ TEST_CASE("Check YNode invalid number conversion.",
       REQUIRE(YRef<String>(yaml.document(0)).value()=="4345u334u");
   }
   SECTION("Check floating point with invalid exponent.",
-  "[YAML][YNode][Number][Invalid]")
+  "[YAML][Node][Number][Invalid]")
   {
       BufferSource yamlSource{ "78.e43e-2" };
       REQUIRE_NOTHROW(yaml.parse(yamlSource));
@@ -20,7 +20,7 @@ TEST_CASE("Check YNode invalid number conversion.",
       REQUIRE(YRef<String>(yaml.document(0)).value()=="78.e43e-2");
   }
   SECTION("Check floating point with multiple decimal points.",
-  "[YAML][YNode][Number][Invalid]")
+  "[YAML][Node][Number][Invalid]")
   {
       BufferSource yamlSource{ "78.5454.545" };
       REQUIRE_NOTHROW(yaml.parse(yamlSource));
@@ -28,11 +28,11 @@ TEST_CASE("Check YNode invalid number conversion.",
       REQUIRE(YRef<String>(yaml.document(0)).value()=="78.5454.545");
   }
 }
-TEST_CASE("Check YNode Number API(s) for all supported number types.",
-          "[YAML][YNode][Number]") {
+TEST_CASE("Check Node Number API(s) for all supported number types.",
+          "[YAML][Node][Number]") {
   YAML yaml;
   SECTION("Check numbers are the correct type.",
-          "[YAML][YNode][Number][Addition]") {
+          "[YAML][Node][Number][Addition]") {
     yaml["root"] = {1, 1l, 1ll, 1.0f, 1.0, 1.0l};
     BufferDestination destinationBuffer;
     yaml.stringify(destinationBuffer);
@@ -47,7 +47,7 @@ TEST_CASE("Check YNode Number API(s) for all supported number types.",
     REQUIRE_FALSE(!YRef<Number>(yaml["root"][5]).is<long double>());
   }
   SECTION("Simple arithmetic add one to a number.",
-          "[YAML][YNode][Number][Get/Set]") {
+          "[YAML][Node][Number][Get/Set]") {
     yaml["root"] = {1, 1l, 1l, 1.0f, 1.0, 1.0l};
     BufferDestination destinationBuffer;
     yaml.stringify(destinationBuffer);
@@ -73,7 +73,7 @@ TEST_CASE("Check YNode Number API(s) for all supported number types.",
         destinationBuffer.toString() ==
         "---\nroot: \n  - 2\n  - 2\n  - 2\n  - 2.0\n  - 2.0\n  - 2.0\n...\n");
   }
-  SECTION("Change types and values.", "[YAML][YNode][Number][Reset]") {
+  SECTION("Change types and values.", "[YAML][Node][Number][Reset]") {
     yaml["root"] = {1, 1l, 1ll, 1.0f, 1.0, 1.0l};
     BufferDestination destinationBuffer;
     yaml.stringify(destinationBuffer);

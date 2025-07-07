@@ -4,19 +4,19 @@
 namespace YAML_Lib {
 
 // Dictionary
-inline YNode &YNode::operator[](const std::string_view &key) {
+inline Node &Node::operator[](const std::string_view &key) {
   if (isA<Hole>(*this)) {
     *this = make<Dictionary>();
     YRef<Dictionary>(*this).add(Dictionary::Entry(key, make<Hole>()));
-    return YRef<Dictionary>(*this).value().back().getYNode();
+    return YRef<Dictionary>(*this).value().back().getNode();
   }
   return YRef<Dictionary>(*this)[key];
 }
-inline const YNode &YNode::operator[](const std::string_view &key) const {
+inline const Node &Node::operator[](const std::string_view &key) const {
   return YRef<const Dictionary>(*this)[key];
 }
 // Array
-inline YNode &YNode::operator[](const std::size_t index) {
+inline Node &Node::operator[](const std::size_t index) {
   try {
     if (isA<Hole>(*this)) {
       *this = make<Array>();
@@ -41,7 +41,7 @@ inline YNode &YNode::operator[](const std::size_t index) {
     throw Error("Not a document or array variant.");
   }
 }
-inline const YNode &YNode::operator[](const std::size_t index) const {
+inline const Node &Node::operator[](const std::size_t index) const {
   if (isA<Array>(*this)) {
     return YRef<Array>(*this)[index];
   }

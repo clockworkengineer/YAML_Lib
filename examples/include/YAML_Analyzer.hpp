@@ -10,12 +10,12 @@ class YAML_Analyzer : public YAML_Lib::IAction {
 public:
   YAML_Analyzer() = default;
   ~YAML_Analyzer() override = default;
-  // Add YNode details to analysis
-  void onYNode([[maybe_unused]] const YAML_Lib::YNode &yNode) override {
+  // Add Node details to analysis
+  void onNode([[maybe_unused]] const YAML_Lib::Node &yNode) override {
     totalNodes++;
   }
   // Add string details to analysis
-  void onString(const YAML_Lib::YNode &yNode) override {
+  void onString(const YAML_Lib::Node &yNode) override {
     const auto &yNodeString = YRef<YAML_Lib::String>(yNode);
     totalStrings++;
     sizeInBytes += sizeof(YAML_Lib::String);
@@ -24,7 +24,7 @@ public:
     uniqueStrings.insert(yNodeString.value());
   }
   // Add number details to analysis
-  void onNumber(const YAML_Lib::YNode &yNode) override {
+  void onNumber(const YAML_Lib::Node &yNode) override {
     const auto &yNodeNumber = YRef<YAML_Lib::Number>(yNode);
     totalNumbers++;
     sizeInBytes += sizeof(YAML_Lib::Number);
@@ -42,27 +42,27 @@ public:
       totalLongDouble++;
     }
   }
-  void onBoolean([[maybe_unused]] const YAML_Lib::YNode &yNode) override {
+  void onBoolean([[maybe_unused]] const YAML_Lib::Node &yNode) override {
     totalBoolean++;
     sizeInBytes += sizeof(YAML_Lib::Boolean);
   }
   // Add null details to analysis
-  void onNull([[maybe_unused]] const YAML_Lib::YNode &yNode) override {
+  void onNull([[maybe_unused]] const YAML_Lib::Node &yNode) override {
     totalNull++;
     sizeInBytes += sizeof(YAML_Lib::Null);
   }
   // Add array details to analysis
-  void onArray(const YAML_Lib::YNode &yNode) override {
+  void onArray(const YAML_Lib::Node &yNode) override {
     const auto &yNodeArray = YRef<YAML_Lib::Array>(yNode);
     totalArrays++;
     sizeInBytes += sizeof(YAML_Lib::Array);
     maxArraySize = std::max(yNodeArray.size(), maxArraySize);
     for ([[maybe_unused]] auto &yNodeEntry : yNodeArray.value()) {
-      sizeInBytes += sizeof(YAML_Lib::YNode);
+      sizeInBytes += sizeof(YAML_Lib::Node);
     }
   }
   // Add object details to analysis
-  void onDictionary(const YAML_Lib::YNode &yNode) override {
+  void onDictionary(const YAML_Lib::Node &yNode) override {
     const auto &yNodeDictionary = YRef<YAML_Lib::Dictionary>(yNode);
     totalDictionaries++;
     sizeInBytes += sizeof(YAML_Lib::Dictionary);
@@ -112,10 +112,10 @@ public:
     os << "----------------------------------------------------";
     return (os.str());
   }
-  static std::string dumpYNodeSizes() {
+  static std::string dumpNodeSizes() {
     std::stringstream os;
-    os << "\n--------------------YAML_Lib::YNode Sizes---------------------\n";
-    os << "YAML_Lib::YNode size " << sizeof(YAML_Lib::YNode) << " in bytes.\n";
+    os << "\n--------------------YAML_Lib::Node Sizes---------------------\n";
+    os << "YAML_Lib::Node size " << sizeof(YAML_Lib::Node) << " in bytes.\n";
     os << "YAML_Lib::Dictionary size " << sizeof(YAML_Lib::Dictionary)
        << " in bytes.\n";
     os << "YAML_Lib::Dictionary Entry size "

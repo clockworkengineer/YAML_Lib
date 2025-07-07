@@ -37,8 +37,8 @@ void Default_Parser::appendCharacterToString(ISource &source,
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <param name="indentation">Parent indentation.</param>
-/// <returns>String YNode.</returns>
-YNode Default_Parser::parsePlainFlowString(ISource &source,
+/// <returns>String Node.</returns>
+Node Default_Parser::parsePlainFlowString(ISource &source,
                                         const Delimiters &delimiters,
                                         const unsigned long indentation) {
   std::string yamlString{extractToNext(source, delimiters) + kSpace};
@@ -56,7 +56,7 @@ YNode Default_Parser::parsePlainFlowString(ISource &source,
       yamlString.pop_back();
     }
   }
-  return YNode::make<String>(yamlString, kNull);
+  return Node::make<String>(yamlString, kNull);
 }
 /// <summary>
 /// Parse quoted flow string on source stream.
@@ -64,8 +64,8 @@ YNode Default_Parser::parsePlainFlowString(ISource &source,
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <param name="indentation">Parent indentation.</param>
-/// <returns>String YNode.</returns>
-YNode Default_Parser::parseQuotedFlowString(ISource &source,
+/// <returns>String Node.</returns>
+Node Default_Parser::parseQuotedFlowString(ISource &source,
                                          const Delimiters &delimiters,
                                          [[maybe_unused]] unsigned long indentation) {
   const char quote = source.append();
@@ -95,7 +95,7 @@ YNode Default_Parser::parseQuotedFlowString(ISource &source,
     }
   }
   moveToNext(source, delimiters);
-  return YNode::make<String>(yamlString, quote);
+  return Node::make<String>(yamlString, quote);
 }
 
 } // namespace YAML_Lib

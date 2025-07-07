@@ -3,9 +3,9 @@
 namespace YAML_Lib {
 
 // =======================
-// What is YNode variant ?
+// What is Node variant ?
 // =======================
-template <typename T> bool isA(const YNode &yNode) {
+template <typename T> bool isA(const Node &yNode) {
   if constexpr (std::is_same_v<T, String>) {
     return yNode.getVariant().getNodeType() == Variant::Type::string;
   } else if constexpr (std::is_same_v<T, Number>) {
@@ -30,61 +30,61 @@ template <typename T> bool isA(const YNode &yNode) {
 }
 
 // =========================
-// YNode reference converter
+// Node reference converter
 // =========================
-template <typename T> void checkYNode(const YNode &yNode) {
+template <typename T> void checkNode(const Node &yNode) {
   if constexpr (std::is_same_v<T, String>) {
     if (!isA<T>(yNode)) {
-      throw YNode::Error("YNode not a string.");
+      throw Node::Error("Node not a string.");
     }
   } else if constexpr (std::is_same_v<T, Number>) {
     if (!isA<T>(yNode)) {
-      throw YNode::Error("YNode not a number.");
+      throw Node::Error("Node not a number.");
     }
   } else if constexpr (std::is_same_v<T, Array>) {
     if (!isA<T>(yNode)) {
-      throw YNode::Error("YNode not an array.");
+      throw Node::Error("Node not an array.");
     }
   } else if constexpr (std::is_same_v<T, Dictionary>) {
     if (!isA<T>(yNode)) {
-      throw YNode::Error("YNode not an dictionary.");
+      throw Node::Error("Node not an dictionary.");
     }
   } else if constexpr (std::is_same_v<T, Boolean>) {
     if (!isA<T>(yNode)) {
-      throw YNode::Error("YNode not a boolean.");
+      throw Node::Error("Node not a boolean.");
     }
   } else if constexpr (std::is_same_v<T, Null>) {
     if (!isA<T>(yNode)) {
-      throw YNode::Error("YNode not a null.");
+      throw Node::Error("Node not a null.");
     }
   } else if constexpr (std::is_same_v<T, Hole>) {
     if (!isA<T>(yNode)) {
-      throw YNode::Error("YNode not a hole.");
+      throw Node::Error("Node not a hole.");
     }
   } else if constexpr (std::is_same_v<T, Comment>) {
     if (!isA<T>(yNode)) {
-      throw YNode::Error("YNode not a comment.");
+      throw Node::Error("Node not a comment.");
     }
   } else if constexpr (std::is_same_v<T, Document>) {
     if (!isA<T>(yNode)) {
-      throw YNode::Error("YNode not a document.");
+      throw Node::Error("Node not a document.");
     }
   }
 }
-template <typename T> T &YRef(YNode &yNode) {
-  checkYNode<T>(yNode);
+template <typename T> T &YRef(Node &yNode) {
+  checkNode<T>(yNode);
   return static_cast<T &>(yNode.getVariant());
 }
-template <typename T> const T &YRef(const YNode &yNode) {
-  checkYNode<T>(yNode);
+template <typename T> const T &YRef(const Node &yNode) {
+  checkNode<T>(yNode);
   return static_cast<const T &>(yNode.getVariant());
 }
 template <typename T> T &YRef(Dictionary::Entry &yNodeEntry) {
-  checkYNode<T>(yNodeEntry.getYNode());
-  return static_cast<T &>(yNodeEntry.getYNode().getVariant());
+  checkNode<T>(yNodeEntry.getNode());
+  return static_cast<T &>(yNodeEntry.getNode().getVariant());
 }
 template <typename T> const T &YRef(const Dictionary::Entry &yNodeEntry) {
-  checkYNode<T>(yNodeEntry.getYNode());
-  return static_cast<const T &>(yNodeEntry.getYNode().getVariant());
+  checkNode<T>(yNodeEntry.getNode());
+  return static_cast<const T &>(yNodeEntry.getNode().getVariant());
 }
 } // namespace YAML_Lib

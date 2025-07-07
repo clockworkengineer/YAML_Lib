@@ -18,22 +18,22 @@ public:
   ~XML_Stringify() override = default;
 
   /// <summary>
-  /// Recursively traverse YNode structure encoding it into XML string on
+  /// Recursively traverse Node structure encoding it into XML string on
   /// the destination stream passed in.
   /// </summary>
-  /// <param name="yNode">YNode structure to be traversed.</param>
+  /// <param name="yNode">Node structure to be traversed.</param>
   /// <param name="destination">Destination stream for stringified XML.</param>
   /// <param name="indent">Current print indentation.</param>
-  void stringify(const YNode &yNode, IDestination &destination,
+  void stringify(const Node &yNode, IDestination &destination,
                  [[maybe_unused]] const unsigned long indent) const override {
     destination.add(R"(<?xml version="1.0" encoding="UTF-8"?>)");
     destination.add("<root>");
-    stringifyYNodes(yNode, destination, 0);
+    stringifyNodes(yNode, destination, 0);
     destination.add("</root>");
   }
 
 private:
-  static void stringifyYNodes(const YNode &yNode, IDestination &destination,
+  static void stringifyNodes(const Node &yNode, IDestination &destination,
                     const long indent)  {
     if (isA<Document>(yNode)) {
       stringifyDocument(yNode, destination, indent);
@@ -49,21 +49,21 @@ private:
     } else if (isA<Array>(yNode)) {
       stringifyArray(yNode, destination);
     } else {
-      throw Error("Unknown YNode type encountered during stringification.");
+      throw Error("Unknown Node type encountered during stringification.");
     }
   }
-  static void stringifyDocument(const YNode &yNode, IDestination &destination,
+  static void stringifyDocument(const Node &yNode, IDestination &destination,
                          const long indent)  {
-    stringifyYNodes(YRef<Document>(yNode)[0], destination, indent);
+    stringifyNodes(YRef<Document>(yNode)[0], destination, indent);
   }
-  static void stringifyNumber(const YNode &yNode, IDestination &destination) {
+  static void stringifyNumber(const Node &yNode, IDestination &destination) {
     destination.add(std::to_string(YRef<Number>(yNode).value<long long>()));
   }
-  static void stringifyString(const YNode &yNode, IDestination &destination)  {
+  static void stringifyString(const Node &yNode, IDestination &destination)  {
     destination.add(xmlTranslator->to(YRef<String>(yNode).value()));
   }
 
-  static void stringifyBoolean(const YNode &yNode, IDestination &destination) {
+  static void stringifyBoolean(const Node &yNode, IDestination &destination) {
     if (YRef<Boolean>(yNode).value()) {
       destination.add("True");
     } else {
@@ -71,24 +71,24 @@ private:
     }
   }
 
-  static void stringifyNull([[maybe_unused]] const YNode &yNode,
+  static void stringifyNull([[maybe_unused]] const Node &yNode,
                             [[maybe_unused]] IDestination &destination) {}
 
-  static void stringifyDictionary(const YNode &yNode,
+  static void stringifyDictionary(const Node &yNode,
                            IDestination &destination) {
     for (const auto &yNodeNext : YRef<Dictionary>(yNode).value()) {
       std::string elementName { yNodeNext.getKey()};
       std::ranges::replace(elementName, ' ', '-');
       destination.add("<" + elementName + ">");
-      stringifyYNodes(yNodeNext.getYNode(), destination, 0);
+      stringifyNodes(yNodeNext.getNode(), destination, 0);
       destination.add("</" + elementName + ">");
     }
   }
-  static void stringifyArray(const YNode &yNode, IDestination &destination)  {
+  static void stringifyArray(const Node &yNode, IDestination &destination)  {
     if (YRef<Array>(yNode).value().size() > 1) {
       for (const auto &bNodeNext : YRef<Array>(yNode).value()) {
         destination.add("<Row>");
-        stringifyYNodes(bNodeNext, destination, 0);
+        stringifyNodes(bNodeNext, destination, 0);
         destination.add("</Row>");
       }
     }

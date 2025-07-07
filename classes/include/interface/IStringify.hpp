@@ -6,7 +6,7 @@ namespace YAML_Lib {
 // Forward declarations
 // ====================
 class IDestination;
-struct YNode;
+struct Node;
 
 // ==================================
 // Interface for YAML stringification
@@ -25,9 +25,9 @@ public:
   // ========================
   virtual ~IStringify() = default;
     // ====================
-    // Stringify YNode tree
+    // Stringify Node tree
     // ====================
-    virtual void stringify(const YNode &yNode, IDestination &destination,  unsigned long indent) const = 0;
+    virtual void stringify(const Node &yNode, IDestination &destination,  unsigned long indent) const = 0;
     // =========================
     // Set/Get print indentation
     // =========================

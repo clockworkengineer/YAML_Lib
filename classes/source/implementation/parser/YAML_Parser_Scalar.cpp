@@ -16,10 +16,10 @@ namespace YAML_Lib {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse number./param>
 /// <param name="indentation">Parent indentation.</param>
-/// <returns>Number YNode.</returns>
-YNode Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
+/// <returns>Number Node.</returns>
+Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
                                [[maybe_unused]] unsigned long indentation) {
-  YNode numberYNode;
+  Node numberNode;
   source.save();
   std::string numeric{extractToNext(source, delimiters)};
   rightTrim(numeric);
@@ -27,12 +27,12 @@ YNode Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
                               number.is<long long>() || number.is<float>() ||
                               number.is<double>() || number.is<long double>()) {
     moveToNext(source, delimiters);
-    numberYNode = YNode::make<Number>(number);
+    numberNode = Node::make<Number>(number);
   }
-  if (numberYNode.isEmpty()) {
+  if (numberNode.isEmpty()) {
     source.restore();
   }
-  return numberYNode;
+  return numberNode;
 }
 /// <summary>
 /// Parse None/Null on source stream.
@@ -40,20 +40,20 @@ YNode Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse None.</param>
 /// <param name="indentation">Parent indentation.</param>
-/// <returns>None YNode.</returns>
-YNode Default_Parser::parseNone(ISource &source, const Delimiters &delimiters,
+/// <returns>None Node.</returns>
+Node Default_Parser::parseNone(ISource &source, const Delimiters &delimiters,
                              [[maybe_unused]] unsigned long indentation) {
-  YNode noneYNode;
+  Node noneNode;
   source.save();
   std::string none{extractToNext(source, delimiters)};
   rightTrim(none);
   if (none == "null" || none == "~") {
-    noneYNode = YNode::make<Null>();
+    noneNode = Node::make<Null>();
   }
-  if (noneYNode.isEmpty()) {
+  if (noneNode.isEmpty()) {
     source.restore();
   }
-  return noneYNode;
+  return noneNode;
 }
 /// <summary>
 /// Parse boolean value on source stream.
@@ -61,22 +61,22 @@ YNode Default_Parser::parseNone(ISource &source, const Delimiters &delimiters,
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse boolean.</param>
 /// <param name="indentation">Parent indentation.</param>
-/// <returns>Boolean YNode.</returns>
-YNode Default_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
+/// <returns>Boolean Node.</returns>
+Node Default_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
                                 [[maybe_unused]] unsigned long indentation) {
-  YNode booleanYNode;
+  Node booleanNode;
   source.save();
   std::string boolean{extractToNext(source, delimiters)};
   rightTrim(boolean);
   if (Boolean::isTrue.contains(boolean)) {
-    booleanYNode = YNode::make<Boolean>(true, boolean);
+    booleanNode = Node::make<Boolean>(true, boolean);
   } else if (Boolean::isFalse.contains(boolean)) {
-    booleanYNode = YNode::make<Boolean>(false, boolean);
+    booleanNode = Node::make<Boolean>(false, boolean);
   }
-  if (booleanYNode.isEmpty()) {
+  if (booleanNode.isEmpty()) {
     source.restore();
   }
-  return booleanYNode;
+  return booleanNode;
 }
 
 } // namespace YAML_Lib

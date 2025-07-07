@@ -88,11 +88,11 @@ std::string Default_Parser::parseBlockString(ISource &source,
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <param name="indentation">Parent indentation.</param>
-/// <returns>String YNode.</returns>
-YNode Default_Parser::parseFoldedBlockString(ISource &source,
+/// <returns>String Node.</returns>
+Node Default_Parser::parseFoldedBlockString(ISource &source,
                                           const Delimiters &delimiters,
                                           const unsigned long indentation) {
-  return YNode::make<String>(parseBlockString(source, delimiters, indentation, kSpace), '>');
+  return Node::make<String>(parseBlockString(source, delimiters, indentation, kSpace), '>');
 }
 /// <summary>
 /// Parse literal block string on source stream.
@@ -100,11 +100,11 @@ YNode Default_Parser::parseFoldedBlockString(ISource &source,
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <param name="indentation">Parent indentation.</param>
-/// <returns>String YNode.</returns>
-YNode Default_Parser::parseLiteralBlockString(ISource &source,
+/// <returns>String Node.</returns>
+Node Default_Parser::parseLiteralBlockString(ISource &source,
                                            const Delimiters &delimiters,
                                            const unsigned long indentation) {
-  return YNode::make<String>(parseBlockString(source, delimiters, indentation, kLineFeed),
+  return Node::make<String>(parseBlockString(source, delimiters, indentation, kLineFeed),
                              '|');
 }
 } // namespace YAML_Lib

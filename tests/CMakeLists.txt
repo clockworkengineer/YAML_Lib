@@ -52,10 +52,10 @@ set(TEST_SOURCES
         source/number/YAML_Lib_Tests_Number_Notation.cpp
         source/number/YAML_Lib_Tests_Number_Precision.cpp
         source/traverse/YAML_Lib_Tests_Traverse.cpp
-        source/ynode/YAML_Lib_Tests_YNode_Assignment.cpp
-        source/ynode/YAML_Lib_Tests_YNode_Construct.cpp
-        source/ynode/YAML_Lib_Tests_YNode_Indexing.cpp
-        source/ynode/YAML_Lib_Tests_YNode_Reference.cpp
+        source/node/YAML_Lib_Tests_Node_Assignment.cpp
+        source/node/YAML_Lib_Tests_Node_Construct.cpp
+        source/node/YAML_Lib_Tests_Node_Indexing.cpp
+        source/node/YAML_Lib_Tests_Node_Reference.cpp
         source/misc/YAML_Lib_Tests_Helper.cpp)
 
 add_executable(${TEST_EXECUTABLE} ${TEST_SOURCES})

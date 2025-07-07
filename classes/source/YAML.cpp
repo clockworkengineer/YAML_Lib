@@ -34,25 +34,25 @@ YAML::YAML(const std::string_view &yamlString) : YAML() {
 /// <summary>
 /// YAML constructor (array).
 /// </summary>
-/// <param name="array">Initializer list of single values or YNode.</param>
+/// <param name="array">Initializer list of single values or Node.</param>
 YAML::YAML(const ArrayInitializer &array) : YAML() {
   if (getNumberOfDocuments() == 0) {
     BufferSource source("---\n[]\n...\n");
     parse(source);
   }
-  this->document(0) = YNode(array);
+  this->document(0) = Node(array);
 }
 
 /// <summary>
 /// YAML constructor (object).
 /// </summary>
-/// <param name="dictionary">Initializer list of key/value(YNode) pairs.</param>
+/// <param name="dictionary">Initializer list of key/value(Node) pairs.</param>
 YAML::YAML(const DictionaryInitializer &dictionary) : YAML() {
   if (getNumberOfDocuments() == 0) {
     BufferSource source("---\n null : null\n...\n");
     parse(source);
   }
-  this->document(0) = YNode(dictionary);
+  this->document(0) = Node(dictionary);
 }
 /// <summary>
 /// Fetch version string for current YAML_Lib.
@@ -67,13 +67,13 @@ unsigned long YAML::getNumberOfDocuments() const {
   return implementation->getNumberOfDocuments();
 }
 /// <summary>
-/// Parse YAML from source stream into the YNode tree.
+/// Parse YAML from source stream into the Node tree.
 /// </summary>
 /// <param name="source"></param>
 void YAML::parse(ISource &source) const { implementation->parse(source); }
 void YAML::parse(ISource &&source) const { implementation->parse(source); }
 /// <summary>
-/// Stringify YNode tree to destination stream (file/buffer/network).
+/// Stringify Node tree to destination stream (file/buffer/network).
 /// </summary>
 /// <param name="destination"></param>
 void YAML::stringify(IDestination &destination) const {
@@ -83,18 +83,18 @@ void YAML::stringify(IDestination &&destination) const {
   implementation->stringify(destination);
 }
 /// <summary>
-/// Return YNode of the index document within YAML tree.
+/// Return Node of the index document within YAML tree.
 /// </summary>
 /// <param name="index"></param>
 /// <returns></returns>
-YNode &YAML::document(const unsigned long index) {
+Node &YAML::document(const unsigned long index) {
   return implementation->document(index);
 }
-const YNode &YAML::document(const unsigned long index) const {
+const Node &YAML::document(const unsigned long index) const {
   return implementation->document(index);
 }
 /// <summary>
-/// Recursively traverse YNode structure calling IAction methods (read-only)
+/// Recursively traverse Node structure calling IAction methods (read-only)
 ///  or to change the YAML tree node directly.
 /// </summary>
 /// <param name="action">Action methods to call during traversal.</param>
@@ -107,21 +107,21 @@ void YAML::traverse(IAction &action) const {
 /// <summary>
 /// Return object entry for the passed in keys.
 /// </summary>
-/// <param name="key">Object entry (YNode) key.</param>
-YNode &YAML::operator[](const std::string_view &key) {
+/// <param name="key">Object entry (Node) key.</param>
+Node &YAML::operator[](const std::string_view &key) {
   return (*implementation)[key];
 }
-const YNode &YAML::operator[](const std::string_view &key) const {
+const Node &YAML::operator[](const std::string_view &key) const {
   return (*implementation)[key];
 }
 /// <summary>
 /// Return array entry for the passed in index.
 /// </summary>
-/// <param name="index">Array entry (YNode) index.</param>
-YNode &YAML::operator[](const std::size_t index) {
+/// <param name="index">Array entry (Node) index.</param>
+Node &YAML::operator[](const std::size_t index) {
   return (*implementation)[index];
 }
-const YNode &YAML::operator[](const std::size_t index) const {
+const Node &YAML::operator[](const std::size_t index) const {
   return (*implementation)[index];
 }
 /// <summary>

@@ -42,7 +42,7 @@ void nextFibonacci() {
     const auto second =
         yml::YRef<yml::Number>(fibonacciArray[last]).value<long>();
     // Create new element for next in sequence
-    fibonacciArray.add(yml::YNode::make<yml::Number>(first + second));
+    fibonacciArray.add(yml::Node::make<yml::Number>(first + second));
   }
   // Write updated sequence back to file
   yaml.stringify(yml::FileDestination{yamlFibonacciFile()});

@@ -1,45 +1,45 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YNode Number assignment/creation.", "[YAML][YNode][Number][Assignment]")
+TEST_CASE("Check Node Number assignment/creation.", "[YAML][Node][Number][Assignment]")
 {
-    SECTION("Create YNode with int assigment.", "[YAML][YNode][Number][Integer][Assignment]")
+    SECTION("Create Node with int assigment.", "[YAML][Node][Number][Integer][Assignment]")
     {
-        YNode yNode;
+        Node yNode;
         yNode = 666;
         REQUIRE_FALSE(!YRef<Number>(yNode).is<int>());
         REQUIRE(YRef<Number>(yNode).value<int>() == 666);
     }
-    SECTION("Create YNode with long assigment.", "[YAML][YNode][Number][Long][Assignment]")
+    SECTION("Create Node with long assigment.", "[YAML][Node][Number][Long][Assignment]")
     {
-        YNode yNode;
+        Node yNode;
         yNode = 666l;
         REQUIRE_FALSE(!YRef<Number>(yNode).is<long>());
         REQUIRE(YRef<Number>(yNode).value<long>() == 666l);
     }
-    SECTION("Create YNode with long long assigment.", "[YAML][YNode][Number][Long Long][Assignment]")
+    SECTION("Create Node with long long assigment.", "[YAML][Node][Number][Long Long][Assignment]")
     {
-        YNode yNode;
+        Node yNode;
         yNode = 666ll;
         REQUIRE_FALSE(!YRef<Number>(yNode).is<long long>());
         REQUIRE(YRef<Number>(yNode).value<long>() == 666ll);
     }
-    SECTION("Create YNode with float assigment.", "[YAML][YNode][Number][Float][Assignment]")
+    SECTION("Create Node with float assigment.", "[YAML][Node][Number][Float][Assignment]")
     {
-        YNode yNode;
+        Node yNode;
         yNode = 666.666f;
         REQUIRE_FALSE(!YRef<Number>(yNode).is<float>());
         REQUIRE_FALSE(!equalFloatingPoint(YRef<Number>(yNode).value<float>(), 666.666f, 0.0001));
     }
-    SECTION("Create YNode with double assigment.", "[YAML][YNode][Number][Double][Assignment]")
+    SECTION("Create Node with double assigment.", "[YAML][Node][Number][Double][Assignment]")
     {
-        YNode yNode;
+        Node yNode;
         yNode = 666.666;
         REQUIRE_FALSE(!YRef<Number>(yNode).is<double>());
         REQUIRE_FALSE(!equalFloatingPoint(YRef<Number>(yNode).value<double>(), 666.666, 0.0001));
     }
-    SECTION("Create YNode with long double assigment.", "[YAML][YNode][Number][Long Double][Assignment]")
+    SECTION("Create Node with long double assigment.", "[YAML][Node][Number][Long Double][Assignment]")
     {
-        YNode yNode;
+        Node yNode;
         yNode = 666.666l;
         REQUIRE_FALSE(!YRef<Number>(yNode).is<long double>());
         REQUIRE_FALSE(!equalFloatingPoint(YRef<Number>(yNode).value<long double>(), 666.666l, 0.0001));

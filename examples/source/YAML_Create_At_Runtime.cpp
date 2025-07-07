@@ -36,24 +36,24 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     yaml["list"] = {1, 0, 2};
     // add another object (using an initializer list of pairs)
     yaml["object"] = {{"currency", "USD"}, {"value", 42.99}};
-    // add another object that has a nested array (YNode{})
+    // add another object that has a nested array (Node{})
     yaml["object2"] = {{"currency", "USD"},
-                       {"array", yl::YNode{23.22, 33, 55, 99.99}}};
+                       {"array", yl::Node{23.22, 33, 55, 99.99}}};
     yl::BufferDestination destination;
     yaml.stringify(destination);
     PLOG_INFO << destination.toString();
     destination.clear();
     // create YAML using an initializer list and nesting array/objects using
-    // YNode{}.
+    // Node{}.
     const yl::YAML yaml2 = {
         {"pi", 3.141},
         {"sad", true},
         {"first_name", "Niels"},
         {"nothing", nullptr},
-        {"the_answer", yl::YNode{{"everything", 42}}},
-        {"list", yl::YNode{1, 0, 2}},
-        {"object", yl::YNode{{"currency", "USD"},
-                             {"value", yl::YNode{23.22, 33, 55, 99.99}}}}};
+        {"the_answer", yl::Node{{"everything", 42}}},
+        {"list", yl::Node{1, 0, 2}},
+        {"object", yl::Node{{"currency", "USD"},
+                             {"value", yl::Node{23.22, 33, 55, 99.99}}}}};
     yaml2.stringify(destination);
     PLOG_INFO << destination.toString();
   } catch (std::exception &ex) {

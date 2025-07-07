@@ -19,7 +19,7 @@ public:
   Default_Parser &operator=(Default_Parser &&other) = delete;
   ~Default_Parser() override = default;
 
-  std::vector<YNode> parse(ISource &source) override;
+  std::vector<Node> parse(ISource &source) override;
 
   // Alias Map
   inline static std::map<std::string, std::string> yamlAliasMap{};
@@ -36,8 +36,8 @@ private:
   static std::string extractInLine(ISource &source, char start, char end);
   static std::string extractMapping(ISource &source);
   static void checkForEnd(ISource &source, char end);
-  static YNode mergeOverrides(YNode &overrideRoot);
-  static YNode convertYAMLToStringYNode(const std::string_view &yamlString);
+  static Node mergeOverrides(Node &overrideRoot);
+  static Node convertYAMLToStringNode(const std::string_view &yamlString);
   static bool isValidKey(const std::string_view &key);
   static bool isOverride(ISource &source);
   static bool isKey(ISource &source);
@@ -65,36 +65,36 @@ private:
                                       const Delimiters &delimiters,
                                       unsigned long indentation,
                                       char fillerDefault);
-  static YNode parseKey(ISource &source);
-  static YNode parseFoldedBlockString(ISource &source,
+  static Node parseKey(ISource &source);
+  static Node parseFoldedBlockString(ISource &source,
                                       const Delimiters &delimiters,
                                       unsigned long indentation);
-  static YNode parseLiteralBlockString(ISource &source,
+  static Node parseLiteralBlockString(ISource &source,
                                        const Delimiters &delimiters,
                                        unsigned long indentation);
-  static YNode parsePlainFlowString(ISource &source,
+  static Node parsePlainFlowString(ISource &source,
                                     const Delimiters &delimiters,
                                     unsigned long indentation);
-  static YNode parseQuotedFlowString(ISource &source,
+  static Node parseQuotedFlowString(ISource &source,
                                      const Delimiters &delimiters,
                                      unsigned long indentation);
-  static YNode parseComment(ISource &source,
+  static Node parseComment(ISource &source,
                             [[maybe_unused]] const Delimiters &delimiters);
-  static YNode parseNumber(ISource &source, const Delimiters &delimiters,
+  static Node parseNumber(ISource &source, const Delimiters &delimiters,
                            unsigned long indentation);
-  static YNode parseNone(ISource &source, const Delimiters &delimiters,
+  static Node parseNone(ISource &source, const Delimiters &delimiters,
                          unsigned long indentation);
-  static YNode parseBoolean(ISource &source, const Delimiters &delimiters,
+  static Node parseBoolean(ISource &source, const Delimiters &delimiters,
                             unsigned long indentation);
-  static YNode parseAnchor(ISource &source, const Delimiters &delimiters,
+  static Node parseAnchor(ISource &source, const Delimiters &delimiters,
                            unsigned long indentation);
-  static YNode parseAlias(ISource &source, const Delimiters &delimiters,
+  static Node parseAlias(ISource &source, const Delimiters &delimiters,
                           unsigned long indentation);
-  static YNode parseOverride(ISource &source, const Delimiters &delimiters,
+  static Node parseOverride(ISource &source, const Delimiters &delimiters,
                              unsigned long indentation);
-  static YNode parseArray(ISource &source, const Delimiters &delimiters,
+  static Node parseArray(ISource &source, const Delimiters &delimiters,
                           unsigned long indentation);
-  static YNode parseInlineArray(ISource &source,
+  static Node parseInlineArray(ISource &source,
                                 [[maybe_unused]] const Delimiters &delimiters,
                                 unsigned long indentation);
   static DictionaryEntry parseKeyValue(ISource &source,
@@ -103,18 +103,18 @@ private:
   static DictionaryEntry parseInlineKeyValue(ISource &source,
                                              const Delimiters &delimiters,
                                              unsigned long indentation);
-  static YNode parseDictionary(ISource &source, const Delimiters &delimiters,
+  static Node parseDictionary(ISource &source, const Delimiters &delimiters,
                                unsigned long indentation);
-  static YNode
+  static Node
   parseInlineDictionary(ISource &source,
                         [[maybe_unused]] const Delimiters &delimiters,
                         unsigned long indentation);
-  static YNode parseDocument(ISource &source,
+  static Node parseDocument(ISource &source,
                              [[maybe_unused]] const Delimiters &delimiters,
                              unsigned long indentation);
   // YAML parser routing table
   using IsAFunc = std::function<bool(ISource &)>;
-  using ParseFunc = std::function<YNode(ISource &, const Delimiters &, unsigned long)>;
+  using ParseFunc = std::function<Node(ISource &, const Delimiters &, unsigned long)>;
   inline static std::vector<std::pair<IsAFunc, ParseFunc>> parsers{
       // Mappings
       {isArray, parseArray},

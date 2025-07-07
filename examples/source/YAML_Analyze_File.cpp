@@ -33,7 +33,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
   // Output YAML Lib version and data structure metrics
   PLOG_INFO << YAML_Lib::YAML::version();
   PLOG_INFO << YAML_Analyzer::dumpNumericSizes();
-  PLOG_INFO << YAML_Analyzer::dumpYNodeSizes();
+  PLOG_INFO << YAML_Analyzer::dumpNodeSizes();
   // Analyze YAML files.
   for (auto &fileName : Utility::createYAMLFileList()) {
     try {
