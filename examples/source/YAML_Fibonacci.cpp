@@ -33,14 +33,14 @@ void nextFibonacci() {
   } else {
     // Parse in current sequence
     yaml.parse(yml::FileSource{yamlFibonacciFile()});
-    auto &fibonacciArray = yml::YRef<yml::Array>(yaml.document(0));
+    auto &fibonacciArray = yml::NRef<yml::Array>(yaml.document(0));
     // Get index of last element
     const auto last = fibonacciArray.size() - 1;
     // Get last two in sequence
     const auto first =
-        yml::YRef<yml::Number>(fibonacciArray[last - 1]).value<long>();
+        yml::NRef<yml::Number>(fibonacciArray[last - 1]).value<long>();
     const auto second =
-        yml::YRef<yml::Number>(fibonacciArray[last]).value<long>();
+        yml::NRef<yml::Number>(fibonacciArray[last]).value<long>();
     // Create new element for next in sequence
     fibonacciArray.add(yml::Node::make<yml::Number>(first + second));
   }

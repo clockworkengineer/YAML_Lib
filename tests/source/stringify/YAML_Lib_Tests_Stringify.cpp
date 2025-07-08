@@ -136,7 +136,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
           "[YAML][Stringify][literals]") {
     BufferSource source{"--- |\n  \\//||\\/||\n  // ||  ||__\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(YRef<String>(yaml.document(0)).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)).value() ==
             "\\//||\\/||\n// ||  ||__");
     compareYAML(yaml, "---|\n\\//||\\/||\n// ||  ||__\n...\n");
   }
@@ -231,8 +231,8 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     BufferSource source{"---\n- |\n \\//||\\/||\n // ||  ||__\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
-    REQUIRE(YRef<Array>(yaml.document(0)).size() == 1);
-    REQUIRE(YRef<String>(yaml.document(0)[0]).value() ==
+    REQUIRE(NRef<Array>(yaml.document(0)).size() == 1);
+    REQUIRE(NRef<String>(yaml.document(0)[0]).value() ==
             "\\//||\\/||\n// ||  ||__");
     compareYAML(yaml, "---\n- |\n  \\//||\\/||\n  // ||  ||__\n...\n");
   }

@@ -52,17 +52,17 @@ private:
 
   static void stringifyDocument(const Node &yNode, IDestination &destination,
                          const long indent)  {
-    stringifyNodes(YRef<Document>(yNode)[0], destination, indent);
+    stringifyNodes(NRef<Document>(yNode)[0], destination, indent);
   }
   static void stringifyNumber(const Node &yNode, IDestination &destination) {
-    destination.add(YRef<Number>(yNode).toString());
+    destination.add(NRef<Number>(yNode).toString());
   }
   static void stringifyString(const Node &yNode, IDestination &destination)  {
-    const auto yamlString = YRef<String>(yNode).value();
+    const auto yamlString = NRef<String>(yNode).value();
     destination.add("\"" + jsonTranslator->to(yamlString) + "\"");
   }
   static void stringifyBoolean(const Node &yNode, IDestination &destination) {
-    if (YRef<Boolean>(yNode).value()) {
+    if (NRef<Boolean>(yNode).value()) {
       destination.add("true");
     } else {
       destination.add("false");
@@ -74,9 +74,9 @@ private:
   }
   static void stringifyDictionary(const Node &yNode,
                            IDestination &destination)  {
-    auto comma = YRef<Dictionary>(yNode).value().size() - 1;
+    auto comma = NRef<Dictionary>(yNode).value().size() - 1;
     destination.add('{');
-    for (auto &entry : YRef<Dictionary>(yNode).value()) {
+    for (auto &entry : NRef<Dictionary>(yNode).value()) {
       stringifyNodes(entry.getKeyNode(), destination, 0);
       destination.add(":");
       stringifyNodes(entry.getNode(), destination, 0);
@@ -87,9 +87,9 @@ private:
     destination.add("}");
   }
   static void stringifyAray(const Node &yNode, IDestination &destination)  {
-    auto comma = YRef<Array>(yNode).value().size() - 1;
+    auto comma = NRef<Array>(yNode).value().size() - 1;
     destination.add('[');
-    for (auto &entry : YRef<Array>(yNode).value()) {
+    for (auto &entry : NRef<Array>(yNode).value()) {
       stringifyNodes(entry, destination, 0);
       if (comma-- > 0) {
         destination.add(",");

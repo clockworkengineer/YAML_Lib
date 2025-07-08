@@ -34,7 +34,7 @@ Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters, [
         yNode = parseDocument(source, delimiters, arrayIndent);
       }
     }
-    YRef<Array>(arrayNode).add(std::move(yNode));
+    NRef<Array>(arrayNode).add(std::move(yNode));
     moveToNextIndent(source);
   }
   arrayIndentLevel--;
@@ -58,13 +58,13 @@ Node Default_Parser::parseInlineArray(
   Delimiters inLineArrayDelimiters = {delimiters};
   inLineArrayDelimiters.insert({kComma, kRightSquareBracket});
   auto arrayNode = Node::make<Array>();
-  auto &yamlArray = YRef<Array>(arrayNode);
+  auto &yamlArray = NRef<Array>(arrayNode);
   do {
     source.next();
     yamlArray.add(parseDocument(source, inLineArrayDelimiters, indentation));
     if (auto &element = yamlArray.value().back(); isA<String>(element)) {
-      if (YRef<String>(element).value().empty() &&
-          YRef<String>(element).getQuote() == kNull) {
+      if (NRef<String>(element).value().empty() &&
+          NRef<String>(element).getQuote() == kNull) {
         if (source.current() != kRightSquareBracket) {
           throw SyntaxError("Unexpected ',' in in-line array.");
         }

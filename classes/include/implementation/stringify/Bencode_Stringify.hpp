@@ -48,20 +48,20 @@ private:
   }
   static void stringifyDocument(const Node &yNode, IDestination &destination,
                          const long indent)  {
-    stringifyNodes(YRef<Document>(yNode)[0], destination, indent);
+    stringifyNodes(NRef<Document>(yNode)[0], destination, indent);
   }
 
   static void stringifyNumber(const Node &yNode, IDestination &destination) {
     destination.add(
-        "i" + std::to_string(YRef<Number>(yNode).value<long long>()) + "e");
+        "i" + std::to_string(NRef<Number>(yNode).value<long long>()) + "e");
   }
   static void stringifyString(const Node &yNode, IDestination &destination) {
-    const auto yamlString = YRef<String>(yNode).value();
+    const auto yamlString = NRef<String>(yNode).value();
     destination.add(std::to_string(static_cast<int>(yamlString.length())) +
                     ":" + std::string(yamlString));
   }
   static void stringifyBoolean(const Node &yNode, IDestination &destination) {
-    if (YRef<Boolean>(yNode).value()) {
+    if (NRef<Boolean>(yNode).value()) {
       destination.add("4:True");
     } else {
       destination.add("5:False");
@@ -74,7 +74,7 @@ private:
   static void stringifyDictionary(const Node &yNode,
                            IDestination &destination)  {
     destination.add('d');
-    for (auto &entry : YRef<Dictionary>(yNode).value()) {
+    for (auto &entry : NRef<Dictionary>(yNode).value()) {
       stringifyNodes(entry.getKeyNode(), destination, 0);
       stringifyNodes(entry.getNode(), destination, 0);
     }
@@ -82,7 +82,7 @@ private:
   }
   static void stringifyAray(const Node &yNode, IDestination &destination)  {
     destination.add('l');
-    for (auto &entry : YRef<Array>(yNode).value()) {
+    for (auto &entry : NRef<Array>(yNode).value()) {
       stringifyNodes(entry, destination, 0);
     }
     destination.add("e");

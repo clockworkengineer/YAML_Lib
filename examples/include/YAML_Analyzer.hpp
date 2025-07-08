@@ -16,7 +16,7 @@ public:
   }
   // Add string details to analysis
   void onString(const YAML_Lib::Node &yNode) override {
-    const auto &yNodeString = YRef<YAML_Lib::String>(yNode);
+    const auto &yNodeString = NRef<YAML_Lib::String>(yNode);
     totalStrings++;
     sizeInBytes += sizeof(YAML_Lib::String);
     sizeInBytes += yNodeString.value().size();
@@ -25,7 +25,7 @@ public:
   }
   // Add number details to analysis
   void onNumber(const YAML_Lib::Node &yNode) override {
-    const auto &yNodeNumber = YRef<YAML_Lib::Number>(yNode);
+    const auto &yNodeNumber = NRef<YAML_Lib::Number>(yNode);
     totalNumbers++;
     sizeInBytes += sizeof(YAML_Lib::Number);
     if (yNodeNumber.is<int>()) {
@@ -53,7 +53,7 @@ public:
   }
   // Add array details to analysis
   void onArray(const YAML_Lib::Node &yNode) override {
-    const auto &yNodeArray = YRef<YAML_Lib::Array>(yNode);
+    const auto &yNodeArray = NRef<YAML_Lib::Array>(yNode);
     totalArrays++;
     sizeInBytes += sizeof(YAML_Lib::Array);
     maxArraySize = std::max(yNodeArray.size(), maxArraySize);
@@ -63,7 +63,7 @@ public:
   }
   // Add object details to analysis
   void onDictionary(const YAML_Lib::Node &yNode) override {
-    const auto &yNodeDictionary = YRef<YAML_Lib::Dictionary>(yNode);
+    const auto &yNodeDictionary = NRef<YAML_Lib::Dictionary>(yNode);
     totalDictionaries++;
     sizeInBytes += sizeof(YAML_Lib::Dictionary);
     maxDictionarySize =

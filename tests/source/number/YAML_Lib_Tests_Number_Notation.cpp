@@ -12,8 +12,8 @@ TEST_CASE("Check Node Number floating point notation.", "[YAML][Node][Number][Fl
         std::string expected{ R"({"latitude":39.068341,"longitude":-70.741615})" };
         BufferSource yamlSource{ expected };
         yaml.parse(yamlSource);
-        REQUIRE_FALSE(!YRef<Number>(yaml["latitude"]).is<float>());
-        REQUIRE_FALSE(!YRef<Number>(yaml["longitude"]).is<float>());
+        REQUIRE_FALSE(!NRef<Number>(yaml["latitude"]).is<float>());
+        REQUIRE_FALSE(!NRef<Number>(yaml["longitude"]).is<float>());
         BufferDestination yamlDestination;
         Number::setNotation(Number::numberNotation::normal);
         Number::setPrecision(6);
@@ -25,8 +25,8 @@ TEST_CASE("Check Node Number floating point notation.", "[YAML][Node][Number][Fl
         std::string expected{ R"({"latitude":39.068341,"longitude":-70.741615})" };
         BufferSource yamlSource{ expected };
         yaml.parse(yamlSource);
-        REQUIRE_FALSE(!YRef<Number>(yaml["latitude"]).is<float>());
-        REQUIRE_FALSE(!YRef<Number>(yaml["longitude"]).is<float>());
+        REQUIRE_FALSE(!NRef<Number>(yaml["latitude"]).is<float>());
+        REQUIRE_FALSE(!NRef<Number>(yaml["longitude"]).is<float>());
         BufferDestination yamlDestination;
         Number::setNotation(Number::numberNotation::fixed);
         yamlDestination.clear();
@@ -39,8 +39,8 @@ TEST_CASE("Check Node Number floating point notation.", "[YAML][Node][Number][Fl
         std::string expected{ R"({"latitude":39.068341,"longitude":-70.741615})" };
         BufferSource yamlSource{ expected };
         yaml.parse(yamlSource);
-        REQUIRE_FALSE(!YRef<Number>(yaml["latitude"]).is<float>());
-        REQUIRE_FALSE(!YRef<Number>(yaml["longitude"]).is<float>());
+        REQUIRE_FALSE(!NRef<Number>(yaml["latitude"]).is<float>());
+        REQUIRE_FALSE(!NRef<Number>(yaml["longitude"]).is<float>());
         BufferDestination yamlDestination;
         Number::setNotation(Number::numberNotation::scientific);
         yamlDestination.clear();

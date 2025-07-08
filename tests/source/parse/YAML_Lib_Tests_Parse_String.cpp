@@ -8,24 +8,24 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     BufferSource source{"---\ntest string.\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
-    REQUIRE(YRef<String>(yaml.document(0)).value() == "test string.");
-    REQUIRE(YRef<String>(yaml.document(0)).getQuote() == kNull);
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "test string.");
+    REQUIRE(NRef<String>(yaml.document(0)).getQuote() == kNull);
   }
   SECTION("YAML parse a double quoted string.",
           "[YAML][Parse][Scalar][String]") {
     BufferSource source{"---\n\"test string.\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
-    REQUIRE(YRef<String>(yaml.document(0)).value() == "test string.");
-    REQUIRE(YRef<String>(yaml.document(0)).getQuote() == kDoubleQuote);
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "test string.");
+    REQUIRE(NRef<String>(yaml.document(0)).getQuote() == kDoubleQuote);
   }
   SECTION("YAML parse a single quoted string.",
           "[YAML][Parse][Scalar][String]") {
     BufferSource source{"---\n'test string.'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
-    REQUIRE(YRef<String>(yaml.document(0)).value() == "test string.");
-    REQUIRE(YRef<String>(yaml.document(0)).getQuote() == kApostrophe);
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "test string.");
+    REQUIRE(NRef<String>(yaml.document(0)).getQuote() == kApostrophe);
   }
   SECTION(
       "YAML parse a double quoted string with some common escape sequences in.",
@@ -34,7 +34,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "---\n\"test string.\\t.\\n.\\b.\\r.\\f.\\\\.\\\".\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
-    REQUIRE(YRef<String>(yaml.document(0)).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)).value() ==
             "test string.\t.\n.\b.\r.\f.\\.\".");
   }
   SECTION(
@@ -43,7 +43,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     BufferSource source{"---\n'test string.\\t.\\n.\\b.\\r.\\f.\\\\.\\\".'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
-    REQUIRE(YRef<String>(yaml.document(0)).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)).value() ==
             "test string.\\t.\\n.\\b.\\r.\\f.\\\\.\\\".");
   }
   // Single quoted strings have no escape translation
@@ -53,7 +53,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE_NOTHROW(yaml.parse(source));
 
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
-    REQUIRE(YRef<String>(yaml.document(0)).value() == "test string \\n. ");
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "test string \\n. ");
   }
   // Single quoted strings '' -> '
   SECTION("YAML parse an single quoted string with escaped single quotes.",
@@ -62,14 +62,14 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE_NOTHROW(yaml.parse(source));
 
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
-    REQUIRE(YRef<String>(yaml.document(0)).value() == "test string '.'. ");
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "test string '.'. ");
   }
   SECTION("YAML parse an unquoted string with that terminated by EOF.",
           "[YAML][Parse][Scalar][String]") {
     BufferSource source{"---\n test string."};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
-    REQUIRE(YRef<String>(yaml.document(0)).value() == "test string.");
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "test string.");
   }
   SECTION("Parse Array of plain flow scalars with blank line at end.",
           "[YAML][Parse][Examples][File]") {
@@ -77,10 +77,10 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "---\n- Mark Joseph\n- James Stephen\n- Ken Griffey\n\n"};
     REQUIRE_NOTHROW(yaml.parse(yamlSource));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
-    REQUIRE(YRef<Array>(yaml.document(0)).size() == 3);
-    REQUIRE(YRef<String>(yaml.document(0)[0]).value() == "Mark Joseph");
-    REQUIRE(YRef<String>(yaml.document(0)[1]).value() == "James Stephen");
-    REQUIRE(YRef<String>(yaml.document(0)[2]).value() == "Ken Griffey");
+    REQUIRE(NRef<Array>(yaml.document(0)).size() == 3);
+    REQUIRE(NRef<String>(yaml.document(0)[0]).value() == "Mark Joseph");
+    REQUIRE(NRef<String>(yaml.document(0)[1]).value() == "James Stephen");
+    REQUIRE(NRef<String>(yaml.document(0)[2]).value() == "Ken Griffey");
   }
   SECTION("YAML parse a string block folded (kLineFeed -> ' ') scalar.",
           "[YAML][Parse][Scalar][String]") {
@@ -88,7 +88,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
                         "spans more than\n  one line\n  see?"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
-    REQUIRE(YRef<String>(yaml.document(0)).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)).value() ==
             "this is not a normal string it spans more than one line see?");
   }
   SECTION("YAML parse a string block literal scalar.",
@@ -97,7 +97,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
                         "spans more than\n  one line\n  see?"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
-    REQUIRE(YRef<String>(yaml.document(0)).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)).value() ==
             "this is not a normal string it\nspans more than\none line\nsee?");
   }
   SECTION("YAML parse a plain string block.", "[YAML][Parse][Scalar][String]") {
@@ -105,7 +105,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "---\n  Mark McGwire\'s\n  year was crippled\n  by a knee injury."};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
-    REQUIRE(YRef<String>(yaml.document(0)).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)).value() ==
             "Mark McGwire's year was crippled by a knee injury.");
   }
   SECTION(
@@ -115,13 +115,13 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
                         "spans more than\n  one line\n  see?\nfoo: True\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)).contains("bar"));
-    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)).contains("foo"));
+    REQUIRE_FALSE(!NRef<Dictionary>(yaml.document(0)).contains("bar"));
+    REQUIRE_FALSE(!NRef<Dictionary>(yaml.document(0)).contains("foo"));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)["bar"]));
-    REQUIRE(YRef<String>(yaml.document(0)["bar"]).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)["bar"]).value() ==
             "this is not a normal string it spans more than one line see?");
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)["foo"]));
-    REQUIRE_FALSE(!YRef<Boolean>(yaml.document(0)["foo"]).value());
+    REQUIRE_FALSE(!NRef<Boolean>(yaml.document(0)["foo"]).value());
   }
   SECTION("YAML parse a folder string block that terminates early.",
           "[YAML][Parse][Scalar][String]") {
@@ -138,13 +138,13 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
                         "spans more than\n  one line\n  see?\nfoo: True\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)).contains("bar"));
-    REQUIRE_FALSE(!YRef<Dictionary>(yaml.document(0)).contains("foo"));
+    REQUIRE_FALSE(!NRef<Dictionary>(yaml.document(0)).contains("bar"));
+    REQUIRE_FALSE(!NRef<Dictionary>(yaml.document(0)).contains("foo"));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)["bar"]));
-    REQUIRE(YRef<String>(yaml.document(0)["bar"]).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)["bar"]).value() ==
             "this is not a normal string it\nspans more than\none line\nsee?");
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)["foo"]));
-    REQUIRE_FALSE(!YRef<Boolean>(yaml.document(0)["foo"]).value());
+    REQUIRE_FALSE(!NRef<Boolean>(yaml.document(0)["foo"]).value());
   }
   SECTION("YAML parse a literal string block that terminates early.",
           "[YAML][Parse][Scalar][String]") {
@@ -159,7 +159,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "---\n Sammy Sosa completed another\n fine season with great "
         "stats.\n   63 Home Runs\n   0.288 Batting Average\n What a year!"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(YRef<String>(yaml.document(0)).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)).value() ==
             "Sammy Sosa completed another fine season with great stats. 63 "
             "Home Runs 0.288 Batting Average What a year!");
   }
@@ -170,7 +170,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "--- >\n Sammy Sosa completed another\n fine season with great "
         "stats.\n\n   63 Home Runs\n   0.288 Batting Average\n\n What a year!"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(YRef<String>(yaml.document(0)).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)).value() ==
             "Sammy Sosa completed another fine season with great stats.\n\n   "
             "63 Home Runs\n   0.288 Batting Average\n\nWhat a year!");
   }
@@ -184,7 +184,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "with\n    extra indentation\n  on the next line,\n  plus another line "
         "at the end.\n\n\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(YRef<String>(yaml.document(0)["example"]).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)["example"]).value() ==
             "Several lines of text, with some \" quotes of various \'types\', "
             "and also a blank line:\n\nand some text with \n    extra "
             "indentation\non the next line, plus another line at the end.\n");
@@ -199,7 +199,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "with\n    extra indentation\n  on the next line,\n  plus another line "
         "at the end.\n\n\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(YRef<String>(yaml.document(0)["example"]).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)["example"]).value() ==
             "Several lines of text, with some \" quotes of various \'types\', "
             "and also a blank line:\n\nand some text with \n    extra "
             "indentation\non the next line, plus another line at the end.");
@@ -215,7 +215,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "at the end.\n\n\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(
-        YRef<String>(yaml.document(0)["example"]).value() ==
+        NRef<String>(yaml.document(0)["example"]).value() ==
         "Several lines of text, with some \" quotes of various \'types\', "
         "and also a blank line:\n\nand some text with \n    extra "
         "indentation\non the next line, plus another line at the end.\n\n\n");
@@ -229,7 +229,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "at the end.\n\n\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(
-        YRef<String>(yaml.document(0)["example"]).value() ==
+        NRef<String>(yaml.document(0)["example"]).value() ==
         "Several lines of text,\nwith some \" quotes of various "
         "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
         "indentation\non the next line,\nplus another line at the end.\n");
@@ -244,7 +244,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "at the end.\n\n\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(
-        YRef<String>(yaml.document(0)["example"]).value() ==
+        NRef<String>(yaml.document(0)["example"]).value() ==
         "Several lines of text,\nwith some \" quotes of various "
         "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
         "indentation\non the next line,\nplus another line at the end.");
@@ -259,7 +259,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "at the end.\n\n\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(
-        YRef<String>(yaml.document(0)["example"]).value() ==
+        NRef<String>(yaml.document(0)["example"]).value() ==
         "Several lines of text,\nwith some \" quotes of various "
         "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
         "indentation\non the next line,\nplus another line at the end.\n\n\n");
@@ -272,7 +272,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "can be added by leaving a blank line.\n    Leading whitespace on "
         "lines is ignored.\'"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(YRef<String>(yaml.document(0)["example"]).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)["example"]).value() ==
             "Several lines of text, containing \'single quotes\'. Escapes "
             "(like \\n) don\'t do anything.\nNewlines can be added by "
             "leaving a blank line. Leading whitespace on lines is ignored.");
@@ -288,7 +288,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         " line.\n    Leading "
         "whitespace on lines is ignored.\""};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(YRef<String>(yaml.document(0)["example"]).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)["example"]).value() ==
             "Several lines of text, containing \"double quotes\". Escapes "
             "(like \\n) work.\nIn addition, newlines can be escaped to prevent "
             "them from being converted to a space.\nNewlines can also be added "
@@ -301,7 +301,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "can be added by leaving a blank line.\n    Additional leading "
         "whitespace is ignored."};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(YRef<String>(yaml.document(0)["example"]).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)["example"]).value() ==
             "Several lines of text, with some \"quotes\" of various \'types\'. "
             "Escapes (like \\n) don\'t do anything.\nNewlines can be added by "
             "leaving a blank line. Additional leading whitespace is ignored.");
@@ -314,17 +314,17 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "\\r\\n\"\n\nsingle: \'\"Howdy!\" he cried.\'\nquoted: \' # not a "
         "\'\'comment\'\'.\'\ntie-fighter: \'|\\-*-/|\'"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(YRef<String>(yaml.document(0)["unicode"]).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)["unicode"]).value() ==
             "Sosa did fine.☺");
-    REQUIRE(YRef<String>(yaml.document(0)["control"]).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)["control"]).value() ==
             "\b1998\t1999\t2000\n");
-    REQUIRE(YRef<String>(yaml.document(0)["hexesc"]).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)["hexesc"]).value() ==
             "\x13\x10 is \r\n");
-    REQUIRE(YRef<String>(yaml.document(0)["single"]).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)["single"]).value() ==
             "\"Howdy!\" he cried.");
-    REQUIRE(YRef<String>(yaml.document(0)["quoted"]).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)["quoted"]).value() ==
             " # not a 'comment'.");
-    REQUIRE(YRef<String>(yaml.document(0)["tie-fighter"]).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)["tie-fighter"]).value() ==
             "|\\-*-/|");
   }
   SECTION("YAML parse array of block block strings literal newlines preserved.",
@@ -340,12 +340,12 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "at the end.\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(
-        YRef<String>(yaml.document(0)[0]).value() ==
+        NRef<String>(yaml.document(0)[0]).value() ==
         "Several lines of text,\nwith some \" quotes of various "
         "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
         "indentation\non the next line,\nplus another line at the end.");
     REQUIRE(
-        YRef<String>(yaml.document(0)[1]).value() ==
+        NRef<String>(yaml.document(0)[1]).value() ==
         "Several lines of text,\nwith some \" quotes of various "
         "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
         "indentation\non the next line,\nplus another line at the end.");
@@ -356,8 +356,8 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
                         "crippled\n   by a knee injury.\ntest2: Mark Twain\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
-    REQUIRE(YRef<String>(yaml.document(0)["test1"]).value() ==
+    REQUIRE(NRef<String>(yaml.document(0)["test1"]).value() ==
             "Mark McGwire's year was crippled by a knee injury.");
-    REQUIRE(YRef<String>(yaml.document(0)["test2"]).value() == "Mark Twain");
+    REQUIRE(NRef<String>(yaml.document(0)["test2"]).value() == "Mark Twain");
   }
 }

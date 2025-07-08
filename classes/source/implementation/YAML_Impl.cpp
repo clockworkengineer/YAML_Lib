@@ -58,11 +58,11 @@ Node &YAML_Impl::operator[](const std::string_view &key) {
     if (getNumberOfDocuments() == 0) {
       BufferSource source("---\n...\n");
       parse(source);
-      YRef<Document>(yamlTree[0]).add(Node::make<Dictionary>());
+      NRef<Document>(yamlTree[0]).add(Node::make<Dictionary>());
     }
     return document(0)[key];
   } catch ([[maybe_unused]] Node::Error &error) {
-    YRef<Dictionary>(document(0))
+    NRef<Dictionary>(document(0))
         .add(Dictionary::Entry(key, Node::make<Hole>()));
     return document(0)[key];
   }
@@ -76,11 +76,11 @@ Node &YAML_Impl::operator[](const std::size_t index) {
     if (getNumberOfDocuments() == 0) {
       BufferSource source("---\n...\n");
       parse(source);
-      YRef<Document>(yamlTree[0]).add(Node::make<Array>());
+      NRef<Document>(yamlTree[0]).add(Node::make<Array>());
     }
     return document(0)[index];
   } catch ([[maybe_unused]] Node::Error &error) {
-    YRef<Array>(document(0)).resize(index);
+    NRef<Array>(document(0)).resize(index);
     return document(0)[index];
   }
 }

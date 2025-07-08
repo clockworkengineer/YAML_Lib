@@ -71,19 +71,19 @@ template <typename T> void checkNode(const Node &yNode) {
     }
   }
 }
-template <typename T> T &YRef(Node &yNode) {
+template <typename T> T &NRef(Node &yNode) {
   checkNode<T>(yNode);
   return static_cast<T &>(yNode.getVariant());
 }
-template <typename T> const T &YRef(const Node &yNode) {
+template <typename T> const T &NRef(const Node &yNode) {
   checkNode<T>(yNode);
   return static_cast<const T &>(yNode.getVariant());
 }
-template <typename T> T &YRef(Dictionary::Entry &yNodeEntry) {
+template <typename T> T &NRef(Dictionary::Entry &yNodeEntry) {
   checkNode<T>(yNodeEntry.getNode());
   return static_cast<T &>(yNodeEntry.getNode().getVariant());
 }
-template <typename T> const T &YRef(const Dictionary::Entry &yNodeEntry) {
+template <typename T> const T &NRef(const Dictionary::Entry &yNodeEntry) {
   checkNode<T>(yNodeEntry.getNode());
   return static_cast<const T &>(yNodeEntry.getNode().getVariant());
 }

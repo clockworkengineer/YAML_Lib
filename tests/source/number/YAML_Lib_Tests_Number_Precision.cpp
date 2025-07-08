@@ -11,8 +11,8 @@ TEST_CASE("Check JNode Number floating point precision.",
     std::string expected{R"({"latitude":39.068341,"longitude":-70.741615})"};
     BufferSource yamlSource{expected};
     yaml.parse(yamlSource);
-    REQUIRE_FALSE(!YRef<Number>(yaml["latitude"]).is<float>());
-    REQUIRE_FALSE(!YRef<Number>(yaml["longitude"]).is<float>());
+    REQUIRE_FALSE(!NRef<Number>(yaml["latitude"]).is<float>());
+    REQUIRE_FALSE(!NRef<Number>(yaml["longitude"]).is<float>());
     BufferDestination yamlDestination;
     Number::setPrecision(6);
     yaml.stringify(yamlDestination);
@@ -24,8 +24,8 @@ TEST_CASE("Check JNode Number floating point precision.",
     std::string expected{R"({"latitude":39.068341,"longitude":-70.741615})"};
     BufferSource yamlSource{expected};
     yaml.parse(yamlSource);
-    REQUIRE_FALSE(!YRef<Number>(yaml["latitude"]).is<float>());
-    REQUIRE_FALSE(!YRef<Number>(yaml["longitude"]).is<float>());
+    REQUIRE_FALSE(!NRef<Number>(yaml["latitude"]).is<float>());
+    REQUIRE_FALSE(!NRef<Number>(yaml["longitude"]).is<float>());
     BufferDestination yamlDestination;
     Number::setPrecision(7);
     yaml.stringify(yamlDestination);
@@ -38,8 +38,8 @@ TEST_CASE("Check JNode Number floating point precision.",
     std::string expected{R"({"latitude":39.068341,"longitude":-70.741615})"};
     BufferSource yamlSource{expected};
     yaml.parse(yamlSource);
-    REQUIRE_FALSE(!YRef<Number>(yaml["latitude"]).is<float>());
-    REQUIRE_FALSE(!YRef<Number>(yaml["longitude"]).is<float>());
+    REQUIRE_FALSE(!NRef<Number>(yaml["latitude"]).is<float>());
+    REQUIRE_FALSE(!NRef<Number>(yaml["longitude"]).is<float>());
     BufferDestination yamlDestination;
     Number::setPrecision(8);
     yaml.stringify(yamlDestination);
@@ -52,8 +52,8 @@ TEST_CASE("Check JNode Number floating point precision.",
 //     std::string expected{R"({"latitude":39.068341,"longitude":-70.741615})"};
 //     BufferSource yamlSource{expected};
 //     yaml.parse(yamlSource);
-//     REQUIRE_FALSE(!YRef<Number>(yaml["latitude"]).is<float>());
-//     REQUIRE_FALSE(!YRef<Number>(yaml["longitude"]).is<float>());
+//     REQUIRE_FALSE(!NRef<Number>(yaml["latitude"]).is<float>());
+//     REQUIRE_FALSE(!NRef<Number>(yaml["longitude"]).is<float>());
 //     BufferDestination yamlDestination;
 //     Number::setPrecision(std::numeric_limits<long double>::digits10 + 1);
 //     yaml.stringify(yamlDestination);

@@ -16,15 +16,15 @@ namespace YAML_Lib {
 /// </summary>
 Node Default_Parser::mergeOverrides(Node &overrideRoot) {
   if (isA<Dictionary>(overrideRoot) &&
-      YRef<Dictionary>(overrideRoot).contains(kOverride)) {
-    auto &dictionary = YRef<Dictionary>(overrideRoot);
+      NRef<Dictionary>(overrideRoot).contains(kOverride)) {
+    auto &dictionary = NRef<Dictionary>(overrideRoot);
     std::set<std::string> overrideKeys;
     for (auto &entry : dictionary.value()) {
       if (entry.getKey() != kOverride) {
         overrideKeys.insert(std::string(entry.getKey()));
       }
     }
-    auto &innerDictionary = YRef<Dictionary>(dictionary[kOverride]);
+    auto &innerDictionary = NRef<Dictionary>(dictionary[kOverride]);
     for (auto &entry : overrideKeys) {
       auto overrideEntry = mergeOverrides(dictionary[entry]);
       if (innerDictionary.contains(entry)) {

@@ -65,8 +65,8 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
         yNodeTree.push_back(Node::make<Document>());
       }
       inDocument = true;
-      if (YRef<Document>(yNodeTree.back()).size() == 0) {
-        YRef<Document>(yNodeTree.back())
+      if (NRef<Document>(yNodeTree.back()).size() == 0) {
+        NRef<Document>(yNodeTree.back())
             .add(parseDocument(source, {kLineFeed, '#'}, 0));
       } else {
         throw SyntaxError(source.getPosition(), "Invalid YAML encountered.");

@@ -56,14 +56,14 @@ static Node typeToNode(const YAML::InitializerListTypes &type) {
 inline Node::Node(const YAML::ArrayInitializer &array) {
   *this = make<Array>();
   for (const auto &entry : array) {
-    YRef<Array>(*this).add(typeToNode(entry));
+    NRef<Array>(*this).add(typeToNode(entry));
   }
 }
 // Construct Node Dictionary from the initializer list
 inline Node::Node(const YAML::DictionaryInitializer &dictionary) {
   *this = make<Dictionary>();
   for (const auto &[fst, snd] : dictionary) {
-    YRef<Dictionary>(*this).add(Dictionary::Entry(fst, typeToNode(snd)));
+    NRef<Dictionary>(*this).add(Dictionary::Entry(fst, typeToNode(snd)));
   }
 }
 

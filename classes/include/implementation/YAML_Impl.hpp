@@ -82,12 +82,12 @@ void YAML_Impl::traverseNodes(T &yNode, IAction &action) {
     action.onNull(yNode);
   } else if (isA<Dictionary>(yNode)) {
     action.onDictionary(yNode);
-    for (auto &entry : YRef<Dictionary>(yNode).value()) {
+    for (auto &entry : NRef<Dictionary>(yNode).value()) {
       traverseNodes(entry.getNode(), action);
     }
   } else if (isA<Array>(yNode)) {
     action.onArray(yNode);
-    for (auto &entry : YRef<Array>(yNode).value()) {
+    for (auto &entry : NRef<Array>(yNode).value()) {
       traverseNodes(entry, action);
     }
   } else if (!isA<Hole>(yNode)) {

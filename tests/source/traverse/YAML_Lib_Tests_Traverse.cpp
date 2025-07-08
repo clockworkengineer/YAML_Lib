@@ -15,7 +15,7 @@ public:
   }
   // Add number details to analysis
   void onNumber(const Node &yNode) override {
-    const auto &yNodeNumber = YRef<Number>(yNode);
+    const auto &yNodeNumber = NRef<Number>(yNode);
     totalNumbers++;
 
     if (yNodeNumber.is<int>()) {

@@ -18,10 +18,10 @@ namespace YAML_Lib {
 Node Default_Parser::convertYAMLToStringNode(const std::string_view &yamlString) {
   BufferSource yamlKey{std::string(yamlString) + kLineFeed};
   auto keyNode = parseDocument(yamlKey, {kLineFeed}, 0);
-  std::string keyString{YRef<Variant>(keyNode).toKey()};
+  std::string keyString{NRef<Variant>(keyNode).toKey()};
   char quote = '\"';
   if (isA<String>(keyNode)) {
-    quote = YRef<String>(keyNode).getQuote();
+    quote = NRef<String>(keyNode).getQuote();
     if (keyString.empty()) {
       quote = kDoubleQuote;
     }
@@ -155,8 +155,8 @@ DictionaryEntry Default_Parser::parseInlineKeyValue(ISource &source,
     dictionaryNode = parseDocument(source, delimiters, indentation);
   }
   if (isA<String>(dictionaryNode)) {
-    if (YRef<String>(dictionaryNode).value().empty() &&
-        YRef<String>(dictionaryNode).getQuote() == kNull) {
+    if (NRef<String>(dictionaryNode).value().empty() &&
+        NRef<String>(dictionaryNode).getQuote() == kNull) {
       dictionaryNode = Node::make<Null>();
     }
   }
@@ -177,12 +177,12 @@ Node Default_Parser::parseDictionary(ISource &source,
   while (source.more() && dictionaryIndent == source.getPosition().second) {
     if (isKey(source)) {
       auto entry = parseKeyValue(source, delimiters, dictionaryIndent);
-      if (YRef<Dictionary>(dictionaryNode).contains(entry.getKey())) {
+      if (NRef<Dictionary>(dictionaryNode).contains(entry.getKey())) {
         throw SyntaxError(source.getPosition(),
                           "Dictionary already contains key '" + std::string(entry.getKey()) +
                               "'.");
       }
-      YRef<Dictionary>(dictionaryNode).add(std::move(entry));
+      NRef<Dictionary>(dictionaryNode).add(std::move(entry));
     } else if (isDocumentStart(source) || isDocumentEnd(source)) {
       break;
     } else {
@@ -221,12 +221,12 @@ Node Default_Parser::parseInlineDictionary(
     }
     if (source.current() != kRightCurlyBrace) {
       auto entry = parseInlineKeyValue(source, inLineDictionaryDelimiters, indentation);
-      if (YRef<Dictionary>(dictionaryNode).contains(entry.getKey())) {
+      if (NRef<Dictionary>(dictionaryNode).contains(entry.getKey())) {
         throw SyntaxError(source.getPosition(),
                           "Dictionary already contains key '" + std::string(entry.getKey()) +
                           "'.");
       }
-      YRef<Dictionary>(dictionaryNode).add(std::move(entry));
+      NRef<Dictionary>(dictionaryNode).add(std::move(entry));
     }
   } while (source.current() == kComma);
   inlineDictionaryDepth--;

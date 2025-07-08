@@ -54,17 +54,17 @@ private:
   }
   static void stringifyDocument(const Node &yNode, IDestination &destination,
                          const long indent)  {
-    stringifyNodes(YRef<Document>(yNode)[0], destination, indent);
+    stringifyNodes(NRef<Document>(yNode)[0], destination, indent);
   }
   static void stringifyNumber(const Node &yNode, IDestination &destination) {
-    destination.add(std::to_string(YRef<Number>(yNode).value<long long>()));
+    destination.add(std::to_string(NRef<Number>(yNode).value<long long>()));
   }
   static void stringifyString(const Node &yNode, IDestination &destination)  {
-    destination.add(xmlTranslator->to(YRef<String>(yNode).value()));
+    destination.add(xmlTranslator->to(NRef<String>(yNode).value()));
   }
 
   static void stringifyBoolean(const Node &yNode, IDestination &destination) {
-    if (YRef<Boolean>(yNode).value()) {
+    if (NRef<Boolean>(yNode).value()) {
       destination.add("True");
     } else {
       destination.add("False");
@@ -76,7 +76,7 @@ private:
 
   static void stringifyDictionary(const Node &yNode,
                            IDestination &destination) {
-    for (const auto &yNodeNext : YRef<Dictionary>(yNode).value()) {
+    for (const auto &yNodeNext : NRef<Dictionary>(yNode).value()) {
       std::string elementName { yNodeNext.getKey()};
       std::ranges::replace(elementName, ' ', '-');
       destination.add("<" + elementName + ">");
@@ -85,8 +85,8 @@ private:
     }
   }
   static void stringifyArray(const Node &yNode, IDestination &destination)  {
-    if (YRef<Array>(yNode).value().size() > 1) {
-      for (const auto &bNodeNext : YRef<Array>(yNode).value()) {
+    if (NRef<Array>(yNode).value().size() > 1) {
+      for (const auto &bNodeNext : NRef<Array>(yNode).value()) {
         destination.add("<Row>");
         stringifyNodes(bNodeNext, destination, 0);
         destination.add("</Row>");

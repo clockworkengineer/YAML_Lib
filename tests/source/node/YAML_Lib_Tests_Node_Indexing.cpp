@@ -7,25 +7,25 @@ TEST_CASE("Check use of Node indexing operators.", "[YAML][Node][Index]")
     {
         BufferSource yamlSource{ R"({"City":"Southampton","Population":500000})" };
         yaml.parse(yamlSource);
-        REQUIRE(YRef<String>((yaml.document(0))["City"]).value() == "Southampton");
-        REQUIRE(YRef<Number>((yaml.document(0))["Population"]).value<int>() == 500000);
+        REQUIRE(NRef<String>((yaml.document(0))["City"]).value() == "Southampton");
+        REQUIRE(NRef<Number>((yaml.document(0))["Population"]).value<int>() == 500000);
     }
     SECTION("Parse array and check its components using indexing.", "[YAML][Node][Index]")
     {
         BufferSource yamlSource{ R"([777,9000,"apples"])" };
         yaml.parse(yamlSource);
-        REQUIRE(YRef<Number>((yaml.document(0))[0]).value<int>() == 777);
-        REQUIRE(YRef<Number>((yaml.document(0))[1]).value<int>() == 9000);
-        REQUIRE(YRef<String>((yaml.document(0))[2]).value() == "apples");
+        REQUIRE(NRef<Number>((yaml.document(0))[0]).value<int>() == 777);
+        REQUIRE(NRef<Number>((yaml.document(0))[1]).value<int>() == 9000);
+        REQUIRE(NRef<String>((yaml.document(0))[2]).value() == "apples");
     }
     SECTION("Parse array with embedded dictionary and check its components using indexing.", "[YAML][Node][Index]")
     {
         BufferSource yamlSource{ R"([777,{"City":"Southampton","Population":500000},"apples"])" };
         yaml.parse(yamlSource);
-        REQUIRE(YRef<Number>((yaml.document(0))[0]).value<int>() == 777);
-        REQUIRE(YRef<String>((yaml.document(0))[1]["City"]).value() == "Southampton");
-        REQUIRE(YRef<Number>((yaml.document(0))[1]["Population"]).value<int>() == 500000);
-        REQUIRE(YRef<String>((yaml.document(0))[2]).value() == "apples");
+        REQUIRE(NRef<Number>((yaml.document(0))[0]).value<int>() == 777);
+        REQUIRE(NRef<String>((yaml.document(0))[1]["City"]).value() == "Southampton");
+        REQUIRE(NRef<Number>((yaml.document(0))[1]["Population"]).value<int>() == 500000);
+        REQUIRE(NRef<String>((yaml.document(0))[2]).value() == "apples");
     }
     SECTION("Parse dictionary and check an invalid key generates exception.", "[YAML][Node][Index]")
     {
