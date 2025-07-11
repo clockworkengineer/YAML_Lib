@@ -93,6 +93,9 @@ target_include_directories(${YAML_LIBRARY_NAME} PUBLIC
   ${PROJECT_SOURCE_DIR}/classes/include/interface
   ${PROJECT_BINARY_DIR})
 
+# Pre-compiled headers
+target_precompile_headers(${YAML_LIBRARY_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/stdafx.h)
+
 # Add tests
 add_subdirectory(tests)
 

@@ -1,25 +1,5 @@
 #pragma once
 
-#include <algorithm>
-#include <cstring>
-#include <cwctype>
-#include <filesystem>
-#include <fstream>
-#include <functional>
-#include <map>
-#include <memory>
-#include <set>
-#include <stack>
-#include <stdexcept>
-#include <string>
-#include <type_traits>
-#include <unordered_map>
-#include <utility>
-#include <variant>
-#include <vector>
-#include <array>
-#include <sstream>
-
 namespace YAML_Lib {
 
 // =========================
