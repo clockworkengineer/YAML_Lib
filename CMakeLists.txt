@@ -41,6 +41,7 @@ list(APPEND YAML_SOURCES "./classes/source/implementation/converter/${PLATFORM}/
 set(YAML_INCLUDES
   YAML_Config.hpp
   ./classes/include/YAML.hpp
+  ./classes/include/YAML_Core.hpp
   ./classes/include/interface/IAction.hpp
   ./classes/include/interface/ISource.hpp
   ./classes/include/interface/IDestination.hpp
@@ -73,7 +74,6 @@ set(YAML_INCLUDES
   ./classes/include/implementation/node/YAML_Node_Index.hpp
   ./classes/include/implementation/node/YAML_Node_Reference.hpp
   ./classes/include/implementation/YAML_Impl.hpp
-  ./classes/include/implementation/YAML_Core.hpp
 )
 
 # YAML library
