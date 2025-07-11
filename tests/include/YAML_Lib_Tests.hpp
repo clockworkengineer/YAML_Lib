@@ -5,9 +5,6 @@
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
 
-#include <filesystem>
-#include <fstream>
-
 // Unit test constants
 constexpr char kSingleSmallYAMLFile[] = "testfile000.yaml";
 constexpr char kSingleYAMLFile[] = "testfile001.yaml";
