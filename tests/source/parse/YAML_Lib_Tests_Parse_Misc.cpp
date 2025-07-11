@@ -1,6 +1,5 @@
 
 #include "YAML_Lib_Tests.hpp"
-#include <iostream>
 
 TEST_CASE("Check YAML parsing of a list of example YAML files.",
           "[YAML][Parse][Examples]") {
