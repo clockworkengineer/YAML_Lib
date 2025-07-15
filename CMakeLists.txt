@@ -100,7 +100,7 @@ target_precompile_headers(${YAML_LIBRARY_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR
 add_subdirectory(tests)
 
 # Add examples
- add_subdirectory(examples)
+#add_subdirectory(examples)
 
 # install
 install(TARGETS ${YAML_LIBRARY_NAME} DESTINATION lib)
