@@ -28,10 +28,12 @@ foreach(EXAMPLE_FILE ${EXAMPLE_SOURCES})
     ${CMAKE_BINARY_DIR}
   )
   target_link_libraries(${EXAMPLE_NAME} PRIVATE YAML_Lib)
+
   # Optionally reuse precompiled headers if available
   if(TARGET YAML_Lib)
     target_precompile_headers(${EXAMPLE_NAME} REUSE_FROM YAML_Lib)
   endif()
+
   install(TARGETS ${EXAMPLE_NAME} DESTINATION bin)
 endforeach()
 
@@ -39,6 +41,6 @@ endforeach()
 add_custom_command(
   TARGET YAML_Parse_File POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/examples/files
-    $<TARGET_FILE_DIR:YAML_Parse_File>/files
+  ${CMAKE_SOURCE_DIR}/examples/files
+  $<TARGET_FILE_DIR:YAML_Parse_File>/files
 )
