@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 3.18.1)
 
-project("YAML_Lib Unit Tests" VERSION 1.1.0 DESCRIPTION "YAML C++ Library Catch Unit Tests" LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.18)
+
+project(YAML_Lib_Unit_Tests VERSION 1.1.0 DESCRIPTION "YAML C++ Library Catch Unit Tests" LANGUAGES CXX)
 
 # Get Catch2 from repository
 include(FetchContent)
@@ -59,10 +60,30 @@ set(TEST_SOURCES
         source/misc/YAML_Lib_Tests_Helper.cpp)
 
 add_executable(${TEST_EXECUTABLE} ${TEST_SOURCES})
-target_include_directories(${TEST_EXECUTABLE} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${TEST_EXECUTABLE} PRIVATE
+  ${CMAKE_SOURCE_DIR}/classes/include
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation
+  ${CMAKE_SOURCE_DIR}/classes/include/interface
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/common
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/converter
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/io
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/parser
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/variants
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/node
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/stringify
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/translator
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/tests/include
+)
 target_link_libraries(${TEST_EXECUTABLE} ${YAML_LIBRARY_NAME} Catch2::Catch2WithMain)
 target_precompile_headers(${TEST_EXECUTABLE} REUSE_FROM YAML_Lib)
 
 add_test(NAME ${TEST_EXECUTABLE} COMMAND ${TEST_EXECUTABLE})
 
-add_custom_command(TARGET ${TEST_EXECUTABLE} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/files files)
+add_custom_command(
+  TARGET ${TEST_EXECUTABLE} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/tests/files
+    $<TARGET_FILE_DIR:${TEST_EXECUTABLE}>/files
+)
