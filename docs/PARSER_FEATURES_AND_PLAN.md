@@ -14,6 +14,9 @@
 - **Tags:** `!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, `!!seq`, `!!map`, custom `!tag`, verbatim `!<uri>` ✅ **(new)**
 - **Directives:** `%YAML X.Y` version parsing/validation, `%TAG handle prefix` storage ✅ **(new)**
 - **Unicode/escape sequences:** Full YAML 1.2 escape set: `\0`, `\a`, `\v`, `\e`, `\/`, `\ `, `\N` (U+0085), `\_` (U+00A0), `\L` (U+2028), `\P` (U+2029), `\U` (8 hex digits for SMP codepoints) ✅ **(new)**
+- **Timestamps:** `Timestamp` variant type, automatic detection & parsing of ISO 8601 dates/datetimes, `!!timestamp` tag ✅ **(new)**
+- **Binary:** `!!binary` tag preserves base64 string value ✅ **(new)**
+- **Error handling:** Undefined alias (via `*name`) throws `SyntaxError` with descriptive message ✅ **(new)**
 
 ## Missing/Incomplete YAML Features
 - **Complex Anchors/Aliases:** Nested, recursive, and merge key interactions
@@ -31,6 +34,7 @@
 1. **Anchors & Aliases:**
    - Expand support for nested and recursive anchors/aliases
    - Implement merge key (`<<`) edge cases and spec-compliant behavior
+   - ~~Undefined alias throws `SyntaxError`~~ — done ✅
 2. **Tags & Directives:** ✅ **(implemented)**
    - ~~Add parsing for `%YAML` and `%TAG` directives~~ — done
    - ~~Support custom and standard tags, including type resolution~~ — done (`!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, `!!seq`, `!!map`, `!custom`, `!<verbatim>`)
@@ -38,10 +42,12 @@
 3. **Collections:**
    - Improve handling of deeply nested flow/block collections
    - Add support for multiline keys/values and ambiguous cases
-4. **Core Types:**
-   - Implement parsing for timestamps, binary, and other YAML types
+4. **Core Types:** ✅ **(implemented)**
+   - ~~Implement parsing for timestamps~~ — done (`Timestamp` variant, ISO 8601, `!!timestamp` tag)
+   - ~~`!!binary` tag~~ — done (preserves raw base64 string)
    - ~~Enhance Unicode/escape sequence handling~~ — done (all YAML 1.2 escapes)
 5. **Error Handling:**
+   - ~~Undefined alias detection~~ — done ✅
    - Refine syntax error reporting for more precise diagnostics
    - Add recovery strategies for common YAML mistakes
 6. **Spec Compliance:**

@@ -24,6 +24,8 @@ template <typename T> bool isA(const Node &yNode) {
     return yNode.getVariant().getNodeType() == Variant::Type::comment;
   } else if constexpr (std::is_same_v<T, Document>) {
     return yNode.getVariant().getNodeType() == Variant::Type::document;
+  } else if constexpr (std::is_same_v<T, Timestamp>) {
+    return yNode.getVariant().getNodeType() == Variant::Type::timestamp;
   } else {
     return false;
   }
@@ -68,6 +70,10 @@ template <typename T> void checkNode(const Node &yNode) {
   } else if constexpr (std::is_same_v<T, Document>) {
     if (!isA<T>(yNode)) {
       throw Node::Error("Node not a document.");
+    }
+  } else if constexpr (std::is_same_v<T, Timestamp>) {
+    if (!isA<T>(yNode)) {
+      throw Node::Error("Node not a timestamp.");
     }
   }
 }

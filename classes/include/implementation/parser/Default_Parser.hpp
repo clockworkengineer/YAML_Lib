@@ -61,6 +61,7 @@ private:
   static bool isDocumentEnd(ISource &source);
   static bool isDirective(ISource &source);
   static bool isTagged(const ISource &source);
+  static bool isTimestamp(ISource &source);
   static void appendCharacterToString(ISource &source, std::string &yamlString);
   static std::string extractKey(ISource &source);
   static BlockChomping parseBlockChomping(ISource &source);
@@ -89,6 +90,8 @@ private:
                         unsigned long indentation);
   static Node parseBoolean(ISource &source, const Delimiters &delimiters,
                            unsigned long indentation);
+  static Node parseTimestamp(ISource &source, const Delimiters &delimiters,
+                             unsigned long indentation);
   static Node parseAnchor(ISource &source, const Delimiters &delimiters,
                           unsigned long indentation);
   static Node parseAlias(ISource &source, const Delimiters &delimiters,
@@ -130,6 +133,7 @@ private:
       // Scalars
       {isBoolean, parseBoolean},
       {isQuotedString, parseQuotedFlowString},
+      {isTimestamp, parseTimestamp},
       {isNumber, parseNumber},
       {isNone, parseNone},
       {isFoldedBlockString, parseFoldedBlockString},

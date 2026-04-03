@@ -33,6 +33,7 @@ set(YAML_SOURCES
   classes/source/implementation/parser/YAML_Parser_Router.cpp
   classes/source/implementation/parser/YAML_Parser_Scalar.cpp
   classes/source/implementation/parser/YAML_Parser_Tag.cpp
+  classes/source/implementation/parser/YAML_Parser_Timestamp.cpp
   classes/source/implementation/parser/YAML_Parser_Util.cpp
   classes/source/implementation/translator/Default_Translator.cpp
   classes/source/implementation/converter/${PLATFORM}/YAML_Converter.cpp

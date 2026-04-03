@@ -8,8 +8,9 @@ namespace YAML_Lib {
 class JSON_Stringify final : public IStringify {
 public:
   explicit JSON_Stringify(std::unique_ptr<ITranslator> translator =
-                            std::make_unique<Default_Translator>())
-  {jsonTranslator = std::move(translator);}
+                              std::make_unique<Default_Translator>()) {
+    jsonTranslator = std::move(translator);
+  }
   JSON_Stringify &operator=(const JSON_Stringify &other) = delete;
   JSON_Stringify(JSON_Stringify &&other) = delete;
   JSON_Stringify &operator=(JSON_Stringify &&other) = delete;
@@ -24,12 +25,12 @@ public:
   /// <param name="indent">Current print indentation.</param>
   void stringify(const Node &yNode, IDestination &destination,
                  const unsigned long indent) const override {
-   stringifyNodes(yNode,destination, indent);
+    stringifyNodes(yNode, destination, indent);
   }
 
 private:
   static void stringifyNodes(const Node &yNode, IDestination &destination,
-                [[maybe_unused]]  const unsigned long indent)   {
+                             [[maybe_unused]] const unsigned long indent) {
     if (isA<Document>(yNode)) {
       stringifyDocument(yNode, destination, 0);
     } else if (isA<Number>(yNode)) {
@@ -41,6 +42,8 @@ private:
     } else if (isA<Null>(yNode)) {
       stringifyNull(yNode, destination);
     } else if (isA<Hole>(yNode)) {
+    } else if (isA<Timestamp>(yNode)) {
+      stringifyTimestamp(yNode, destination);
     } else if (isA<Dictionary>(yNode)) {
       stringifyDictionary(yNode, destination);
     } else if (isA<Array>(yNode)) {
@@ -51,13 +54,13 @@ private:
   }
 
   static void stringifyDocument(const Node &yNode, IDestination &destination,
-                         const long indent)  {
+                                const long indent) {
     stringifyNodes(NRef<Document>(yNode)[0], destination, indent);
   }
   static void stringifyNumber(const Node &yNode, IDestination &destination) {
     destination.add(NRef<Number>(yNode).toString());
   }
-  static void stringifyString(const Node &yNode, IDestination &destination)  {
+  static void stringifyString(const Node &yNode, IDestination &destination) {
     const auto yamlString = NRef<String>(yNode).value();
     destination.add("\"" + jsonTranslator->to(yamlString) + "\"");
   }
@@ -72,8 +75,13 @@ private:
                             IDestination &destination) {
     destination.add("null");
   }
+  static void stringifyTimestamp(const Node &yNode, IDestination &destination) {
+    destination.add('"');
+    destination.add(std::string(NRef<Timestamp>(yNode).value()));
+    destination.add('"');
+  }
   static void stringifyDictionary(const Node &yNode,
-                           IDestination &destination)  {
+                                  IDestination &destination) {
     auto comma = NRef<Dictionary>(yNode).value().size() - 1;
     destination.add('{');
     for (auto &entry : NRef<Dictionary>(yNode).value()) {
@@ -86,7 +94,7 @@ private:
     }
     destination.add("}");
   }
-  static void stringifyAray(const Node &yNode, IDestination &destination)  {
+  static void stringifyAray(const Node &yNode, IDestination &destination) {
     auto comma = NRef<Array>(yNode).value().size() - 1;
     destination.add('[');
     for (auto &entry : NRef<Array>(yNode).value()) {

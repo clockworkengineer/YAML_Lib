@@ -14,7 +14,8 @@ struct Variant {
     null,
     hole,
     comment,
-    document
+    document,
+    timestamp
   };
   // Constructors/Destructors
   explicit Variant(const Type nodeType = Type::base) : yNodeType(nodeType) {}

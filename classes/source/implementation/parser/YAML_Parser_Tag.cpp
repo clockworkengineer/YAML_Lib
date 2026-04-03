@@ -132,6 +132,19 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
       result = parseDocument(source, delimiters, indentation);
     } else if (tagSuffix == "map") {
       result = parseDocument(source, delimiters, indentation);
+    } else if (tagSuffix == "timestamp") {
+      // Try to parse as a native timestamp; fall back to string
+      result = parseTimestamp(source, delimiters, indentation);
+      if (result.isEmpty()) {
+        std::string value{extractToNext(source, delimiters)};
+        rightTrim(value);
+        result = Node::make<String>(value, kNull);
+      }
+    } else if (tagSuffix == "binary") {
+      // base64 value — keep raw string, tag carries the type signal
+      std::string value{extractToNext(source, delimiters)};
+      rightTrim(value);
+      result = Node::make<String>(value, kNull);
     } else {
       // Unknown standard tag — parse value normally and attach tag
       result = parseDocument(source, delimiters, indentation);

@@ -39,6 +39,9 @@ set(TEST_SOURCES
   source/parse/YAML_Lib_Tests_Parse_Unicode_Escapes.cpp
   source/parse/YAML_Lib_Tests_Parse_Tags.cpp
   source/parse/YAML_Lib_Tests_Parse_Directives.cpp
+  source/parse/YAML_Lib_Tests_Parse_Timestamp.cpp
+  source/parse/YAML_Lib_Tests_Parse_Anchors_Extended.cpp
+  source/parse/YAML_Lib_Tests_Parse_SpecCompliance.cpp
   source/stringify/YAML_Lib_Tests_Stringify.cpp
   source/stringify/YAML_Lib_Tests_Stringify_Bencode.cpp
   source/stringify/YAML_Lib_Tests_Stringify_JSON.cpp

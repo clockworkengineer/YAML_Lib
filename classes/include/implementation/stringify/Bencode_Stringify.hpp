@@ -21,12 +21,12 @@ public:
   /// Bencode.</param> <param name="indent">Current print indentation.</param>
   void stringify(const Node &yNode, IDestination &destination,
                  const unsigned long indent) const override {
-    stringifyNodes(yNode,destination, indent);
+    stringifyNodes(yNode, destination, indent);
   }
 
 private:
   static void stringifyNodes(const Node &yNode, IDestination &destination,
-               [[maybe_unused]] const unsigned long indent)   {
+                             [[maybe_unused]] const unsigned long indent) {
     if (isA<Document>(yNode)) {
       stringifyDocument(yNode, destination, 0);
     } else if (isA<Number>(yNode)) {
@@ -38,6 +38,8 @@ private:
     } else if (isA<Null>(yNode)) {
       stringifyNull(yNode, destination);
     } else if (isA<Hole>(yNode)) {
+    } else if (isA<Timestamp>(yNode)) {
+      stringifyTimestamp(yNode, destination);
     } else if (isA<Dictionary>(yNode)) {
       stringifyDictionary(yNode, destination);
     } else if (isA<Array>(yNode)) {
@@ -47,7 +49,7 @@ private:
     }
   }
   static void stringifyDocument(const Node &yNode, IDestination &destination,
-                         const long indent)  {
+                                const long indent) {
     stringifyNodes(NRef<Document>(yNode)[0], destination, indent);
   }
 
@@ -71,8 +73,13 @@ private:
                             IDestination &destination) {
     destination.add("4:null");
   }
+  static void stringifyTimestamp(const Node &yNode, IDestination &destination) {
+    const auto ts = NRef<Timestamp>(yNode).value();
+    destination.add(std::to_string(static_cast<int>(ts.length())) + ":" +
+                    std::string(ts));
+  }
   static void stringifyDictionary(const Node &yNode,
-                           IDestination &destination)  {
+                                  IDestination &destination) {
     destination.add('d');
     for (auto &entry : NRef<Dictionary>(yNode).value()) {
       stringifyNodes(entry.getKeyNode(), destination, 0);
@@ -80,7 +87,7 @@ private:
     }
     destination.add("e");
   }
-  static void stringifyAray(const Node &yNode, IDestination &destination)  {
+  static void stringifyAray(const Node &yNode, IDestination &destination) {
     destination.add('l');
     for (auto &entry : NRef<Array>(yNode).value()) {
       stringifyNodes(entry, destination, 0);

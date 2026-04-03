@@ -1,16 +1,18 @@
 #pragma once
 
+#include "XML_Translator.hpp"
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
-#include "XML_Translator.hpp"
+
 
 namespace YAML_Lib {
 
 class XML_Stringify final : public IStringify {
 public:
   explicit XML_Stringify(std::unique_ptr<ITranslator> translator =
-                            std::make_unique<XML_Translator>())
-  {xmlTranslator = std::move(translator);}
+                             std::make_unique<XML_Translator>()) {
+    xmlTranslator = std::move(translator);
+  }
   XML_Stringify(const XML_Stringify &other) = delete;
   XML_Stringify &operator=(const XML_Stringify &other) = delete;
   XML_Stringify(XML_Stringify &&other) = delete;
@@ -34,7 +36,7 @@ public:
 
 private:
   static void stringifyNodes(const Node &yNode, IDestination &destination,
-                    const long indent)  {
+                             const long indent) {
     if (isA<Document>(yNode)) {
       stringifyDocument(yNode, destination, indent);
     } else if (isA<Number>(yNode)) {
@@ -44,6 +46,8 @@ private:
     } else if (isA<Boolean>(yNode)) {
       stringifyBoolean(yNode, destination);
     } else if (isA<Null>(yNode) || isA<Hole>(yNode)) {
+    } else if (isA<Timestamp>(yNode)) {
+      stringifyTimestamp(yNode, destination);
     } else if (isA<Dictionary>(yNode)) {
       stringifyDictionary(yNode, destination);
     } else if (isA<Array>(yNode)) {
@@ -53,13 +57,16 @@ private:
     }
   }
   static void stringifyDocument(const Node &yNode, IDestination &destination,
-                         const long indent)  {
+                                const long indent) {
     stringifyNodes(NRef<Document>(yNode)[0], destination, indent);
+  }
+  static void stringifyTimestamp(const Node &yNode, IDestination &destination) {
+    destination.add(std::string(NRef<Timestamp>(yNode).value()));
   }
   static void stringifyNumber(const Node &yNode, IDestination &destination) {
     destination.add(std::to_string(NRef<Number>(yNode).value<long long>()));
   }
-  static void stringifyString(const Node &yNode, IDestination &destination)  {
+  static void stringifyString(const Node &yNode, IDestination &destination) {
     destination.add(xmlTranslator->to(NRef<String>(yNode).value()));
   }
 
@@ -75,16 +82,16 @@ private:
                             [[maybe_unused]] IDestination &destination) {}
 
   static void stringifyDictionary(const Node &yNode,
-                           IDestination &destination) {
+                                  IDestination &destination) {
     for (const auto &yNodeNext : NRef<Dictionary>(yNode).value()) {
-      std::string elementName { yNodeNext.getKey()};
+      std::string elementName{yNodeNext.getKey()};
       std::ranges::replace(elementName, ' ', '-');
       destination.add("<" + elementName + ">");
       stringifyNodes(yNodeNext.getNode(), destination, 0);
       destination.add("</" + elementName + ">");
     }
   }
-  static void stringifyArray(const Node &yNode, IDestination &destination)  {
+  static void stringifyArray(const Node &yNode, IDestination &destination) {
     if (NRef<Array>(yNode).value().size() > 1) {
       for (const auto &bNodeNext : NRef<Array>(yNode).value()) {
         destination.add("<Row>");

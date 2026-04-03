@@ -44,8 +44,8 @@ Node Default_Parser::mergeOverrides(Node &overrideRoot) {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse comment.</param>
 /// <returns>Comment Node.</returns>
-Node Default_Parser::parseComment(ISource &source,
-                                [[maybe_unused]] const Delimiters &delimiters) {
+Node Default_Parser::parseComment(
+    ISource &source, [[maybe_unused]] const Delimiters &delimiters) {
   source.next();
   std::string comment{extractToNext(source, {kLineFeed})};
   if (source.more()) {
@@ -62,7 +62,7 @@ Node Default_Parser::parseComment(ISource &source,
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Anchor Node.</returns>
 Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
-                               const unsigned long indentation) {
+                                 const unsigned long indentation) {
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.ignoreWS();
@@ -91,10 +91,13 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Alias anchor.</returns>
 Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
-                              const unsigned long indentation) {
+                                const unsigned long indentation) {
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.next();
+  if (!yamlAliasMap.count(name)) {
+    throw SyntaxError(source.getPosition(), "Undefined alias '" + name + "'.");
+  }
   const std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
   return parseDocument(anchor, delimiters, indentation);
@@ -106,8 +109,9 @@ Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
 /// <param name="delimiters">Delimiters used to parse alias.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Alias anchor with overrides.</returns>
-Node Default_Parser::parseOverride(ISource &source, const Delimiters &delimiters,
-                                 const unsigned long indentation) {
+Node Default_Parser::parseOverride(ISource &source,
+                                   const Delimiters &delimiters,
+                                   const unsigned long indentation) {
   source.next();
   source.next();
   source.next();
@@ -118,6 +122,9 @@ Node Default_Parser::parseOverride(ISource &source, const Delimiters &delimiters
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.next();
+  if (!yamlAliasMap.count(name)) {
+    throw SyntaxError(source.getPosition(), "Undefined alias '" + name + "'.");
+  }
   const std::string unparsed{yamlAliasMap[name]};
   BufferSource anchor{unparsed};
   Node parsed = parseDocument(anchor, delimiters, indentation);
