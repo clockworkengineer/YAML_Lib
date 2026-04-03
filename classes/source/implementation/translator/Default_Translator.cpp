@@ -13,8 +13,53 @@
 namespace YAML_Lib {
 
 static const std::vector<std::pair<const char, const char>> escapeSequences{
-    {'\\', '\\'}, {'t', '\t'}, {kDoubleQuote, '\"'}, {'b', '\b'},
-    {'f', '\f'},  {'n', '\n'}, {'r', '\r'}};
+    {'\\', '\\'},
+    {'t', '\t'},
+    {kDoubleQuote, '\"'},
+    {'b', '\b'},
+    {'f', '\f'},
+    {'n', '\n'},
+    {'r', '\r'},
+    // YAML 1.2 spec additional control-char escape sequences
+    {'a', '\a'},
+    {'v', '\v'},
+    {'e', '\x1b'}};
+
+/// <summary>
+/// Convert \Uxxxxxxxx escape sequences (8 hex digits) to a UTF-16 surrogate
+/// pair (for code points above U+FFFF) or single char16_t.
+/// </summary>
+/// <param name="current">Current character position.</param>
+/// <param name="numberOfCharacters">Number of characters left in
+/// source.</param> <param name="utf16Buffer">Buffer to append UTF-16 characters
+/// to.</param>
+void decodeUTF32(std::string_view::const_iterator &current,
+                 const ptrdiff_t numberOfCharacters,
+                 std::u16string &utf16Buffer) {
+  if (numberOfCharacters >= 8) {
+    const std::array hexDigits{(current[1]), (current[2]), (current[3]),
+                               (current[4]), (current[5]), (current[6]),
+                               (current[7]), (current[8]), kNull};
+    char *end;
+    const uint32_t codePoint =
+        static_cast<uint32_t>(std::strtoul(hexDigits.data(), &end, 16));
+    if (*end == kNull) {
+      current += hexDigits.size();
+      if (codePoint <= 0xFFFF) {
+        utf16Buffer += static_cast<char16_t>(codePoint);
+      } else if (codePoint <= 0x10FFFF) {
+        // Encode as UTF-16 surrogate pair
+        const uint32_t code = codePoint - 0x10000;
+        utf16Buffer += static_cast<char16_t>(0xD800 + (code >> 10));
+        utf16Buffer += static_cast<char16_t>(0xDC00 + (code & 0x3FF));
+      } else {
+        throw Default_Translator::Error("Unicode code point out of range.");
+      }
+      return;
+    }
+  }
+  throw Default_Translator::Error("Syntax error detected.");
+}
 
 /// <summary>
 /// Convert \uxxxx escape sequences in a string to their correct sequence
@@ -140,6 +185,20 @@ Default_Translator::Default_Translator() {
     fromEscape[key] = value;
     toEscape[value] = key;
   }
+  // YAML 1.2 read-only single-char escapes (no output escaping needed)
+  fromEscape['0'] =
+      '\0'; // \0 -> null char (read-only; converter rejects null output)
+  fromEscape[' '] = ' '; // \  -> space (read-only; spaces don't need escaping)
+  fromEscape['/'] = '/'; // \/ -> slash (read-only; slashes don't need escaping)
+  // YAML 1.2 multi-byte Unicode escape sequences (bidirectional)
+  fromEscape['N'] = 0x0085;
+  toEscape[0x0085] = 'N'; // \N -> Next Line (U+0085)
+  fromEscape['_'] = 0x00A0;
+  toEscape[0x00A0] = '_'; // \_ -> NBSP (U+00A0)
+  fromEscape['L'] = 0x2028;
+  toEscape[0x2028] = 'L'; // \L -> Line Separator (U+2028)
+  fromEscape['P'] = 0x2029;
+  toEscape[0x2029] = 'P'; // \P -> Para Separator (U+2029)
 }
 
 /// <summary>
@@ -149,7 +208,8 @@ Default_Translator::Default_Translator() {
 /// </summary>
 /// <param name="escapedString">YAML string to process.</param>
 /// <returns>String with escapes translated.</returns>
-std::string Default_Translator::from(const std::string_view &escapedString) const {
+std::string
+Default_Translator::from(const std::string_view &escapedString) const {
   std::u16string utf16Buffer;
   for (auto current = escapedString.begin(); current != escapedString.end();) {
     // Normal character
@@ -169,6 +229,10 @@ std::string Default_Translator::from(const std::string_view &escapedString) cons
       else if (*current == 'u') {
         utf16Buffer +=
             decodeUTF16(current, std::distance(current, escapedString.end()));
+        // UTF32 "\Uxxxxxxxx"
+      } else if (*current == 'U') {
+        decodeUTF32(current, std::distance(current, escapedString.end()),
+                    utf16Buffer);
         // UTF8 "\x00"
       } else if (*current == 'x') {
         utf16Buffer +=

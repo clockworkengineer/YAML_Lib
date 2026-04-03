@@ -18,8 +18,8 @@ namespace YAML_Lib {
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Document root Node.</returns>
 Node Default_Parser::parseDocument(ISource &source,
-                                 const Delimiters &delimiters,
-                                 const unsigned long indentation) {
+                                   const Delimiters &delimiters,
+                                   const unsigned long indentation) {
   moveToNextIndent(source);
   for (const auto &[fst, snd] : parsers) {
     if (fst(source)) {
@@ -41,9 +41,58 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
   arrayIndentLevel = 0;
   inlineArrayDepth = 0;
   inlineDictionaryDepth = 0;
+  yamlAliasMap.clear();
+  yamlTagPrefixes.clear();
+  yamlDirectiveMinor = 2;
   for (bool inDocument = false; source.more();) {
-    // Start of a document
-    if (isDocumentStart(source)) {
+    // Directives (%YAML or %TAG) — only valid before a document starts
+    if (isDirective(source)) {
+      if (inDocument) {
+        throw SyntaxError(source.getPosition(),
+                          "Directives must appear before document start.");
+      }
+      source.next(); // consume '%'
+      if (source.match("YAML")) {
+        // %YAML major.minor
+        source.ignoreWS();
+        std::string version{extractToNext(source, {kLineFeed, ' '})};
+        const auto dot = version.find('.');
+        if (dot == std::string::npos) {
+          throw SyntaxError(source.getPosition(),
+                            "%YAML directive missing version number.");
+        }
+        const int major = std::stoi(version.substr(0, dot));
+        const int minor = std::stoi(version.substr(dot + 1));
+        if (major != 1) {
+          throw SyntaxError(source.getPosition(),
+                            "%YAML directive: unsupported major version " +
+                                std::to_string(major) + ".");
+        }
+        yamlDirectiveMinor = minor;
+        moveToNext(source, {kLineFeed});
+        if (source.more()) {
+          source.next();
+        }
+      } else if (source.match("TAG")) {
+        // %TAG handle prefix
+        source.ignoreWS();
+        std::string handle{extractToNext(source, {' '})};
+        source.ignoreWS();
+        std::string prefix{extractToNext(source, {kLineFeed, ' '})};
+        yamlTagPrefixes[handle] = prefix;
+        moveToNext(source, {kLineFeed});
+        if (source.more()) {
+          source.next();
+        }
+      } else {
+        // Unknown directive — skip to end of line (per YAML spec: warn)
+        moveToNext(source, {kLineFeed});
+        if (source.more()) {
+          source.next();
+        }
+      }
+      // Start of a document
+    } else if (isDocumentStart(source)) {
       inDocument = true;
       moveToNext(source, {kLineFeed, '|', '>'});
       moveToNextIndent(source);

@@ -30,7 +30,8 @@ bool Default_Parser::isOverride(ISource &source) {
 bool Default_Parser::isKey(ISource &source) {
   source.save();
   bool keyPresent{false};
-  if (std::string key{extractKey(source)}; source.current() == kColon || (!key.empty() && key.back() == kColon)) {
+  if (std::string key{extractKey(source)};
+      source.current() == kColon || (!key.empty() && key.back() == kColon)) {
     if (key[0] == kLeftCurlyBrace || key[0] == kLeftSquareBracket) {
       if (key.find('\n') != std::string::npos) {
         if (key[0] == kLeftCurlyBrace) {
@@ -39,8 +40,8 @@ bool Default_Parser::isKey(ISource &source) {
               "Inline dictionary used as key is meant to be on one line.");
         }
         throw SyntaxError(
-          source.getPosition(),
-          "Inline array used as key is meant to be on one line.");
+            source.getPosition(),
+            "Inline array used as key is meant to be on one line.");
       }
     }
     if (source.more()) {
@@ -208,6 +209,17 @@ bool Default_Parser::isDocumentEnd(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>True</returns>
-bool Default_Parser::isDefault([[maybe_unused]] ISource &source) { return true; }
+bool Default_Parser::isDefault([[maybe_unused]] ISource &source) {
+  return true;
+}
+
+/// <summary>
+/// Has a YAML directive (%YAML or %TAG) been found on the source stream?
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <returns>If true, a directive line has been found.</returns>
+bool Default_Parser::isDirective(ISource &source) {
+  return source.current() == '%';
+}
 
 } // namespace YAML_Lib

@@ -1,0 +1,99 @@
+#include "YAML_Lib_Tests.hpp"
+
+TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
+  const YAML yaml;
+
+  // ---- %YAML directives ----
+
+  SECTION("YAML parse %YAML 1.2 directive before document.",
+          "[YAML][Parse][Directives][YAML12]") {
+    BufferSource source{"%YAML 1.2\n---\nvalue: 42\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+  }
+
+  SECTION("YAML parse %YAML 1.1 directive (older minor version).",
+          "[YAML][Parse][Directives][YAML11]") {
+    BufferSource source{"%YAML 1.1\n---\nvalue: 42\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+  }
+
+  SECTION("YAML parse %YAML directive with unsupported major version throws.",
+          "[YAML][Parse][Directives][YAMLBadMajor]") {
+    BufferSource source{"%YAML 2.0\n---\nvalue: 42\n"};
+    REQUIRE_THROWS_WITH(yaml.parse(source), Catch::Matchers::ContainsSubstring(
+                                                "unsupported major version"));
+  }
+
+  SECTION("YAML parse %YAML directive with bad format throws.",
+          "[YAML][Parse][Directives][YAMLBadFormat]") {
+    BufferSource source{"%YAML 1\n---\nvalue: 42\n"};
+    REQUIRE_THROWS(yaml.parse(source));
+  }
+
+  SECTION("YAML parse %YAML directive after document start is invalid content.",
+          "[YAML][Parse][Directives][YAMLAfterDoc]") {
+    // Inside a document, % starts a plain scalar not a directive.
+    // The parser should throw or handle gracefully (not crash).
+    BufferSource source{"---\n%YAML 1.2\nvalue: 42\n"};
+    // % inside document content is parsed as a plain scalar which fails
+    // since "value: 42" causes a syntax error after it
+    REQUIRE_THROWS(yaml.parse(source));
+  }
+
+  // ---- %TAG directives ----
+
+  SECTION("YAML parse %TAG directive maps handle to prefix.",
+          "[YAML][Parse][Directives][Tag]") {
+    // After %TAG, !!str should expand to "tag:example.com,2024:str"
+    BufferSource source{"%TAG !! tag:example.com,2024:\n---\n!!str hello\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE(isA<String>(yaml.document(0)));
+    // Tag was expanded using the custom prefix
+    REQUIRE(yaml.document(0).getVariant().getTag() ==
+            "tag:example.com,2024:str");
+  }
+
+  SECTION("YAML parse %TAG directive with ! handle for local tags.",
+          "[YAML][Parse][Directives][TagLocal]") {
+    BufferSource source{
+        "%TAG ! tag:example.com,2024:\n---\n!item some value\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(yaml.document(0).getVariant().getTag() ==
+            "tag:example.com,2024:item");
+  }
+
+  SECTION("YAML parse multiple directives before a document.",
+          "[YAML][Parse][Directives][Multiple]") {
+    BufferSource source{
+        "%YAML 1.2\n%TAG ! tag:example.com,2024:\n---\nname: test\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+  }
+
+  SECTION("YAML parse unknown directive is silently ignored.",
+          "[YAML][Parse][Directives][Unknown]") {
+    BufferSource source{"%UNKNOWN some-value\n---\nname: test\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+  }
+
+  // ---- %YAML + content round-trip ----
+
+  SECTION("YAML parse document with %YAML directive and complex content.",
+          "[YAML][Parse][Directives][Complex]") {
+    BufferSource source{"%YAML 1.2\n---\nfoo:\n  - one\n  - two\nbar: True\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(isA<Array>(yaml.document(0)["foo"]));
+    REQUIRE(NRef<Array>(yaml.document(0)["foo"]).size() == 2);
+    REQUIRE(isA<Boolean>(yaml.document(0)["bar"]));
+  }
+}

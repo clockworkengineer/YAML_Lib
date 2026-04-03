@@ -11,15 +11,17 @@
 - Comments
 - Merge key (`<<`) for dictionary overrides/extensions
 - Anchors and aliases (basic support)
+- **Tags:** `!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, `!!seq`, `!!map`, custom `!tag`, verbatim `!<uri>` ✅ **(new)**
+- **Directives:** `%YAML X.Y` version parsing/validation, `%TAG handle prefix` storage ✅ **(new)**
+- **Unicode/escape sequences:** Full YAML 1.2 escape set: `\0`, `\a`, `\v`, `\e`, `\/`, `\ `, `\N` (U+0085), `\_` (U+00A0), `\L` (U+2028), `\P` (U+2029), `\U` (8 hex digits for SMP codepoints) ✅ **(new)**
 
 ## Missing/Incomplete YAML Features
 - **Complex Anchors/Aliases:** Nested, recursive, and merge key interactions
-- **Tags:** Custom and standard YAML tags (e.g., `!!str`, `!!int`, `!mytag`)
-- **Directives:** `%YAML`, `%TAG` handling and validation
+- **Tags:** Custom tag URI resolution, full type coercion for all core schema types
+- **Directives:** Multiple `%TAG` handle lookups chained; `%YAML` on multi-doc streams
 - **Flow collections:** Deeply nested flow collections, edge cases
 - **Block collections:** Complex indentation, multiline keys, and values
 - **Multi-document streams:** Edge cases, document boundary handling
-- **Unicode/escape sequences:** Full YAML escape sequence support (e.g., `\x`, `\u`, `\N`, `\L`, `\P`)
 - **Timestamp, binary, and other core types:** Parsing and serialization
 - **Error handling:** More granular syntax error reporting, recovery
 - **Spec compliance:** YAML 1.2.2 edge cases, especially ambiguous parsing scenarios
@@ -29,15 +31,16 @@
 1. **Anchors & Aliases:**
    - Expand support for nested and recursive anchors/aliases
    - Implement merge key (`<<`) edge cases and spec-compliant behavior
-2. **Tags & Directives:**
-   - Add parsing for `%YAML` and `%TAG` directives
-   - Support custom and standard tags, including type resolution
+2. **Tags & Directives:** ✅ **(implemented)**
+   - ~~Add parsing for `%YAML` and `%TAG` directives~~ — done
+   - ~~Support custom and standard tags, including type resolution~~ — done (`!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, `!!seq`, `!!map`, `!custom`, `!<verbatim>`)
+   - Remaining: multi-handle `%TAG` expansion chaining, core-schema binary/timestamp tags
 3. **Collections:**
    - Improve handling of deeply nested flow/block collections
    - Add support for multiline keys/values and ambiguous cases
 4. **Core Types:**
    - Implement parsing for timestamps, binary, and other YAML types
-   - Enhance Unicode/escape sequence handling
+   - ~~Enhance Unicode/escape sequence handling~~ — done (all YAML 1.2 escapes)
 5. **Error Handling:**
    - Refine syntax error reporting for more precise diagnostics
    - Add recovery strategies for common YAML mistakes

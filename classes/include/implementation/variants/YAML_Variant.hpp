@@ -29,8 +29,12 @@ struct Variant {
   [[nodiscard]] virtual std::string toString() const { return ""; }
   // Convert variant to a key
   [[nodiscard]] virtual std::string toKey() const { return ""; }
+  // Get/set YAML tag (e.g. "!!str", "!!int", "!custom")
+  [[nodiscard]] std::string_view getTag() const { return yamlTag; }
+  void setTag(const std::string_view &tag) { yamlTag = std::string(tag); }
 
 private:
   Type yNodeType;
+  std::string yamlTag;
 };
 } // namespace YAML_Lib
