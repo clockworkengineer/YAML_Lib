@@ -96,4 +96,54 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
     REQUIRE(NRef<Array>(yaml.document(0)["foo"]).size() == 2);
     REQUIRE(isA<Boolean>(yaml.document(0)["bar"]));
   }
+
+  // ---- Multiple named %TAG handles in one document stream ----
+
+  SECTION("YAML two distinct named handles expand independently.",
+          "[YAML][Parse][Directives][MultiHandle]") {
+    // %TAG !e! and %TAG !m! define two different handle-to-prefix mappings.
+    // Both must be registered and both tags must expand correctly.
+    BufferSource source{"%TAG !e! tag:example.com,2024:\n"
+                        "%TAG !m! !my-\n"
+                        "---\n"
+                        "a: !e!type one\n"
+                        "b: !m!color blue\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(isA<String>(yaml.document(0)["a"]));
+    REQUIRE(yaml.document(0)["a"].getVariant().getTag() ==
+            "tag:example.com,2024:type");
+    REQUIRE(isA<String>(yaml.document(0)["b"]));
+    REQUIRE(yaml.document(0)["b"].getVariant().getTag() == "!my-color");
+  }
+
+  SECTION("YAML %TAG handle resets between documents.",
+          "[YAML][Parse][Directives][HandleReset]") {
+    // A %TAG defined for one document does not carry over to the next;
+    // the second document must re-declare its own %TAG to use the handle.
+    BufferSource source{"%TAG !m! !my-\n"
+                        "--- # doc 1\n"
+                        "!m!light fluorescent\n"
+                        "...\n"
+                        "%TAG !m! !other-\n"
+                        "--- # doc 2\n"
+                        "!m!light warm\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 2);
+    REQUIRE(yaml.document(0).getVariant().getTag() == "!my-light");
+    REQUIRE(yaml.document(1).getVariant().getTag() == "!other-light");
+  }
+
+  SECTION("YAML %TAG !! handle remaps the secondary handle prefix.",
+          "[YAML][Parse][Directives][SecondaryHandle]") {
+    // %TAG !! prefix overrides the default secondary tag handle
+    BufferSource source{"%TAG !! tag:custom.org,2024:\n"
+                        "---\n"
+                        "!!mytype some value\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE(yaml.document(0).getVariant().getTag() ==
+            "tag:custom.org,2024:mytype");
+  }
 }

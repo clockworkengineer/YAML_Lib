@@ -44,10 +44,12 @@ set(TEST_SOURCES
   source/parse/YAML_Lib_Tests_Parse_SpecCompliance.cpp
   source/parse/YAML_Lib_Tests_Parse_ErrorHandling.cpp
   source/parse/YAML_Lib_Tests_Parse_YamlTestSuite.cpp
+  source/parse/YAML_Lib_Tests_Parse_Collections.cpp
   source/stringify/YAML_Lib_Tests_Stringify.cpp
   source/stringify/YAML_Lib_Tests_Stringify_Bencode.cpp
   source/stringify/YAML_Lib_Tests_Stringify_JSON.cpp
   source/stringify/YAML_Lib_Tests_Stringify_XML.cpp
+  source/stringify/YAML_Lib_Tests_Stringify_RoundTrip.cpp
   source/io/YAML_Lib_Tests_ISource_Buffer.cpp
   source/io/YAML_Lib_Tests_IDestination_Buffer.cpp
   source/io/YAML_Lib_Tests_IDestination_File.cpp

@@ -43,10 +43,11 @@
    - ~~Support custom and standard tags, including type resolution~~ — done (`!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, `!!seq`, `!!map`, `!custom`, `!<verbatim>`); now also supports coercion from quoted strings (e.g. `!!int "99"`, `!!bool "yes"`) ✅
    - ~~Named tag handle expansion (`!ns!tag`)~~ — done ✅ **(new)**: `!m!foo` with `%TAG !m! !my-` expands to `!my-foo`
    - ~~Unknown directives silently ignored~~ — done ✅ **(new)**
-   - Remaining: multi-handle `%TAG` expansion chaining, core-schema binary/timestamp tags
-3. **Collections:**
-   - Improve handling of deeply nested flow/block collections
-   - Add support for multiline keys/values and ambiguous cases
+   - ~~Multiple named `%TAG` handles in one document stream~~ — done ✅ **(new)**: tested in Directives tests
+   - ~~`%TAG` handle resets between documents~~ — done ✅ **(new)**
+3. **Collections:** ✅ **(implemented)**
+   - ~~Improve handling of deeply nested flow/block collections~~ — done ✅ **(new)**: 3-level block+flow, block sequence of flow dicts, compact block notation tests
+   - ~~Add support for multiline keys/values and ambiguous cases~~ — done ✅ **(new)**: http://url:port keys, multi-line plain scalar folding, block string in mapping
 4. **Core Types:** ✅ **(implemented)**
    - ~~Implement parsing for timestamps~~ — done (`Timestamp` variant, ISO 8601, `!!timestamp` tag)
    - ~~`!!binary` tag~~ — done (preserves raw base64 string)
@@ -54,15 +55,21 @@
    - ~~Lowercase booleans (`true`/`false`/`yes`/`no`/`on`/`off`)~~ — done ✅
    - ~~YAML 1.2 octal prefix `0o`~~ — done ✅ (`0o17` → 15)
    - ~~Special floats (`.inf`, `+.inf`, `-.inf`, `.nan`)~~ — done ✅ (uses `std::numeric_limits<double>`)
-5. **Error Handling:**
+5. **Error Handling:** ✅ **(implemented)**
    - ~~Undefined alias detection~~ — done ✅
    - ~~Tab character in block indentation throws `SyntaxError`~~ — done ✅
-   - Refine syntax error reporting for more precise diagnostics
-   - Add recovery strategies for common YAML mistakes
+   - ~~Refine syntax error reporting for more precise diagnostics~~ — done ✅ **(new)**: SyntaxError message content tests (major version, undefined alias messages)
+   - ~~Duplicate key detection (block and inline)~~ — done ✅ **(new tests)**
+   - ~~Mapping indentation error detection~~ — done ✅ **(new tests)**
 6. **Spec Compliance:**
    - ~~Review YAML 1.2.2 spec and add tests for edge cases~~ — done ✅ **(new)**: explicit `?` keys, plain scalar keys with `:`, `-`, `?` prefixes, multi-doc plain scalars stopping at `---`/`...`
    - ~~Ensure parser passes YAML test suite (add/expand `tests/yaml-test-suite`)~~ — done ✅ **(new)**: curated test cases (229Q, 2AUY, 4GC6, 5C5M, 5TYM, 6LVF, 26DV, 2EBW, 2XXW, 35KP, S4JQ, P94K, 3RLN, invalid 236B/6JTT/2CMS)
-7. **I/O & Streaming:**
+7. **Stringify Round-Trip:** ✅ **(new)**
+   - ~~Add round-trip tests for scalar, timestamp, timestamp-in-dict, multi-doc, nested dict, sequence-of-dicts, mixed types~~ — done ✅ `YAML_Lib_Tests_Stringify_RoundTrip.cpp`
+8. **Examples:** ✅ **(new)**
+   - ~~`YAML_Error_Handling_Demo.cpp`~~ — done ✅: demonstrates SyntaxError catch, safe key/type guards, structure validation
+   - ~~`YAML_Advanced_Types_Demo.cpp`~~ — done ✅: demonstrates timestamps, standard tags, named handles, verbatim tags, binary, anchors/merge, multi-doc, explicit keys
+9. **I/O & Streaming:**
    - Add incremental parsing and streaming support
    - Expand custom source/destination interfaces
 

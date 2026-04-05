@@ -85,4 +85,72 @@ TEST_CASE("Check YAML syntax error detection.",
                         "  <<: [*seq, *map]\n"};
     REQUIRE_THROWS(yaml.parse(source));
   }
+
+  // ---- Mapping indentation errors ----
+
+  SECTION("YAML mapping key at wrong indentation level throws.",
+          "[YAML][Parse][ErrorHandling][Indentation]") {
+    // A key indented MORE than peers but not a child of those peers
+    BufferSource source{"---\n"
+                        "level1: value1\n"
+                        "    badkey: value2\n"};
+    REQUIRE_THROWS(yaml.parse(source));
+  }
+
+  // ---- Inline collection never closed ----
+
+  SECTION("YAML unclosed nested flow sequence throws.",
+          "[YAML][Parse][ErrorHandling][Unterminated]") {
+    BufferSource source{"---\n[[1, 2], [3, 4\n"};
+    REQUIRE_THROWS(yaml.parse(source));
+  }
+
+  SECTION("YAML unclosed flow dict inside sequence throws.",
+          "[YAML][Parse][ErrorHandling][Unterminated]") {
+    BufferSource source{"---\n[{a: 1}, {b: 2\n"};
+    REQUIRE_THROWS(yaml.parse(source));
+  }
+
+  // ---- Invalid key characters ----
+
+  SECTION("YAML block mapping duplicate key throws SyntaxError.",
+          "[YAML][Parse][ErrorHandling][DuplicateKey]") {
+    BufferSource source{"---\n"
+                        "fruit: apple\n"
+                        "color: red\n"
+                        "fruit: orange\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
+  SECTION("YAML inline dict duplicate key throws SyntaxError.",
+          "[YAML][Parse][ErrorHandling][DuplicateKey]") {
+    BufferSource source{"---\n{name: Alice, age: 30, name: Bob}\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
+  // ---- SyntaxError carries a message ----
+
+  SECTION("YAML SyntaxError from unsupported YAML major version has message.",
+          "[YAML][Parse][ErrorHandling][ErrorMessage]") {
+    BufferSource source{"%YAML 2.0\n---\nvalue: 1\n"};
+    try {
+      yaml.parse(source);
+      FAIL("Expected SyntaxError was not thrown.");
+    } catch (const SyntaxError &ex) {
+      // The message should mention "major version" or "unsupported"
+      REQUIRE(std::string{ex.what()}.find("major version") !=
+              std::string::npos);
+    }
+  }
+
+  SECTION("YAML SyntaxError from undefined alias has message.",
+          "[YAML][Parse][ErrorHandling][ErrorMessage]") {
+    BufferSource source{"---\n*undefined_ref\n"};
+    try {
+      yaml.parse(source);
+      FAIL("Expected SyntaxError was not thrown.");
+    } catch (const SyntaxError &ex) {
+      REQUIRE(!std::string{ex.what()}.empty());
+    }
+  }
 }
