@@ -15,7 +15,8 @@ namespace YAML_Lib {
 /// Convert YAML key to a string Node
 /// </summary>
 /// <param name="yamlString">YAML string.</param>
-Node Default_Parser::convertYAMLToStringNode(const std::string_view &yamlString) {
+Node Default_Parser::convertYAMLToStringNode(
+    const std::string_view &yamlString) {
   BufferSource yamlKey{std::string(yamlString) + kLineFeed};
   auto keyNode = parseDocument(yamlKey, {kLineFeed}, 0);
   std::string keyString{NRef<Variant>(keyNode).toKey()};
@@ -31,8 +32,8 @@ Node Default_Parser::convertYAMLToStringNode(const std::string_view &yamlString)
 /// <summary>
 /// Does YAML that is  passed in constitute a valid dictionary key?
 /// </summary>
-/// <param name="key">YAML sequence to be converted to be used as the key.</param>
-/// <returns> If true value is a valid key.</returns>
+/// <param name="key">YAML sequence to be converted to be used as the
+/// key.</param> <returns> If true value is a valid key.</returns>
 bool Default_Parser::isValidKey(const std::string_view &key) {
   try {
     BufferSource yamlKey{std::string(key) + kLineFeed};
@@ -90,7 +91,25 @@ std::string Default_Parser::extractKey(ISource &source) {
   if (isMapping(source)) {
     return extractMapping(source);
   }
-  return extractToNext(source, {kColon, kComma, kRightCurlyBrace, kLineFeed});
+  // Plain scalar key: ':' is only a value separator when followed by
+  // space/newline/EOF. Otherwise (e.g. ":foo") the colon is part of the key
+  // text.
+  std::string key;
+  while (source.more()) {
+    key += extractToNext(source, {kColon, kComma, kRightCurlyBrace, kLineFeed});
+    if (!source.more() || source.current() != kColon)
+      break;
+    source.save();
+    source.next(); // peek past ':'
+    const bool isSeparator = !source.more() || source.current() == kSpace ||
+                             source.current() == kLineFeed;
+    source.restore();
+    if (isSeparator)
+      break; // ':' is the key-value separator, stop here
+    key += kColon;
+    source.next(); // consume ':', it is part of the key
+  }
+  return key;
 }
 /// <summary>
 /// Parse dictionary key on source stream.
@@ -121,20 +140,27 @@ Node Default_Parser::parseKey(ISource &source) {
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Dictionary entry for key/value.</returns>
 DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
-                                           const Delimiters &delimiters,
-                                           const unsigned long indentation) {
+                                              const Delimiters &delimiters,
+                                              const unsigned long indentation) {
   const unsigned long keyIndent = source.getPosition().second;
   Node keyNode = parseKey(source);
   source.ignoreWS();
-  if (isKey(source) && !isMapping(source)) {
+  // Explicit-key value separator: "? key\n: value" form — after parsing a '?'
+  // key, source lands on the ': value' line.  Consume ':' (and optional space)
+  // BEFORE calling isKey(), because isKey() treats ':' as a valid key start.
+  if (source.more() && source.current() == kColon) {
+    source.next(); // consume ':'
+    if (source.more() && source.current() == kSpace) {
+      source.next(); // consume optional space after ':'
+    }
+  } else if (isKey(source) && !isMapping(source)) {
     throw SyntaxError(source.getPosition(),
                       "Only an inline/compact dictionary is allowed.");
   }
   moveToNextIndent(source);
   Node dictionaryNode = Node::make<Null>();
-  if (source.more() &&
-      (source.getPosition().second > keyIndent || isInlineArray(source) ||
-       isInlineDictionary(source))) {
+  if (source.more() && (source.getPosition().second > keyIndent ||
+                        isInlineArray(source) || isInlineDictionary(source))) {
     dictionaryNode = parseDocument(source, delimiters, indentation);
   }
   return {keyNode, dictionaryNode};
@@ -146,9 +172,10 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
 /// <param name="delimiters">Delimiters used to parse a key/value pair.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Dictionary entry for key/value.</returns>
-DictionaryEntry Default_Parser::parseInlineKeyValue(ISource &source,
-                                                 const Delimiters &delimiters,
-                                                 const unsigned long indentation) {
+DictionaryEntry
+Default_Parser::parseInlineKeyValue(ISource &source,
+                                    const Delimiters &delimiters,
+                                    const unsigned long indentation) {
   Node keyNode = parseKey(source);
   Node dictionaryNode = Node::make<Null>();
   if (source.current() != kComma) {
@@ -169,9 +196,9 @@ DictionaryEntry Default_Parser::parseInlineKeyValue(ISource &source,
 /// <param name="delimiters">Delimiters used to parse dictionary.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Dictionary Node.</returns>
-Node Default_Parser::parseDictionary(ISource &source,
-                                   const Delimiters &delimiters,
-                                   [[maybe_unused]] unsigned long indentation) {
+Node Default_Parser::parseDictionary(
+    ISource &source, const Delimiters &delimiters,
+    [[maybe_unused]] unsigned long indentation) {
   const unsigned long dictionaryIndent = source.getPosition().second;
   Node dictionaryNode = Node::make<Dictionary>();
   while (source.more() && dictionaryIndent == source.getPosition().second) {
@@ -179,8 +206,8 @@ Node Default_Parser::parseDictionary(ISource &source,
       auto entry = parseKeyValue(source, delimiters, dictionaryIndent);
       if (NRef<Dictionary>(dictionaryNode).contains(entry.getKey())) {
         throw SyntaxError(source.getPosition(),
-                          "Dictionary already contains key '" + std::string(entry.getKey()) +
-                              "'.");
+                          "Dictionary already contains key '" +
+                              std::string(entry.getKey()) + "'.");
       }
       NRef<Dictionary>(dictionaryNode).add(std::move(entry));
     } else if (isDocumentStart(source) || isDocumentEnd(source)) {
@@ -220,11 +247,12 @@ Node Default_Parser::parseInlineDictionary(
       throw SyntaxError("Unexpected ',' in in-line dictionary.");
     }
     if (source.current() != kRightCurlyBrace) {
-      auto entry = parseInlineKeyValue(source, inLineDictionaryDelimiters, indentation);
+      auto entry =
+          parseInlineKeyValue(source, inLineDictionaryDelimiters, indentation);
       if (NRef<Dictionary>(dictionaryNode).contains(entry.getKey())) {
         throw SyntaxError(source.getPosition(),
-                          "Dictionary already contains key '" + std::string(entry.getKey()) +
-                          "'.");
+                          "Dictionary already contains key '" +
+                              std::string(entry.getKey()) + "'.");
       }
       NRef<Dictionary>(dictionaryNode).add(std::move(entry));
     }

@@ -107,4 +107,58 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     REQUIRE(yaml.document(0).getVariant().getTag() ==
             "!<tag:example.com,2024:item>");
   }
+
+  // ---- Named tag handle !ns!suffix ----
+
+  SECTION("YAML named tag handle !m! expands to registered prefix.",
+          "[YAML][Parse][Tags][NamedHandle]") {
+    // %TAG !m! !my- maps !m!light -> !my-light
+    BufferSource source{"%TAG !m! !my-\n---\n!m!light fluorescent\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(yaml.document(0).getVariant().getTag() == "!my-light");
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "fluorescent");
+  }
+
+  SECTION("YAML named tag handle expands across two documents.",
+          "[YAML][Parse][Tags][NamedHandle]") {
+    BufferSource source{
+        "%TAG !m! !my-\n--- # first\n!m!light fluorescent\n...\n"
+        "%TAG !m! !my-\n--- # second\n!m!light green\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 2);
+    REQUIRE(yaml.document(0).getVariant().getTag() == "!my-light");
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "fluorescent");
+    REQUIRE(yaml.document(1).getVariant().getTag() == "!my-light");
+    REQUIRE(NRef<String>(yaml.document(1)).value() == "green");
+  }
+
+  SECTION("YAML named tag handle with URI-style prefix.",
+          "[YAML][Parse][Tags][NamedHandle]") {
+    BufferSource source{"%TAG !e! tag:example.com,2024:\n---\n!e!widget foo\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(yaml.document(0).getVariant().getTag() ==
+            "tag:example.com,2024:widget");
+  }
+
+  SECTION("YAML unknown named handle falls back to verbatim.",
+          "[YAML][Parse][Tags][NamedHandle]") {
+    // !x!bar with no %TAG !x! registered - kept verbatim
+    BufferSource source{"---\n!x!bar baz\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(yaml.document(0).getVariant().getTag() == "!x!bar");
+  }
+
+  SECTION("YAML named tag handle on dictionary value.",
+          "[YAML][Parse][Tags][NamedHandle]") {
+    BufferSource source{
+        "%TAG !e! tag:example.com,\n---\ncolor: !e!rgb #ff0000\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(isA<String>(yaml.document(0)["color"]));
+    REQUIRE(yaml.document(0)["color"].getVariant().getTag() ==
+            "tag:example.com,rgb");
+  }
 }

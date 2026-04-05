@@ -11,12 +11,15 @@
 - Comments
 - Merge key (`<<`) for dictionary overrides/extensions
 - Anchors and aliases (basic support)
-- **Tags:** `!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, `!!seq`, `!!map`, custom `!tag`, verbatim `!<uri>` ✅ **(new)**
-- **Directives:** `%YAML X.Y` version parsing/validation, `%TAG handle prefix` storage ✅ **(new)**
+- **Tags:** `!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, `!!seq`, `!!map`, custom `!tag`, verbatim `!<uri>`, named handles `!ns!tag` ✅ **(new)**
+- **Directives:** `%YAML X.Y` version parsing/validation, `%TAG handle prefix` storage, unknown directives silently ignored ✅ **(new)**
 - **Unicode/escape sequences:** Full YAML 1.2 escape set: `\0`, `\a`, `\v`, `\e`, `\/`, `\ `, `\N` (U+0085), `\_` (U+00A0), `\L` (U+2028), `\P` (U+2029), `\U` (8 hex digits for SMP codepoints) ✅ **(new)**
 - **Timestamps:** `Timestamp` variant type, automatic detection & parsing of ISO 8601 dates/datetimes, `!!timestamp` tag ✅ **(new)**
 - **Binary:** `!!binary` tag preserves base64 string value ✅ **(new)**
 - **Error handling:** Undefined alias (via `*name`) throws `SyntaxError` with descriptive message ✅ **(new)**
+- **Explicit `?` mapping keys:** `? key\n: value` block mapping form ✅ **(new)**
+- **Plain scalar keys with special chars:** Keys starting with `:`, `-`, or `?` (without space) are valid ✅ **(new)**
+- **YAML test-suite integration:** Curated test cases from yaml-test-suite in `YAML_Lib_Tests_Parse_YamlTestSuite.cpp` ✅ **(new)**
 
 ## Missing/Incomplete YAML Features
 - **Complex Anchors/Aliases:** Nested, recursive, and merge key interactions
@@ -38,6 +41,8 @@
 2. **Tags & Directives:** ✅ **(implemented)**
    - ~~Add parsing for `%YAML` and `%TAG` directives~~ — done
    - ~~Support custom and standard tags, including type resolution~~ — done (`!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, `!!seq`, `!!map`, `!custom`, `!<verbatim>`); now also supports coercion from quoted strings (e.g. `!!int "99"`, `!!bool "yes"`) ✅
+   - ~~Named tag handle expansion (`!ns!tag`)~~ — done ✅ **(new)**: `!m!foo` with `%TAG !m! !my-` expands to `!my-foo`
+   - ~~Unknown directives silently ignored~~ — done ✅ **(new)**
    - Remaining: multi-handle `%TAG` expansion chaining, core-schema binary/timestamp tags
 3. **Collections:**
    - Improve handling of deeply nested flow/block collections
@@ -55,8 +60,8 @@
    - Refine syntax error reporting for more precise diagnostics
    - Add recovery strategies for common YAML mistakes
 6. **Spec Compliance:**
-   - Review YAML 1.2.2 spec and add tests for edge cases
-   - Ensure parser passes YAML test suite (add/expand `tests/yaml-test-suite`)
+   - ~~Review YAML 1.2.2 spec and add tests for edge cases~~ — done ✅ **(new)**: explicit `?` keys, plain scalar keys with `:`, `-`, `?` prefixes, multi-doc plain scalars stopping at `---`/`...`
+   - ~~Ensure parser passes YAML test suite (add/expand `tests/yaml-test-suite`)~~ — done ✅ **(new)**: curated test cases (229Q, 2AUY, 4GC6, 5C5M, 5TYM, 6LVF, 26DV, 2EBW, 2XXW, 35KP, S4JQ, P94K, 3RLN, invalid 236B/6JTT/2CMS)
 7. **I/O & Streaming:**
    - Add incremental parsing and streaming support
    - Expand custom source/destination interfaces

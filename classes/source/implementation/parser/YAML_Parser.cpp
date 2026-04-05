@@ -108,6 +108,12 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       // Inter document comment
     } else if (isComment(source) && !inDocument) {
       parseComment(source, {kLineFeed});
+      // Skip stray whitespace (e.g. leading-space comment lines between
+      // directives)
+    } else if (!inDocument &&
+               (source.current() == kSpace || source.current() == '\t' ||
+                source.current() == kLineFeed)) {
+      source.next();
       // Parse document contents
     } else {
       if (!inDocument) {

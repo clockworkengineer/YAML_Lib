@@ -54,7 +54,7 @@ private:
   static bool isAlias(const ISource &source);
   static bool isInlineArray(const ISource &source);
   static bool isInlineDictionary(const ISource &source);
-  static bool isMapping(const ISource &source);
+  static bool isMapping(ISource &source);
   static bool isDictionary(ISource &source);
   static bool isDefault(ISource &source);
   static bool isDocumentStart(ISource &source);

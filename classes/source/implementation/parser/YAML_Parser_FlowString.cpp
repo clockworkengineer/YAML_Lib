@@ -17,7 +17,7 @@ namespace YAML_Lib {
 /// <param name="source">Source stream.</param>
 /// <param name="yamlString">YAML string appended too.</param>
 void Default_Parser::appendCharacterToString(ISource &source,
-                                          std::string &yamlString) {
+                                             std::string &yamlString) {
   if (source.current() == kLineFeed) {
     source.next();
     source.ignoreWS();
@@ -39,14 +39,21 @@ void Default_Parser::appendCharacterToString(ISource &source,
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>String Node.</returns>
 Node Default_Parser::parsePlainFlowString(ISource &source,
-                                        const Delimiters &delimiters,
-                                        const unsigned long indentation) {
+                                          const Delimiters &delimiters,
+                                          const unsigned long indentation) {
   std::string yamlString{extractToNext(source, delimiters) + kSpace};
   if (source.current() != kLineFeed) {
     rightTrim(yamlString);
   } else {
     moveToNextIndent(source);
     while (source.more() && indentation < source.getPosition().second) {
+      // Stop at document markers (--- or ...) at the start of a line.
+      // This matters especially at indentation 0, where the column check
+      // alone (0 < 1) would never exit the loop.
+      if (source.getPosition().second == 1 &&
+          (isDocumentEnd(source) || isDocumentStart(source))) {
+        break;
+      }
       appendCharacterToString(source, yamlString);
       if (source.match(": ")) {
         throw SyntaxError("Invalid YAML encountered.");
@@ -65,9 +72,9 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>String Node.</returns>
-Node Default_Parser::parseQuotedFlowString(ISource &source,
-                                         const Delimiters &delimiters,
-                                         [[maybe_unused]] unsigned long indentation) {
+Node Default_Parser::parseQuotedFlowString(
+    ISource &source, const Delimiters &delimiters,
+    [[maybe_unused]] unsigned long indentation) {
   const char quote = source.append();
   std::string yamlString;
   if (quote == kDoubleQuote) {

@@ -333,4 +333,49 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
   }
+
+  // ---- Explicit block mapping key (? indicator) ----
+
+  SECTION("YAML explicit ? key with null value produces null entry.",
+          "[YAML][Parse][Spec][ExplicitKey]") {
+    // ? key with no ': value' gives key -> null (used in YAML sets)
+    BufferSource source{"---\n? Mark McGwire\n? Sammy Sosa\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<Dictionary>(yaml.document(0)).contains("Mark McGwire"));
+    REQUIRE(isA<Null>(yaml.document(0)["Mark McGwire"]));
+    REQUIRE(NRef<Dictionary>(yaml.document(0)).contains("Sammy Sosa"));
+  }
+
+  SECTION("YAML explicit ? key then : value on separate line.",
+          "[YAML][Parse][Spec][ExplicitKey]") {
+    // Spec Example 8.18 style: ? a\n: b
+    BufferSource source{"---\n? a\n: b\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<Dictionary>(yaml.document(0)).contains("a"));
+    REQUIRE(NRef<String>(yaml.document(0)["a"]).value() == "b");
+  }
+
+  SECTION("YAML explicit ? key then : value inline (no space after colon).",
+          "[YAML][Parse][Spec][ExplicitKey]") {
+    BufferSource source{"---\n? foo\n: bar\n? baz\n: qux\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)["foo"]).value() == "bar");
+    REQUIRE(NRef<String>(yaml.document(0)["baz"]).value() == "qux");
+  }
+
+  SECTION("YAML !!set uses ? keys with implicit null values.",
+          "[YAML][Parse][Spec][ExplicitKey]") {
+    // Spec Example 2.25: Unordered Sets represented as mappings with null vals
+    BufferSource source{
+        "--- !!set\n? Mark McGwire\n? Sammy Sosa\n? Ken Griff\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<Dictionary>(yaml.document(0)).size() == 3);
+    REQUIRE(isA<Null>(yaml.document(0)["Mark McGwire"]));
+    REQUIRE(isA<Null>(yaml.document(0)["Sammy Sosa"]));
+    REQUIRE(isA<Null>(yaml.document(0)["Ken Griff"]));
+  }
 }

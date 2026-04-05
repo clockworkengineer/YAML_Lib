@@ -174,11 +174,22 @@ bool Default_Parser::isInlineDictionary(const ISource &source) {
 }
 /// <summary>
 /// Has a mapping been found on the source stream?
+/// The explicit mapping key indicator '?' requires a space, tab, or linefeed
+/// immediately after it.  '?foo' (no whitespace) is a plain scalar, not an
+/// explicit key.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a mapping has been found.</returns>
-bool Default_Parser::isMapping(const ISource &source) {
-  return source.current() == '?';
+bool Default_Parser::isMapping(ISource &source) {
+  if (source.current() != '?') {
+    return false;
+  }
+  source.save();
+  source.next(); // peek at char after '?'
+  const bool spacedKey = !source.more() || source.current() == kSpace ||
+                         source.current() == kLineFeed;
+  source.restore();
+  return spacedKey;
 }
 /// <summary>
 /// Has a dictionary been found on the source stream?

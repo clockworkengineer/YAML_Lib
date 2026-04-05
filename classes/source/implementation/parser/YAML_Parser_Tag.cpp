@@ -63,12 +63,26 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
       source.next();
     }
   } else {
-    // Primary tag handle: ! -> local tag
-    tagHandle = "!";
-    while (source.more() && source.current() != kSpace &&
-           source.current() != kLineFeed) {
-      tagSuffix += source.current();
+    // Could be primary !suffix or named handle !ns!suffix.
+    // Scan ahead: if we find a second '!' before space/LF it is a named handle.
+    std::string preExcl;
+    while (source.more() && source.current() != '!' &&
+           source.current() != kSpace && source.current() != kLineFeed) {
+      preExcl += source.current();
       source.next();
+    }
+    if (source.more() && source.current() == '!') {
+      source.next(); // consume second '!'
+      tagHandle = "!" + preExcl + "!";
+      while (source.more() && source.current() != kSpace &&
+             source.current() != kLineFeed) {
+        tagSuffix += source.current();
+        source.next();
+      }
+    } else {
+      // Primary tag handle: !suffix
+      tagHandle = "!";
+      tagSuffix = preExcl;
     }
   }
 
@@ -85,12 +99,15 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     fullTag =
         (it != yamlTagPrefixes.end() ? it->second : defaultPrefix) + tagSuffix;
   } else {
-    // !handle or local tag
-    auto it = yamlTagPrefixes.find("!");
-    if (it != yamlTagPrefixes.end() && !tagSuffix.empty()) {
+    // Named handle (e.g. !ns!suffix) or local tag (e.g. !suffix)
+    auto it = yamlTagPrefixes.find(tagHandle);
+    if (it != yamlTagPrefixes.end()) {
       fullTag = it->second + tagSuffix;
-    } else {
+    } else if (tagHandle == "!") {
       fullTag = "!" + tagSuffix;
+    } else {
+      // Unknown named handle - keep verbatim
+      fullTag = tagHandle + tagSuffix;
     }
   }
 
