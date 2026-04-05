@@ -69,9 +69,10 @@
 8. **Examples:** ✅ **(new)**
    - ~~`YAML_Error_Handling_Demo.cpp`~~ — done ✅: demonstrates SyntaxError catch, safe key/type guards, structure validation
    - ~~`YAML_Advanced_Types_Demo.cpp`~~ — done ✅: demonstrates timestamps, standard tags, named handles, verbatim tags, binary, anchors/merge, multi-doc, explicit keys
-9. **I/O & Streaming:**
-   - Add incremental parsing and streaming support
-   - Expand custom source/destination interfaces
+9. **I/O & Streaming:** ✅ **(implemented)**
+   - ~~Add streaming support backed by `std::istream`/`std::ostream`~~ — done ✅ **(new)**: `StreamSource` (wraps any seekable `std::istream`) and `StreamDestination` (wraps any `std::ostream`) added to `classes/include/implementation/io/`
+   - ~~Expand custom source/destination interfaces~~ — done ✅ **(new)**: `YAML_Sources.hpp` and `YAML_Destinations.hpp` now expose `StreamSource` / `StreamDestination` alongside `BufferSource`, `FileSource`, `BufferDestination`, `FileDestination`
+   - ~~Tests~~ — done ✅ **(new)**: `YAML_Lib_Tests_ISource_Stream.cpp` and `YAML_Lib_Tests_IDestination_Stream.cpp` covering construction, `current()`, `next()`, `more()`, `position()`, `save()`/`restore()`, `match()`, parse round-trip, stringify round-trip, error states
 
 ---
 This plan is based on current parser code, tests, and README. Update as features are implemented or new gaps are discovered.
