@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cctype>
 #include <cstring>
 #include <cwctype>
 #include <filesystem>
@@ -8,6 +9,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <limits>
 #include <set>
 #include <stack>
 #include <stdexcept>

@@ -17,7 +17,8 @@ namespace YAML_Lib {
 /// <param name="str">Target string.</param>
 /// <param name="substr">Ends with string.</param>
 /// <returns>If true, str then ends with substr.</returns>
-bool Default_Parser::endsWith(const std::string_view &str, const std::string_view &substr) {
+bool Default_Parser::endsWith(const std::string_view &str,
+                              const std::string_view &substr) {
   const auto strLen = str.size();
   const auto substrLen = substr.size();
   if (strLen < substrLen)
@@ -50,13 +51,22 @@ void Default_Parser::moveToNext(ISource &source, const Delimiters &delimiters) {
 }
 /// <summary>
 /// Move to the next non-whitespace character in source stream; jumping over new
-/// lines and stripping amy comments.
+/// lines and stripping amy comments. Tabs used as block indentation (at the
+/// start of a line) are rejected as per the YAML 1.2 specification.
 /// </summary>
 /// <param name="source">Source stream.</param>
 void Default_Parser::moveToNextIndent(ISource &source) {
   bool indentFound{false};
   while (!indentFound) {
+    bool afterNewline = (source.getPosition().second == 1);
     while (source.more() && (source.isWS() || source.current() == kLineFeed)) {
+      if (source.current() == kLineFeed) {
+        afterNewline = true;
+      } else if (afterNewline && source.current() == '\t') {
+        throw SyntaxError(
+            source.getPosition(),
+            "Tab character not allowed in YAML block indentation.");
+      }
       source.next();
     }
     if (isComment(source)) {
@@ -76,18 +86,18 @@ void Default_Parser::moveToNextIndent(ISource &source) {
 /// <param name="quote"></param>
 /// <returns>Extracted characters.</returns>
 std::string Default_Parser::extractString(ISource &source, const char quote) {
-    std::string extracted{quote};
+  std::string extracted{quote};
+  source.next();
+  while (source.more() && source.current() != quote) {
+    extracted += source.current();
     source.next();
-    while (source.more() && source.current() != quote) {
-      extracted += source.current();
-      source.next();
-    }
-    extracted += quote;
-    if (source.more()) {
-      source.next();
-    }
-    source.ignoreWS();
-    return extracted;
+  }
+  extracted += quote;
+  if (source.more()) {
+    source.next();
+  }
+  source.ignoreWS();
+  return extracted;
 }
 /// <summary>
 /// Extract characters from source stream up to a delimiter.
@@ -96,7 +106,7 @@ std::string Default_Parser::extractString(ISource &source, const char quote) {
 /// <param name="delimiters"></param>
 /// <returns>Extracted characters.</returns>
 std::string Default_Parser::extractToNext(ISource &source,
-                                       const Delimiters &delimiters) {
+                                          const Delimiters &delimiters) {
   std::string extracted;
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
@@ -112,7 +122,8 @@ std::string Default_Parser::extractToNext(ISource &source,
 /// <param name="start">Start character.</param>
 /// <param name="end">End character.</param>
 /// <returns>Extracted characters.</returns>
-std::string Default_Parser::extractInLine(ISource &source, const char start, const char end) {
+std::string Default_Parser::extractInLine(ISource &source, const char start,
+                                          const char end) {
   std::string extracted;
   unsigned long depth{1};
   extracted += start;

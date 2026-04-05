@@ -95,35 +95,76 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   }
 
   // Standard YAML core schema tags cause type coercion
+  // Helper: extract the raw scalar value (unquoting if quoted) as a string.
+  auto extractRawScalar = [&]() -> std::string {
+    if (isQuotedString(source)) {
+      // extractString returns the content with surrounding quotes; strip them.
+      std::string raw = extractString(source, source.current());
+      if (raw.size() >= 2) {
+        raw = raw.substr(1, raw.size() - 2);
+      }
+      rightTrim(raw);
+      return raw;
+    }
+    std::string raw = extractToNext(source, delimiters);
+    rightTrim(raw);
+    return raw;
+  };
+
   Node result;
   if (tagHandle == "!!" && !tagSuffix.empty()) {
     if (tagSuffix == "str") {
-      // Force string interpretation
-      std::string value{extractToNext(source, delimiters)};
-      rightTrim(value);
+      // Force string interpretation — preserve quotes so the raw text is used.
+      const std::string value = extractRawScalar();
       result = Node::make<String>(value, kNull);
     } else if (tagSuffix == "int") {
-      // Force integer interpretation
-      result = parseNumber(source, delimiters, indentation);
+      // Force integer interpretation; support quoted string values.
+      if (isQuotedString(source)) {
+        const std::string raw = extractRawScalar();
+        BufferSource bs{raw + "\n"};
+        result = parseNumber(bs, {kLineFeed}, indentation);
+      } else {
+        result = parseNumber(source, delimiters, indentation);
+      }
       if (result.isEmpty()) {
         throw SyntaxError(source.getPosition(),
                           "Value cannot be parsed as !!int.");
       }
     } else if (tagSuffix == "float") {
-      // Force float interpretation
-      result = parseNumber(source, delimiters, indentation);
+      // Force float interpretation; support quoted string values.
+      if (isQuotedString(source)) {
+        const std::string raw = extractRawScalar();
+        BufferSource bs{raw + "\n"};
+        result = parseNumber(bs, {kLineFeed}, indentation);
+      } else {
+        result = parseNumber(source, delimiters, indentation);
+      }
       if (result.isEmpty()) {
         throw SyntaxError(source.getPosition(),
                           "Value cannot be parsed as !!float.");
       }
     } else if (tagSuffix == "bool") {
-      result = parseBoolean(source, delimiters, indentation);
+      // Force boolean interpretation; support quoted string values.
+      if (isQuotedString(source)) {
+        const std::string raw = extractRawScalar();
+        BufferSource bs{raw + "\n"};
+        result = parseBoolean(bs, {kLineFeed}, indentation);
+      } else {
+        result = parseBoolean(source, delimiters, indentation);
+      }
       if (result.isEmpty()) {
         throw SyntaxError(source.getPosition(),
                           "Value cannot be parsed as !!bool.");
       }
     } else if (tagSuffix == "null") {
-      result = parseNone(source, delimiters, indentation);
+      // Force null interpretation; support quoted string values.
+      if (isQuotedString(source)) {
+        const std::string raw = extractRawScalar();
+        BufferSource bs{raw + "\n"};
+        result = parseNone(bs, {kLineFeed}, indentation);
+      } else {
+        result = parseNone(source, delimiters, indentation);
+      }
       if (result.isEmpty()) {
         throw SyntaxError(source.getPosition(),
                           "Value cannot be parsed as !!null.");

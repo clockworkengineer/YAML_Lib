@@ -4,7 +4,6 @@
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
 
-
 namespace YAML_Lib {
 
 class XML_Stringify final : public IStringify {
@@ -71,11 +70,7 @@ private:
   }
 
   static void stringifyBoolean(const Node &yNode, IDestination &destination) {
-    if (NRef<Boolean>(yNode).value()) {
-      destination.add("True");
-    } else {
-      destination.add("False");
-    }
+    destination.add(NRef<Boolean>(yNode).toString());
   }
 
   static void stringifyNull([[maybe_unused]] const Node &yNode,

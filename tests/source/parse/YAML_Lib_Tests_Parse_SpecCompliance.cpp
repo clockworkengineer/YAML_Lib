@@ -140,4 +140,197 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
     REQUIRE(NRef<String>(yaml.document(0)["outer"]["inner"]["deep"]).value() ==
             "value");
   }
+
+  // ---- Numeric literal representations ----
+
+  SECTION("YAML hexadecimal integer literal is parsed as Number.",
+          "[YAML][Parse][Spec][Numeric]") {
+    BufferSource source{"---\nvalue: 0xFF\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Number>(yaml.document(0)["value"]));
+    REQUIRE(NRef<Number>(yaml.document(0)["value"]).value<int>() == 255);
+  }
+
+  SECTION("YAML octal integer literal is parsed as Number.",
+          "[YAML][Parse][Spec][Numeric]") {
+    BufferSource source{"---\nvalue: 0o17\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Number>(yaml.document(0)["value"]));
+    REQUIRE(NRef<Number>(yaml.document(0)["value"]).value<int>() == 15);
+  }
+
+  SECTION("YAML positive infinity float literal is parsed as Number.",
+          "[YAML][Parse][Spec][Numeric]") {
+    BufferSource source{"---\nvalue: .inf\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Number>(yaml.document(0)["value"]));
+  }
+
+  SECTION("YAML negative infinity float literal is parsed as Number.",
+          "[YAML][Parse][Spec][Numeric]") {
+    BufferSource source{"---\nvalue: -.inf\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Number>(yaml.document(0)["value"]));
+  }
+
+  SECTION("YAML not-a-number float literal is parsed as Number.",
+          "[YAML][Parse][Spec][Numeric]") {
+    BufferSource source{"---\nvalue: .nan\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Number>(yaml.document(0)["value"]));
+  }
+
+  // ---- Boolean representations ----
+
+  SECTION("YAML 'true' and 'false' literals are parsed as Boolean.",
+          "[YAML][Parse][Spec][Boolean]") {
+    BufferSource source{"---\na: true\nb: false\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Boolean>(yaml.document(0)["a"]));
+    REQUIRE(isA<Boolean>(yaml.document(0)["b"]));
+    REQUIRE(NRef<Boolean>(yaml.document(0)["a"]).value() == true);
+    REQUIRE(NRef<Boolean>(yaml.document(0)["b"]).value() == false);
+  }
+
+  SECTION("YAML 'yes' and 'no' literals are parsed as Boolean.",
+          "[YAML][Parse][Spec][Boolean]") {
+    // YAML 1.2 canonical: true/false. 1.1 compat also allows yes/no.
+    BufferSource source{"---\na: Yes\nb: No\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Boolean>(yaml.document(0)["a"]));
+    REQUIRE(isA<Boolean>(yaml.document(0)["b"]));
+    REQUIRE(NRef<Boolean>(yaml.document(0)["a"]).value() == true);
+    REQUIRE(NRef<Boolean>(yaml.document(0)["b"]).value() == false);
+  }
+
+  // ---- Null representations ----
+
+  SECTION("YAML '~' is parsed as Null.", "[YAML][Parse][Spec][Null]") {
+    BufferSource source{"---\nvalue: ~\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Null>(yaml.document(0)["value"]));
+  }
+
+  SECTION("YAML empty value after key colon is parsed as Null.",
+          "[YAML][Parse][Spec][Null]") {
+    BufferSource source{"---\nvalue:\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Null>(yaml.document(0)["value"]));
+  }
+
+  // ---- Deeply nested block collections ----
+
+  SECTION("YAML five levels deep nested block dictionaries.",
+          "[YAML][Parse][Spec][Block][Deep]") {
+    BufferSource source{"---\n"
+                        "l1:\n"
+                        "  l2:\n"
+                        "    l3:\n"
+                        "      l4:\n"
+                        "        l5: leaf\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(
+        NRef<String>(yaml.document(0)["l1"]["l2"]["l3"]["l4"]["l5"]).value() ==
+        "leaf");
+  }
+
+  SECTION("YAML block sequence of block sequences (nested arrays).",
+          "[YAML][Parse][Spec][Block][Deep]") {
+    BufferSource source{"---\n"
+                        "matrix:\n"
+                        "  - - 1\n"
+                        "    - 2\n"
+                        "  - - 3\n"
+                        "    - 4\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)["matrix"]));
+    REQUIRE(NRef<Array>(yaml.document(0)["matrix"]).size() == 2);
+    REQUIRE(isA<Array>(yaml.document(0)["matrix"][0]));
+    REQUIRE(NRef<Number>(yaml.document(0)["matrix"][0][0]).value<int>() == 1);
+    REQUIRE(NRef<Number>(yaml.document(0)["matrix"][1][1]).value<int>() == 4);
+  }
+
+  // ---- Mixed flow and block styles ----
+
+  SECTION("YAML flow sequence as the value of a block mapping key.",
+          "[YAML][Parse][Spec][Mixed]") {
+    BufferSource source{"---\ncolors: [red, green, blue]\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)["colors"]));
+    REQUIRE(NRef<Array>(yaml.document(0)["colors"]).size() == 3);
+    REQUIRE(NRef<String>(yaml.document(0)["colors"][0]).value() == "red");
+  }
+
+  SECTION("YAML flow mapping as element of a block sequence.",
+          "[YAML][Parse][Spec][Mixed]") {
+    BufferSource source{
+        "---\n- {name: Alice, age: 30}\n- {name: Bob, age: 25}\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)));
+    REQUIRE(NRef<Array>(yaml.document(0)).size() == 2);
+    REQUIRE(NRef<String>(yaml.document(0)[0]["name"]).value() == "Alice");
+    REQUIRE(NRef<Number>(yaml.document(0)[1]["age"]).value<int>() == 25);
+  }
+
+  // ---- Type coercion with explicit tags ----
+
+  SECTION("YAML !!str tag forces numeric string to remain a string.",
+          "[YAML][Parse][Spec][Tags]") {
+    BufferSource source{"---\nvalue: !!str 42\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)["value"]));
+    REQUIRE(NRef<String>(yaml.document(0)["value"]).value() == "42");
+  }
+
+  SECTION("YAML !!int tag coerces string to integer.",
+          "[YAML][Parse][Spec][Tags]") {
+    BufferSource source{"---\nvalue: !!int \"99\"\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Number>(yaml.document(0)["value"]));
+    REQUIRE(NRef<Number>(yaml.document(0)["value"]).value<int>() == 99);
+  }
+
+  SECTION("YAML !!bool tag coerces bare yes to boolean true.",
+          "[YAML][Parse][Spec][Tags]") {
+    BufferSource source{"---\nflag: !!bool yes\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Boolean>(yaml.document(0)["flag"]));
+    REQUIRE(NRef<Boolean>(yaml.document(0)["flag"]).value() == true);
+  }
+
+  SECTION("YAML !!null tag on bare null value produces Null node.",
+          "[YAML][Parse][Spec][Tags]") {
+    BufferSource source{"---\nnothing: !!null ~\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Null>(yaml.document(0)["nothing"]));
+  }
+
+  // ---- String edge cases ----
+
+  SECTION("YAML single-quoted string that contains double single quotes.",
+          "[YAML][Parse][Spec][String]") {
+    BufferSource source{"---\nvalue: 'it''s a test'\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)["value"]));
+    REQUIRE(NRef<String>(yaml.document(0)["value"]).value() == "it's a test");
+  }
+
+  SECTION("YAML double-quoted string with escape sequence.",
+          "[YAML][Parse][Spec][String]") {
+    BufferSource source{"---\nvalue: \"line1\\nline2\"\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)["value"]));
+    REQUIRE(NRef<String>(yaml.document(0)["value"]).value() == "line1\nline2");
+  }
+
+  // ---- Empty document ----
+
+  SECTION("YAML empty document (just --- and ...) parses without error.",
+          "[YAML][Parse][Spec][Empty]") {
+    // An empty document has no content: the document gets no entries added.
+    // We just verify it doesn't crash and yields one document.
+    BufferSource source{"---\n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+  }
 }

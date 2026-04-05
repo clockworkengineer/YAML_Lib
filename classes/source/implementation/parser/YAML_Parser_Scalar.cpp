@@ -12,6 +12,8 @@ namespace YAML_Lib {
 
 /// <summary>
 /// Parse a numeric value on source stream.
+/// Supports standard integers/floats, YAML 1.2 hex (0x), octal (0o),
+/// and special float values .inf, -.inf, .nan (case-insensitive).
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse number./param>
@@ -23,11 +25,35 @@ Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
   source.save();
   std::string numeric{extractToNext(source, delimiters)};
   rightTrim(numeric);
-  if (Number number{numeric}; number.is<int>() || number.is<long>() ||
-                              number.is<long long>() || number.is<float>() ||
-                              number.is<double>() || number.is<long double>()) {
-    moveToNext(source, delimiters);
-    numberNode = Node::make<Number>(number);
+  // YAML 1.2 special float literals (case-insensitive).
+  {
+    std::string lower = numeric;
+    std::transform(lower.begin(), lower.end(), lower.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    if (lower == ".inf" || lower == "+.inf") {
+      moveToNext(source, delimiters);
+      numberNode = Node::make<Number>(std::numeric_limits<double>::infinity());
+    } else if (lower == "-.inf") {
+      moveToNext(source, delimiters);
+      numberNode = Node::make<Number>(-std::numeric_limits<double>::infinity());
+    } else if (lower == ".nan") {
+      moveToNext(source, delimiters);
+      numberNode = Node::make<Number>(std::numeric_limits<double>::quiet_NaN());
+    }
+  }
+  if (numberNode.isEmpty()) {
+    // Normalize YAML 1.2 octal "0o<digits>" to C-style "0<digits>" so that
+    // std::stoi / std::stol / std::stoll can parse it with base 8.
+    if (numeric.size() >= 3 && numeric[0] == '0' &&
+        (numeric[1] == 'o' || numeric[1] == 'O')) {
+      numeric = "0" + numeric.substr(2);
+    }
+    if (Number number{numeric}; number.is<int>() || number.is<long>() ||
+                                number.is<long long>() || number.is<float>() ||
+                                number.is<double>() || number.is<long double>()) {
+      moveToNext(source, delimiters);
+      numberNode = Node::make<Number>(number);
+    }
   }
   if (numberNode.isEmpty()) {
     source.restore();

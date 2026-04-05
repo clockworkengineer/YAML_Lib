@@ -13,27 +13,62 @@ namespace YAML_Lib {
 /// <summary>
 /// Merge overrides/extensions in dictionary. Overrides will have
 /// "<<" keys; this function edits them into the YAML tree.
+/// Supports both single alias (<<: *alias) and sequence of aliases
+/// (<<: [*a, *b, ...]) where earlier entries in the sequence have higher
+/// priority (first definition wins).
 /// </summary>
 Node Default_Parser::mergeOverrides(Node &overrideRoot) {
   if (isA<Dictionary>(overrideRoot) &&
       NRef<Dictionary>(overrideRoot).contains(kOverride)) {
     auto &dictionary = NRef<Dictionary>(overrideRoot);
+    // Collect explicit (non-override) keys for later merging.
     std::set<std::string> overrideKeys;
     for (auto &entry : dictionary.value()) {
       if (entry.getKey() != kOverride) {
         overrideKeys.insert(std::string(entry.getKey()));
       }
     }
-    auto &innerDictionary = NRef<Dictionary>(dictionary[kOverride]);
-    for (auto &entry : overrideKeys) {
-      auto overrideEntry = mergeOverrides(dictionary[entry]);
-      if (innerDictionary.contains(entry)) {
-        innerDictionary[entry] = std::move(overrideEntry);
-      } else {
-        innerDictionary.add(DictionaryEntry(entry, overrideEntry));
+    Node &overrideValue = dictionary[kOverride];
+    if (isA<Dictionary>(overrideValue)) {
+      // Single-alias merge: <<: *alias
+      auto &innerDictionary = NRef<Dictionary>(overrideValue);
+      for (auto &entry : overrideKeys) {
+        auto overrideEntry = mergeOverrides(dictionary[entry]);
+        if (innerDictionary.contains(entry)) {
+          innerDictionary[entry] = std::move(overrideEntry);
+        } else {
+          innerDictionary.add(DictionaryEntry(entry, overrideEntry));
+        }
       }
+      overrideRoot = std::move(overrideValue);
+    } else if (isA<Array>(overrideValue)) {
+      // Multi-alias merge: <<: [*a, *b, ...]
+      // Earlier entries in the sequence have higher priority (first wins).
+      auto mergedBase = Node::make<Dictionary>();
+      auto &mergedDict = NRef<Dictionary>(mergedBase);
+      for (auto &element : NRef<Array>(overrideValue).value()) {
+        if (!isA<Dictionary>(element)) {
+          throw SyntaxError(
+              "Merge key '<<' sequence must contain only mappings.");
+        }
+        for (auto &entry : NRef<Dictionary>(element).value()) {
+          const std::string key{entry.getKey()};
+          if (!mergedDict.contains(key)) {
+            mergedDict.add(DictionaryEntry(key, entry.getNode()));
+          }
+        }
+      }
+      // Explicit outer keys override the merged base.
+      for (auto &entry : overrideKeys) {
+        auto overrideEntry = mergeOverrides(dictionary[entry]);
+        if (mergedDict.contains(entry)) {
+          mergedDict[entry] = std::move(overrideEntry);
+        } else {
+          mergedDict.add(DictionaryEntry(entry, overrideEntry));
+        }
+      }
+      overrideRoot = std::move(mergedBase);
     }
-    overrideRoot = std::move(overrideRoot[kOverride]);
   }
   return std::move(overrideRoot);
 }
@@ -85,6 +120,9 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
 }
 /// <summary>
 /// Parse alias on source stream and substitute alias.
+/// In flow contexts (inline arrays/dicts), the alias name is delimited by
+/// ',' or ']'/'}'.  The passed `delimiters` are merged with the fixed
+/// name-stop set so that names are correctly extracted in all contexts.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse alias.</param>
@@ -92,9 +130,17 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
 /// <returns>Alias anchor.</returns>
 Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
                                 const unsigned long indentation) {
-  source.next();
-  const std::string name{extractToNext(source, {kLineFeed, kSpace})};
-  source.next();
+  source.next();  // consume '*'
+  // Stop alias-name extraction at flow separators as well as space/linefeed.
+  Delimiters nameDelimiters{kLineFeed, kSpace, kComma, kRightSquareBracket,
+                            kRightCurlyBrace};
+  const std::string name{extractToNext(source, nameDelimiters)};
+  // Advance past trailing spaces; consume a terminating linefeed in block
+  // context only (flow terminators such as ',' or ']' must not be consumed).
+  source.ignoreWS();
+  if (source.more() && source.current() == kLineFeed) {
+    source.next();
+  }
   if (!yamlAliasMap.count(name)) {
     throw SyntaxError(source.getPosition(), "Undefined alias '" + name + "'.");
   }

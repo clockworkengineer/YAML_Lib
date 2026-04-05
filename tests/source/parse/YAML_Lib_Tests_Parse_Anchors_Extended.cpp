@@ -4,6 +4,110 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
           "[YAML][Parse][Anchors]") {
   const YAML yaml;
 
+  // ---- Multi-alias merge key: <<: [*a, *b] ----
+
+  SECTION("YAML <<: [*a, *b] merges both aliases into one mapping.",
+          "[YAML][Parse][Anchors][MultiMerge]") {
+    BufferSource source{"---\n"
+                        "base: &base\n"
+                        "  x: 1\n"
+                        "  y: 2\n"
+                        "ext: &ext\n"
+                        "  z: 3\n"
+                        "combined:\n"
+                        "  <<: [*base, *ext]\n"
+                        "  w: 4\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)["combined"]));
+    REQUIRE(NRef<Number>(yaml.document(0)["combined"]["x"]).value<int>() == 1);
+    REQUIRE(NRef<Number>(yaml.document(0)["combined"]["y"]).value<int>() == 2);
+    REQUIRE(NRef<Number>(yaml.document(0)["combined"]["z"]).value<int>() == 3);
+    REQUIRE(NRef<Number>(yaml.document(0)["combined"]["w"]).value<int>() == 4);
+  }
+
+  SECTION("YAML <<: [*a, *b] first alias has priority on conflicting keys.",
+          "[YAML][Parse][Anchors][MultiMerge]") {
+    BufferSource source{"---\n"
+                        "a: &a\n"
+                        "  color: red\n"
+                        "  size: large\n"
+                        "b: &b\n"
+                        "  color: blue\n"
+                        "  weight: heavy\n"
+                        "merged:\n"
+                        "  <<: [*a, *b]\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    // *a's color: red takes priority over *b's color: blue
+    REQUIRE(NRef<String>(yaml.document(0)["merged"]["color"]).value() == "red");
+    REQUIRE(NRef<String>(yaml.document(0)["merged"]["size"]).value() ==
+            "large");
+    REQUIRE(NRef<String>(yaml.document(0)["merged"]["weight"]).value() ==
+            "heavy");
+  }
+
+  SECTION("YAML <<: [*a, *b] explicit local keys override all merged keys.",
+          "[YAML][Parse][Anchors][MultiMerge]") {
+    BufferSource source{"---\n"
+                        "a: &a\n"
+                        "  x: 10\n"
+                        "b: &b\n"
+                        "  x: 20\n"
+                        "  y: 30\n"
+                        "result:\n"
+                        "  <<: [*a, *b]\n"
+                        "  x: 99\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    // Local x: 99 overrides both *a's x: 10 and *b's x: 20
+    REQUIRE(NRef<Number>(yaml.document(0)["result"]["x"]).value<int>() == 99);
+    REQUIRE(NRef<Number>(yaml.document(0)["result"]["y"]).value<int>() == 30);
+  }
+
+  // ---- Nested anchors (inner anchor accessible via its own alias) ----
+
+  SECTION("YAML inner anchor defined inside outer anchor is accessible.",
+          "[YAML][Parse][Anchors][Nested]") {
+    BufferSource source{"---\n"
+                        "outer: &outer\n"
+                        "  inner: &inner\n"
+                        "    value: 42\n"
+                        "copy_inner: *inner\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)["copy_inner"]));
+    REQUIRE(
+        NRef<Number>(yaml.document(0)["copy_inner"]["value"]).value<int>() ==
+        42);
+  }
+
+  SECTION("YAML anchor of a sequence resolves to array node.",
+          "[YAML][Parse][Anchors][Sequence]") {
+    BufferSource source{"---\n"
+                        "items: &items\n"
+                        "  - one\n"
+                        "  - two\n"
+                        "  - three\n"
+                        "copy: *items\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)["copy"]));
+    REQUIRE(NRef<Array>(yaml.document(0)["copy"]).size() == 3);
+    REQUIRE(NRef<String>(yaml.document(0)["copy"][0]).value() == "one");
+    REQUIRE(NRef<String>(yaml.document(0)["copy"][2]).value() == "three");
+  }
+
+  SECTION("YAML alias used multiple times creates independent copies.",
+          "[YAML][Parse][Anchors][Reuse]") {
+    BufferSource source{"---\n"
+                        "template: &tmpl\n"
+                        "  x: 1\n"
+                        "  y: 2\n"
+                        "first: *tmpl\n"
+                        "second: *tmpl\n"
+                        "third: *tmpl\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(NRef<Number>(yaml.document(0)["first"]["x"]).value<int>() == 1);
+    REQUIRE(NRef<Number>(yaml.document(0)["second"]["y"]).value<int>() == 2);
+    REQUIRE(NRef<Number>(yaml.document(0)["third"]["x"]).value<int>() == 1);
+  }
+
   // ---- Undefined alias error handling ----
 
   SECTION("YAML parse undefined alias throws SyntaxError.",

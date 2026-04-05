@@ -27,8 +27,11 @@ struct Boolean final : Variant {
     return yNodeBoolean ? "true" : "false";
   }
   // Valid values for true/false
-  inline static const std::set<std::string_view> isTrue{"True", "On", "Yes"};
-  inline static const std::set<std::string_view> isFalse{"False", "Off", "No"};
+  // YAML 1.1 capitalised forms and YAML 1.2 lowercase canonical forms.
+  inline static const std::set<std::string_view> isTrue{"True", "On", "Yes",
+                                                          "true", "yes", "on"};
+  inline static const std::set<std::string_view> isFalse{"False", "Off", "No",
+                                                           "false", "no", "off"};
 
 private:
   bool yNodeBoolean{};

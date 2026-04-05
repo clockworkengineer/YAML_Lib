@@ -83,7 +83,10 @@ bool Default_Parser::isArray(ISource &source) {
 /// <returns>If true, a boolean value has been found.</returns>
 bool Default_Parser::isBoolean(const ISource &source) {
   const auto ch = source.current();
-  return ch == 'T' || ch == 'F' || ch == 'O' || ch == 'Y' || ch == 'N';
+  // Uppercase (YAML 1.1): True/False/On/Off/Yes/No
+  // Lowercase (YAML 1.2): true/false + 1.1-compat: yes/no/on/off
+  return ch == 'T' || ch == 'F' || ch == 'O' || ch == 'Y' || ch == 'N' ||
+         ch == 't' || ch == 'f' || ch == 'y' || ch == 'n' || ch == 'o';
 }
 /// <summary>
 /// Has a quoted string been found in the source stream?
@@ -101,7 +104,8 @@ bool Default_Parser::isQuotedString(const ISource &source) {
 /// <returns>If true, then a number has been found.</returns>
 bool Default_Parser::isNumber(const ISource &source) {
   const auto ch = source.current();
-  return (ch >= '0' && ch <= '9') || ch == '-' || ch == '+';
+  // Include '.' to catch YAML 1.2 special floats: .inf, .nan
+  return (ch >= '0' && ch <= '9') || ch == '-' || ch == '+' || ch == '.';
 }
 /// <summary>
 /// Has a possible null value been found on the input stream?

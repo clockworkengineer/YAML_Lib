@@ -32,12 +32,12 @@
 
 ## Concrete Action Plan
 1. **Anchors & Aliases:**
-   - Expand support for nested and recursive anchors/aliases
-   - Implement merge key (`<<`) edge cases and spec-compliant behavior
+   - ~~Expand support for nested and recursive anchors/aliases~~ — done ✅
+   - ~~Implement merge key (`<<`) edge cases and spec-compliant behavior~~ — done ✅ (multi-merge `<<: [*a, *b]` with correct priority; `parseAlias` fixed for inline array/dict context)
    - ~~Undefined alias throws `SyntaxError`~~ — done ✅
 2. **Tags & Directives:** ✅ **(implemented)**
    - ~~Add parsing for `%YAML` and `%TAG` directives~~ — done
-   - ~~Support custom and standard tags, including type resolution~~ — done (`!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, `!!seq`, `!!map`, `!custom`, `!<verbatim>`)
+   - ~~Support custom and standard tags, including type resolution~~ — done (`!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, `!!seq`, `!!map`, `!custom`, `!<verbatim>`); now also supports coercion from quoted strings (e.g. `!!int "99"`, `!!bool "yes"`) ✅
    - Remaining: multi-handle `%TAG` expansion chaining, core-schema binary/timestamp tags
 3. **Collections:**
    - Improve handling of deeply nested flow/block collections
@@ -46,8 +46,12 @@
    - ~~Implement parsing for timestamps~~ — done (`Timestamp` variant, ISO 8601, `!!timestamp` tag)
    - ~~`!!binary` tag~~ — done (preserves raw base64 string)
    - ~~Enhance Unicode/escape sequence handling~~ — done (all YAML 1.2 escapes)
+   - ~~Lowercase booleans (`true`/`false`/`yes`/`no`/`on`/`off`)~~ — done ✅
+   - ~~YAML 1.2 octal prefix `0o`~~ — done ✅ (`0o17` → 15)
+   - ~~Special floats (`.inf`, `+.inf`, `-.inf`, `.nan`)~~ — done ✅ (uses `std::numeric_limits<double>`)
 5. **Error Handling:**
    - ~~Undefined alias detection~~ — done ✅
+   - ~~Tab character in block indentation throws `SyntaxError`~~ — done ✅
    - Refine syntax error reporting for more precise diagnostics
    - Add recovery strategies for common YAML mistakes
 6. **Spec Compliance:**
