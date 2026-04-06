@@ -5,13 +5,13 @@ namespace YAML_Lib {
 // =========================
 // YAML forward declarations
 // =========================
-  class IStringify;
-  class IParser;
-  class ISource;
-  class IDestination;
-  class IAction;
-  class YAML_Impl;
-  struct Node;
+class IStringify;
+class IParser;
+class ISource;
+class IDestination;
+class IAction;
+class YAML_Impl;
+struct Node;
 
 // ========================
 // YAML character constants
@@ -94,10 +94,13 @@ public:
   const Node &operator[](std::size_t index) const;
   // Read/write YAML file
   static std::string fromFile(const std::string_view &yamlFileName);
-  static void toFile(const std::string_view &fileName, const std::string_view &yamlString,
+  static void toFile(const std::string_view &fileName,
+                     const std::string_view &yamlString,
                      Format format = Format::utf8);
   // Get YAML file format
   static Format getFileFormat(const std::string_view &fileName);
+  // Enable/disable strict YAML 1.2 boolean parsing (only true/false valid)
+  static void setStrictBooleans(bool strict);
 
 private:
   // YAML implementation

@@ -107,7 +107,7 @@ Applies to `float`, `double`, and `long double` (all covered by `if constexpr (s
 
 ---
 
-### 3.4 🟡 MEDIUM — YAML 1.1 boolean forms accepted unconditionally
+### 3.4 ✅ FIXED — YAML 1.1 boolean forms accepted unconditionally
 
 **Location:** `classes/include/implementation/variants/YAML_Boolean.hpp`, `isTrue`/`isFalse` sets  
 **Problem:**  
@@ -115,7 +115,8 @@ YAML 1.2 core schema defines exactly two boolean literals: `true` and `false` (l
 **Impact:** Strings that are meant to be plain scalars (e.g. config keys `on`, `off`, `yes`, `no`) silently become boolean nodes in YAML 1.2 documents. This is one of the most common real-world YAML bugs and has broken many projects.  
 **Fix (option A — strict mode flag):** Add a `bool strictBooleans` option (default `false` for backward compat). When `true`, or when `%YAML 1.2` is declared, only `true`/`false` are accepted.  
 **Fix (option B — version-driven):** When `yamlDirectiveMinor >= 2`, strip YAML 1.1 forms from `isTrue`/`isFalse` during parsing. Reset on each new document stream.  
-Option B is more spec-correct; option A is more practical and non-breaking.
+Option B is more spec-correct; option A is more practical and non-breaking.  
+**Resolution:** Implemented option A. `Default_Parser::strictBooleans` flag (default `false`) added. `YAML::setStrictBooleans(bool)` exposed on public API. `isBoolean` and `parseBoolean` both check the flag; when set, only `"true"`/`"false"` are recognised. Existing YAML 1.1-style tests continue to pass; 12 new strict-mode test sections added.
 
 ---
 
@@ -299,7 +300,7 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 
 ---
 
-### P6 — Strict YAML 1.2 boolean option
+### P6 ✅ DONE — Strict YAML 1.2 boolean option
 **Files:** `classes/include/implementation/variants/YAML_Boolean.hpp`, `classes/source/implementation/parser/YAML_Parser_Scalar.cpp`, `classes/include/implementation/parser/Default_Parser.hpp`  
 **Task:**  
 1. Add a `static bool strictBooleans` flag to `Default_Parser` (default `false`).  
@@ -307,7 +308,8 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 3. In `parseBoolean`, when `strictBooleans || yamlDirectiveMinor >= 2`, use a reduced set containing only `"true"` and `"false"` (both lowercase).  
 4. Document that the default is backward-compatible (permissive).  
 **Test:** Document with `%YAML 1.2` and value `yes` is parsed as a plain string, not a boolean. Without `%YAML` directive the same document parses `yes` as a boolean.  
-**Acceptance:** New tests pass without breaking existing tests.
+**Acceptance:** New tests pass without breaking existing tests.  
+**Resolution:** `strictBooleans` flag implemented; 2367 assertions pass (53 test cases).
 
 ---
 

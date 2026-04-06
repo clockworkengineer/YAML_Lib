@@ -23,6 +23,8 @@ public:
 
   // Alias Map
   inline static std::map<std::string, std::string> yamlAliasMap{};
+  // Enable/disable strict YAML 1.2 boolean mode (only 'true'/'false' valid)
+  static void setStrictBooleans(const bool strict) { strictBooleans = strict; }
 
 private:
   // YAML parser
@@ -151,6 +153,9 @@ private:
   inline static long inlineDictionaryDepth{0};
   // YAML directive version (minor)
   inline static int yamlDirectiveMinor{2};
+  // Strict YAML 1.2 boolean mode — only 'true'/'false' accepted (default: false
+  // for backward compat)
+  inline static bool strictBooleans{false};
   // TAG directive prefix map: handle -> prefix URI
   inline static std::map<std::string, std::string> yamlTagPrefixes{};
   // Translator

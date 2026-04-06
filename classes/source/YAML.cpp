@@ -130,7 +130,9 @@ const Node &YAML::operator[](const std::size_t index) const {
 /// </summary>
 /// <param name="yamlFileName">YAML file name</param>
 /// <returns>YAML string.</returns>
-std::string YAML::fromFile(const std::string_view &yamlFileName) { return YAML_Impl::fromFile(yamlFileName); }
+std::string YAML::fromFile(const std::string_view &yamlFileName) {
+  return YAML_Impl::fromFile(yamlFileName);
+}
 
 /// <summary>
 /// Create an YAML file and write YAML string to it.
@@ -138,14 +140,26 @@ std::string YAML::fromFile(const std::string_view &yamlFileName) { return YAML_I
 /// <param name="fileName">YAML file name</param>
 /// <param name="yamlString">YAML string</param>
 /// <param name="format">YAML file format</param>
-void YAML::toFile(const std::string_view &fileName, const std::string_view &yamlString, const Format format)
-{
-    YAML_Impl::toFile(fileName, yamlString, format);
+void YAML::toFile(const std::string_view &fileName,
+                  const std::string_view &yamlString, const Format format) {
+  YAML_Impl::toFile(fileName, yamlString, format);
 }
 /// <summary>
 /// Return format of YAML file.
 /// </summary>
 /// <param name="fileName">YAML file name</param>
 /// <returns>YAML file format.</returns>
-YAML::Format YAML::getFileFormat(const std::string_view &fileName) { return YAML_Impl::getFileFormat(fileName); }
+YAML::Format YAML::getFileFormat(const std::string_view &fileName) {
+  return YAML_Impl::getFileFormat(fileName);
+}
+/// <summary>
+/// Enable or disable strict YAML 1.2 boolean parsing.
+/// When strict, only 'true' and 'false' are recognised as booleans;
+/// YAML 1.1 forms (yes/no/on/off and their variants) are treated as strings.
+/// </summary>
+/// <param name="strict">True to enable strict booleans, false to restore
+/// permissive YAML 1.1 behaviour.</param>
+void YAML::setStrictBooleans(const bool strict) {
+  Default_Parser::setStrictBooleans(strict);
+}
 } // namespace YAML_Lib

@@ -83,8 +83,11 @@ bool Default_Parser::isArray(ISource &source) {
 /// <returns>If true, a boolean value has been found.</returns>
 bool Default_Parser::isBoolean(const ISource &source) {
   const auto ch = source.current();
-  // Uppercase (YAML 1.1): True/False/On/Off/Yes/No
-  // Lowercase (YAML 1.2): true/false + 1.1-compat: yes/no/on/off
+  if (strictBooleans) {
+    // YAML 1.2 strict: only 'true' and 'false'
+    return ch == 't' || ch == 'f';
+  }
+  // YAML 1.1 permissive: True/False/On/Off/Yes/No (all cases)
   return ch == 'T' || ch == 'F' || ch == 'O' || ch == 'Y' || ch == 'N' ||
          ch == 't' || ch == 'f' || ch == 'y' || ch == 'n' || ch == 'o';
 }

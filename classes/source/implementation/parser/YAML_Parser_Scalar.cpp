@@ -106,13 +106,17 @@ Node Default_Parser::parseNone(ISource &source, const Delimiters &delimiters,
 /// <returns>Boolean Node.</returns>
 Node Default_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
                                   [[maybe_unused]] unsigned long indentation) {
+  static const std::set<std::string_view> strict12True{"true"};
+  static const std::set<std::string_view> strict12False{"false"};
   Node booleanNode;
   source.save();
   std::string boolean{extractToNext(source, delimiters)};
   rightTrim(boolean);
-  if (Boolean::isTrue.contains(boolean)) {
+  const auto &trueSet = strictBooleans ? strict12True : Boolean::isTrue;
+  const auto &falseSet = strictBooleans ? strict12False : Boolean::isFalse;
+  if (trueSet.contains(boolean)) {
     booleanNode = Node::make<Boolean>(true, boolean);
-  } else if (Boolean::isFalse.contains(boolean)) {
+  } else if (falseSet.contains(boolean)) {
     booleanNode = Node::make<Boolean>(false, boolean);
   }
   if (booleanNode.isEmpty()) {
