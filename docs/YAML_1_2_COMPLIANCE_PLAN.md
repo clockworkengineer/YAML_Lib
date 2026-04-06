@@ -203,16 +203,16 @@ YAML 1.2 spec (§9.2) says at most one `%YAML` directive may appear per document
 
 ---
 
-### 3.12 🟢 LOW — Flow scalar line folding does not strip trailing whitespace before newline
+### 3.12 ~~🟢 LOW — Flow scalar line folding does not strip trailing whitespace before newline~~ ✅ FIXED (2026-04-06)
 
-**Location:** `YAML_Parser_FlowString.cpp`, `appendCharacterToString()`  
+**Location:** `YAML_Parser_FlowString.cpp`, `appendCharacterToString()`, `parsePlainFlowString()`  
 **Problem:**  
-YAML spec §7.3.1 says trailing whitespace before a line break in a flow scalar must be stripped. The `appendCharacterToString` helper replaces `\n` with a space but does not first trim trailing spaces from the already-accumulated buffer at that position.  
-```yaml
-"hello   \nworld"   # trailing spaces before \n should be stripped
-```
-Should parse as `"hello world"` but may parse as `"hello   world"`.  
-**Fix:** Before appending the space (for the line-fold), right-trim any trailing spaces that were appended for the current line.
+YAML spec §7.3.1 / §6.5 says trailing whitespace before a line break in a flow scalar must be stripped. The `appendCharacterToString` helper replaced `\n` with a space but did not first trim trailing spaces/tabs from the already-accumulated buffer. Additionally `parsePlainFlowString` extracted the first line including trailing whitespace before adding the fold-space.  
+**Fix applied:**  
+- `appendCharacterToString`: before appending either the fold-space (non-empty continuation line) or the line-break character (empty-line path), all trailing `space` and `tab` characters are stripped from `yamlString` with a `while`-pop loop.  
+- `parsePlainFlowString`: changed the first-line extraction from `extractToNext(...) + kSpace` to `extractToNext(...)` → `rightTrim(...)` → `+= kSpace`, so trailing whitespace on the first line is stripped before the fold-space is added.  
+- `YAML_Lib_Tests_Parse_String.cpp`: added four new `[LineFold]` sections covering double-quoted, single-quoted, plain scalars with trailing spaces, and double-quoted with trailing tab.  
+**Verification:** All 2270 test assertions pass.
 
 ---
 
@@ -345,11 +345,13 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 
 ---
 
-### P10 — Fix flow scalar line folding (strip trailing whitespace before newline)
-**Files:** `classes/source/implementation/parser/YAML_Parser_FlowString.cpp`, `appendCharacterToString()`  
-**Task:** Before recording the fold-space, right-trim trailing spaces from `yamlString` that were accumulated for the current line segment.  
-**Test:** `"hello   \nworld"` parses as `"hello world"`.  
-**Acceptance:** New test passes without breaking existing string tests.
+### ~~P10 — Fix flow scalar line folding (strip trailing whitespace before newline)~~ ✅ DONE (2026-04-06)
+**Files:** `classes/source/implementation/parser/YAML_Parser_FlowString.cpp`  
+**Changes applied:**
+- `appendCharacterToString()`: trim trailing space/tab from `yamlString` before appending fold-space or empty-line newline.
+- `parsePlainFlowString()`: `rightTrim` the first-line `extractToNext` result before `+= kSpace` in multi-line branch.
+- `YAML_Lib_Tests_Parse_String.cpp`: 4 new `[LineFold]` tests.
+**Verification:** All 2270 test assertions pass.
 
 ---
 
@@ -401,7 +403,7 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 | 4 | P2 | Block scalar explicit indent | 🔴 HIGH | Medium |
 | 5 | P5 | Plain scalar `#` comment rule | 🟡 MEDIUM | Medium |
 | 6 | P9 | Single-quoted `''` in `extractString` | 🟡 MEDIUM | Low |
-| 7 | P10 | Flow scalar trailing-space fold | 🟡 MEDIUM | Low |
+| 7 | ~~P10~~ | ~~Flow scalar trailing-space fold~~ | ✅ DONE | — |
 | 8 | P6 | Strict boolean mode | 🟡 MEDIUM | Medium |
 | 9 | P7 | Version-directive schema switch | 🟡 MEDIUM | Medium (depends on P1, P6) |
 | 10 | P11 | Tag preservation in stringify | 🟡 MEDIUM | Medium–High |

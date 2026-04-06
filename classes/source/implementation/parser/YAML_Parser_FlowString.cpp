@@ -13,6 +13,9 @@ namespace YAML_Lib {
 
 /// <summary>
 /// Append character to YAML string performing any necessary newline folding.
+/// YAML 1.2 §6.5 / §7.3.3: trailing white space (space or tab) on a source
+/// line before a raw line break is excluded from the content.  Strip it before
+/// appending a fold-space or an empty-line break character.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="yamlString">YAML string appended too.</param>
@@ -21,6 +24,11 @@ void Default_Parser::appendCharacterToString(ISource &source,
   if (source.current() == kLineFeed) {
     source.next();
     source.ignoreWS();
+    // Strip trailing whitespace from the current line before folding.
+    while (!yamlString.empty() &&
+           (yamlString.back() == kSpace || yamlString.back() == '\t')) {
+      yamlString.pop_back();
+    }
     if (source.current() == kLineFeed) {
       yamlString += source.append();
       source.ignoreWS();
@@ -41,10 +49,16 @@ void Default_Parser::appendCharacterToString(ISource &source,
 Node Default_Parser::parsePlainFlowString(ISource &source,
                                           const Delimiters &delimiters,
                                           const unsigned long indentation) {
-  std::string yamlString{extractToNext(source, delimiters) + kSpace};
+  // Extract the first-line content.  For single-line scalars rightTrim strips
+  // all trailing whitespace + the sentinel space.  For multi-line scalars we
+  // must strip trailing whitespace from the first line BEFORE adding the
+  // fold-space, so that "hello   \nworld" → "hello world" (YAML 1.2 §6.5).
+  std::string yamlString{extractToNext(source, delimiters)};
   if (source.current() != kLineFeed) {
     rightTrim(yamlString);
   } else {
+    rightTrim(yamlString);   // strip trailing whitespace before fold
+    yamlString += kSpace;    // fold first-line break to a single space
     moveToNextIndent(source);
     while (source.more() && indentation < source.getPosition().second) {
       // Stop at document markers (--- or ...) at the start of a line.

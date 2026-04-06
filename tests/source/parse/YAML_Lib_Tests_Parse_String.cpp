@@ -360,4 +360,49 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "Mark McGwire's year was crippled by a knee injury.");
     REQUIRE(NRef<String>(yaml.document(0)["test2"]).value() == "Mark Twain");
   }
+
+  // ---- YAML 1.2 §6.5 / §7.3.3 — trailing whitespace stripped before fold ---
+
+  SECTION("YAML 1.2: double-quoted scalar strips trailing spaces before raw "
+          "newline (line fold).",
+          "[YAML][Parse][Scalar][String][LineFold]") {
+    // Source contains actual spaces + real newline (not \n escape sequence).
+    // Trailing spaces before the line break must be stripped; the newline
+    // folds to a single space.
+    BufferSource source{"\"hello   \nworld\""};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "hello world");
+  }
+
+  SECTION("YAML 1.2: single-quoted scalar strips trailing spaces before raw "
+          "newline (line fold).",
+          "[YAML][Parse][Scalar][String][LineFold]") {
+    BufferSource source{"'hello   \nworld'"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "hello world");
+  }
+
+  SECTION("YAML 1.2: plain scalar strips trailing spaces before raw newline "
+          "(line fold).",
+          "[YAML][Parse][Scalar][String][LineFold]") {
+    // Plain scalar as a mapping value; continuation line has trailing spaces
+    // stripped before the fold.
+    BufferSource source{"key: hello   \n  world\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)["key"]).value() == "hello world");
+  }
+
+  SECTION("YAML 1.2: trailing tab before raw newline stripped in double-quoted "
+          "scalar.",
+          "[YAML][Parse][Scalar][String][LineFold]") {
+    // A tab character immediately before the line break should also be
+    // stripped per YAML 1.2 §6.5 (s-white = space | tab).
+    BufferSource source{"\"hello\t\nworld\""};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "hello world");
+  }
 }
