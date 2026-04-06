@@ -147,7 +147,7 @@ Also: comments, folded-block-string markers (`>`), timestamps, and custom tags a
 
 ---
 
-### 3.7 🟡 MEDIUM — Block scalar folded (`>`) stringified as literal (`|`)
+### 3.7 ✅ FIXED — Block scalar folded (`>`) stringified as literal (`|`)
 
 **Location:** `Default_Stringify.hpp`, `stringifyAnyBlockStyle()`  
 **Problem:**  
@@ -159,7 +159,8 @@ static void stringifyAnyBlockStyle(IDestination &destination, const Node &yNode)
 ```
 The `>` (folded) block style is always output as `|` (literal). This change in semantics alters the round-trip representation.  
 **Impact:** Folded block strings become literal block strings after one stringify cycle.  
-**Fix:** Emit `destination.add(std::string(1, quote));` (use the actual quote character) instead of the hard-coded `"|"`.
+**Fix:** Emit `destination.add(std::string(1, quote));` (use the actual quote character) instead of the hard-coded `"|"`.  
+**Resolution:** Changed `destination.add("|")` to `destination.add(std::string(1, quote))` in `stringifyAnyBlockStyle()`. Updated two previously incorrect test expectations (both expected `>` to become `|`). Added a dedicated `[BlockScalar]` TEST_CASE with 3 sections: folded emits `>`, literal emits `|`, and a full round-trip value preservation check. All 2439 assertions pass (56 test cases).
 
 ---
 

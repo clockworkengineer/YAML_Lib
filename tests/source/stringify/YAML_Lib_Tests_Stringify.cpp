@@ -116,7 +116,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
         "Batting Average"};
     REQUIRE_NOTHROW(yaml.parse(source));
     compareYAML(
-        yaml, "---\nname: Mark McGwire\naccomplishment: |\n  Mark set a major "
+        yaml, "---\nname: Mark McGwire\naccomplishment: >\n  Mark set a major "
               "league home run record in 1998.\nstats: |\n  65 Home Runs\n  "
               "0.278 Batting Average\n...\n");
   }
@@ -149,7 +149,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     compareYAML(
         yaml,
-        "---|\nSammy Sosa completed another fine season with great stats.\n\n "
+        "--->\nSammy Sosa completed another fine season with great stats.\n\n "
         "  63 Home Runs\n   0.288 Batting Average\n\nWhat a year!\n...\n");
   }
   SECTION("YAML stringify various quoted scalars",
@@ -379,5 +379,41 @@ TEST_CASE("Check YAML stringify preserves explicit tags (gap 3.6).",
     REQUIRE_NOTHROW(yaml.stringify(dest));
     REQUIRE(dest.toString().find("!!timestamp 2001-07-08") !=
             std::string::npos);
+  }
+}
+
+TEST_CASE("Check YAML stringify emits correct block scalar style (gap 3.7).",
+          "[YAML][Stringify][BlockScalar]") {
+  const YAML yaml;
+
+  SECTION("Folded block string (>) stringifies as '>'.",
+          "[YAML][Stringify][BlockScalar][Folded]") {
+    BufferSource source{"---\ntext: >\n  hello world\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    REQUIRE(dest.toString().find("text: >") != std::string::npos);
+  }
+
+  SECTION("Literal block string (|) stringifies as '|'.",
+          "[YAML][Stringify][BlockScalar][Literal]") {
+    BufferSource source{"---\ntext: |\n  hello\n  world\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    REQUIRE(dest.toString().find("text: |") != std::string::npos);
+  }
+
+  SECTION("Folded block round-trip preserves string value.",
+          "[YAML][Stringify][BlockScalar][RoundTrip]") {
+    BufferSource source{"---\ntext: >\n  first line\n  second line\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    const auto originalValue = NRef<String>(yaml.document(0)["text"]).value();
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    const YAML yaml2;
+    BufferSource reparsed{dest.toString()};
+    REQUIRE_NOTHROW(yaml2.parse(reparsed));
+    REQUIRE(NRef<String>(yaml2.document(0)["text"]).value() == originalValue);
   }
 }

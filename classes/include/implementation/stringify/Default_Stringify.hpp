@@ -81,7 +81,7 @@ private:
         if (!tag.empty()) {
           destination.add(tag + " ");
         }
-        destination.add("|");
+        destination.add(std::string(1, quote));
         destination.add(kLineFeed);
       }
     }
