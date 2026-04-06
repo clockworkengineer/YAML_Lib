@@ -164,13 +164,15 @@ The `>` (folded) block style is always output as `|` (literal). This change in s
 
 ---
 
-### 3.8 🟡 MEDIUM — yaml-test-suite coverage is too sparse (~16 of ~280 cases)
+### 3.8 ✅ FIXED — yaml-test-suite coverage is too sparse (~16 of ~351 cases)
 
 **Location:** `tests/source/parse/YAML_Lib_Tests_Parse_YamlTestSuite.cpp`  
 **Problem:**  
-The yaml-test-suite ships with the repository (`tests/yaml-test-suite/yaml-test-suite/src/`, ~280 `.yaml` files) but only ~16 cases are exercised in the integration test. Many important spec-coverage areas are not tested at all (flow indicator rules, complex block structures, character set validation, spec examples from every chapter).  
+The yaml-test-suite ships with the repository (`tests/yaml-test-suite/yaml-test-suite/src/`, 351 `.yaml` files) but only ~16 cases were exercised in the integration test. Many important spec-coverage areas were not tested at all (flow indicator rules, complex block structures, character set validation, spec examples from every chapter).  
 **Impact:** Unknown failures in untested cases; no regression guard for new parser changes.  
-**Fix:** Expand the test file to run all (or at least all *valid*) test suite cases programmatically, reading expected output from the `.yaml` files' `out:` field and comparing against the library's parse result.
+**Fix:** Expanded the test file to run all 351 suite cases programmatically via a `[Sweep]` TEST_CASE. Added `YAML_SUITE_SRC_DIR` compile definition (via `tests/CMakeLists.txt`), `extractYamlField()` and `isFail()` helpers, and a loop using `CHECK_NOTHROW`/`CHECK_THROWS` so failures are reported per-file rather than aborting the suite.  
+**Resolution:** All 351 test-suite files now run without crashing. Fixed a critical `parseAnchor` bug: the old `do-while` loop spun infinitely at EOF (OOM crash triggered by anchor-as-mapping-key inputs like `2SXE`); fixed to `while(source.more() && ...)`. Fixed a second `parseAnchor` bug: anchors with empty (null) values at sibling-key indentation level now correctly resolve to null instead of consuming the next sibling key (which caused infinite recursion / stack overflow for `6KGN`). 109 of 351 files fail — these are known parser limitations (65 over-strict rejections, 44 under-strict acceptances) and serve as a regression baseline. All 3143 assertions pass in the 56 pre-existing test cases.  
+**Known failing suite IDs (109):** 26DV, 2EBW, 2G84, 2JQS, 2SXE, 3HFZ, 4EJS, 4JVG, 4Q9F, 4RWC, 55WF, 565N, 5GBF, 5LLU, 5TRB, 5U3A, 5WE3, 6BCT, 6BFJ, 6FWR, 6HB6, 6PBE, 753E, 7BMT, 7FWL, 7LBH, 7TMG, 7W2P, 7ZZ5, 8UDB, 8XDJ, 93WF, 9C9N, 9JBA, 9KBC, 9MMA, 9MMW, AZ63, B3HG, B63P, BF9H, CN3R, CQ3W, CT4Q, CVW2, CXX2, D49Q, DC7X, F2C7, FH7J, G5U8, G992, GDY7, H2RW, H7TQ, HMQ5, HRE5, J3BT, JKF3, JTV5, JY7Z, K3WX, K527, KK5P, L24T, LHL4, LP6E, M29M, M9B4, MJS9, MUS6, MYW6, NHX8, NKF9, NP9H, P76L, P94K, Q4CL, Q8AD, QB6E, QF4Y, QLJ7, RLU9, RXY3, RZP5, S3PD, S4GJ, S98Z, S9E8, SF5V, SKE5, SR86, SU5Z, SU74, SY6V, T5N4, TS54, U3XV, U99R, W5VH, W9L4, X38W, X4QW, XV9V, XW4D, Y79Y, YJV2, ZK9H, ZWK4
 
 ---
 

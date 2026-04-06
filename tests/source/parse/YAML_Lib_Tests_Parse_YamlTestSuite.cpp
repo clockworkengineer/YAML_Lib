@@ -1,5 +1,12 @@
 #include "YAML_Lib_Tests.hpp"
 
+#include <algorithm>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+
 // ============================================================================
 // YAML test-suite integration
 // ============================================================================
@@ -8,6 +15,51 @@
 // raw YAML drawn directly from the suite file plus the expected outcome
 // (REQUIRE_NOTHROW for valid YAML, REQUIRE_THROWS for fail:true cases).
 // ============================================================================
+
+// ---------------------------------------------------------------------------
+// Helpers used by the programmatic sweep test (gap 3.8)
+// ---------------------------------------------------------------------------
+namespace {
+
+/// Read the content of the 'yaml: |' block literal field from a test-suite
+/// metadata file.  The suite files use 4-space indentation for the block
+/// content ("  yaml: |" header at column 0+2, content at column 0+4).
+std::string extractYamlField(const std::string &fileContent) {
+  std::istringstream ss(fileContent);
+  std::string line;
+  bool inBlock = false;
+  std::string result;
+  constexpr std::size_t blockIndent = 4;
+  while (std::getline(ss, line)) {
+    // Normalise CRLF
+    if (!line.empty() && line.back() == '\r') {
+      line.pop_back();
+    }
+    if (!inBlock) {
+      if (line.rfind("  yaml: |", 0) == 0) {
+        inBlock = true;
+      }
+    } else {
+      // Non-blank line with fewer than blockIndent leading spaces → end of
+      // block
+      if (!line.empty() &&
+          (line.size() < blockIndent || line[blockIndent - 1] != ' ')) {
+        break;
+      }
+      result +=
+          (line.size() >= blockIndent ? line.substr(blockIndent) : "") + '\n';
+    }
+  }
+  return result;
+}
+
+/// Return true if the test-suite metadata file marks this case as
+/// expected-fail.
+bool isFail(const std::string &fileContent) {
+  return fileContent.find("  fail: true") != std::string::npos;
+}
+
+} // namespace
 
 TEST_CASE("YAML test-suite — valid documents parse without error.",
           "[YAML][TestSuite][Valid]") {
@@ -211,5 +263,67 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     BufferSource source{"- foo: bar\n"
                         " baz: bat\n"};
     REQUIRE_THROWS(yaml.parse(source));
+  }
+}
+
+// ============================================================================
+// Gap 3.8 — Programmatic sweep of ALL yaml-test-suite files
+// ============================================================================
+// Scans every .yaml file in the test-suite src directory.  For each file it
+// extracts the 'yaml:' block literal field and checks:
+//   • no 'fail: true' → CHECK_NOTHROW (valid YAML must parse)
+//   • 'fail: true'    → CHECK_THROWS  (invalid YAML must be rejected)
+//
+// CHECK (not REQUIRE) is used so the loop continues on failure, giving a
+// complete picture of which files the library currently handles.  Failures
+// here represent known remaining limitations covered by later plan items;
+// regressions appear when a previously passing file starts failing.
+// ============================================================================
+TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8).",
+          "[YAML][TestSuite][Sweep]") {
+  using namespace std::filesystem;
+  // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
+  const path suiteDir{YAML_SUITE_SRC_DIR};
+  REQUIRE(is_directory(suiteDir));
+
+  // Collect and sort all .yaml files for deterministic ordering
+  std::vector<path> testFiles;
+  for (const auto &entry : directory_iterator(suiteDir)) {
+    if (entry.path().extension() == ".yaml") {
+      testFiles.push_back(entry.path());
+    }
+  }
+  std::sort(testFiles.begin(), testFiles.end());
+  REQUIRE_FALSE(testFiles.empty());
+
+  for (const auto &fp : testFiles) {
+    // Read the entire metadata file
+    std::ifstream ifs(fp, std::ios::in | std::ios::binary);
+    REQUIRE(ifs.is_open());
+    const std::string content{std::istreambuf_iterator<char>(ifs),
+                              std::istreambuf_iterator<char>()};
+
+    const std::string yamlInput = extractYamlField(content);
+    if (yamlInput.empty()) {
+      // No 'yaml:' field found — should not occur in a well-formed suite file
+      WARN("Suite file " << fp.stem().string()
+                         << ": no 'yaml:' field — skipped.");
+      continue;
+    }
+
+    const bool expectFail = isFail(content);
+    const std::string id = fp.stem().string();
+
+    const YAML yaml;
+    BufferSource source{yamlInput};
+
+    INFO("Suite: " << id << (expectFail ? " [expect-fail]" : " [expect-pass]"));
+    INFO("Input:\n" << yamlInput);
+
+    if (expectFail) {
+      CHECK_THROWS(yaml.parse(source));
+    } else {
+      CHECK_NOTHROW(yaml.parse(source));
+    }
   }
 }

@@ -90,6 +90,9 @@ target_include_directories(${TEST_EXECUTABLE} PRIVATE
 )
 target_link_libraries(${TEST_EXECUTABLE} ${YAML_LIBRARY_NAME} Catch2::Catch2WithMain)
 target_precompile_headers(${TEST_EXECUTABLE} REUSE_FROM YAML_Lib)
+target_compile_definitions(${TEST_EXECUTABLE} PRIVATE
+  YAML_SUITE_SRC_DIR="${CMAKE_SOURCE_DIR}/tests/yaml-test-suite/yaml-test-suite/src"
+)
 
 add_test(NAME ${TEST_EXECUTABLE} COMMAND ${TEST_EXECUTABLE})
 

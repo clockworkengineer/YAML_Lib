@@ -108,13 +108,22 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
   } else {
     moveToNextIndent(source);
     const auto anchorIndent = source.getPosition().second;
-    do {
-      std::string indent(source.getPosition().second, kSpace);
-      unparsed += indent + extractToNext(source, {kLineFeed}) + "\n";
-      moveToNextIndent(source);
-    } while (source.getPosition().second >= anchorIndent);
+    // Only capture lines that are MORE indented than the parent (indentation).
+    // If anchorIndent <= indentation the next line is a sibling mapping key,
+    // not the anchor's value — leave source positioned there and store an
+    // empty value so the anchor resolves to null.
+    if (anchorIndent > indentation) {
+      while (source.more() && source.getPosition().second >= anchorIndent) {
+        std::string indent(source.getPosition().second, kSpace);
+        unparsed += indent + extractToNext(source, {kLineFeed}) + "\n";
+        moveToNextIndent(source);
+      }
+    }
   }
   yamlAliasMap[name] = unparsed;
+  if (unparsed.empty()) {
+    return Node::make<Null>();
+  }
   BufferSource anchor{unparsed};
   return parseDocument(anchor, delimiters, indentation);
 }
@@ -130,7 +139,7 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
 /// <returns>Alias anchor.</returns>
 Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
                                 const unsigned long indentation) {
-  source.next();  // consume '*'
+  source.next(); // consume '*'
   // Stop alias-name extraction at flow separators as well as space/linefeed.
   Delimiters nameDelimiters{kLineFeed, kSpace, kComma, kRightSquareBracket,
                             kRightCurlyBrace};
@@ -145,6 +154,9 @@ Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
     throw SyntaxError(source.getPosition(), "Undefined alias '" + name + "'.");
   }
   const std::string unparsed{yamlAliasMap[name]};
+  if (unparsed.empty()) {
+    return Node::make<Null>();
+  }
   BufferSource anchor{unparsed};
   return parseDocument(anchor, delimiters, indentation);
 }
