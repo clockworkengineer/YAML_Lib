@@ -225,4 +225,77 @@ TEST_CASE("Check YAML stringify round-trip correctness.",
     REQUIRE_NOTHROW(yaml2.parse(reparsed));
     REQUIRE(NRef<Number>(yaml2.document(0)["value"]).value<int>() == 255);
   }
+
+  // ---- Special float values (YAML 1.2 §10.3.2, gap 3.3) ----
+
+  SECTION("YAML 1.2: positive infinity stringifies to .inf",
+          "[YAML][Stringify][RoundTrip][SpecialFloat]") {
+    BufferSource source{"---\n.inf\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Number>(yaml.document(0)));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    REQUIRE(dest.toString().find(".inf") != std::string::npos);
+  }
+
+  SECTION("YAML 1.2: negative infinity stringifies to -.inf",
+          "[YAML][Stringify][RoundTrip][SpecialFloat]") {
+    BufferSource source{"---\n-.inf\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Number>(yaml.document(0)));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    REQUIRE(dest.toString().find("-.inf") != std::string::npos);
+  }
+
+  SECTION("YAML 1.2: NaN stringifies to .nan",
+          "[YAML][Stringify][RoundTrip][SpecialFloat]") {
+    BufferSource source{"---\n.nan\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Number>(yaml.document(0)));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    REQUIRE(dest.toString().find(".nan") != std::string::npos);
+  }
+
+  SECTION("YAML 1.2: positive infinity round-trip parse->stringify->parse",
+          "[YAML][Stringify][RoundTrip][SpecialFloat]") {
+    BufferSource source{"---\n.inf\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    YAML yaml2;
+    BufferSource reparsed{dest.toString()};
+    REQUIRE_NOTHROW(yaml2.parse(reparsed));
+    REQUIRE(isA<Number>(yaml2.document(0)));
+    REQUIRE(std::isinf(NRef<Number>(yaml2.document(0)).value<double>()));
+    REQUIRE(NRef<Number>(yaml2.document(0)).value<double>() > 0.0);
+  }
+
+  SECTION("YAML 1.2: negative infinity round-trip parse->stringify->parse",
+          "[YAML][Stringify][RoundTrip][SpecialFloat]") {
+    BufferSource source{"---\n-.inf\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    YAML yaml2;
+    BufferSource reparsed{dest.toString()};
+    REQUIRE_NOTHROW(yaml2.parse(reparsed));
+    REQUIRE(isA<Number>(yaml2.document(0)));
+    REQUIRE(std::isinf(NRef<Number>(yaml2.document(0)).value<double>()));
+    REQUIRE(NRef<Number>(yaml2.document(0)).value<double>() < 0.0);
+  }
+
+  SECTION("YAML 1.2: NaN round-trip parse->stringify->parse",
+          "[YAML][Stringify][RoundTrip][SpecialFloat]") {
+    BufferSource source{"---\n.nan\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    YAML yaml2;
+    BufferSource reparsed{dest.toString()};
+    REQUIRE_NOTHROW(yaml2.parse(reparsed));
+    REQUIRE(isA<Number>(yaml2.document(0)));
+    REQUIRE(std::isnan(NRef<Number>(yaml2.document(0)).value<double>()));
+  }
 }

@@ -119,6 +119,11 @@ bool Number::stringToNumber(const std::string_view &number) {
 // Number to string
 template <typename T>
 std::string Number::numberToString(const T &number) const {
+  if constexpr (std::is_floating_point_v<T>) {
+    // YAML 1.2 §10.3.2: special float values must stringify to .inf / -.inf / .nan
+    if (std::isinf(number)) { return number > T{0} ? ".inf" : "-.inf"; }
+    if (std::isnan(number)) { return ".nan"; }
+  }
   std::ostringstream os;
   if constexpr (std::is_floating_point_v<T>) {
     switch (numberNotation) {

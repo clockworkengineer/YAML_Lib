@@ -93,17 +93,17 @@ YAML 1.2 core schema defines octal **only** as `0o[0-7]+`. The legacy form `0NNN
 
 ---
 
-### 3.3 🔴 HIGH — Special float stringify is platform-non-compliant
+### 3.3 ~~🔴 HIGH — Special float stringify is platform-non-compliant~~ ✅ FIXED (2026-04-06)
 
 **Location:** `classes/include/implementation/variants/YAML_Number.hpp`, `numberToString()`  
-**Problem:**  
-Infinity and NaN are stored as `std::numeric_limits<double>::infinity()` and `quiet_NaN()`. When stringified via `std::ostringstream`, the output is platform-dependent:
-- MSVC: `1.#INF`, `-1.#INF`, `1.#QNAN`
-- GCC/Clang: `inf`, `-inf`, `nan`
-
-None of these are valid YAML 1.2 scalars. The YAML 1.2 spec mandates `.inf`, `-.inf`, `.nan`.  
-**Impact:** Round-trip and stringify output is non-YAML on all platforms; files produced by the library cannot be reparsed by any conforming YAML parser.  
-**Fix:** In `numberToString<T>`, add a pre-check for `std::isinf` and `std::isnan` before the `ostringstream` path and emit `.inf`, `-.inf`, or `.nan` directly.
+**Fix applied:**  
+Added an early-return guard at the top of the `numberToString<T>` template body: when `T` is a floating-point type, `std::isinf` and `std::isnan` are tested before the `std::ostringstream` path. Results:  
+- `+inf` → `.inf`  
+- `-inf` → `-.inf`  
+- NaN → `.nan`  
+Applies to `float`, `double`, and `long double` (all covered by `if constexpr (std::is_floating_point_v<T>)`).  
+`YAML_Lib_Tests_Stringify_RoundTrip.cpp`: 7 new `[SpecialFloat]` sections — 3 stringify-only tests (`.inf`, `-.inf`, `.nan`) and 3 full round-trip tests plus negative-infinity round-trip.  
+**Verification:** All 2319 test assertions pass.
 
 ---
 
@@ -266,17 +266,11 @@ All 2258 assertions pass.
 
 ---
 
-### P3 — Fix special-float stringify
-**Files:** `classes/include/implementation/variants/YAML_Number.hpp`, `numberToString<T>()`  
-**Task:** Before the `ostringstream` path, add:
-```cpp
-if constexpr (std::is_floating_point_v<T>) {
-    if (std::isinf(number)) { return number > 0 ? ".inf" : "-.inf"; }
-    if (std::isnan(number)) { return ".nan"; }
-}
-```
-**Test:** Add stringify tests: a node holding `+inf` stringifies to `.inf`, `-inf` to `-.inf`, `NaN` to `.nan`; and that these values are parseable by the library itself.  
-**Acceptance:** Round-trip test `parse → stringify → parse` for all three special floats succeeds.
+### ~~P3 — Fix special-float stringify~~ ✅ DONE (2026-04-06)
+**Changes applied:**
+- `YAML_Number.hpp` (`numberToString<T>`): added `if constexpr (std::is_floating_point_v<T>) { isinf → ".inf"/"-.inf"; isnan → ".nan"; }` before `ostringstream` path.
+- `YAML_Lib_Tests_Stringify_RoundTrip.cpp`: 7 new `[SpecialFloat]` tests.
+**Verification:** All 2319 assertions pass.
 
 ---
 
@@ -397,7 +391,7 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 | Priority | ID | Area | Severity | Effort |
 |----------|----|------|----------|--------|
 | 1 | P1 | C-style octal bug | ✅ DONE | — |
-| 2 | P3 | Special float stringify | 🔴 HIGH | Low (5 lines) |
+| 2 | ~~P3~~ | ~~Special float stringify~~ | ✅ DONE | — |
 | 3 | P4 | Folded block stringify | 🔴 HIGH | Very low (1-char change) |
 | 4 | ~~P2~~ | ~~Block scalar explicit indent~~ | ✅ DONE | — |
 | 5 | P5 | Plain scalar `#` comment rule | 🟡 MEDIUM | Medium |
