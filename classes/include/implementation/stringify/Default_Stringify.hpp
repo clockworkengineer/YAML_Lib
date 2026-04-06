@@ -33,6 +33,22 @@ public:
   }
 
 private:
+  /// Convert an internally-stored full tag URI back to the short YAML form
+  /// suitable for output: "tag:yaml.org,2002:str" -> "!!str",
+  /// "!mytag" -> "!mytag", arbitrary URIs -> "!<uri>".
+  static std::string tagToEmitForm(const std::string_view tag) {
+    if (tag.empty())
+      return {};
+    static constexpr std::string_view yamlOrgPrefix{"tag:yaml.org,2002:"};
+    if (tag.starts_with(yamlOrgPrefix)) {
+      return "!!" + std::string(tag.substr(yamlOrgPrefix.size()));
+    }
+    if (tag[0] == '!') {
+      return std::string(tag); // local tag (!foo) or primary tag (!<verbatim>)
+    }
+    // Fully-resolved non-yaml.org URI from a named handle expansion
+    return "!<" + std::string(tag) + ">";
+  }
   static std::vector<std::string> splitString(const std::string_view &target,
                                               const char delimiter) {
     std::vector<std::string> splitStrings;
@@ -60,6 +76,11 @@ private:
     if (isA<String>(yNode)) {
       if (const auto quote = NRef<String>(yNode).getQuote();
           quote == '>' || quote == '|') {
+        // Emit tag (if any) before the block scalar marker
+        const auto tag = tagToEmitForm(yNode.getVariant().getTag());
+        if (!tag.empty()) {
+          destination.add(tag + " ");
+        }
         destination.add("|");
         destination.add(kLineFeed);
       }
@@ -67,6 +88,21 @@ private:
   }
   static void stringifyNodes(const Node &yNode, IDestination &destination,
                              const unsigned long indent) {
+    // YAML 1.2 §6.8.1: emit explicit tag before the scalar value.
+    // Block-string tags are handled in stringifyAnyBlockStyle (before the
+    // block marker). Collection/structural node tags are not emitted here.
+    if (!isA<Array>(yNode) && !isA<Dictionary>(yNode) &&
+        !isA<Document>(yNode) && !isA<Hole>(yNode) && !isA<Comment>(yNode)) {
+      const bool isBlockString =
+          isA<String>(yNode) && (NRef<String>(yNode).getQuote() == '>' ||
+                                 NRef<String>(yNode).getQuote() == '|');
+      if (!isBlockString) {
+        const auto tag = tagToEmitForm(yNode.getVariant().getTag());
+        if (!tag.empty()) {
+          destination.add(tag + " ");
+        }
+      }
+    }
     if (isA<Number>(yNode)) {
       stringifyNumber(yNode, destination, indent);
     } else if (isA<String>(yNode)) {

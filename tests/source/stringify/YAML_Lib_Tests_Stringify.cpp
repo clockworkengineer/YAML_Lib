@@ -273,3 +273,111 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
     compareYAML(yaml, "---\nNo\n...\n");
   }
 }
+
+TEST_CASE("Check YAML stringify preserves explicit tags (gap 3.6).",
+          "[YAML][Stringify][Tags]") {
+  const YAML yaml;
+
+  SECTION("Stringify round-trip: !!str forces string interpretation.",
+          "[YAML][Stringify][Tags][Str]") {
+    BufferSource source{"---\n!!str 42\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    REQUIRE(dest.toString().find("!!str 42") != std::string::npos);
+  }
+
+  SECTION("Stringify round-trip: !!int tag preserved.",
+          "[YAML][Stringify][Tags][Int]") {
+    BufferSource source{"---\n!!int 42\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    REQUIRE(dest.toString().find("!!int 42") != std::string::npos);
+  }
+
+  SECTION("Stringify round-trip: !!bool tag preserved.",
+          "[YAML][Stringify][Tags][Bool]") {
+    BufferSource source{"---\n!!bool True\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    REQUIRE(dest.toString().find("!!bool True") != std::string::npos);
+  }
+
+  SECTION("Stringify round-trip: !!null tag preserved.",
+          "[YAML][Stringify][Tags][Null]") {
+    // ~  parses as Null; Null::toString() returns "null", so the stringify
+    // output is "!!null null" (tag + canonical null form).
+    BufferSource source{"---\n!!null ~\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    REQUIRE(dest.toString().find("!!null null") != std::string::npos);
+  }
+
+  SECTION("Stringify round-trip: !!float tag preserved.",
+          "[YAML][Stringify][Tags][Float]") {
+    BufferSource source{"---\n!!float 3.14\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    REQUIRE(dest.toString().find("!!float 3.14") != std::string::npos);
+  }
+
+  SECTION("Stringify round-trip: custom !tag preserved.",
+          "[YAML][Stringify][Tags][Custom]") {
+    BufferSource source{"---\n!mytag some value\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    REQUIRE(dest.toString().find("!mytag some value") != std::string::npos);
+  }
+
+  SECTION("Stringify round-trip: !!str in dictionary value preserved.",
+          "[YAML][Stringify][Tags][DictValue]") {
+    BufferSource source{"---\nid: !!str 007\nname: Bond\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    const auto out = dest.toString();
+    REQUIRE(out.find("id: !!str 007") != std::string::npos);
+    REQUIRE(out.find("name: Bond") != std::string::npos);
+  }
+
+  SECTION("Stringify round-trip: !!str in array element preserved.",
+          "[YAML][Stringify][Tags][ArrayElem]") {
+    BufferSource source{"---\n- !!str 42\n- !!int 99\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    const auto out = dest.toString();
+    REQUIRE(out.find("- !!str 42") != std::string::npos);
+    REQUIRE(out.find("- !!int 99") != std::string::npos);
+  }
+
+  SECTION("Stringify round-trip: tagged value re-parses with correct type.",
+          "[YAML][Stringify][Tags][RoundTrip]") {
+    // !!str 42 should round-trip: re-parse produces a String node.
+    BufferSource source{"---\n!!str 42\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    const YAML yaml2;
+    BufferSource reparsed{dest.toString()};
+    REQUIRE_NOTHROW(yaml2.parse(reparsed));
+    REQUIRE(isA<String>(yaml2.document(0)));
+    REQUIRE(NRef<String>(yaml2.document(0)).value() == "42");
+    REQUIRE(yaml2.document(0).getVariant().getTag() == "tag:yaml.org,2002:str");
+  }
+
+  SECTION("Stringify round-trip: !!timestamp tag preserved.",
+          "[YAML][Stringify][Tags][Timestamp]") {
+    BufferSource source{"---\n!!timestamp 2001-07-08\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    BufferDestination dest;
+    REQUIRE_NOTHROW(yaml.stringify(dest));
+    REQUIRE(dest.toString().find("!!timestamp 2001-07-08") !=
+            std::string::npos);
+  }
+}

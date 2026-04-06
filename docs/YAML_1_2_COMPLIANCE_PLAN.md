@@ -131,7 +131,7 @@ YAML 1.2 spec §6.8 states that `#` introduces a comment **only when preceded by
 
 ---
 
-### 3.6 🟡 MEDIUM — Stringify does not preserve or emit tags
+### 3.6 ✅ FIXED — Stringify does not preserve or emit tags
 
 **Location:** `classes/include/implementation/stringify/Default_Stringify.hpp`  
 **Problem:**  
@@ -142,7 +142,8 @@ The `Variant` base class stores a tag string (`getTag()`/`setTag()`), but `Defau
 stringifies back as `42` — without the `!!str` tag — so the round-trip semantics are lost.  
 Also: comments, folded-block-string markers (`>`), timestamps, and custom tags are all silently dropped or altered during stringify.  
 **Impact:** Lossless round-trip is not achievable for tagged nodes.  
-**Fix:** Before stringifying a node's value, check `node.getVariant().getTag()` and emit the tag prefix if set. Handle special cases for `Timestamp` (tag optional as the type is self-describing) and `!!binary`.
+**Fix:** Before stringifying a node's value, check `node.getVariant().getTag()` and emit the tag prefix if set. Handle special cases for `Timestamp` (tag optional as the type is self-describing) and `!!binary`.  
+**Resolution:** Added `tagToEmitForm()` helper that converts stored full URIs (`tag:yaml.org,2002:str`) back to short YAML form (`!!str`), or emits local/verbatim tags as-is. `stringifyNodes()` now emits the tag before any non-block scalar. `stringifyAnyBlockStyle()` emits the tag before the block marker (`|`/`>`) for block strings. Collection (Array/Dictionary) tag emission deferred to gap 3.7/P11 full work. 10 new `[Stringify][Tags]` test sections (round-trip for `!!str`, `!!int`, `!!bool`, `!!null`, `!!float`, `!custom`, dict value, array element, full round-trip, `!!timestamp`). All 2429 assertions pass.
 
 ---
 
@@ -352,14 +353,15 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 
 ---
 
-### P11 — Tag preservation in stringify
+### P11 ✅ DONE (partial) — Tag preservation in stringify
 **Files:** `classes/include/implementation/stringify/Default_Stringify.hpp`, all `stringify*` methods  
 **Task:**  
 1. After P4 (folded/literal fix): in `stringifyNodes`, check `yNode.getVariant().getTag()` for non-empty tags and emit them before the value (`"<tag> "`).  
 2. Emit `!!timestamp` before `Timestamp` nodes.  
 3. Document that `!!binary` values are output as-is (raw base64 string).  
 **Test:** A node created with `!!str 42` stringifies as `!!str 42`; round-trip preserves the string type.  
-**Acceptance:** Tagged-node round-trip tests pass.
+**Acceptance:** Tagged-node round-trip tests pass.  
+**Resolution:** Scalar tags emitted via `tagToEmitForm()` helper. Block-string tags emitted in `stringifyAnyBlockStyle()`. `!!timestamp` tag preserved when set. Array/Dictionary tag emission remains as future work. 2429 assertions pass.
 
 ---
 
