@@ -406,3 +406,72 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE(NRef<String>(yaml.document(0)).value() == "hello world");
   }
 }
+
+TEST_CASE("Check YAML 1.2 plain scalar inline comment rule (§6.8).",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+  const YAML yaml;
+  SECTION("Plain scalar with '#' NOT preceded by whitespace is literal.",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+    // 'foo#bar' must parse as the string "foo#bar", not "foo".
+    BufferSource source{"---\nfoo#bar\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "foo#bar");
+  }
+  SECTION("Plain scalar 'C#' is preserved (hash not preceded by space).",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+    BufferSource source{"---\nC#\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "C#");
+  }
+  SECTION("URL with fragment is preserved as plain scalar.",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+    BufferSource source{"url: http://host#anchor\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)["url"]).value() ==
+            "http://host#anchor");
+  }
+  SECTION("Plain scalar dict value with '#' not preceded by space is literal.",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+    BufferSource source{"version: csharp#net6\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)["version"]).value() ==
+            "csharp#net6");
+  }
+  SECTION("Plain scalar with '#' preceded by space is still a comment.",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+    BufferSource source{"key: value # this is a comment\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)["key"]).value() == "value");
+  }
+  SECTION("Plain scalar: literal '#' then space-hash comment.",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+    // "foo#bar # comment" -> value is "foo#bar", rest is a comment.
+    BufferSource source{"key: foo#bar # trailing comment\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)["key"]).value() == "foo#bar");
+  }
+  SECTION("Dictionary key containing '#' (hash not preceded by space).",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+    // The key 'foo#bar' must be preserved; 'value' is its associated value.
+    BufferSource source{"foo#bar: value\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)["foo#bar"]).value() == "value");
+  }
+  SECTION("Array element plain scalar with literal '#'.",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+    BufferSource source{"---\n- C#\n- F#\n- foo#bar\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
+    REQUIRE(NRef<Array>(yaml.document(0)).size() == 3);
+    REQUIRE(NRef<String>(yaml.document(0)[0]).value() == "C#");
+    REQUIRE(NRef<String>(yaml.document(0)[1]).value() == "F#");
+    REQUIRE(NRef<String>(yaml.document(0)[2]).value() == "foo#bar");
+  }
+}

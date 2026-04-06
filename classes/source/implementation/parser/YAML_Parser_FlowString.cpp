@@ -54,6 +54,15 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
   // must strip trailing whitespace from the first line BEFORE adding the
   // fold-space, so that "hello   \nworld" → "hello world" (YAML 1.2 §6.5).
   std::string yamlString{extractToNext(source, delimiters)};
+  // YAML 1.2 §6.8: '#' introduces a comment ONLY when preceded by whitespace.
+  // If extraction stopped at '#' but the preceding character is NOT whitespace,
+  // '#' is a literal — consume it and continue extracting to the next delimiter.
+  while (source.more() && source.current() == '#' &&
+         !yamlString.empty() && yamlString.back() != ' ' &&
+         yamlString.back() != '\t') {
+    yamlString += source.append(); // consume literal '#'
+    yamlString += extractToNext(source, delimiters); // read to next delimiter
+  }
   if (source.current() != kLineFeed) {
     rightTrim(yamlString);
   } else {
@@ -67,6 +76,16 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
       if (source.getPosition().second == 1 &&
           (isDocumentEnd(source) || isDocumentStart(source))) {
         break;
+      }
+      // YAML 1.2 §6.8: inline comment on a continuation line — '#' after
+      // whitespace in the accumulated string.  Consume the comment to the end
+      // of the line; the '\n' is left for appendCharacterToString to fold.
+      if (source.current() == '#' && !yamlString.empty() &&
+          (yamlString.back() == ' ' || yamlString.back() == '\t')) {
+        while (source.more() && source.current() != kLineFeed) {
+          source.next();
+        }
+        continue;
       }
       appendCharacterToString(source, yamlString);
       if (source.match(": ")) {

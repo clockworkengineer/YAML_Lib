@@ -120,13 +120,14 @@ Option B is more spec-correct; option A is more practical and non-breaking.
 
 ---
 
-### 3.5 🟡 MEDIUM — `#` starts a comment even without preceding whitespace in plain scalars
+### 3.5 ✅ FIXED — `#` starts a comment even without preceding whitespace in plain scalars
 
 **Location:** `classes/source/implementation/parser/YAML_Parser.cpp`, `parse()` — delimiter set `{kLineFeed, '#'}`; propagated to `parsePlainFlowString` via `extractToNext`  
 **Problem:**  
 YAML 1.2 spec §6.8 states that `#` introduces a comment **only when preceded by a whitespace character**. The parser passes `'#'` as a hard delimiter which causes `foo#bar` to be split at the `#` sign, yielding `foo` as the value and silently discarding `bar # rest`. Plain scalars like `C#`, `foo#1`, `http://host#anchor` are incorrectly truncated.  
 **Impact:** Real-world values containing unquoted `#` are silently truncated.  
-**Fix:** Change `extractToNext` (or introduce a new variant `extractToNextComment`) that only stops at `#` when the character immediately preceding the current position is a space or tab. Alternatively, process the extracted plain scalar text afterward and strip only a `#` that is preceded by whitespace.
+**Fix:** Change `extractToNext` (or introduce a new variant `extractToNextComment`) that only stops at `#` when the character immediately preceding the current position is a space or tab. Alternatively, process the extracted plain scalar text afterward and strip only a `#` that is preceded by whitespace.  
+**Resolution:** In `parsePlainFlowString`, after the initial `extractToNext` call, a while-loop extension consumes any `#` that is NOT preceded by whitespace as a literal character and continues extraction until the next real delimiter. Handles both first-line and multi-line continuation cases. 8 new `[InlineComment]` test sections cover `C#`, `foo#bar`, URL fragments, mixed literal+comment cases, and keys containing `#`. All 2394 assertions pass.
 
 ---
 
@@ -290,13 +291,14 @@ destination.add(std::string(1, quote));
 
 ---
 
-### P5 — Fix plain scalar `#` comment detection
+### P5 ✅ DONE — Fix plain scalar `#` comment detection
 **Files:** `classes/source/implementation/parser/YAML_Parser_FlowString.cpp`, `YAML_Parser_Util.cpp`  
 **Task:**  
 Model A (simpler): In `parsePlainFlowString`, after extracting the first-line portion, post-process the accumulated scalar string. Find `" #"` (space-hash) as a comment boundary and truncate there; leave bare `#` inside the word intact.  
 Model B (precise): Split `extractToNext` into `extractToNextComment` that stops at `#` only when the immediately preceding character was a space/tab.  
 **Test:** `foo#bar: value` — key is `"foo#bar"`; `foo #comment` — value is `"foo"`.  
-**Acceptance:** yaml-test-suite cases that involve inline comments on plain scalars pass.
+**Acceptance:** yaml-test-suite cases that involve inline comments on plain scalars pass.  
+**Resolution:** Used inline while-loop extension in `parsePlainFlowString` (variant of Model B). 2394 assertions pass.
 
 ---
 
