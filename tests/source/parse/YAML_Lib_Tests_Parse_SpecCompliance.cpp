@@ -192,10 +192,10 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
     REQUIRE(NRef<Boolean>(yaml.document(0)["b"]).value() == false);
   }
 
-  SECTION("YAML 'yes' and 'no' literals are parsed as Boolean.",
+  SECTION("YAML 1.1 'yes' and 'no' literals are parsed as Boolean.",
           "[YAML][Parse][Spec][Boolean]") {
-    // YAML 1.2 canonical: true/false. 1.1 compat also allows yes/no.
-    BufferSource source{"---\na: Yes\nb: No\n"};
+    // YAML 1.1 compat: yes/no treated as booleans when %YAML 1.1 declared.
+    BufferSource source{"%YAML 1.1\n---\na: Yes\nb: No\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Boolean>(yaml.document(0)["a"]));
     REQUIRE(isA<Boolean>(yaml.document(0)["b"]));
@@ -290,9 +290,9 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
     REQUIRE(NRef<Number>(yaml.document(0)["value"]).value<int>() == 99);
   }
 
-  SECTION("YAML !!bool tag coerces bare yes to boolean true.",
+  SECTION("YAML !!bool tag coerces bare true to boolean true.",
           "[YAML][Parse][Spec][Tags]") {
-    BufferSource source{"---\nflag: !!bool yes\n"};
+    BufferSource source{"---\nflag: !!bool true\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Boolean>(yaml.document(0)["flag"]));
     REQUIRE(NRef<Boolean>(yaml.document(0)["flag"]).value() == true);

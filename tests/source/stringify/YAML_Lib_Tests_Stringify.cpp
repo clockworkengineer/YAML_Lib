@@ -298,11 +298,11 @@ TEST_CASE("Check YAML stringify preserves explicit tags (gap 3.6).",
 
   SECTION("Stringify round-trip: !!bool tag preserved.",
           "[YAML][Stringify][Tags][Bool]") {
-    BufferSource source{"---\n!!bool True\n"};
+    BufferSource source{"---\n!!bool true\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination dest;
     REQUIRE_NOTHROW(yaml.stringify(dest));
-    REQUIRE(dest.toString().find("!!bool True") != std::string::npos);
+    REQUIRE(dest.toString().find("!!bool true") != std::string::npos);
   }
 
   SECTION("Stringify round-trip: !!null tag preserved.",

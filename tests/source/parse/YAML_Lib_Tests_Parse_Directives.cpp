@@ -88,7 +88,7 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
 
   SECTION("YAML parse document with %YAML directive and complex content.",
           "[YAML][Parse][Directives][Complex]") {
-    BufferSource source{"%YAML 1.2\n---\nfoo:\n  - one\n  - two\nbar: True\n"};
+    BufferSource source{"%YAML 1.2\n---\nfoo:\n  - one\n  - two\nbar: true\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE(isA<Dictionary>(yaml.document(0)));

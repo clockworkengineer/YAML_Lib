@@ -100,7 +100,8 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
   }
   SECTION("Parse Array from file and verify.",
           "[YAML][Parse][Examples][File]") {
-    BufferSource yamlSource{YAML::fromFile(prefixTestDataPath("testfile003.yaml"))};
+    BufferSource yamlSource{
+        YAML::fromFile(prefixTestDataPath("testfile003.yaml"))};
     REQUIRE_NOTHROW(yaml.parse(yamlSource));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 3);
@@ -176,7 +177,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
 
   SECTION("YAML parse flat array of booleans and verify.",
           "[YAML][Parse][Array]") {
-    BufferSource source{"---\nnames: [ True, False, False, False, True]\n"};
+    BufferSource source{"---\nnames: [ true, false, false, false, true]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)["names"]));
     REQUIRE(NRef<Array>(yaml.document(0)["names"]).size() == 5);

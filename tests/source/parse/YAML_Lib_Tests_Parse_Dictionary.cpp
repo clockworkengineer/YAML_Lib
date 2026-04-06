@@ -144,7 +144,8 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
   }
   SECTION("Parse Dictionary from file and verify.",
           "[YAML][Parse][Examples][File]") {
-    BufferSource yamlSource{YAML::fromFile(prefixTestDataPath("testfile001.yaml"))};
+    BufferSource yamlSource{
+        YAML::fromFile(prefixTestDataPath("testfile001.yaml"))};
     REQUIRE_NOTHROW(yaml.parse(yamlSource));
     REQUIRE_FALSE(!NRef<Dictionary>(yaml.document(0)).contains("french-hens"));
     REQUIRE(NRef<Number>(yaml.document(0)["french-hens"]).value<int>() == 3);
@@ -281,14 +282,14 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
   }
   SECTION("YAML parse dictionary with non string keys (boolean).",
           "[YAML][Parse][Dictionary]") {
-    BufferSource source{"---\nTrue: On\nFalse: Off\n..."};
+    BufferSource source{"---\ntrue: true\nfalse: false\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     REQUIRE_FALSE(!NRef<Dictionary>(yaml.document(0)).contains("true"));
     REQUIRE_FALSE(!NRef<Dictionary>(yaml.document(0)).contains("false"));
     REQUIRE(NRef<Boolean>(yaml.document(0)["true"]).value() == true);
     REQUIRE(NRef<Boolean>(yaml.document(0)["false"]).value() == false);
-    compareYAML(yaml, "---\n\"true\": On\n\"false\": Off\n...\n");
+    compareYAML(yaml, "---\n\"true\": true\n\"false\": false\n...\n");
   }
   SECTION("YAML parse dictionary with non string key (null).",
           "[YAML][Parse][Dictionary]") {
@@ -559,8 +560,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
   }
   SECTION("YAML parse dictionary with nested dictionary key (example 5).",
           "[YAML][Parse][Dictionary]") {
-    BufferSource source{
-        R"({one: ["one","two","three", ["four","]",6]]] })"};
+    BufferSource source{R"({one: ["one","two","three", ["four","]",6]]] })"};
     REQUIRE_THROWS_WITH(
         yaml.parse(source),
         "YAML Syntax Error: Unexpected flow sequence token ']'.");

@@ -83,7 +83,7 @@ bool Default_Parser::isArray(ISource &source) {
 /// <returns>If true, a boolean value has been found.</returns>
 bool Default_Parser::isBoolean(const ISource &source) {
   const auto ch = source.current();
-  if (strictBooleans) {
+  if (strictBooleans || yamlDirectiveMinor >= 2) {
     // YAML 1.2 strict: only 'true' and 'false'
     return ch == 't' || ch == 'f';
   }

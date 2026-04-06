@@ -40,7 +40,7 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
 
   SECTION("YAML parse !!bool forces boolean type.",
           "[YAML][Parse][Tags][Bool]") {
-    BufferSource source{"---\n!!bool True\n"};
+    BufferSource source{"---\n!!bool true\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Boolean>(yaml.document(0)));
     REQUIRE(NRef<Boolean>(yaml.document(0)).value() == true);

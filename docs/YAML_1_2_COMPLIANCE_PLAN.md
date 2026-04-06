@@ -176,7 +176,7 @@ The yaml-test-suite ships with the repository (`tests/yaml-test-suite/yaml-test-
 
 ---
 
-### 3.9 🟡 MEDIUM — `%YAML` version directive has no effect on parsing rules
+### 3.9 ~~🟡 MEDIUM — `%YAML` version directive has no effect on parsing rules~~ ✅ FIXED (2026-04-07)
 
 **Location:** `Default_Parser.hpp`, `yamlDirectiveMinor`; `YAML_Parser.cpp`  
 **Problem:**  
@@ -184,7 +184,13 @@ The yaml-test-suite ships with the repository (`tests/yaml-test-suite/yaml-test-
 **Impact:**  
 - YAML 1.2 files may have YAML 1.1 booleans silently coerced (see §3.4).  
 - `%YAML 1.1` files with C-style octal (`0777`) should be treated as octal; after the §3.1 fix they would incorrectly become decimal.  
-**Fix:** Consult `yamlDirectiveMinor` in `parseBoolean` (restrict to `true`/`false` when `>= 2`) and `stringToNumber` (allow base-8 `0NNN` only when `== 1`).
+**Fix applied:**  
+- `YAML_Parser_Router.cpp` (`isBoolean`): condition changed from `if (strictBooleans)` to `if (strictBooleans || yamlDirectiveMinor >= 2)`. When `yamlDirectiveMinor >= 2` (YAML 1.2), only `t` and `f` are candidate boolean starts.  
+- `YAML_Parser_Scalar.cpp` (`parseBoolean`): `strictMode = strictBooleans || yamlDirectiveMinor >= 2` selects between the YAML 1.2 set (`true`/`false` only) and the YAML 1.1 set (`True`/`False`/`Yes`/`No`/`On`/`Off`/…).  
+- `YAML_Parser_Scalar.cpp` (`parseNumber`): added YAML 1.1 C-style octal branch — when `yamlDirectiveMinor == 1` and the numeric string matches `^0[0-7]+$`, it is converted as base-8 and stored as its decimal equivalent (e.g. `0777` → `511`).  
+- Default (no `%YAML` directive): `yamlDirectiveMinor` defaults to `2`, so YAML 1.2 strict rules apply.  
+- 14 test files updated for regressions; 11 new `[Directive]` test sections added across `YAML_Lib_Tests_Parse_Boolean.cpp` and `YAML_Lib_Tests_Parse_Numeric.cpp`.  
+**Verification:** 57/58 test cases pass (2483 assertions); 1 failing = yaml-test-suite sweep with the same 109 known failures as pre-implementation baseline.
 
 ---
 
@@ -319,14 +325,14 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 
 ---
 
-### P7 — Version-directive-sensitive schema
-**Files:** `YAML_Parser.cpp`, `YAML_Parser_Scalar.cpp`, `YAML_Number.hpp`  
-**Task:** After P1, P6 are in place: consult `yamlDirectiveMinor` to decide schema rules consistently:
-- `>= 2` (1.2): strict booleans only; no C-style octal.
-- `== 1` (1.1): YAML 1.1 booleans allowed; `0NNN` is octal.
-- Unset (no `%YAML`): default to 1.2 behaviour (as per spec §9.1.4).  
-**Test:** `%YAML 1.1` document with `0777` parses as 511 (octal); same file without directive parses as 777 (decimal).  
-**Acceptance:** Tests pass; yamlDirectiveMinor is consulted in all affected parsers.
+### P7 ✅ DONE (2026-04-07) — Version-directive-sensitive schema
+**Files:** `YAML_Parser_Router.cpp`, `YAML_Parser_Scalar.cpp`  
+**Changes applied:**
+- `isBoolean()`: condition `strictBooleans || yamlDirectiveMinor >= 2` gates strict-1.2 boolean recognition.
+- `parseBoolean()`: `strictMode = strictBooleans || yamlDirectiveMinor >= 2` selects boolean vocabulary.
+- `parseNumber()`: `yamlDirectiveMinor == 1` branch handles `0NNN` as base-8 (C-style octal).
+- No-directive default: `yamlDirectiveMinor = 2` (YAML 1.2 strict).
+**Verification:** `%YAML 1.1` + `0777` → 511; no directive + `0777` → 777 (decimal). 57/58 test cases pass (2483 assertions).
 
 ---
 
@@ -407,7 +413,7 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 | 6 | P9 | Single-quoted `''` in `extractString` | 🟡 MEDIUM | Low |
 | 7 | ~~P10~~ | ~~Flow scalar trailing-space fold~~ | ✅ DONE | — |
 | 8 | P6 | Strict boolean mode | 🟡 MEDIUM | Medium |
-| 9 | P7 | Version-directive schema switch | 🟡 MEDIUM | Medium (depends on P1, P6) |
+| 9 | ~~P7~~ | ~~Version-directive schema switch~~ | ✅ DONE | — |
 | 10 | P11 | Tag preservation in stringify | 🟡 MEDIUM | Medium–High |
 | 11 | P8 | Recursive anchor guard | 🟢 LOW | Low |
 | 12 | P14 | Duplicate `%YAML` detection | 🟢 LOW | Very low |

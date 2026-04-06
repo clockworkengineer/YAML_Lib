@@ -6,13 +6,9 @@ public:
 
   ~YAML_Analyzer() override = default;
   // Add Node details to analysis
-  void onNode([[maybe_unused]] const Node &yNode) override {
-    totalNodes++;
-  }
+  void onNode([[maybe_unused]] const Node &yNode) override { totalNodes++; }
   // Add string details to analysis
-  void onString([[maybe_unused]] const Node &yNode) override {
-    totalStrings++;
-  }
+  void onString([[maybe_unused]] const Node &yNode) override { totalStrings++; }
   // Add number details to analysis
   void onNumber(const Node &yNode) override {
     const auto &yNodeNumber = NRef<Number>(yNode);
@@ -37,13 +33,9 @@ public:
     totalBoolean++;
   }
   // Add null details to analysis
-  void onNull([[maybe_unused]] const Node &yNode) override {
-    totalNull++;
-  }
+  void onNull([[maybe_unused]] const Node &yNode) override { totalNull++; }
   // Add array details to analysis
-  void onArray([[maybe_unused]] const Node &yNode) override {
-    totalArrays++;
-  }
+  void onArray([[maybe_unused]] const Node &yNode) override { totalArrays++; }
   // Add object details to analysis
   void onDictionary([[maybe_unused]] const Node &yNode) override {
     totalDictionaries++;
@@ -171,8 +163,8 @@ TEST_CASE("YAML Node tree traverse tests ", "[YAML][Traverse]") {
     REQUIRE(analyzer.totalDouble == 1);
     REQUIRE(analyzer.totalNumbers == 1);
   }
-  SECTION("Parse a bool (True) and traverse", "[YAML][Traverse][Boolean]") {
-    BufferSource source{"True"};
+  SECTION("Parse a bool (true) and traverse", "[YAML][Traverse][Boolean]") {
+    BufferSource source{"true"};
     yaml.parse(source);
     YAML_Analyzer analyzer;
     yaml.traverse(analyzer);
@@ -228,10 +220,10 @@ TEST_CASE("YAML Node tree traverse tests ", "[YAML][Traverse]") {
     REQUIRE(analyzer.totalStrings == 1);
     REQUIRE(analyzer.totalNumbers == 5);
   }
-  SECTION("Parse a nested object ([True,\"Out of "
+  SECTION("Parse a nested object ([true,\"Out of "
           "time\",7.89043e+18,{\"key\":4444}]) and traverse",
           "[YAML][Traverse][Object]") {
-    BufferSource source{R"([True,"Out of time",7.89043e+18,{"key":4444}])"};
+    BufferSource source{R"([true,"Out of time",7.89043e+18,{"key":4444}])"};
     yaml.parse(source);
     YAML_Analyzer analyzer;
     yaml.traverse(analyzer);

@@ -119,6 +119,33 @@ TEST_CASE("Check YAML Parsing of numeric types.",
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)));
     REQUIRE(NRef<Number>(yaml.document(0)).value<int>() == 4444);
   }
+  SECTION("%YAML 1.1: C-style octal '0777' parses as 511 (octal).",
+          "[YAML][Parse][Scalar][Octal][Directive]") {
+    // YAML 1.1 schema: 0[0-7]+ is treated as an octal integer.
+    BufferSource source{"%YAML 1.1\n---\n0777\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE_FALSE(!isA<Number>(yaml.document(0)));
+    REQUIRE(NRef<Number>(yaml.document(0)).value<int>() == 0777); // 511
+  }
+  SECTION("No %YAML directive (defaults to 1.2): '0777' parses as decimal 777.",
+          "[YAML][Parse][Scalar][Octal][Directive]") {
+    // No directive → YAML 1.2 schema → leading zero not significant.
+    BufferSource source{"---\n0777\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE_FALSE(!isA<Number>(yaml.document(0)));
+    REQUIRE(NRef<Number>(yaml.document(0)).value<int>() == 777);
+  }
+  SECTION("%YAML 1.1: C-style octal '0o17' (YAML 1.2 form) still works.",
+          "[YAML][Parse][Scalar][Octal][Directive]") {
+    // The 0o prefix form is valid in both YAML 1.1 and 1.2 documents.
+    BufferSource source{"%YAML 1.1\n---\n0o17\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE_FALSE(!isA<Number>(yaml.document(0)));
+    REQUIRE(NRef<Number>(yaml.document(0)).value<int>() == 017); // 15
+  }
   SECTION("YAML parse an integer and float strings.",
           "[YAML][Parse][Scalar][Integer]") {
     BufferSource source{"---\n  -  4567000 String\n  - 5.666666 String\n"};

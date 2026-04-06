@@ -60,6 +60,23 @@ Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
       } catch (...) {
         numeric.clear();
       }
+    } else if (yamlDirectiveMinor == 1 && numeric.size() >= 2 &&
+               numeric[0] == '0' &&
+               std::all_of(
+                   numeric.begin() + 1, numeric.end(),
+                   [](unsigned char c) { return c >= '0' && c <= '7'; })) {
+      // YAML 1.1: C-style octal "0NNN" (leading zero, digits 0-7 only)
+      try {
+        std::size_t end = 0;
+        const long long val = std::stoll(numeric, &end, 8);
+        if (end == numeric.size()) {
+          numeric = std::to_string(val); // e.g. "0777" -> "511"
+        } else {
+          numeric.clear();
+        }
+      } catch (...) {
+        numeric.clear();
+      }
     }
     if (!numeric.empty()) {
       if (Number number{numeric}; number.is<int>() || number.is<long>() ||
@@ -112,8 +129,9 @@ Node Default_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
   source.save();
   std::string boolean{extractToNext(source, delimiters)};
   rightTrim(boolean);
-  const auto &trueSet = strictBooleans ? strict12True : Boolean::isTrue;
-  const auto &falseSet = strictBooleans ? strict12False : Boolean::isFalse;
+  const bool strictMode = strictBooleans || yamlDirectiveMinor >= 2;
+  const auto &trueSet = strictMode ? strict12True : Boolean::isTrue;
+  const auto &falseSet = strictMode ? strict12False : Boolean::isFalse;
   if (trueSet.contains(boolean)) {
     booleanNode = Node::make<Boolean>(true, boolean);
   } else if (falseSet.contains(boolean)) {
