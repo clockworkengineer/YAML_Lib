@@ -56,11 +56,11 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
   std::string yamlString{extractToNext(source, delimiters)};
   // YAML 1.2 §6.8: '#' introduces a comment ONLY when preceded by whitespace.
   // If extraction stopped at '#' but the preceding character is NOT whitespace,
-  // '#' is a literal — consume it and continue extracting to the next delimiter.
-  while (source.more() && source.current() == '#' &&
-         !yamlString.empty() && yamlString.back() != ' ' &&
-         yamlString.back() != '\t') {
-    yamlString += source.append(); // consume literal '#'
+  // '#' is a literal — consume it and continue extracting to the next
+  // delimiter.
+  while (source.more() && source.current() == '#' && !yamlString.empty() &&
+         yamlString.back() != ' ' && yamlString.back() != '\t') {
+    yamlString += source.append();                   // consume literal '#'
     yamlString += extractToNext(source, delimiters); // read to next delimiter
   }
   if (source.current() != kLineFeed) {

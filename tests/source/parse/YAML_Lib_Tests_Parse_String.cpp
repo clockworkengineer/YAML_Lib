@@ -438,8 +438,7 @@ TEST_CASE("Check YAML 1.2 plain scalar inline comment rule (§6.8).",
     BufferSource source{"version: csharp#net6\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
-    REQUIRE(NRef<String>(yaml.document(0)["version"]).value() ==
-            "csharp#net6");
+    REQUIRE(NRef<String>(yaml.document(0)["version"]).value() == "csharp#net6");
   }
   SECTION("Plain scalar with '#' preceded by space is still a comment.",
           "[YAML][Parse][Scalar][String][InlineComment]") {
