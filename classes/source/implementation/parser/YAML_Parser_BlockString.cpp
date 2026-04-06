@@ -12,20 +12,36 @@
 namespace YAML_Lib {
 
 /// <summary>
-/// Parse any block string chomping.
+/// Parse any block string chomping and optional explicit indentation indicator.
+/// Handles either order: digit-then-chomping (|2-) or chomping-then-digit
+/// (|-2). Per YAML 1.2 §8.1.1.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns>Specified block chomping.</returns>
-Default_Parser::BlockChomping Default_Parser::parseBlockChomping(ISource &source) {
-  source.next();
-  if (const auto ch = source.current(); ch == '-') {
-    return BlockChomping::strip;
-  } else {
-    if (ch == '+') {
-      return BlockChomping::keep;
+/// <returns>Pair of chomping indicator and explicit indent (0 =
+/// auto-detect).</returns>
+std::pair<Default_Parser::BlockChomping, int>
+Default_Parser::parseBlockChomping(ISource &source) {
+  source.next(); // consume '|' or '>'
+  BlockChomping chomping = BlockChomping::clip;
+  int explicitIndent = 0;
+  // Both orders are legal: digit-then-indicator (|2-) and indicator-then-digit
+  // (|-2).
+  for (int i = 0; i < 2; ++i) {
+    const auto ch = source.current();
+    if (ch >= '1' && ch <= '9' && explicitIndent == 0) {
+      explicitIndent = ch - '0';
+      source.next();
+    } else if (ch == '-' && chomping == BlockChomping::clip) {
+      chomping = BlockChomping::strip;
+      source.next();
+    } else if (ch == '+' && chomping == BlockChomping::clip) {
+      chomping = BlockChomping::keep;
+      source.next();
+    } else {
+      break;
     }
-    return BlockChomping::clip;
   }
+  return {chomping, explicitIndent};
 }
 /// <summary>
 /// Parse a block string.
@@ -36,18 +52,23 @@ Default_Parser::BlockChomping Default_Parser::parseBlockChomping(ISource &source
 /// <param name="fillerDefault">Default filler.</param>
 /// <returns>Block string parsed.</returns>
 std::string Default_Parser::parseBlockString(ISource &source,
-                                          const Delimiters &delimiters,
-                                          [[maybe_unused]] unsigned long indentation,
-                                          const char fillerDefault) {
-  const BlockChomping chomping{parseBlockChomping(source)};
+                                             const Delimiters &delimiters,
+                                             unsigned long indentation,
+                                             const char fillerDefault) {
+  const auto [chomping, explicitIndent] = parseBlockChomping(source);
   moveToNext(source, delimiters);
   moveToNextIndent(source);
-  const unsigned long blockIndent = source.getPosition().second;
+  // Use the explicit indent indicator when present (YAML 1.2 §8.1.1);
+  // otherwise auto-detect from the first content line's column.
+  const unsigned long blockIndent =
+      (explicitIndent > 0)
+          ? indentation + static_cast<unsigned long>(explicitIndent)
+          : source.getPosition().second;
   std::string yamlString{};
   do {
     char filler{fillerDefault};
     if (blockIndent < source.getPosition().second) {
-      if (yamlString.back() != kLineFeed) {
+      if (!yamlString.empty() && yamlString.back() != kLineFeed) {
         yamlString += kLineFeed;
       }
       yamlString += std::string(source.getPosition().second - 1, kSpace);
@@ -90,9 +111,10 @@ std::string Default_Parser::parseBlockString(ISource &source,
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>String Node.</returns>
 Node Default_Parser::parseFoldedBlockString(ISource &source,
-                                          const Delimiters &delimiters,
-                                          const unsigned long indentation) {
-  return Node::make<String>(parseBlockString(source, delimiters, indentation, kSpace), '>');
+                                            const Delimiters &delimiters,
+                                            const unsigned long indentation) {
+  return Node::make<String>(
+      parseBlockString(source, delimiters, indentation, kSpace), '>');
 }
 /// <summary>
 /// Parse literal block string on source stream.
@@ -102,9 +124,9 @@ Node Default_Parser::parseFoldedBlockString(ISource &source,
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>String Node.</returns>
 Node Default_Parser::parseLiteralBlockString(ISource &source,
-                                           const Delimiters &delimiters,
-                                           const unsigned long indentation) {
-  return Node::make<String>(parseBlockString(source, delimiters, indentation, kLineFeed),
-                             '|');
+                                             const Delimiters &delimiters,
+                                             const unsigned long indentation) {
+  return Node::make<String>(
+      parseBlockString(source, delimiters, indentation, kLineFeed), '|');
 }
 } // namespace YAML_Lib

@@ -79,20 +79,17 @@ YAML 1.2 core schema defines octal **only** as `0o[0-7]+`. The legacy form `0NNN
 
 ---
 
-### 3.2 🔴 HIGH — Block scalar explicit indentation indicator not parsed
+### 3.2 ~~🔴 HIGH — Block scalar explicit indentation indicator not parsed~~ ✅ FIXED (2026-04-06)
 
 **Location:** `classes/source/implementation/parser/YAML_Parser_BlockString.cpp`, `parseBlockChomping()`  
-**Problem:**  
-The YAML 1.2 spec (§8.1.1) allows an optional decimal digit *before or after* the chomping indicator to explicitly set the content indentation relative to the current block:
-```yaml
-key: |2
-  This line has 2-space explicit indent.
-key2: |2-
-  Strip-chomped with explicit 2-space indent.
-```
-`parseBlockChomping()` only peeks at one character and returns `strip/keep/clip`; it never reads or stores an explicit indent count. The auto-indent detection (`source.getPosition().second`) then reads the first content line's column, which may be different from what the author intended.  
-**Impact:** Files using explicit indentation indicators parse incorrectly or throw.  
-**Fix:** Extend `parseBlockChomping` to optionally parse a leading or trailing integer digit and pass it to `parseBlockString` as an override for `blockIndent` (skip the auto-detect when an explicit indent is given).
+**Fix applied:**  
+- `parseBlockChomping` signature changed to `std::pair<BlockChomping, int>` — returns both the chomping mode and the explicit indent `m` (0 = auto-detect).  
+- Parses both orderings allowed by YAML 1.2 §8.1.1: digit-then-indicator (`|2-`, `>3+`) and indicator-then-digit (`|-2`).  
+- `parseBlockString`: if `explicitIndent > 0`, uses `indentation + explicitIndent` as `blockIndent`; otherwise auto-detects from first content line (unchanged behaviour).  
+- Also fixed a latent crash: `yamlString.back()` in the more-indented branch was called on an empty string (can happen when the very first content line is more-indented than `blockIndent`). Added `!yamlString.empty()` guard.  
+- `Default_Parser.hpp` updated to reflect new `parseBlockChomping` return type.  
+- `YAML_Lib_Tests_Parse_Collections.cpp`: 5 new `[ExplicitIndent]` sections.  
+**Verification:** All 2290 test assertions pass.
 
 ---
 
@@ -257,13 +254,15 @@ All 2258 assertions pass.
 
 ---
 
-### P2 — Fix block scalar explicit indentation indicator
-**Files:** `classes/source/implementation/parser/YAML_Parser_BlockString.cpp`, `classes/include/implementation/parser/Default_Parser.hpp`  
-**Task:**  
-1. Update `parseBlockChomping` to read and return a `struct { BlockChomping chomping; int indentHint; }` (or return them as a pair). Parse an optional digit either before or after the `-`/`+` indicator (spec §8.1.1 allows both `|2-` and `|-2`).  
-2. In `parseBlockString`, if `indentHint > 0`, use `currentIndent + indentHint` as `blockIndent` instead of auto-detecting from the first content line.  
-**Test:** Verify `key: |2\n  two spaces` and `key: |2-\n  stripped` parse correctly.  
-**Acceptance:** Spec example §8.1.1 cases parse without error with correct content.
+### ~~P2 — Fix block scalar explicit indentation indicator~~ ✅ DONE (2026-04-06)
+**Changes applied:**
+- `parseBlockChomping` returns `std::pair<BlockChomping, int>` — chomping + explicit indent m (0 = auto).
+- Parses both orderings: digit-then-indicator (`|2-`) and indicator-then-digit (`|-2`).
+- `parseBlockString`: `blockIndent = indentation + explicitIndent` when m > 0, else auto-detect.
+- Fixed latent crash: `!yamlString.empty()` guard before `yamlString.back()` in more-indented branch.
+- `Default_Parser.hpp` updated.
+- `YAML_Lib_Tests_Parse_Collections.cpp`: 5 new `[ExplicitIndent]` tests.
+**Verification:** All 2290 assertions pass.
 
 ---
 
@@ -400,7 +399,7 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 | 1 | P1 | C-style octal bug | ✅ DONE | — |
 | 2 | P3 | Special float stringify | 🔴 HIGH | Low (5 lines) |
 | 3 | P4 | Folded block stringify | 🔴 HIGH | Very low (1-char change) |
-| 4 | P2 | Block scalar explicit indent | 🔴 HIGH | Medium |
+| 4 | ~~P2~~ | ~~Block scalar explicit indent~~ | ✅ DONE | — |
 | 5 | P5 | Plain scalar `#` comment rule | 🟡 MEDIUM | Medium |
 | 6 | P9 | Single-quoted `''` in `extractString` | 🟡 MEDIUM | Low |
 | 7 | ~~P10~~ | ~~Flow scalar trailing-space fold~~ | ✅ DONE | — |
