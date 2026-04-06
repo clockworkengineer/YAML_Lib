@@ -57,8 +57,8 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
   if (source.current() != kLineFeed) {
     rightTrim(yamlString);
   } else {
-    rightTrim(yamlString);   // strip trailing whitespace before fold
-    yamlString += kSpace;    // fold first-line break to a single space
+    rightTrim(yamlString); // strip trailing whitespace before fold
+    yamlString += kSpace;  // fold first-line break to a single space
     moveToNextIndent(source);
     while (source.more() && indentation < source.getPosition().second) {
       // Stop at document markers (--- or ...) at the start of a line.
