@@ -101,13 +101,23 @@ TEST_CASE("Check YAML Parsing of numeric types.",
     REQUIRE_FALSE(!NRef<Number>(yaml.document(0)).is<int>());
     REQUIRE(NRef<Number>(yaml.document(0)).value<int>() == 0x4444);
   }
-  SECTION("YAML parse an octal integer.", "[YAML][Parse][Scalar][Octal]") {
+  SECTION("YAML parse YAML 1.2 octal integer (0o prefix).",
+          "[YAML][Parse][Scalar][Octal]") {
+    // YAML 1.2 core schema: octal is 0o<digits>, not C-style 0NNN.
+    BufferSource source{"---\n0o4444\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE_FALSE(!isA<Number>(yaml.document(0)));
+    REQUIRE(NRef<Number>(yaml.document(0)).value<int>() == 04444); // 2340
+  }
+  SECTION("YAML parse zero-padded decimal (not octal in YAML 1.2).",
+          "[YAML][Parse][Scalar][Octal]") {
+    // YAML 1.2: "04444" has no 0o prefix, so it is a plain decimal integer.
     BufferSource source{"---\n04444\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)));
-    REQUIRE_FALSE(!NRef<Number>(yaml.document(0)).is<int>());
-    REQUIRE(NRef<Number>(yaml.document(0)).value<int>() == 04444);
+    REQUIRE(NRef<Number>(yaml.document(0)).value<int>() == 4444);
   }
   SECTION("YAML parse an integer and float strings.",
           "[YAML][Parse][Scalar][Integer]") {

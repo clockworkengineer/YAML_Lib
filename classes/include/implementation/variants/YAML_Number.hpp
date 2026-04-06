@@ -29,11 +29,11 @@ struct Number final : Variant {
   // Set numbers value to int/long/long long/float/double/long double
   template <typename T> void set(T number) { *this = Number(number); }
   // Return string representation of value
-  [[nodiscard]]  std::string toString() const override {
+  [[nodiscard]] std::string toString() const override {
     return getAs<std::string>();
   }
   // Convert variant to a key
-  [[nodiscard]]  std::string toKey() const override {
+  [[nodiscard]] std::string toKey() const override {
     return getAs<std::string>();
   }
   // Set floating point to string conversion parameters
@@ -75,7 +75,8 @@ template <typename T> Number::Number(T value) : Variant(Type::number) {
   }
 }
 // Convert string to specific numeric type (returns true on success)
-template <typename T> bool Number::stringToNumber(const std::string_view &number) {
+template <typename T>
+bool Number::stringToNumber(const std::string_view &number) {
   {
     try {
       std::size_t end = 0;
@@ -83,11 +84,14 @@ template <typename T> bool Number::stringToNumber(const std::string_view &number
       T value;
       if constexpr (std::is_same_v<T, int> || std::is_same_v<T, long> ||
                     std::is_same_v<T, long long>) {
-        if (number.starts_with("0x")) {
+        if (number.starts_with("0x") || number.starts_with("0X")) {
           integerConversionBase = 16;
-        } else if (number.starts_with("0")) {
-          integerConversionBase = 8;
         }
+        // NOTE: YAML 1.2 defines octal as "0o<digits>" only; C-style "0NNN"
+        // leading-zero octal is NOT valid in YAML 1.2 and must not be
+        // treated as base 8 here. The parser converts "0o<digits>" to its
+        // decimal string value before constructing Number, so base 10 is
+        // always correct at this point.
       }
       if constexpr (std::is_same_v<T, int>) {
         value = std::stoi(number.data(), &end, integerConversionBase);

@@ -20,7 +20,7 @@ namespace YAML_Lib {
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Number Node.</returns>
 Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
-                               [[maybe_unused]] unsigned long indentation) {
+                                 [[maybe_unused]] unsigned long indentation) {
   Node numberNode;
   source.save();
   std::string numeric{extractToNext(source, delimiters)};
@@ -28,8 +28,9 @@ Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
   // YAML 1.2 special float literals (case-insensitive).
   {
     std::string lower = numeric;
-    std::transform(lower.begin(), lower.end(), lower.begin(),
-                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    std::transform(
+        lower.begin(), lower.end(), lower.begin(),
+        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     if (lower == ".inf" || lower == "+.inf") {
       moveToNext(source, delimiters);
       numberNode = Node::make<Number>(std::numeric_limits<double>::infinity());
@@ -42,17 +43,32 @@ Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
     }
   }
   if (numberNode.isEmpty()) {
-    // Normalize YAML 1.2 octal "0o<digits>" to C-style "0<digits>" so that
-    // std::stoi / std::stol / std::stoll can parse it with base 8.
+    // YAML 1.2 octal "0o<digits>" (or "0O<digits>"): convert the octal digits
+    // to their decimal string equivalent so that Number parses them as base 10.
+    // This avoids relying on C-style "0NNN" leading-zero octal interpretation.
     if (numeric.size() >= 3 && numeric[0] == '0' &&
         (numeric[1] == 'o' || numeric[1] == 'O')) {
-      numeric = "0" + numeric.substr(2);
+      const std::string octalDigits = numeric.substr(2);
+      try {
+        std::size_t end = 0;
+        const long long val = std::stoll(octalDigits, &end, 8);
+        if (end == octalDigits.size()) {
+          numeric = std::to_string(val); // e.g. "0o17" -> "15"
+        } else {
+          numeric.clear(); // malformed octal literal; don't try as a number
+        }
+      } catch (...) {
+        numeric.clear();
+      }
     }
-    if (Number number{numeric}; number.is<int>() || number.is<long>() ||
-                                number.is<long long>() || number.is<float>() ||
-                                number.is<double>() || number.is<long double>()) {
-      moveToNext(source, delimiters);
-      numberNode = Node::make<Number>(number);
+    if (!numeric.empty()) {
+      if (Number number{numeric}; number.is<int>() || number.is<long>() ||
+                                  number.is<long long>() ||
+                                  number.is<float>() || number.is<double>() ||
+                                  number.is<long double>()) {
+        moveToNext(source, delimiters);
+        numberNode = Node::make<Number>(number);
+      }
     }
   }
   if (numberNode.isEmpty()) {
@@ -68,7 +84,7 @@ Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>None Node.</returns>
 Node Default_Parser::parseNone(ISource &source, const Delimiters &delimiters,
-                             [[maybe_unused]] unsigned long indentation) {
+                               [[maybe_unused]] unsigned long indentation) {
   Node noneNode;
   source.save();
   std::string none{extractToNext(source, delimiters)};
@@ -89,7 +105,7 @@ Node Default_Parser::parseNone(ISource &source, const Delimiters &delimiters,
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Boolean Node.</returns>
 Node Default_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
-                                [[maybe_unused]] unsigned long indentation) {
+                                  [[maybe_unused]] unsigned long indentation) {
   Node booleanNode;
   source.save();
   std::string boolean{extractToNext(source, delimiters)};
