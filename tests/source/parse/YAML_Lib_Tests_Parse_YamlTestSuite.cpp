@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -21,23 +22,104 @@
 // ---------------------------------------------------------------------------
 namespace {
 
-/// Read the content of the 'yaml: |' block literal field from a test-suite
-/// metadata file.  The suite files use 4-space indentation for the block
-/// content ("  yaml: |" header at column 0+2, content at column 0+4).
-std::string extractYamlField(const std::string &fileContent) {
+/// Split a test-suite metadata file into per-subtest item strings.
+/// Each top-level YAML sequence item ("- " at column 0) becomes one entry.
+/// Document markers ("---" / "...") are skipped.
+std::vector<std::string> splitTestItems(const std::string &fileContent) {
+  std::vector<std::string> items;
+  std::string current;
   std::istringstream ss(fileContent);
   std::string line;
-  bool inBlock = false;
-  std::string result;
-  constexpr std::size_t blockIndent = 4;
   while (std::getline(ss, line)) {
     // Normalise CRLF
     if (!line.empty() && line.back() == '\r') {
       line.pop_back();
     }
+    // Skip bare document markers
+    if (line == "---" || line == "...") {
+      continue;
+    }
+    // A new test item starts when "- " appears at column 0
+    if (line.size() >= 2 && line[0] == '-' && line[1] == ' ') {
+      if (!current.empty()) {
+        items.push_back(current);
+      }
+      current = line + '\n';
+    } else if (!current.empty()) {
+      current += line + '\n';
+    }
+  }
+  if (!current.empty()) {
+    items.push_back(current);
+  }
+  return items;
+}
+
+/// Decode the YAML test-suite's visual indicator characters into actual bytes.
+/// The suite uses non-ASCII characters to make otherwise-invisible chars
+/// readable:
+///   ∎ (U+220E) at end — no final newline: strip the indicator and trailing \n
+///   ↵ (U+21B5)        — trailing newline indicator: remove (the \n is present)
+///   ␣ (U+2423)        — trailing space: replace with ' '
+///   ← (U+2190)        — carriage return: replace with \r
+///   ⇔ (U+21D4)        — BOM: replace with UTF-8 BOM bytes
+///   ———» / ——» / —» / » (EM-DASH sequence + U+00BB) — hard tab: replace with
+///   \t
+static std::string decodeDisplayChars(std::string s) {
+  using sz = std::string::size_type;
+  const std::string em = "\xe2\x80\x94"; // — U+2014 EM DASH (3 bytes)
+  const std::string raq = "\xc2\xbb";    // » U+00BB (2 bytes)
+  // Tab sequences — longest first to prevent partial matches
+  for (const auto &seq : std::initializer_list<std::string>{
+           em + em + em + raq, em + em + raq, em + raq, raq}) {
+    for (sz p; (p = s.find(seq)) != std::string::npos;)
+      s.replace(p, seq.size(), "\t");
+  }
+  // Trailing space indicator  ␣  U+2423 → ' '
+  for (sz p; (p = s.find("\xe2\x90\xa3")) != std::string::npos;)
+    s.replace(p, 3, " ");
+  // Trailing newline indicator  ↵  U+21B5 → remove (newline already in block)
+  for (sz p; (p = s.find("\xe2\x86\xb5")) != std::string::npos;)
+    s.erase(p, 3);
+  // Carriage return  ←  U+2190 → \r
+  for (sz p; (p = s.find("\xe2\x86\x90")) != std::string::npos;)
+    s.replace(p, 3, "\r");
+  // BOM  ⇔  U+21D4 → UTF-8 BOM
+  for (sz p; (p = s.find("\xe2\x87\x94")) != std::string::npos;)
+    s.replace(p, 3, "\xef\xbb\xbf");
+  // No-final-newline indicator  ∎  U+220E: strip it and the trailing \n it
+  // replaces
+  const std::string endMark = "\xe2\x88\x8e";
+  sz pos = s.rfind(endMark);
+  if (pos != std::string::npos) {
+    s.erase(pos);
+    if (!s.empty() && s.back() == '\n')
+      s.pop_back();
+  }
+  return s;
+}
+
+/// Extract the 'yaml: |' block content from a single test item string.
+/// Both "  yaml: |" (key in mapping) and "- yaml: |" (first key of item)
+/// forms are supported — in both cases "yaml" starts at column 2.
+/// Visual display characters are decoded to their actual byte values.
+/// Returns nullopt if no 'yaml: |' field was found in the item.
+std::optional<std::string> extractYamlFromItem(const std::string &itemText) {
+  std::istringstream ss(itemText);
+  std::string line;
+  bool inBlock = false;
+  bool found = false;
+  std::string result;
+  constexpr std::size_t blockIndent = 4;
+  while (std::getline(ss, line)) {
+    if (!line.empty() && line.back() == '\r') {
+      line.pop_back();
+    }
     if (!inBlock) {
-      if (line.rfind("  yaml: |", 0) == 0) {
+      // "yaml: |" appears at column 2 for both "  yaml: |" and "- yaml: |"
+      if (line.find("yaml: |") == 2) {
         inBlock = true;
+        found = true;
       }
     } else {
       // Non-blank line with fewer than blockIndent leading spaces → end of
@@ -50,13 +132,15 @@ std::string extractYamlField(const std::string &fileContent) {
           (line.size() >= blockIndent ? line.substr(blockIndent) : "") + '\n';
     }
   }
-  return result;
+  if (!found) {
+    return std::nullopt;
+  }
+  return decodeDisplayChars(result);
 }
 
-/// Return true if the test-suite metadata file marks this case as
-/// expected-fail.
-bool isFail(const std::string &fileContent) {
-  return fileContent.find("  fail: true") != std::string::npos;
+/// Return true if the test item is marked as expected-fail.
+bool itemIsFail(const std::string &itemText) {
+  return itemText.find("fail: true") != std::string::npos;
 }
 
 } // namespace
@@ -269,15 +353,17 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
 // ============================================================================
 // Gap 3.8 — Programmatic sweep of ALL yaml-test-suite files
 // ============================================================================
-// Scans every .yaml file in the test-suite src directory.  For each file it
-// extracts the 'yaml:' block literal field and checks:
+// Scans every .yaml file in the test-suite src directory.  Each file may
+// contain one or more sub-tests (top-level YAML sequence items).  For each
+// sub-test item the 'yaml:' block is extracted and checked:
 //   • no 'fail: true' → CHECK_NOTHROW (valid YAML must parse)
 //   • 'fail: true'    → CHECK_THROWS  (invalid YAML must be rejected)
 //
+// Multi-sub-test files use "ID/N" labels (e.g. "Y79Y/0", "Y79Y/1", …).
+// Single-sub-test files keep the plain "ID" label.
+//
 // CHECK (not REQUIRE) is used so the loop continues on failure, giving a
-// complete picture of which files the library currently handles.  Failures
-// here represent known remaining limitations covered by later plan items;
-// regressions appear when a previously passing file starts failing.
+// complete picture of which files the library currently handles.
 // ============================================================================
 TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8).",
           "[YAML][TestSuite][Sweep]") {
@@ -303,27 +389,41 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
     const std::string content{std::istreambuf_iterator<char>(ifs),
                               std::istreambuf_iterator<char>()};
 
-    const std::string yamlInput = extractYamlField(content);
-    if (yamlInput.empty()) {
-      // No 'yaml:' field found — should not occur in a well-formed suite file
-      WARN("Suite file " << fp.stem().string()
-                         << ": no 'yaml:' field — skipped.");
+    const std::string fileId = fp.stem().string();
+    const auto items = splitTestItems(content);
+    if (items.empty()) {
+      WARN("Suite file " << fileId << ": no test items found — skipped.");
       continue;
     }
 
-    const bool expectFail = isFail(content);
-    const std::string id = fp.stem().string();
+    for (std::size_t i = 0; i < items.size(); ++i) {
+      const auto yamlOpt = extractYamlFromItem(items[i]);
+      if (!yamlOpt.has_value()) {
+        WARN("Suite file " << fileId << " item " << i
+                           << ": no 'yaml:' field — skipped.");
+        continue;
+      }
 
-    const YAML yaml;
-    BufferSource source{yamlInput};
+      const bool expectFail = itemIsFail(items[i]);
+      // Use "ID/N" label for files with multiple sub-tests
+      const std::string id =
+          items.size() > 1 ? fileId + "/" + std::to_string(i) : fileId;
 
-    INFO("Suite: " << id << (expectFail ? " [expect-fail]" : " [expect-pass]"));
-    INFO("Input:\n" << yamlInput);
+      const YAML yaml;
+      const std::string &yamlInput = *yamlOpt;
 
-    if (expectFail) {
-      CHECK_THROWS(yaml.parse(source));
-    } else {
-      CHECK_NOTHROW(yaml.parse(source));
+      INFO("Suite: " << id
+                     << (expectFail ? " [expect-fail]" : " [expect-pass]"));
+      INFO("Input:\n" << yamlInput);
+
+      // BufferSource is constructed inside the assertion so that a
+      // constructor exception (e.g. empty-source error) is caught by CHECK.
+      if (expectFail) {
+        CHECK_THROWS(yaml.parse(BufferSource{yamlInput}));
+      } else {
+        CHECK_NOTHROW(yaml.parse(BufferSource{yamlInput}));
+      }
     }
   }
+
 }
