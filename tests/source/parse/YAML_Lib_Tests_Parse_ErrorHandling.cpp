@@ -84,14 +84,16 @@ TEST_CASE("Check YAML syntax error detection.",
       yaml.parse(source);
       FAIL("Expected SyntaxError was not thrown.");
     } catch (const SyntaxError &ex) {
-      REQUIRE(std::string{ex.what()}.find("more than once") != std::string::npos);
+      REQUIRE(std::string{ex.what()}.find("more than once") !=
+              std::string::npos);
     }
   }
 
   SECTION("YAML %YAML directive allowed once per document in multi-doc stream.",
           "[YAML][Parse][ErrorHandling][Directive]") {
     // Each document may have its own %YAML directive after a ... separator
-    BufferSource source{"%YAML 1.2\n---\nfoo: bar\n...\n%YAML 1.1\n---\nbaz: 1\n"};
+    BufferSource source{
+        "%YAML 1.2\n---\nfoo: bar\n...\n%YAML 1.1\n---\nbaz: 1\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
 

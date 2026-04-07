@@ -71,8 +71,9 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
                                 std::to_string(major) + ".");
         }
         if (yamlDirectiveSeen) {
-          throw SyntaxError(source.getPosition(),
-                            "%YAML directive appears more than once for the same document.");
+          throw SyntaxError(
+              source.getPosition(),
+              "%YAML directive appears more than once for the same document.");
         }
         yamlDirectiveSeen = true;
         yamlDirectiveMinor = minor;
