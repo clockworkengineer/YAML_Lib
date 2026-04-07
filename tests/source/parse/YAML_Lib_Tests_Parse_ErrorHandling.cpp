@@ -13,6 +13,50 @@ TEST_CASE("Check YAML syntax error detection.",
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
+  // ---- Control characters ----
+
+  SECTION("YAML NUL byte (U+0000) in stream throws SyntaxError.",
+          "[YAML][Parse][ErrorHandling][ControlChar]") {
+    BufferSource source{std::string("---\nkey: val\x00ue\n", 17)};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
+  SECTION("YAML vertical tab (U+000B) in stream throws SyntaxError.",
+          "[YAML][Parse][ErrorHandling][ControlChar]") {
+    BufferSource source{"---\nkey: val\x0Bue\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
+  SECTION("YAML form feed (U+000C) in stream throws SyntaxError.",
+          "[YAML][Parse][ErrorHandling][ControlChar]") {
+    BufferSource source{"---\nkey: val\x0Cue\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
+  SECTION("YAML DEL (U+007F) in stream throws SyntaxError.",
+          "[YAML][Parse][ErrorHandling][ControlChar]") {
+    BufferSource source{"---\nkey: val\x7Fue\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
+  SECTION("YAML control char error message names the code point.",
+          "[YAML][Parse][ErrorHandling][ControlChar]") {
+    BufferSource source{"---\nkey: val\x0Bue\n"};
+    try {
+      yaml.parse(source);
+      FAIL("Expected SyntaxError was not thrown.");
+    } catch (const SyntaxError &ex) {
+      REQUIRE(std::string{ex.what()}.find("000B") != std::string::npos);
+    }
+  }
+
+  SECTION("YAML TAB LF CR are allowed control chars (no throw).",
+          "[YAML][Parse][ErrorHandling][ControlChar]") {
+    // TAB in a quoted string, LF is the normal line ending, CR is stripped
+    BufferSource source{"---\nkey: \"val\tue\"\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
+
   SECTION("YAML tab as first indentation character throws SyntaxError.",
           "[YAML][Parse][ErrorHandling][TabIndent]") {
     // Top-level key indented with a tab

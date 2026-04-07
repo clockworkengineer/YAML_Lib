@@ -94,7 +94,7 @@ char16_t decodeUTF16(std::string_view::const_iterator &current,
 /// string.</param> <returns>UTF16 character for ""\x00"".</returns>
 char16_t decodeUTF8(std::string_view::const_iterator &current,
                     const ptrdiff_t numberOfCharacters) {
-  if (numberOfCharacters >= 4) {
+  if (numberOfCharacters >= 3) {
     char16_t utf16value{};
     // Hex digits will be ascii so can throw away high order byte of char
     const std::array hexDigits{(current[1]), (current[2]), kNull};

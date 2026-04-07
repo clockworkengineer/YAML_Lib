@@ -27,6 +27,36 @@ bool Default_Parser::endsWith(const std::string_view &str,
   return str.compare(strLen - substrLen, substrLen, substr) == 0;
 }
 /// <summary>
+/// Scan the entire source for forbidden YAML control characters (YAML 1.2
+/// §5.1).  Forbidden bytes: U+0000-U+0008, U+000B, U+000C, U+000E-U+001F,
+/// U+007F.  Allowed control bytes: U+0009 (TAB), U+000A (LF), U+000D (CR).
+/// Bytes >= 0x80 are UTF-8 multi-byte sequence bytes and are allowed.
+/// </summary>
+/// <param name="source">Source stream.</param>
+void Default_Parser::validateInputCharacters(ISource &source) {
+  source.save();
+  while (source.more()) {
+    const auto ch = static_cast<unsigned char>(source.current());
+    // Forbidden: C0 controls except TAB(9), LF(10), CR(13); also DEL(127)
+    if ((ch <= 0x08) || (ch == 0x0B) || (ch == 0x0C) ||
+        (ch >= 0x0E && ch <= 0x1F) || (ch == 0x7F)) {
+      const auto pos = source.getPosition();
+      source.restore();
+      throw SyntaxError(pos,
+                        "Disallowed control character U+" +
+                            [ch]() {
+                              char buf[5];
+                              std::snprintf(buf, sizeof(buf), "%04X",
+                                            static_cast<unsigned>(ch));
+                              return std::string(buf);
+                            }() +
+                            " in YAML stream.");
+    }
+    source.next();
+  }
+  source.restore();
+}
+/// <summary>
 /// Remove any spaces at the end of str.
 /// </summary>
 /// <param name="str">Target string.</param>

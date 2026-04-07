@@ -233,12 +233,19 @@ YAML spec §7.3.1 / §6.5 says trailing whitespace before a line break in a flow
 
 ---
 
-### 3.13 🟢 LOW — No validation of disallowed control characters in YAML content
+### 3.13 ~~🟢 LOW — No validation of disallowed control characters in YAML content~~ ✅ FIXED (2026-04-07)
 
 **Location:** Parser generally  
 **Problem:**  
-YAML 1.2 spec §5.1 defines the character set for YAML streams. Control characters (U+0000-U+0008, U+000B, U+000C, U+000E-U+001F) are not permitted outside of escaped contexts. The parser does not validate raw input bytes.  
-**Fix:** Add a character-set validation pass, or validate as part of `extractToNext` / `extractString`. Throw `SyntaxError` on out-of-spec control characters.
+YAML 1.2 spec §5.1 defines the character set for YAML streams. Control characters (U+0000–U+0008, U+000B, U+000C, U+000E–U+001F, U+007F) are not permitted outside of escaped contexts. The parser did not validate raw input bytes.  
+**Fix applied:**  
+- Added `static void validateInputCharacters(ISource &source)` to `Default_Parser` (declared in `Default_Parser.hpp`, implemented in `YAML_Parser_Util.cpp`).  
+- The function uses `source.save()/restore()` to scan the entire source before parsing: any byte matching the forbidden range (0x00–0x08, 0x0B, 0x0C, 0x0E–0x1F, 0x7F) throws `SyntaxError` with position info and the hex code point. Bytes ≥0x80 (UTF-8 multi-byte sequences) are allowed.  
+- Called at the top of `parse()` before the main loop.  
+- Also fixed a pre-existing off-by-one in `Default_Translator.cpp` `decodeUTF8()`: condition changed from `numberOfCharacters >= 4` to `>= 3` (need `x` + 2 hex digits = 3 chars, not 4).  
+- `YAML_Lib_Tests_Stringify_XML.cpp`: two tests that injected raw control bytes (forbidden) updated to use YAML `\xNN` escape sequences.  
+- `YAML_Lib_Tests_Parse_ErrorHandling.cpp`: 6 new `[ControlChar]` sections: NUL, VT, FF, DEL throw; error message contains hex code point; TAB/LF/CR don’t throw.  
+**Verification:** 57/58 test cases pass (2495 assertions); sweep improved from 109 → 108 known failures (decodeUTF8 fix resolved one suite case).
 
 ---
 
@@ -384,11 +391,15 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 
 ---
 
-### P12 — Validate disallowed control characters
-**Files:** `classes/source/implementation/parser/YAML_Parser_Util.cpp`  
-**Task:** In `extractToNext` and `extractString`, after consuming a character, check its value against the YAML 1.2 forbidden character set (U+0000–U+0008, U+000B, U+000C, U+000E–U+001F excluding TAB U+0009, LF U+000A). Throw `SyntaxError` on violation.  
-**Test:** A buffer containing a raw `\x01` byte outside a quoted string throws `SyntaxError`.  
-**Acceptance:** New test passes; no valid YAML regresses.
+### ~~P12 — Validate disallowed control characters~~ ✅ DONE (2026-04-07)
+**Files:** `Default_Parser.hpp`, `YAML_Parser_Util.cpp`, `YAML_Parser.cpp`, `Default_Translator.cpp`  
+**Changes applied:**
+- `validateInputCharacters(ISource &)`: pre-scan using save/restore; throws `SyntaxError` on any forbidden ASCII control byte.
+- Called at top of `parse()` before anything else.
+- `decodeUTF8()` in translator: fixed off-by-one (`>= 4` → `>= 3`).
+- `YAML_Lib_Tests_Stringify_XML.cpp`: raw byte tests converted to `\xNN` YAML escapes.
+- 6 new `[ControlChar]` error-handling test sections.
+**Verification:** NUL/VT/FF/DEL/SOH throw; TAB/LF/CR do not. 2495 assertions pass. Sweep: 108 known failures (improved from 109).
 
 ---
 
@@ -429,7 +440,7 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 | 10 | P11 | Tag preservation in stringify | 🟡 MEDIUM | Medium–High |
 | 11 | ~~P8~~ | ~~Recursive anchor guard~~ | ✅ DONE | — |
 | 12 | ~~P14~~ | ~~Duplicate `%YAML` detection~~ | ✅ DONE | — |
-| 13 | P12 | Control character validation | 🟢 LOW | Low–Medium |
+| 13 | ~~P12~~ | ~~Control character validation~~ | ✅ DONE | — |
 | 14 | P13 | yaml-test-suite expansion | 🟡 MEDIUM | High |
 
 ---

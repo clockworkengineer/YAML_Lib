@@ -27,12 +27,8 @@ TEST_CASE("Check YAML stringification to XML of simple types.", "[YAML][Stringif
     "('abcdefghijklmnopqrstuvwxyz') ",
     "[YAML][Stringify][XML][String]")
   {
-    std::string escaped;
-    escaped += "\"abcdefghijklmnopqrstuvwxyz";
-    escaped += 1;
-    escaped += 2;
-    escaped += '"';
-    BufferSource source{ escaped };
+    // Use YAML \xNN escape sequences (raw control bytes are forbidden per YAML 1.2 §5.1)
+    BufferSource source{ R"("abcdefghijklmnopqrstuvwxyz\x01\x02")" };
     BufferDestination destination;
     yaml.parse(source);
     yaml.stringify(destination);
@@ -41,10 +37,17 @@ TEST_CASE("Check YAML stringification to XML of simple types.", "[YAML][Stringif
   }
   SECTION("XML encode an string with unprintable characters (1-127) ", "[YAML][Stringify][XML][String]")
   {
+    // Build source using YAML \xNN escapes for control chars (raw control bytes forbidden per YAML 1.2 §5.1)
     std::string escaped{ "\"abcdefghijklmnopqrstuvwxyz" };
-    // Add all ASCII except '"' and '\'
     for (int ch = 1; ch < 128; ch++) {
-      if (static_cast<char>(ch) != '"' && static_cast<char>(ch) != '\\'  && static_cast<char>(ch) != '\n') { escaped += static_cast<char>(ch); }
+      if (static_cast<char>(ch) == '"' || static_cast<char>(ch) == '\\' || static_cast<char>(ch) == '\n') { continue; }
+      if (ch < 0x20 || ch == 0x7F) {
+        char buf[6];
+        std::snprintf(buf, sizeof(buf), "\\x%02X", ch);
+        escaped += buf;
+      } else {
+        escaped += static_cast<char>(ch);
+      }
     }
     escaped += '"';
     BufferSource source{ escaped };
