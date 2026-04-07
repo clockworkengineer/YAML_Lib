@@ -161,4 +161,27 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     REQUIRE(yaml.document(0)["color"].getVariant().getTag() ==
             "tag:example.com,rgb");
   }
+
+  // ---- !!omap and !!pairs ----
+
+  SECTION("YAML !!omap parses as a Dictionary with tag preserved.",
+          "[YAML][Parse][Tags][OMap]") {
+    BufferSource source{"---\n!!omap\n- a: 1\n- b: 2\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.document(0).getVariant().getTag() == "tag:yaml.org,2002:omap");
+  }
+
+  SECTION("YAML !!omap preserves key insertion order.",
+          "[YAML][Parse][Tags][OMap]") {
+    BufferSource source{"---\n!!omap\n- z: last\n- a: first\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.document(0).getVariant().getTag() == "tag:yaml.org,2002:omap");
+  }
+
+  SECTION("YAML !!pairs parses as an Array with tag preserved.",
+          "[YAML][Parse][Tags][Pairs]") {
+    BufferSource source{"---\n!!pairs\n- key: value\n- key: another\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.document(0).getVariant().getTag() == "tag:yaml.org,2002:pairs");
+  }
 }

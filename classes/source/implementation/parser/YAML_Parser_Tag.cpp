@@ -190,6 +190,14 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
       result = parseDocument(source, delimiters, indentation);
     } else if (tagSuffix == "map") {
       result = parseDocument(source, delimiters, indentation);
+    } else if (tagSuffix == "omap") {
+      // !!omap — ordered map; Dictionary already preserves insertion order.
+      // Parse as a normal mapping and attach the tag for semantic distinction.
+      result = parseDocument(source, delimiters, indentation);
+    } else if (tagSuffix == "pairs") {
+      // !!pairs — sequence of key-value pairs; duplicate keys allowed.
+      // Parse as a normal sequence and attach the tag.
+      result = parseDocument(source, delimiters, indentation);
     } else if (tagSuffix == "timestamp") {
       // Try to parse as a native timestamp; fall back to string
       result = parseTimestamp(source, delimiters, indentation);

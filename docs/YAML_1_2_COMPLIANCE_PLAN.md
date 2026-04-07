@@ -249,13 +249,13 @@ YAML 1.2 spec §5.1 defines the character set for YAML streams. Control characte
 
 ---
 
-### 3.14 🟢 LOW — `!!omap` and `!!pairs` have no dedicated node type
+### 3.14 ✅ FIXED (2026-04-07) — `!!omap` and `!!pairs` have no dedicated node type
 
 **Location:** `classes/include/implementation/variants/`  
 **Problem:**  
 YAML 1.2 schema includes `!!omap` (ordered map) and `!!pairs` (sequence of key-value pairs allowing duplicate keys). Both are parsed as generic dictionaries/sequences. Ordered insertion is already preserved by the `Dictionary` type (it uses a vector, not a hash map), so `!!omap` round-trips correctly in practice, but there is no node-level distinction.  
-**Fix (minimal):** Store the `!!omap`/`!!pairs` tag on the resulting node (already possible via `setTag`) and document the limitation. This is tracked in §3.6 (tag preservation).  
-**Fix (full):** Add `OrderedMap` and `Pairs` variant types for semantic distinction.  
+**Fix (minimal):** Added explicit `!!omap` and `!!pairs` branches in `parseTagged()` (`YAML_Parser_Tag.cpp`). Tag is stored on the resulting node via `setTag`. Three tests added to `YAML_Lib_Tests_Parse_Tags.cpp` confirming tag preservation.  
+**Fix (full):** Add `OrderedMap` and `Pairs` variant types for semantic distinction. Not in scope — see §"Out of Scope" note below.  
 
 ---
 
