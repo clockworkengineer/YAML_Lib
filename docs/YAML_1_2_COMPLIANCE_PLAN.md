@@ -259,12 +259,12 @@ YAML 1.2 schema includes `!!omap` (ordered map) and `!!pairs` (sequence of key-v
 
 ---
 
-### 3.15 🟢 LOW — Single-quoted scalars: `''` escape only handled at outer parse, not inside key extraction
+### 3.15 ✅ FIXED (2026-04-07) — Single-quoted scalars: `''` escape only handled at outer parse, not inside key extraction
 
 **Location:** `YAML_Parser_Util.cpp`, `extractString()`  
 **Problem:**  
 `extractString` scans until it finds the closing quote without handling the `''` (escaped apostrophe) inside single-quoted strings. Single-quoted key extraction (`extractKey`) uses `extractString`, so a single-quoted key with an embedded `''` is likely mis-parsed.  
-**Fix:** In `extractString`, when the closing-quote character is found, peek one position ahead; if the next char is also a quote, consume both and continue rather than stopping.
+**Fix:** In `extractString`, when a `'` is encountered and `quote == kApostrophe`, advance past it and peek: if the next char is also `'`, emit both quotes into the raw string and continue scanning; otherwise the real closing quote was already consumed, so append the closing quote and return. Two tests added to `YAML_Lib_Tests_Parse_String.cpp` verifying `''` in keys with one and multiple escapes (`[SingleQuoteKey]`).
 
 ---
 

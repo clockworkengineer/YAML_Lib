@@ -114,14 +114,33 @@ void Default_Parser::moveToNextIndent(ISource &source) {
 /// <returns>Extracted characters.</returns>
 std::string Default_Parser::extractString(ISource &source, const char quote) {
   std::string extracted{quote};
-  source.next();
-  while (source.more() && source.current() != quote) {
+  source.next(); // skip opening quote
+  while (source.more()) {
+    if (source.current() == quote) {
+      if (quote == kApostrophe) {
+        // Advance past this quote and decide: '' or real closing quote?
+        source.next();
+        if (source.more() && source.current() == quote) {
+          // '' escape: keep both raw chars so the downstream re-parser
+          // (convertYAMLToStringNode → parseQuotedFlowString) decodes them.
+          extracted += quote;
+          extracted += quote;
+          source.next(); // consume the second quote; continue scanning
+          continue;
+        }
+        // Real closing quote: already consumed above.
+        extracted += quote;
+        source.ignoreWS();
+        return extracted;
+      }
+      break; // double-quoted (or other): closing quote
+    }
     extracted += source.current();
     source.next();
   }
   extracted += quote;
   if (source.more()) {
-    source.next();
+    source.next(); // consume closing quote
   }
   source.ignoreWS();
   return extracted;

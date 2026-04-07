@@ -182,6 +182,7 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
           "[YAML][Parse][Tags][Pairs]") {
     BufferSource source{"---\n!!pairs\n- key: value\n- key: another\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(yaml.document(0).getVariant().getTag() == "tag:yaml.org,2002:pairs");
+    REQUIRE(yaml.document(0).getVariant().getTag() ==
+            "tag:yaml.org,2002:pairs");
   }
 }

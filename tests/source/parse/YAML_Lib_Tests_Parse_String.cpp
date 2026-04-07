@@ -64,6 +64,23 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() == "test string '.'. ");
   }
+  // Single-quoted KEY with '' escape (gap 3.15 fix: extractString must not
+  // stop at the first apostrophe inside the key).
+  SECTION("Single-quoted dictionary key with '' escape is parsed correctly.",
+          "[YAML][Parse][Scalar][String][SingleQuoteKey]") {
+    BufferSource source{"'it''s a key': value\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)["it's a key"]).value() == "value");
+  }
+  SECTION("Single-quoted key with multiple '' escapes.",
+          "[YAML][Parse][Scalar][String][SingleQuoteKey]") {
+    BufferSource source{"'can''t stop won''t stop': true\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    // Key "can't stop won't stop" must be reachable; value is a bool.
+    REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)["can't stop won't stop"]));
+  }
   SECTION("YAML parse an unquoted string with that terminated by EOF.",
           "[YAML][Parse][Scalar][String]") {
     BufferSource source{"---\n test string."};
