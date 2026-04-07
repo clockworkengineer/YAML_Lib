@@ -42,15 +42,12 @@ void Default_Parser::validateInputCharacters(ISource &source) {
         (ch >= 0x0E && ch <= 0x1F) || (ch == 0x7F)) {
       const auto pos = source.getPosition();
       source.restore();
-      throw SyntaxError(pos,
-                        "Disallowed control character U+" +
-                            [ch]() {
-                              char buf[5];
-                              std::snprintf(buf, sizeof(buf), "%04X",
-                                            static_cast<unsigned>(ch));
-                              return std::string(buf);
-                            }() +
-                            " in YAML stream.");
+      throw SyntaxError(
+          pos, "Disallowed control character U+" + [ch]() {
+            char buf[5];
+            std::snprintf(buf, sizeof(buf), "%04X", static_cast<unsigned>(ch));
+            return std::string(buf);
+          }() + " in YAML stream.");
     }
     source.next();
   }
