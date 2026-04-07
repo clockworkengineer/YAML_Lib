@@ -160,6 +160,8 @@ private:
   inline static std::map<std::string, std::string> yamlTagPrefixes{};
   // Set of anchor names currently being expanded (cycle detection)
   inline static std::set<std::string> activeAliasExpansions{};
+  // Track whether a %YAML directive has been seen for the current document
+  inline static bool yamlDirectiveSeen{false};
   // Translator
   inline static std::unique_ptr<ITranslator> yamlTranslator;
 };

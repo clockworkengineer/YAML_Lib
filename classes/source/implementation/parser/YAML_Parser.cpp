@@ -45,6 +45,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
   yamlTagPrefixes.clear();
   activeAliasExpansions.clear();
   yamlDirectiveMinor = 2;
+  yamlDirectiveSeen = false;
   for (bool inDocument = false; source.more();) {
     // Directives (%YAML or %TAG) — only valid before a document starts
     if (isDirective(source)) {
@@ -69,6 +70,11 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
                             "%YAML directive: unsupported major version " +
                                 std::to_string(major) + ".");
         }
+        if (yamlDirectiveSeen) {
+          throw SyntaxError(source.getPosition(),
+                            "%YAML directive appears more than once for the same document.");
+        }
+        yamlDirectiveSeen = true;
         yamlDirectiveMinor = minor;
         moveToNext(source, {kLineFeed});
         if (source.more()) {
@@ -106,6 +112,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
         yNodeTree.push_back(Node::make<Document>());
       }
       inDocument = false;
+      yamlDirectiveSeen = false;
       // Inter document comment
     } else if (isComment(source) && !inDocument) {
       parseComment(source, {kLineFeed});

@@ -207,12 +207,16 @@ If YAML contains a self-referencing anchor (directly or indirectly), alias expan
 
 ---
 
-### 3.11 🟢 LOW — `%YAML` directive may appear multiple times without error
+### 3.11 ~~🟢 LOW — `%YAML` directive may appear multiple times without error~~ ✅ FIXED (2026-04-07)
 
 **Location:** `YAML_Parser.cpp`, directive handling  
 **Problem:**  
-YAML 1.2 spec (§9.2) says at most one `%YAML` directive may appear per document. The parser overwrites `yamlDirectiveMinor` silently on each `%YAML` seen.  
-**Fix:** Track whether a `%YAML` directive has been seen for the current document stream and throw `SyntaxError` on a second occurrence.
+YAML 1.2 spec (§9.2) says at most one `%YAML` directive may appear per document. The parser overwrote `yamlDirectiveMinor` silently on each `%YAML` seen.  
+**Fix applied:**  
+- Added `inline static bool yamlDirectiveSeen{false}` to `Default_Parser.hpp`; reset in `parse()` and when `inDocument` becomes `false` (document end `...`).  
+- In `%YAML` handler: throw `SyntaxError("%YAML directive appears more than once for the same document.")` when `yamlDirectiveSeen` is already `true`; then set it to `true`.  
+- Added four `[Directive]` sections to `YAML_Lib_Tests_Parse_ErrorHandling.cpp`: duplicate same-version throws, duplicate different-version throws + message check, and `%YAML` once per document in a two-doc stream does not throw.  
+**Verification:** 57/58 test cases pass (2489 assertions); sweep unchanged at 109 known failures.
 
 ---
 
@@ -399,11 +403,13 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 
 ---
 
-### P14 — `%YAML` duplicate directive detection
-**Files:** `YAML_Parser.cpp`  
-**Task:** Add a `bool seenYamlDirective = false` flag per-stream. Set it on first `%YAML`; throw `SyntaxError` if seen again before the next `---`.  
-**Test:** Two `%YAML 1.2` lines before a single `---` throw.  
-**Acceptance:** New test passes.
+### ~~P14 — `%YAML` duplicate directive detection~~ ✅ DONE (2026-04-07)
+**Files:** `Default_Parser.hpp`, `YAML_Parser.cpp`  
+**Changes applied:**
+- `yamlDirectiveSeen` flag added; cleared in `parse()` and on document end (`...`).
+- `%YAML` handler: throws `SyntaxError` if `yamlDirectiveSeen` is already `true`.
+- `YAML_Lib_Tests_Parse_ErrorHandling.cpp`: 4 new `[Directive]` sections.
+**Verification:** Two `%YAML` lines before one `---` throw; one per document in multi-doc stream does not. 2489 assertions pass.
 
 ---
 
@@ -422,7 +428,7 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 | 9 | ~~P7~~ | ~~Version-directive schema switch~~ | ✅ DONE | — |
 | 10 | P11 | Tag preservation in stringify | 🟡 MEDIUM | Medium–High |
 | 11 | ~~P8~~ | ~~Recursive anchor guard~~ | ✅ DONE | — |
-| 12 | P14 | Duplicate `%YAML` detection | 🟢 LOW | Very low |
+| 12 | ~~P14~~ | ~~Duplicate `%YAML` detection~~ | ✅ DONE | — |
 | 13 | P12 | Control character validation | 🟢 LOW | Low–Medium |
 | 14 | P13 | yaml-test-suite expansion | 🟡 MEDIUM | High |
 

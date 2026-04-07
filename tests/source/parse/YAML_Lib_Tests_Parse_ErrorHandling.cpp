@@ -71,6 +71,30 @@ TEST_CASE("Check YAML syntax error detection.",
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
+  SECTION("YAML duplicate %YAML directive in same document throws.",
+          "[YAML][Parse][ErrorHandling][Directive]") {
+    BufferSource source{"%YAML 1.2\n%YAML 1.2\n---\nvalue: 1\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
+  SECTION("YAML duplicate %YAML directive error message mentions document.",
+          "[YAML][Parse][ErrorHandling][Directive]") {
+    BufferSource source{"%YAML 1.2\n%YAML 1.1\n---\nvalue: 1\n"};
+    try {
+      yaml.parse(source);
+      FAIL("Expected SyntaxError was not thrown.");
+    } catch (const SyntaxError &ex) {
+      REQUIRE(std::string{ex.what()}.find("more than once") != std::string::npos);
+    }
+  }
+
+  SECTION("YAML %YAML directive allowed once per document in multi-doc stream.",
+          "[YAML][Parse][ErrorHandling][Directive]") {
+    // Each document may have its own %YAML directive after a ... separator
+    BufferSource source{"%YAML 1.2\n---\nfoo: bar\n...\n%YAML 1.1\n---\nbaz: 1\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+  }
+
   // ---- Multi-merge-key sequence with non-mapping element ----
 
   SECTION("YAML <<: [*seq, *map] where *seq is a sequence throws.",
