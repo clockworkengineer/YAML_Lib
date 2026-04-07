@@ -301,18 +301,9 @@ All 2258 assertions pass.
 
 ---
 
-### P4 — Fix folded block string stringifies as literal
+### ~~P4 — Fix folded block string stringifies as literal~~ ✅ DONE
 **Files:** `classes/include/implementation/stringify/Default_Stringify.hpp`, `stringifyAnyBlockStyle()`  
-**Task:** Change:
-```cpp
-destination.add("|");
-```
-to:
-```cpp
-destination.add(std::string(1, quote));
-```
-**Test:** Parse `key: >\n  line\n`, stringify, verify output starts with `key: >`.  
-**Acceptance:** Round-trip preserves `>` vs `|` distinction.
+**Resolution:** `destination.add(std::string(1, quote))` was already in place (fixed alongside P11/gap 3.7). Folded (`>`) and literal (`|`) round-trip correctly. Tests in `YAML_Lib_Tests_Stringify.cpp` `[BlockScalar]` confirm `key: >` is preserved.
 
 ---
 
@@ -361,11 +352,9 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 
 ---
 
-### P9 — Fix single-quoted key `''` escape in `extractString`
+### ~~P9 — Fix single-quoted key `''` escape in `extractString`~~ ✅ DONE (2026-04-07)
 **Files:** `classes/source/implementation/parser/YAML_Parser_Util.cpp`, `extractString()`  
-**Task:** When scanning the quoted content and the closing quote is found, save the position, advance one character, and check if it is also the same quote. If yes: emit a single quote and continue; if no: restore and stop.  
-**Test:** `'can''t': value` parses with key `"can't"`.  
-**Acceptance:** New test passes.
+**Resolution:** Fixed in gap 3.15. `extractString()` now advances past each `'`; if the next char is also `'`, both raw chars are kept for the downstream re-parser; otherwise the closing quote is consumed and the function returns. No `save()`/`restore()` needed. `[SingleQuoteKey]` tests pass.
 
 ---
 
