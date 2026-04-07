@@ -43,6 +43,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
   inlineDictionaryDepth = 0;
   yamlAliasMap.clear();
   yamlTagPrefixes.clear();
+  activeAliasExpansions.clear();
   yamlDirectiveMinor = 2;
   for (bool inDocument = false; source.more();) {
     // Directives (%YAML or %TAG) — only valid before a document starts

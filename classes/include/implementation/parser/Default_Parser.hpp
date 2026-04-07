@@ -158,6 +158,8 @@ private:
   inline static bool strictBooleans{false};
   // TAG directive prefix map: handle -> prefix URI
   inline static std::map<std::string, std::string> yamlTagPrefixes{};
+  // Set of anchor names currently being expanded (cycle detection)
+  inline static std::set<std::string> activeAliasExpansions{};
   // Translator
   inline static std::unique_ptr<ITranslator> yamlTranslator;
 };

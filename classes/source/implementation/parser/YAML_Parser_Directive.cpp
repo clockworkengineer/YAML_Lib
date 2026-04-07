@@ -153,12 +153,24 @@ Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
   if (!yamlAliasMap.count(name)) {
     throw SyntaxError(source.getPosition(), "Undefined alias '" + name + "'.");
   }
+  if (activeAliasExpansions.count(name)) {
+    throw SyntaxError(source.getPosition(),
+                      "Recursive anchor detected: '" + name + "'.");
+  }
   const std::string unparsed{yamlAliasMap[name]};
   if (unparsed.empty()) {
     return Node::make<Null>();
   }
-  BufferSource anchor{unparsed};
-  return parseDocument(anchor, delimiters, indentation);
+  activeAliasExpansions.insert(name);
+  try {
+    BufferSource anchor{unparsed};
+    auto result = parseDocument(anchor, delimiters, indentation);
+    activeAliasExpansions.erase(name);
+    return result;
+  } catch (...) {
+    activeAliasExpansions.erase(name);
+    throw;
+  }
 }
 /// <summary>
 /// Parse alias on source stream, substitute alias, and any overrides.

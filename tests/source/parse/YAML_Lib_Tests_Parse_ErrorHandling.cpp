@@ -153,4 +153,29 @@ TEST_CASE("Check YAML syntax error detection.",
       REQUIRE(!std::string{ex.what()}.empty());
     }
   }
+
+  // ---- Recursive anchors ----
+
+  SECTION("YAML self-referencing anchor throws SyntaxError.",
+          "[YAML][Parse][ErrorHandling][RecursiveAnchor]") {
+    BufferSource source{"---\nfoo: &foo\n  bar: *foo\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
+  SECTION("YAML indirect recursive anchor throws SyntaxError.",
+          "[YAML][Parse][ErrorHandling][RecursiveAnchor]") {
+    BufferSource source{"---\na: &a\n  b: *b\nb: &b\n  a: *a\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
+  SECTION("YAML recursive anchor SyntaxError message names the anchor.",
+          "[YAML][Parse][ErrorHandling][RecursiveAnchor]") {
+    BufferSource source{"---\nfoo: &foo\n  bar: *foo\n"};
+    try {
+      yaml.parse(source);
+      FAIL("Expected SyntaxError was not thrown.");
+    } catch (const SyntaxError &ex) {
+      REQUIRE(std::string{ex.what()}.find("foo") != std::string::npos);
+    }
+  }
 }

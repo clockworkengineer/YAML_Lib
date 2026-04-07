@@ -194,12 +194,16 @@ The yaml-test-suite ships with the repository (`tests/yaml-test-suite/yaml-test-
 
 ---
 
-### 3.10 🟢 LOW — Recursive anchor expansion has no cycle guard
+### 3.10 ~~🟢 LOW — Recursive anchor expansion has no cycle guard~~ ✅ FIXED (2026-04-07)
 
-**Location:** `classes/source/implementation/parser/YAML_Parser_Dictionary.cpp` and array parsing  
+**Location:** `classes/source/implementation/parser/YAML_Parser_Directive.cpp`, `parseAlias()`  
 **Problem:**  
 If YAML contains a self-referencing anchor (directly or indirectly), alias expansion will recurse infinitely and crash with a stack overflow. YAML 1.2 explicitly prohibits recursive structures but the parser does not detect the cycle.  
-**Fix:** Maintain a `std::set<std::string> activeAnchors` during alias expansion and throw `SyntaxError` if an alias resolves to an anchor currently being expanded.
+**Fix applied:**  
+- Added `inline static std::set<std::string> activeAliasExpansions{}` to `Default_Parser.hpp`; reset in `parse()`.  
+- In `parseAlias()`: before re-parsing the stored anchor text, check if `name` is already in `activeAliasExpansions` — if so, throw `SyntaxError("Recursive anchor detected: '<name>'")`. Insert `name` on entry; erase on return (try/catch guarantees cleanup on exception).  
+- Added three `[RecursiveAnchor]` sections to `YAML_Lib_Tests_Parse_ErrorHandling.cpp`: direct self-reference, indirect two-anchor cycle, and message content check.  
+**Verification:** 57/58 test cases pass (2486 assertions); sweep unchanged at 109 known failures.
 
 ---
 
@@ -336,11 +340,13 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 
 ---
 
-### P8 — Recursive anchor cycle guard
-**Files:** `classes/source/implementation/parser/YAML_Parser_Array.cpp` or wherever alias expansion resolves  
-**Task:** Maintain a `thread_local std::set<std::string> activeAnchors`. When beginning to expand an alias, insert the anchor name; remove it on return. If already present, throw `SyntaxError("Recursive anchor detected: <name>")`.  
-**Test:** A YAML fragment that would infinitely recurse instead throws a `SyntaxError`.  
-**Acceptance:** No stack overflow; descriptive error message.
+### ~~P8 — Recursive anchor cycle guard~~ ✅ DONE (2026-04-07)
+**Files:** `Default_Parser.hpp`, `YAML_Parser_Directive.cpp` (`parseAlias`), `YAML_Parser.cpp`  
+**Changes applied:**
+- `activeAliasExpansions` set added; cleared in `parse()`.
+- `parseAlias()`: cycle check before expansion; insert/erase with try/catch cleanup.
+- `YAML_Lib_Tests_Parse_ErrorHandling.cpp`: 3 new `[RecursiveAnchor]` sections.
+**Verification:** Self-referencing and cross-referencing anchors throw `SyntaxError` naming the anchor; 2486 assertions pass.
 
 ---
 
@@ -415,7 +421,7 @@ Model B (precise): Split `extractToNext` into `extractToNextComment` that stops 
 | 8 | P6 | Strict boolean mode | 🟡 MEDIUM | Medium |
 | 9 | ~~P7~~ | ~~Version-directive schema switch~~ | ✅ DONE | — |
 | 10 | P11 | Tag preservation in stringify | 🟡 MEDIUM | Medium–High |
-| 11 | P8 | Recursive anchor guard | 🟢 LOW | Low |
+| 11 | ~~P8~~ | ~~Recursive anchor guard~~ | ✅ DONE | — |
 | 12 | P14 | Duplicate `%YAML` detection | 🟢 LOW | Very low |
 | 13 | P12 | Control character validation | 🟢 LOW | Low–Medium |
 | 14 | P13 | yaml-test-suite expansion | 🟡 MEDIUM | High |
