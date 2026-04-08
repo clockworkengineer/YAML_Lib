@@ -12,6 +12,23 @@
 namespace YAML_Lib {
 
 /// <summary>
+/// Add a DictionaryEntry to a dictionary Node, throwing if the key already
+/// exists.
+/// </summary>
+/// <param name="dictionaryNode">Target dictionary Node.</param>
+/// <param name="entry">Entry to add.</param>
+/// <param name="source">Source stream (used for error position).</param>
+void Default_Parser::addUniqueDictEntry(Node &dictionaryNode,
+                                        DictionaryEntry entry,
+                                        ISource &source) {
+  if (NRef<Dictionary>(dictionaryNode).contains(entry.getKey())) {
+    throw SyntaxError(source.getPosition(),
+                      "Dictionary already contains key '" +
+                          std::string(entry.getKey()) + "'.");
+  }
+  NRef<Dictionary>(dictionaryNode).add(std::move(entry));
+}
+/// <summary>
 /// Convert YAML key to a string Node
 /// </summary>
 /// <param name="yamlString">YAML string.</param>
@@ -220,12 +237,7 @@ Node Default_Parser::parseDictionary(
   while (source.more() && dictionaryIndent == source.getPosition().second) {
     if (isKey(source)) {
       auto entry = parseKeyValue(source, delimiters, dictionaryIndent);
-      if (NRef<Dictionary>(dictionaryNode).contains(entry.getKey())) {
-        throw SyntaxError(source.getPosition(),
-                          "Dictionary already contains key '" +
-                              std::string(entry.getKey()) + "'.");
-      }
-      NRef<Dictionary>(dictionaryNode).add(std::move(entry));
+      addUniqueDictEntry(dictionaryNode, std::move(entry), source);
     } else if (isDocumentStart(source) || isDocumentEnd(source)) {
       break;
     } else {
@@ -265,12 +277,7 @@ Node Default_Parser::parseInlineDictionary(
     if (source.current() != kRightCurlyBrace) {
       auto entry =
           parseInlineKeyValue(source, inLineDictionaryDelimiters, indentation);
-      if (NRef<Dictionary>(dictionaryNode).contains(entry.getKey())) {
-        throw SyntaxError(source.getPosition(),
-                          "Dictionary already contains key '" +
-                              std::string(entry.getKey()) + "'.");
-      }
-      NRef<Dictionary>(dictionaryNode).add(std::move(entry));
+      addUniqueDictEntry(dictionaryNode, std::move(entry), source);
     }
   } while (source.current() == kComma);
   inlineDictionaryDepth--;
