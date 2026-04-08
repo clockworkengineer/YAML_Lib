@@ -134,57 +134,28 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
       // Force string interpretation — preserve quotes so the raw text is used.
       const std::string value = extractRawScalar();
       result = Node::make<String>(value, kNull);
-    } else if (tagSuffix == "int") {
-      // Force integer interpretation; support quoted string values.
+    } else if (tagSuffix == "int" || tagSuffix == "float" ||
+               tagSuffix == "bool" || tagSuffix == "null") {
+      // Dispatch table for the four core type-coercion tags.
+      using CoerceFunc = Node (*)(ISource &, const Delimiters &, unsigned long);
+      static const std::unordered_map<std::string,
+                                      std::pair<CoerceFunc, const char *>>
+          coercions{{"int",   {parseNumber,  "!!int"}},
+                    {"float", {parseNumber,  "!!float"}},
+                    {"bool",  {parseBoolean, "!!bool"}},
+                    {"null",  {parseNone,    "!!null"}}};
+      const auto &[fn, tagName] = coercions.at(tagSuffix);
       if (isQuotedString(source)) {
         const std::string raw = extractRawScalar();
         BufferSource bs{raw + "\n"};
-        result = parseNumber(bs, {kLineFeed}, indentation);
+        result = fn(bs, {kLineFeed}, indentation);
       } else {
-        result = parseNumber(source, delimiters, indentation);
+        result = fn(source, delimiters, indentation);
       }
       if (result.isEmpty()) {
         throw SyntaxError(source.getPosition(),
-                          "Value cannot be parsed as !!int.");
-      }
-    } else if (tagSuffix == "float") {
-      // Force float interpretation; support quoted string values.
-      if (isQuotedString(source)) {
-        const std::string raw = extractRawScalar();
-        BufferSource bs{raw + "\n"};
-        result = parseNumber(bs, {kLineFeed}, indentation);
-      } else {
-        result = parseNumber(source, delimiters, indentation);
-      }
-      if (result.isEmpty()) {
-        throw SyntaxError(source.getPosition(),
-                          "Value cannot be parsed as !!float.");
-      }
-    } else if (tagSuffix == "bool") {
-      // Force boolean interpretation; support quoted string values.
-      if (isQuotedString(source)) {
-        const std::string raw = extractRawScalar();
-        BufferSource bs{raw + "\n"};
-        result = parseBoolean(bs, {kLineFeed}, indentation);
-      } else {
-        result = parseBoolean(source, delimiters, indentation);
-      }
-      if (result.isEmpty()) {
-        throw SyntaxError(source.getPosition(),
-                          "Value cannot be parsed as !!bool.");
-      }
-    } else if (tagSuffix == "null") {
-      // Force null interpretation; support quoted string values.
-      if (isQuotedString(source)) {
-        const std::string raw = extractRawScalar();
-        BufferSource bs{raw + "\n"};
-        result = parseNone(bs, {kLineFeed}, indentation);
-      } else {
-        result = parseNone(source, delimiters, indentation);
-      }
-      if (result.isEmpty()) {
-        throw SyntaxError(source.getPosition(),
-                          "Value cannot be parsed as !!null.");
+                          std::string("Value cannot be parsed as ") +
+                              tagName + ".");
       }
     } else if (tagSuffix == "seq") {
       result = parseDocument(source, delimiters, indentation);
