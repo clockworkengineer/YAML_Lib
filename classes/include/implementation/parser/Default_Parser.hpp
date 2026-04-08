@@ -54,6 +54,7 @@ private:
   static void validateInputCharacters(ISource &source);
   static void rightTrim(std::string &str);
   static void moveToNext(ISource &source, const Delimiters &delimiters);
+  static void skipLine(ISource &source);
   static void moveToNextIndent(ISource &source);
   static std::string extractString(ISource &source, char quote);
   static std::string extractToNext(ISource &source,

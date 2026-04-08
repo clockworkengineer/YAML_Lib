@@ -74,6 +74,17 @@ void Default_Parser::moveToNext(ISource &source, const Delimiters &delimiters) {
   }
 }
 /// <summary>
+/// Move to the end of the current line and consume the newline character.
+/// Equivalent to: moveToNext(source, {kLineFeed}); if (source.more()) source.next();
+/// </summary>
+/// <param name="source">Source stream.</param>
+void Default_Parser::skipLine(ISource &source) {
+  moveToNext(source, {kLineFeed});
+  if (source.more()) {
+    source.next();
+  }
+}
+/// <summary>
 /// Move to the next non-whitespace character in source stream; jumping over new
 /// lines and stripping amy comments. Tabs used as block indentation (at the
 /// start of a line) are rejected as per the YAML 1.2 specification.
@@ -94,10 +105,7 @@ void Default_Parser::moveToNextIndent(ISource &source) {
       source.next();
     }
     if (isComment(source)) {
-      moveToNext(source, {kLineFeed});
-      if (source.more()) {
-        source.next();
-      }
+      skipLine(source);
     } else {
       indentFound = true;
     }

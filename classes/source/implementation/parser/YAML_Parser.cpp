@@ -78,10 +78,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
         }
         yamlDirectiveSeen = true;
         yamlDirectiveMinor = minor;
-        moveToNext(source, {kLineFeed});
-        if (source.more()) {
-          source.next();
-        }
+        skipLine(source);
       } else if (source.match("TAG")) {
         // %TAG handle prefix
         source.ignoreWS();
@@ -89,16 +86,10 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
         source.ignoreWS();
         std::string prefix{extractToNext(source, {kLineFeed, ' '})};
         yamlTagPrefixes[handle] = prefix;
-        moveToNext(source, {kLineFeed});
-        if (source.more()) {
-          source.next();
-        }
+        skipLine(source);
       } else {
         // Unknown directive — skip to end of line (per YAML spec: warn)
-        moveToNext(source, {kLineFeed});
-        if (source.more()) {
-          source.next();
-        }
+        skipLine(source);
       }
       // Start of a document
     } else if (isDocumentStart(source)) {
@@ -108,7 +99,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       yNodeTree.push_back(Node::make<Document>());
       // End of a document
     } else if (isDocumentEnd(source)) {
-      moveToNext(source, {kLineFeed});
+      skipLine(source);
       moveToNextIndent(source);
       if (!inDocument) {
         yNodeTree.push_back(Node::make<Document>());
