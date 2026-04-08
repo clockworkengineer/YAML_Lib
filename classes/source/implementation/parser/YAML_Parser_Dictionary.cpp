@@ -160,7 +160,15 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
     if (source.more() && source.current() == kSpace) {
       source.next(); // consume optional space after ':'
     }
-  } else if (isKey(source) && !isMapping(source)) {
+  } else if (isKey(source) && !isMapping(source) &&
+             (inlineDictionaryDepth > 0 ||
+              source.getPosition().second > keyIndent)) {
+    // Only throw when inside a flow collection (inlineDictionaryDepth > 0)
+    // or when an unexpected key appears deeper than keyIndent, indicating a
+    // compact-nested / same-line key where a simple value was expected.
+    // At block level with the next key at the same column, the explicit key
+    // simply has a null value and the sibling entry follows immediately
+    // (e.g. "? b\n&anchor c: 3" — ZWK4).
     throw SyntaxError(source.getPosition(),
                       "Only an inline/compact dictionary is allowed.");
   }
