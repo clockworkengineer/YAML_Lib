@@ -1,4 +1,4 @@
-# Parser DRY Refactoring Plan
+ Parser DRY Refactoring Plan
 
 Analysis of all eleven source files under
 `classes/source/implementation/parser/` and the single header

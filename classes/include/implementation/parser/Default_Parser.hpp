@@ -76,6 +76,8 @@ private:
   static void moveToNextIndent(ISource &source);
   static void addUniqueDictEntry(Node &dictionaryNode, DictionaryEntry entry,
                                  ISource &source);
+  static const std::string &resolveAlias(const std::string &name,
+                                         ISource &source);
   static std::string extractString(ISource &source, char quote);
   static std::string extractToNext(ISource &source,
                                    const Delimiters &delimiters);

@@ -73,8 +73,21 @@ Node Default_Parser::mergeOverrides(Node &overrideRoot) {
   return std::move(overrideRoot);
 }
 
-/// <summary>
-/// Parse a comment on source stream.
+/// <summary>/// Look up alias name in the alias map; throw SyntaxError if not
+/// found.
+/// </summary>
+/// <param name="name">Alias name to resolve.</param>
+/// <param name="source">Source stream (used only for error position).</param>
+/// <returns>Reference to the stored unparsed alias value.</returns>
+const std::string &Default_Parser::resolveAlias(const std::string &name,
+                                                ISource &source) {
+  if (!yamlAliasMap.count(name)) {
+    throw SyntaxError(source.getPosition(), "Undefined alias '" + name + "'.");
+  }
+  return yamlAliasMap[name];
+}
+
+/// <summary>/// Parse a comment on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse comment.</param>
@@ -150,14 +163,11 @@ Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
   if (source.more() && source.current() == kLineFeed) {
     source.next();
   }
-  if (!yamlAliasMap.count(name)) {
-    throw SyntaxError(source.getPosition(), "Undefined alias '" + name + "'.");
-  }
   if (activeAliasExpansions.count(name)) {
     throw SyntaxError(source.getPosition(),
                       "Recursive anchor detected: '" + name + "'.");
   }
-  const std::string unparsed{yamlAliasMap[name]};
+  const std::string &unparsed = resolveAlias(name, source);
   if (unparsed.empty()) {
     return Node::make<Null>();
   }
@@ -192,10 +202,7 @@ Node Default_Parser::parseOverride(ISource &source,
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.next();
-  if (!yamlAliasMap.count(name)) {
-    throw SyntaxError(source.getPosition(), "Undefined alias '" + name + "'.");
-  }
-  const std::string unparsed{yamlAliasMap[name]};
+  const std::string &unparsed = resolveAlias(name, source);
   BufferSource anchor{unparsed};
   Node parsed = parseDocument(anchor, delimiters, indentation);
   return parsed;
