@@ -48,6 +48,24 @@ private:
     ISource *src_;
   };
 
+  // Scaffold shared by simple scalar parsers (parseNone, parseBoolean,
+  // parseNumber). Saves the source position, extracts the next token up to
+  // the given delimiters, right-trims it, then calls pred(token).  If pred
+  // returns a non-empty Node the guard is released (position stays consumed);
+  // otherwise the guard restores the source to where it was.
+  template <typename Predicate>
+  static Node tryParseToken(ISource &source, const Delimiters &delimiters,
+                            Predicate &&pred) {
+    SourceGuard guard(source);
+    std::string token{extractToNext(source, delimiters)};
+    rightTrim(token);
+    Node result = std::forward<Predicate>(pred)(token);
+    if (!result.isEmpty()) {
+      guard.release();
+    }
+    return result;
+  }
+
   // YAML parser
   static bool endsWith(const std::string_view &str,
                        const std::string_view &substr);

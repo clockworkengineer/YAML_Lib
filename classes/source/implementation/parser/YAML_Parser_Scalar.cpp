@@ -21,28 +21,21 @@ namespace YAML_Lib {
 /// <returns>Number Node.</returns>
 Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
                                  [[maybe_unused]] unsigned long indentation) {
-  Node numberNode;
-  SourceGuard guard(source);
-  std::string numeric{extractToNext(source, delimiters)};
-  rightTrim(numeric);
-  // YAML 1.2 special float literals (case-insensitive).
-  {
-    std::string lower = numeric;
-    std::transform(
-        lower.begin(), lower.end(), lower.begin(),
-        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-    if (lower == ".inf" || lower == "+.inf") {
-      moveToNext(source, delimiters);
-      numberNode = Node::make<Number>(std::numeric_limits<double>::infinity());
-    } else if (lower == "-.inf") {
-      moveToNext(source, delimiters);
-      numberNode = Node::make<Number>(-std::numeric_limits<double>::infinity());
-    } else if (lower == ".nan") {
-      moveToNext(source, delimiters);
-      numberNode = Node::make<Number>(std::numeric_limits<double>::quiet_NaN());
+  return tryParseToken(source, delimiters, [](std::string numeric) -> Node {
+    // YAML 1.2 special float literals (case-insensitive).
+    {
+      std::string lower = numeric;
+      std::transform(
+          lower.begin(), lower.end(), lower.begin(),
+          [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+      if (lower == ".inf" || lower == "+.inf") {
+        return Node::make<Number>(std::numeric_limits<double>::infinity());
+      } else if (lower == "-.inf") {
+        return Node::make<Number>(-std::numeric_limits<double>::infinity());
+      } else if (lower == ".nan") {
+        return Node::make<Number>(std::numeric_limits<double>::quiet_NaN());
+      }
     }
-  }
-  if (numberNode.isEmpty()) {
     // YAML 1.2 octal "0o<digits>" (or "0O<digits>"): convert the octal digits
     // to their decimal string equivalent so that Number parses them as base 10.
     // This avoids relying on C-style "0NNN" leading-zero octal interpretation.
@@ -83,15 +76,11 @@ Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
                                   number.is<long long>() ||
                                   number.is<float>() || number.is<double>() ||
                                   number.is<long double>()) {
-        moveToNext(source, delimiters);
-        numberNode = Node::make<Number>(number);
+        return Node::make<Number>(number);
       }
     }
-  }
-  if (!numberNode.isEmpty()) {
-    guard.release();
-  }
-  return numberNode;
+    return {};
+  });
 }
 /// <summary>
 /// Parse None/Null on source stream.
@@ -102,17 +91,10 @@ Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
 /// <returns>None Node.</returns>
 Node Default_Parser::parseNone(ISource &source, const Delimiters &delimiters,
                                [[maybe_unused]] unsigned long indentation) {
-  Node noneNode;
-  SourceGuard guard(source);
-  std::string none{extractToNext(source, delimiters)};
-  rightTrim(none);
-  if (none == "null" || none == "~") {
-    noneNode = Node::make<Null>();
-  }
-  if (!noneNode.isEmpty()) {
-    guard.release();
-  }
-  return noneNode;
+  return tryParseToken(source, delimiters, [](const std::string &tok) -> Node {
+    if (tok == "null" || tok == "~") return Node::make<Null>();
+    return {};
+  });
 }
 /// <summary>
 /// Parse boolean value on source stream.
@@ -125,22 +107,14 @@ Node Default_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
                                   [[maybe_unused]] unsigned long indentation) {
   static const std::set<std::string_view> strict12True{"true"};
   static const std::set<std::string_view> strict12False{"false"};
-  Node booleanNode;
-  SourceGuard guard(source);
-  std::string boolean{extractToNext(source, delimiters)};
-  rightTrim(boolean);
-  const bool strictMode = strictBooleans || yamlDirectiveMinor >= 2;
-  const auto &trueSet = strictMode ? strict12True : Boolean::isTrue;
-  const auto &falseSet = strictMode ? strict12False : Boolean::isFalse;
-  if (trueSet.contains(boolean)) {
-    booleanNode = Node::make<Boolean>(true, boolean);
-  } else if (falseSet.contains(boolean)) {
-    booleanNode = Node::make<Boolean>(false, boolean);
-  }
-  if (!booleanNode.isEmpty()) {
-    guard.release();
-  }
-  return booleanNode;
+  return tryParseToken(source, delimiters, [&](const std::string &tok) -> Node {
+    const bool strictMode = strictBooleans || yamlDirectiveMinor >= 2;
+    const auto &trueSet = strictMode ? strict12True : Boolean::isTrue;
+    const auto &falseSet = strictMode ? strict12False : Boolean::isFalse;
+    if (trueSet.contains(tok)) return Node::make<Boolean>(true, tok);
+    if (falseSet.contains(tok)) return Node::make<Boolean>(false, tok);
+    return {};
+  });
 }
 
 } // namespace YAML_Lib
