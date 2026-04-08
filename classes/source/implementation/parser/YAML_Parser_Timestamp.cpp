@@ -16,8 +16,7 @@ namespace YAML_Lib {
 /// YYYY-MM-DD (4 digits, '-', 2 digits, '-', 2 digits).
 /// </summary>
 bool Default_Parser::looksLikeIso8601Date(const std::string &s) {
-  return s.size() >= 10 &&
-         std::isdigit(static_cast<unsigned char>(s[0])) &&
+  return s.size() >= 10 && std::isdigit(static_cast<unsigned char>(s[0])) &&
          std::isdigit(static_cast<unsigned char>(s[1])) &&
          std::isdigit(static_cast<unsigned char>(s[2])) &&
          std::isdigit(static_cast<unsigned char>(s[3])) && s[4] == '-' &&

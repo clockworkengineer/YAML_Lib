@@ -27,7 +27,8 @@ bool Default_Parser::isNullStringNode(const Node &node) {
 /// <param name="delimiters">Delimiters used to parse the array.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Array Node.</returns>
-Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters, [[maybe_unused]] unsigned long indentation) {
+Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters,
+                                [[maybe_unused]] unsigned long indentation) {
   const unsigned long arrayIndent = source.getPosition().second;
   arrayIndentLevel++;
   auto arrayNode = Node::make<Array>();
@@ -62,7 +63,8 @@ Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters, [
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Array Node.</returns>
 Node Default_Parser::parseInlineArray(
-    ISource &source, [[maybe_unused]] const Delimiters &delimiters, const unsigned long indentation) {
+    ISource &source, [[maybe_unused]] const Delimiters &delimiters,
+    const unsigned long indentation) {
   inlineArrayDepth++;
   Delimiters inLineArrayDelimiters = {delimiters};
   inLineArrayDelimiters.insert({kComma, kRightSquareBracket});

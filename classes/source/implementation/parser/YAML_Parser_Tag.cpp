@@ -140,10 +140,10 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
       using CoerceFunc = Node (*)(ISource &, const Delimiters &, unsigned long);
       static const std::unordered_map<std::string,
                                       std::pair<CoerceFunc, const char *>>
-          coercions{{"int",   {parseNumber,  "!!int"}},
-                    {"float", {parseNumber,  "!!float"}},
-                    {"bool",  {parseBoolean, "!!bool"}},
-                    {"null",  {parseNone,    "!!null"}}};
+          coercions{{"int", {parseNumber, "!!int"}},
+                    {"float", {parseNumber, "!!float"}},
+                    {"bool", {parseBoolean, "!!bool"}},
+                    {"null", {parseNone, "!!null"}}};
       const auto &[fn, tagName] = coercions.at(tagSuffix);
       if (isQuotedString(source)) {
         const std::string raw = extractRawScalar();
@@ -154,8 +154,8 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
       }
       if (result.isEmpty()) {
         throw SyntaxError(source.getPosition(),
-                          std::string("Value cannot be parsed as ") +
-                              tagName + ".");
+                          std::string("Value cannot be parsed as ") + tagName +
+                              ".");
       }
     } else if (tagSuffix == "seq") {
       result = parseDocument(source, delimiters, indentation);
