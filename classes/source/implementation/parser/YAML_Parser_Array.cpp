@@ -12,6 +12,15 @@
 namespace YAML_Lib {
 
 /// <summary>
+/// Return true if node is an unquoted empty string (represents a null element
+/// produced by a trailing comma in an inline collection).
+/// </summary>
+bool Default_Parser::isNullStringNode(const Node &node) {
+  return isA<String>(node) && NRef<String>(node).value().empty() &&
+         NRef<String>(node).getQuote() == kNull;
+}
+
+/// <summary>
 /// Parse array on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
@@ -62,14 +71,11 @@ Node Default_Parser::parseInlineArray(
   do {
     source.next();
     yamlArray.add(parseDocument(source, inLineArrayDelimiters, indentation));
-    if (auto &element = yamlArray.value().back(); isA<String>(element)) {
-      if (NRef<String>(element).value().empty() &&
-          NRef<String>(element).getQuote() == kNull) {
-        if (source.current() != kRightSquareBracket) {
-          throw SyntaxError("Unexpected ',' in in-line array.");
-        }
-        yamlArray.value().pop_back();
+    if (auto &element = yamlArray.value().back(); isNullStringNode(element)) {
+      if (source.current() != kRightSquareBracket) {
+        throw SyntaxError("Unexpected ',' in in-line array.");
       }
+      yamlArray.value().pop_back();
     }
   } while (source.current() == kComma);
   inlineArrayDepth--;

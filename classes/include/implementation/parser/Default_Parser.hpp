@@ -78,6 +78,7 @@ private:
                                  ISource &source);
   static const std::string &resolveAlias(const std::string &name,
                                          ISource &source);
+  static bool isNullStringNode(const Node &node);
   static std::string extractString(ISource &source, char quote);
   static std::string extractToNext(ISource &source,
                                    const Delimiters &delimiters);

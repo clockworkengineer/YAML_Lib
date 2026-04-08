@@ -214,11 +214,8 @@ Default_Parser::parseInlineKeyValue(ISource &source,
   if (source.current() != kComma) {
     dictionaryNode = parseDocument(source, delimiters, indentation);
   }
-  if (isA<String>(dictionaryNode)) {
-    if (NRef<String>(dictionaryNode).value().empty() &&
-        NRef<String>(dictionaryNode).getQuote() == kNull) {
-      dictionaryNode = Node::make<Null>();
-    }
+  if (isNullStringNode(dictionaryNode)) {
+    dictionaryNode = Node::make<Null>();
   }
   return {keyNode, dictionaryNode};
 }
