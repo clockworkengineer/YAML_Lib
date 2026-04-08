@@ -12,6 +12,22 @@
 namespace YAML_Lib {
 
 /// <summary>
+/// Return true if the first 10 characters of s match the ISO 8601 date prefix
+/// YYYY-MM-DD (4 digits, '-', 2 digits, '-', 2 digits).
+/// </summary>
+bool Default_Parser::looksLikeIso8601Date(const std::string &s) {
+  return s.size() >= 10 &&
+         std::isdigit(static_cast<unsigned char>(s[0])) &&
+         std::isdigit(static_cast<unsigned char>(s[1])) &&
+         std::isdigit(static_cast<unsigned char>(s[2])) &&
+         std::isdigit(static_cast<unsigned char>(s[3])) && s[4] == '-' &&
+         std::isdigit(static_cast<unsigned char>(s[5])) &&
+         std::isdigit(static_cast<unsigned char>(s[6])) && s[7] == '-' &&
+         std::isdigit(static_cast<unsigned char>(s[8])) &&
+         std::isdigit(static_cast<unsigned char>(s[9]));
+}
+
+/// <summary>
 /// Check if current stream content looks like a YAML timestamp.
 /// Matches ISO 8601 dates: YYYY-MM-DD or YYYY-MM-DDThh:mm or YYYY-MM-DD hh:mm
 /// Uses a character-level lookahead to avoid saving/restoring state.
@@ -35,15 +51,7 @@ bool Default_Parser::isTimestamp(ISource &source) {
   }
 
   // Check: 4 digits, '-', 2 digits, '-', 2 digits
-  if (sample.size() >= 10 &&
-      std::isdigit(static_cast<unsigned char>(sample[0])) &&
-      std::isdigit(static_cast<unsigned char>(sample[1])) &&
-      std::isdigit(static_cast<unsigned char>(sample[2])) &&
-      std::isdigit(static_cast<unsigned char>(sample[3])) && sample[4] == '-' &&
-      std::isdigit(static_cast<unsigned char>(sample[5])) &&
-      std::isdigit(static_cast<unsigned char>(sample[6])) && sample[7] == '-' &&
-      std::isdigit(static_cast<unsigned char>(sample[8])) &&
-      std::isdigit(static_cast<unsigned char>(sample[9]))) {
+  if (looksLikeIso8601Date(sample)) {
     result = true;
   }
   return result;
@@ -65,14 +73,7 @@ Node Default_Parser::parseTimestamp(
   std::string raw{extractToNext(source, delimiters)};
   rightTrim(raw);
   // Verify the extracted string still looks like a timestamp (may have failed)
-  if (raw.size() >= 10 && std::isdigit(static_cast<unsigned char>(raw[0])) &&
-      std::isdigit(static_cast<unsigned char>(raw[1])) &&
-      std::isdigit(static_cast<unsigned char>(raw[2])) &&
-      std::isdigit(static_cast<unsigned char>(raw[3])) && raw[4] == '-' &&
-      std::isdigit(static_cast<unsigned char>(raw[5])) &&
-      std::isdigit(static_cast<unsigned char>(raw[6])) && raw[7] == '-' &&
-      std::isdigit(static_cast<unsigned char>(raw[8])) &&
-      std::isdigit(static_cast<unsigned char>(raw[9]))) {
+  if (looksLikeIso8601Date(raw)) {
     guard.release();
     return Node::make<Timestamp>(raw);
   }
