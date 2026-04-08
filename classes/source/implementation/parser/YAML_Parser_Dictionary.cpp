@@ -94,9 +94,16 @@ std::string Default_Parser::extractKey(ISource &source) {
   // Plain scalar key: ':' is only a value separator when followed by
   // space/newline/EOF. Otherwise (e.g. ":foo") the colon is part of the key
   // text.
+  // In block context (inlineDictionaryDepth == 0) '}' and ',' are ordinary
+  // characters and must not terminate key extraction.  They are only special
+  // inside flow collections (inlineDictionaryDepth > 0).
+  const Delimiters plainKeyDelimiters =
+      inlineDictionaryDepth > 0
+          ? Delimiters{kColon, kComma, kRightCurlyBrace, kLineFeed}
+          : Delimiters{kColon, kLineFeed};
   std::string key;
   while (source.more()) {
-    key += extractToNext(source, {kColon, kComma, kRightCurlyBrace, kLineFeed});
+    key += extractToNext(source, plainKeyDelimiters);
     if (!source.more() || source.current() != kColon)
       break;
     source.save();
