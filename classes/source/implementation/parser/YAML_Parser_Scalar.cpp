@@ -22,7 +22,7 @@ namespace YAML_Lib {
 Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
                                  [[maybe_unused]] unsigned long indentation) {
   Node numberNode;
-  source.save();
+  SourceGuard guard(source);
   std::string numeric{extractToNext(source, delimiters)};
   rightTrim(numeric);
   // YAML 1.2 special float literals (case-insensitive).
@@ -88,8 +88,8 @@ Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
       }
     }
   }
-  if (numberNode.isEmpty()) {
-    source.restore();
+  if (!numberNode.isEmpty()) {
+    guard.release();
   }
   return numberNode;
 }
@@ -103,14 +103,14 @@ Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
 Node Default_Parser::parseNone(ISource &source, const Delimiters &delimiters,
                                [[maybe_unused]] unsigned long indentation) {
   Node noneNode;
-  source.save();
+  SourceGuard guard(source);
   std::string none{extractToNext(source, delimiters)};
   rightTrim(none);
   if (none == "null" || none == "~") {
     noneNode = Node::make<Null>();
   }
-  if (noneNode.isEmpty()) {
-    source.restore();
+  if (!noneNode.isEmpty()) {
+    guard.release();
   }
   return noneNode;
 }
@@ -126,7 +126,7 @@ Node Default_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
   static const std::set<std::string_view> strict12True{"true"};
   static const std::set<std::string_view> strict12False{"false"};
   Node booleanNode;
-  source.save();
+  SourceGuard guard(source);
   std::string boolean{extractToNext(source, delimiters)};
   rightTrim(boolean);
   const bool strictMode = strictBooleans || yamlDirectiveMinor >= 2;
@@ -137,8 +137,8 @@ Node Default_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
   } else if (falseSet.contains(boolean)) {
     booleanNode = Node::make<Boolean>(false, boolean);
   }
-  if (booleanNode.isEmpty()) {
-    source.restore();
+  if (!booleanNode.isEmpty()) {
+    guard.release();
   }
   return booleanNode;
 }

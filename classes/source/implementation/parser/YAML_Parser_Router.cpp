@@ -17,10 +17,8 @@ namespace YAML_Lib {
 /// <param name="source">Source stream.</param>
 /// <returns>If true value is an override.</returns>
 bool Default_Parser::isOverride(ISource &source) {
-  source.save();
-  const bool isOverride{source.match("<<:")};
-  source.restore();
-  return isOverride;
+  SourceGuard guard(source);
+  return source.match("<<:");
 }
 // <summary>
 // Has a dictionary key been found in the source stream?
@@ -28,7 +26,7 @@ bool Default_Parser::isOverride(ISource &source) {
 // <param name="source">Source stream.</param>
 // <returns>== true if a dictionary key has been found.</returns>
 bool Default_Parser::isKey(ISource &source) {
-  source.save();
+  SourceGuard guard(source);
   bool keyPresent{false};
   if (std::string key{extractKey(source)};
       source.current() == kColon || (!key.empty() && key.back() == kColon)) {
@@ -56,7 +54,6 @@ bool Default_Parser::isKey(ISource &source) {
       keyPresent = isValidKey(key);
     }
   }
-  source.restore();
   return keyPresent;
 }
 /// <summary>
@@ -65,7 +62,7 @@ bool Default_Parser::isKey(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an array element has been found.</returns>
 bool Default_Parser::isArray(ISource &source) {
-  source.save();
+  SourceGuard guard(source);
   auto ch = source.current();
   auto arrayPresent{false};
   if (source.more() && ch == '-') {
@@ -73,7 +70,6 @@ bool Default_Parser::isArray(ISource &source) {
     ch = source.current();
     arrayPresent = ch == kSpace || ch == kLineFeed;
   }
-  source.restore();
   return arrayPresent;
 }
 /// <summary>
@@ -187,12 +183,10 @@ bool Default_Parser::isMapping(ISource &source) {
   if (source.current() != '?') {
     return false;
   }
-  source.save();
+  SourceGuard guard(source);
   source.next(); // peek at char after '?'
-  const bool spacedKey = !source.more() || source.current() == kSpace ||
-                         source.current() == kLineFeed;
-  source.restore();
-  return spacedKey;
+  return !source.more() || source.current() == kSpace ||
+         source.current() == kLineFeed;
 }
 /// <summary>
 /// Has a dictionary been found on the source stream?
@@ -206,10 +200,8 @@ bool Default_Parser::isDictionary(ISource &source) { return isKey(source); }
 /// <param name="source">Source stream.</param>
 /// <returns>If true,a start of document has been found.</returns>
 bool Default_Parser::isDocumentStart(ISource &source) {
-  source.save();
-  const bool isStart{source.match(kStartDocument)};
-  source.restore();
-  return isStart;
+  SourceGuard guard(source);
+  return source.match(kStartDocument);
 }
 /// <summary>
 /// Has the document end been found on the source stream?
@@ -217,10 +209,8 @@ bool Default_Parser::isDocumentStart(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an end document has been found.</returns>
 bool Default_Parser::isDocumentEnd(ISource &source) {
-  source.save();
-  const bool isEnd{source.match(kEndDocument)};
-  source.restore();
-  return isEnd;
+  SourceGuard guard(source);
+  return source.match(kEndDocument);
 }
 /// <summary>
 /// Last parser router table entry so return true.

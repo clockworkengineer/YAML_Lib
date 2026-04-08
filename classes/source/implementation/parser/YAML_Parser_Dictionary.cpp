@@ -106,11 +106,12 @@ std::string Default_Parser::extractKey(ISource &source) {
     key += extractToNext(source, plainKeyDelimiters);
     if (!source.more() || source.current() != kColon)
       break;
-    source.save();
-    source.next(); // peek past ':'
-    const bool isSeparator = !source.more() || source.current() == kSpace ||
-                             source.current() == kLineFeed;
-    source.restore();
+    const bool isSeparator = [&source]() -> bool {
+      SourceGuard guard(source);
+      source.next(); // peek past ':'
+      return !source.more() || source.current() == kSpace ||
+             source.current() == kLineFeed;
+    }();
     if (isSeparator)
       break; // ':' is the key-value separator, stop here
     key += kColon;

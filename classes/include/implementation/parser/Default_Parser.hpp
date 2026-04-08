@@ -27,6 +27,27 @@ public:
   static void setStrictBooleans(const bool strict) { strictBooleans = strict; }
 
 private:
+  // RAII save/restore guard for ISource lookahead.
+  // Calls source.restore() in the destructor unless release() is called first.
+  class SourceGuard {
+  public:
+    explicit SourceGuard(ISource &src) : src_(&src) { src_->save(); }
+    ~SourceGuard() {
+      if (src_) {
+        src_->restore();
+      }
+    }
+    // Disarm the guard: the caller takes responsibility for the stream pos.
+    void release() { src_ = nullptr; }
+    SourceGuard(const SourceGuard &) = delete;
+    SourceGuard &operator=(const SourceGuard &) = delete;
+    SourceGuard(SourceGuard &&) = delete;
+    SourceGuard &operator=(SourceGuard &&) = delete;
+
+  private:
+    ISource *src_;
+  };
+
   // YAML parser
   static bool endsWith(const std::string_view &str,
                        const std::string_view &substr);

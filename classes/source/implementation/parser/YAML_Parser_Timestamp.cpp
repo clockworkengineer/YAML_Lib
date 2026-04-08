@@ -19,7 +19,7 @@ namespace YAML_Lib {
 /// <param name="source">Source stream.</param>
 /// <returns>True if stream content is a timestamp.</returns>
 bool Default_Parser::isTimestamp(ISource &source) {
-  source.save();
+  SourceGuard guard(source);
   bool result = false;
   // Read up to 10 chars to check the DDDD-DD-DD pattern
   std::string sample;
@@ -33,7 +33,6 @@ bool Default_Parser::isTimestamp(ISource &source) {
     source.next();
     i++;
   }
-  source.restore();
 
   // Check: 4 digits, '-', 2 digits, '-', 2 digits
   if (sample.size() >= 10 &&
@@ -62,7 +61,7 @@ bool Default_Parser::isTimestamp(ISource &source) {
 Node Default_Parser::parseTimestamp(
     ISource &source, const Delimiters &delimiters,
     [[maybe_unused]] unsigned long indentation) {
-  source.save();
+  SourceGuard guard(source);
   std::string raw{extractToNext(source, delimiters)};
   rightTrim(raw);
   // Verify the extracted string still looks like a timestamp (may have failed)
@@ -74,9 +73,9 @@ Node Default_Parser::parseTimestamp(
       std::isdigit(static_cast<unsigned char>(raw[6])) && raw[7] == '-' &&
       std::isdigit(static_cast<unsigned char>(raw[8])) &&
       std::isdigit(static_cast<unsigned char>(raw[9]))) {
+    guard.release();
     return Node::make<Timestamp>(raw);
   }
-  source.restore();
   return {};
 }
 

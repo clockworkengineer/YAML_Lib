@@ -34,16 +34,14 @@ bool Default_Parser::endsWith(const std::string_view &str,
 /// </summary>
 /// <param name="source">Source stream.</param>
 void Default_Parser::validateInputCharacters(ISource &source) {
-  source.save();
+  SourceGuard guard(source);
   while (source.more()) {
     const auto ch = static_cast<unsigned char>(source.current());
     // Forbidden: C0 controls except TAB(9), LF(10), CR(13); also DEL(127)
     if ((ch <= 0x08) || (ch == 0x0B) || (ch == 0x0C) ||
         (ch >= 0x0E && ch <= 0x1F) || (ch == 0x7F)) {
-      const auto pos = source.getPosition();
-      source.restore();
       throw SyntaxError(
-          pos, "Disallowed control character U+" + [ch]() {
+          source.getPosition(), "Disallowed control character U+" + [ch]() {
             char buf[5];
             std::snprintf(buf, sizeof(buf), "%04X", static_cast<unsigned>(ch));
             return std::string(buf);
@@ -51,7 +49,6 @@ void Default_Parser::validateInputCharacters(ISource &source) {
     }
     source.next();
   }
-  source.restore();
 }
 /// <summary>
 /// Remove any spaces at the end of str.
