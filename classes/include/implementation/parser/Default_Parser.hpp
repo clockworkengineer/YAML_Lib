@@ -108,6 +108,7 @@ private:
   static bool isMapping(ISource &source);
   static bool isDictionary(ISource &source);
   static bool isDefault(ISource &source);
+  static bool matchesMarker(ISource &source, const char *marker);
   static bool isDocumentStart(ISource &source);
   static bool isDocumentEnd(ISource &source);
   static bool isDirective(ISource &source);

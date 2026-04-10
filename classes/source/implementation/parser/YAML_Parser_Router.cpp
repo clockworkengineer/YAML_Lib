@@ -199,9 +199,17 @@ bool Default_Parser::isDictionary(ISource &source) { return isKey(source); }
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true,a start of document has been found.</returns>
-bool Default_Parser::isDocumentStart(ISource &source) {
+bool Default_Parser::matchesMarker(ISource &source, const char *marker) {
   SourceGuard guard(source);
-  return source.match(kStartDocument);
+  return source.match(marker);
+}
+/// <summary>
+/// Has document start been found on the source stream?
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <returns>If true,a start of document has been found.</returns>
+bool Default_Parser::isDocumentStart(ISource &source) {
+  return matchesMarker(source, kStartDocument);
 }
 /// <summary>
 /// Has the document end been found on the source stream?
@@ -209,8 +217,7 @@ bool Default_Parser::isDocumentStart(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an end document has been found.</returns>
 bool Default_Parser::isDocumentEnd(ISource &source) {
-  SourceGuard guard(source);
-  return source.match(kEndDocument);
+  return matchesMarker(source, kEndDocument);
 }
 /// <summary>
 /// Last parser router table entry so return true.
