@@ -8,6 +8,7 @@
 //
 
 #include "YAML_Impl.hpp"
+#include <unordered_set>
 
 namespace YAML_Lib {
 
@@ -127,6 +128,8 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   };
 
   Node result;
+  static const std::unordered_set<std::string> passthroughTags{
+      "seq", "map", "omap", "pairs"};
   if (tagHandle == "!!" && !tagSuffix.empty()) {
     if (tagSuffix == "str") {
       // Force string interpretation — preserve quotes so the raw text is used.
@@ -155,17 +158,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
                           std::string("Value cannot be parsed as ") + tagName +
                               ".");
       }
-    } else if (tagSuffix == "seq") {
-      result = parseDocument(source, delimiters, indentation);
-    } else if (tagSuffix == "map") {
-      result = parseDocument(source, delimiters, indentation);
-    } else if (tagSuffix == "omap") {
-      // !!omap — ordered map; Dictionary already preserves insertion order.
-      // Parse as a normal mapping and attach the tag for semantic distinction.
-      result = parseDocument(source, delimiters, indentation);
-    } else if (tagSuffix == "pairs") {
-      // !!pairs — sequence of key-value pairs; duplicate keys allowed.
-      // Parse as a normal sequence and attach the tag.
+    } else if (passthroughTags.count(tagSuffix)) {
       result = parseDocument(source, delimiters, indentation);
     } else if (tagSuffix == "timestamp") {
       // Try to parse as a native timestamp; fall back to string
