@@ -11,6 +11,12 @@
 
 namespace YAML_Lib {
 
+bool Default_Parser::isInlineComment(const ISource &source,
+                                     const std::string &yamlString) {
+  return source.current() == '#' && !yamlString.empty() &&
+         (yamlString.back() == ' ' || yamlString.back() == '\t');
+}
+
 /// <summary>
 /// Append character to YAML string performing any necessary newline folding.
 /// YAML 1.2 §6.5 / §7.3.3: trailing white space (space or tab) on a source
@@ -59,7 +65,7 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
   // '#' is a literal — consume it and continue extracting to the next
   // delimiter.
   while (source.more() && source.current() == '#' && !yamlString.empty() &&
-         yamlString.back() != ' ' && yamlString.back() != '\t') {
+         !isInlineComment(source, yamlString)) {
     yamlString += source.append();                   // consume literal '#'
     yamlString += extractToNext(source, delimiters); // read to next delimiter
   }
@@ -80,8 +86,7 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
       // YAML 1.2 §6.8: inline comment on a continuation line — '#' after
       // whitespace in the accumulated string.  Consume the comment to the end
       // of the line; the '\n' is left for appendCharacterToString to fold.
-      if (source.current() == '#' && !yamlString.empty() &&
-          (yamlString.back() == ' ' || yamlString.back() == '\t')) {
+      if (isInlineComment(source, yamlString)) {
         while (source.more() && source.current() != kLineFeed) {
           source.next();
         }

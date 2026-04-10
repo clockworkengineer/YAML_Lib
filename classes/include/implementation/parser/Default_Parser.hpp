@@ -112,6 +112,7 @@ private:
   static bool isDocumentStart(ISource &source);
   static bool isDocumentEnd(ISource &source);
   static bool isDocumentBoundary(ISource &source);
+  static bool isInlineComment(const ISource &source, const std::string &yamlString);
   static bool isDirective(ISource &source);
   static bool isTagged(const ISource &source);
   static bool isTimestamp(ISource &source);
