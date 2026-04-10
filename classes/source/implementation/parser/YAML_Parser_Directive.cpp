@@ -107,7 +107,7 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.ignoreWS();
   std::string unparsed{};
-  if (source.current() != kLineFeed) {
+  if (source.current() != kLineFeed && !isComment(source)) {
     // In flow context the caller's delimiters include ']', '}', ',' etc.
     // Use them so that an anchor value like "&b b" inside "[a, &b b]" stops
     // at ']' not at the next newline.  Always include kLineFeed so the
@@ -117,6 +117,8 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
     unparsed += extractToNext(source, inlineStop);
     moveToNextIndent(source);
   } else {
+    // Line ends here (either linefeed or a trailing comment); moveToNextIndent
+    // skips any comment and whitespace to find the anchor's block value.
     moveToNextIndent(source);
     const auto anchorIndent = source.getPosition().second;
     // Only capture lines that are MORE indented than the parent (indentation).
