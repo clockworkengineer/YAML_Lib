@@ -47,7 +47,8 @@ std::string Default_Parser::extractInlineCollectionAt(ISource &source) {
 /// <param name="yamlString">YAML string.</param>
 Node Default_Parser::convertYAMLToStringNode(
     const std::string_view &yamlString) {
-  auto keyNode = parseFromBuffer(std::string(yamlString) + kLineFeed, {kLineFeed}, 0);
+  auto keyNode =
+      parseFromBuffer(std::string(yamlString) + kLineFeed, {kLineFeed}, 0);
   std::string keyString{NRef<Variant>(keyNode).toKey()};
   char quote = '\"';
   if (isA<String>(keyNode)) {
@@ -65,7 +66,8 @@ Node Default_Parser::convertYAMLToStringNode(
 /// key.</param> <returns> If true value is a valid key.</returns>
 bool Default_Parser::isValidKey(const std::string_view &key) {
   try {
-    const Node keyNode = parseFromBuffer(std::string(key) + kLineFeed, {kLineFeed}, 0);
+    const Node keyNode =
+        parseFromBuffer(std::string(key) + kLineFeed, {kLineFeed}, 0);
     return !keyNode.isEmpty() && !isA<Comment>(keyNode);
   } catch ([[maybe_unused]] const std::exception &e) {
     return false;
@@ -105,8 +107,9 @@ std::string Default_Parser::extractMapping(ISource &source) {
 /// <returns>YAML for key value.</returns>
 std::string Default_Parser::extractKey(ISource &source) {
   // Handle "&anchor value" prefix (e.g. "&a [...]" or "&a scalar" as a key).
-  // In flow context, a plain-scalar extraction would stop at the first ',' inside
-  // the inline collection; the anchor branch handles it bracket-aware instead.
+  // In flow context, a plain-scalar extraction would stop at the first ','
+  // inside the inline collection; the anchor branch handles it bracket-aware
+  // instead.
   if (source.current() == '&') {
     std::string result{"&"};
     source.next();
@@ -118,9 +121,10 @@ std::string Default_Parser::extractKey(ISource &source) {
     } else if (isQuotedString(source)) {
       result += extractString(source, source.current());
     } else {
-      const Delimiters valStop = inlineDictionaryDepth > 0
-          ? Delimiters{kColon, kComma, kRightCurlyBrace, kLineFeed}
-          : Delimiters{kColon, kLineFeed};
+      const Delimiters valStop =
+          inlineDictionaryDepth > 0
+              ? Delimiters{kColon, kComma, kRightCurlyBrace, kLineFeed}
+              : Delimiters{kColon, kLineFeed};
       result += extractToNext(source, valStop);
       rightTrim(result);
     }
@@ -307,9 +311,9 @@ Node Default_Parser::parseInlineDictionary(
       // spec's "should be unique, but semantics are unspecified" wording.
       const std::string keyStr{entry.getKey()};
       auto &dict = NRef<Dictionary>(dictionaryNode);
-      const bool isComplexKey = (!keyStr.empty() &&
-                                 (keyStr.front() == kLeftSquareBracket ||
-                                  keyStr.front() == kLeftCurlyBrace));
+      const bool isComplexKey =
+          (!keyStr.empty() && (keyStr.front() == kLeftSquareBracket ||
+                               keyStr.front() == kLeftCurlyBrace));
       if (dict.contains(keyStr) && !isComplexKey) {
         throw SyntaxError(source.getPosition(),
                           "Dictionary already contains key '" + keyStr + "'.");

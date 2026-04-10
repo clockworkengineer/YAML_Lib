@@ -81,9 +81,9 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
     const bool stopAtFlowIndicator =
         (inlineArrayDepth > 0 || inlineDictionaryDepth > 0) &&
         (source.current() == kRightSquareBracket ||
-         source.current() == kRightCurlyBrace ||
-         source.current() == kComma);
-    while (!stopAtFlowIndicator && source.more() && indentation < source.getPosition().second) {
+         source.current() == kRightCurlyBrace || source.current() == kComma);
+    while (!stopAtFlowIndicator && source.more() &&
+           indentation < source.getPosition().second) {
       // Stop at document markers (--- or ...) at the start of a line.
       // This matters especially at indentation 0, where the column check
       // alone (0 < 1) would never exit the loop.
