@@ -167,6 +167,18 @@ std::string Default_Parser::extractToNext(ISource &source,
   return extracted;
 }
 /// <summary>
+/// Extract the next token up to a delimiter and right-trim whitespace.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <param name="delimiters">Delimiter set.</param>
+/// <returns>Extracted and right-trimmed string.</returns>
+std::string Default_Parser::extractTrimmed(ISource &source,
+                                           const Delimiters &delimiters) {
+  std::string s{extractToNext(source, delimiters)};
+  rightTrim(s);
+  return s;
+}
+/// <summary>
 /// Extract characters from source stream up to a last end character.
 /// </summary>
 /// <param name="source">Source stream.</param>

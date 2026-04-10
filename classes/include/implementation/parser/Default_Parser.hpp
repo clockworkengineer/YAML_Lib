@@ -83,6 +83,8 @@ private:
   static std::string extractString(ISource &source, char quote);
   static std::string extractToNext(ISource &source,
                                    const Delimiters &delimiters);
+  static std::string extractTrimmed(ISource &source,
+                                    const Delimiters &delimiters);
   static std::string extractInLine(ISource &source, char start, char end);
   static std::string extractMapping(ISource &source);
   static void checkForEnd(ISource &source, char end);

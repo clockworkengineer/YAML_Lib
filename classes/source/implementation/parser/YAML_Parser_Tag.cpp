@@ -123,9 +123,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
       rightTrim(raw);
       return raw;
     }
-    std::string raw = extractToNext(source, delimiters);
-    rightTrim(raw);
-    return raw;
+    return extractTrimmed(source, delimiters);
   };
 
   Node result;
@@ -173,14 +171,12 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
       // Try to parse as a native timestamp; fall back to string
       result = parseTimestamp(source, delimiters, indentation);
       if (result.isEmpty()) {
-        std::string value{extractToNext(source, delimiters)};
-        rightTrim(value);
+        std::string value{extractTrimmed(source, delimiters)};
         result = Node::make<String>(value, kNull);
       }
     } else if (tagSuffix == "binary") {
       // base64 value — keep raw string, tag carries the type signal
-      std::string value{extractToNext(source, delimiters)};
-      rightTrim(value);
+      std::string value{extractTrimmed(source, delimiters)};
       result = Node::make<String>(value, kNull);
     } else {
       // Unknown standard tag — parse value normally and attach tag

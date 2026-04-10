@@ -69,8 +69,7 @@ Node Default_Parser::parseTimestamp(
     ISource &source, const Delimiters &delimiters,
     [[maybe_unused]] unsigned long indentation) {
   SourceGuard guard(source);
-  std::string raw{extractToNext(source, delimiters)};
-  rightTrim(raw);
+  const std::string raw{extractTrimmed(source, delimiters)};
   // Verify the extracted string still looks like a timestamp (may have failed)
   if (looksLikeIso8601Date(raw)) {
     guard.release();
