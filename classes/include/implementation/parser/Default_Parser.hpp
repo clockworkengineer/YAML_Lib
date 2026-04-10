@@ -86,6 +86,7 @@ private:
   static std::string extractTrimmed(ISource &source,
                                     const Delimiters &delimiters);
   static std::string extractInLine(ISource &source, char start, char end);
+  static std::string extractInlineCollectionAt(ISource &source);
   static std::string extractMapping(ISource &source);
   static void checkForEnd(ISource &source, char end);
   static Node parseFromBuffer(const std::string &text,

@@ -29,6 +29,19 @@ void Default_Parser::addUniqueDictEntry(Node &dictionaryNode,
   NRef<Dictionary>(dictionaryNode).add(std::move(entry));
 }
 /// <summary>
+/// Extract a balanced inline collection ('{...}' or '[...]') starting at the
+/// current source position. Precondition: isInlineDictionary(source) ||
+/// isInlineArray(source).
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <returns>The raw collection text including its brackets.</returns>
+std::string Default_Parser::extractInlineCollectionAt(ISource &source) {
+  const char start = source.current();
+  const char end =
+      (start == kLeftCurlyBrace) ? kRightCurlyBrace : kRightSquareBracket;
+  return extractInLine(source, start, end);
+}
+/// <summary>
 /// Convert YAML key to a string Node
 /// </summary>
 /// <param name="yamlString">YAML string.</param>
@@ -76,11 +89,8 @@ std::string Default_Parser::extractMapping(ISource &source) {
     moveToNext(source, {kLineFeed});
     return extractMapping(source);
   }
-  if (isInlineDictionary(source)) {
-    key += extractInLine(source, kLeftCurlyBrace, kRightCurlyBrace);
-    moveToNext(source, {kColon});
-  } else if (isInlineArray(source)) {
-    key += extractInLine(source, kLeftSquareBracket, kRightSquareBracket);
+  if (isInlineDictionary(source) || isInlineArray(source)) {
+    key += extractInlineCollectionAt(source);
     moveToNext(source, {kColon});
   } else if (isArray(source)) {
     key += extractToNext(source, {kColon});
@@ -96,11 +106,8 @@ std::string Default_Parser::extractMapping(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>YAML for key value.</returns>
 std::string Default_Parser::extractKey(ISource &source) {
-  if (isInlineDictionary(source)) {
-    return extractInLine(source, kLeftCurlyBrace, kRightCurlyBrace);
-  }
-  if (isInlineArray(source)) {
-    return extractInLine(source, kLeftSquareBracket, kRightSquareBracket);
+  if (isInlineDictionary(source) || isInlineArray(source)) {
+    return extractInlineCollectionAt(source);
   }
   if (isQuotedString(source)) {
     return extractString(source, source.current());
