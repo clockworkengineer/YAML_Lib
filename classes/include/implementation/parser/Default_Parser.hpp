@@ -88,6 +88,9 @@ private:
   static std::string extractInLine(ISource &source, char start, char end);
   static std::string extractMapping(ISource &source);
   static void checkForEnd(ISource &source, char end);
+  static Node parseFromBuffer(const std::string &text,
+                              const Delimiters &delimiters,
+                              unsigned long indentation);
   static Node mergeOverrides(Node &overrideRoot);
   static Node convertYAMLToStringNode(const std::string_view &yamlString);
   static bool isValidKey(const std::string_view &key);
@@ -112,8 +115,10 @@ private:
   static bool isDocumentStart(ISource &source);
   static bool isDocumentEnd(ISource &source);
   static bool isDocumentBoundary(ISource &source);
-  static bool isInlineComment(const ISource &source, const std::string &yamlString);
-  static void convertOctalToDecimal(std::string &numeric, const std::string &digits);
+  static bool isInlineComment(const ISource &source,
+                              const std::string &yamlString);
+  static void convertOctalToDecimal(std::string &numeric,
+                                    const std::string &digits);
   static bool isDirective(ISource &source);
   static bool isTagged(const ISource &source);
   static bool isTimestamp(ISource &source);

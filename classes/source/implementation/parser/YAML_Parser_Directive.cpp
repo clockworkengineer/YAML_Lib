@@ -137,8 +137,7 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
   if (unparsed.empty()) {
     return Node::make<Null>();
   }
-  BufferSource anchor{unparsed};
-  return parseDocument(anchor, delimiters, indentation);
+  return parseFromBuffer(unparsed, delimiters, indentation);
 }
 /// <summary>
 /// Parse alias on source stream and substitute alias.
@@ -173,8 +172,7 @@ Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
   }
   activeAliasExpansions.insert(name);
   try {
-    BufferSource anchor{unparsed};
-    auto result = parseDocument(anchor, delimiters, indentation);
+    auto result = parseFromBuffer(unparsed, delimiters, indentation);
     activeAliasExpansions.erase(name);
     return result;
   } catch (...) {
@@ -203,9 +201,7 @@ Node Default_Parser::parseOverride(ISource &source,
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.next();
   const std::string &unparsed = resolveAlias(name, source);
-  BufferSource anchor{unparsed};
-  Node parsed = parseDocument(anchor, delimiters, indentation);
-  return parsed;
+  return parseFromBuffer(unparsed, delimiters, indentation);
 }
 
 } // namespace YAML_Lib

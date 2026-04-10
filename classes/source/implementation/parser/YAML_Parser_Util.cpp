@@ -75,7 +75,8 @@ void Default_Parser::moveToNext(ISource &source, const Delimiters &delimiters) {
 }
 /// <summary>
 /// Move to the end of the current line and consume the newline character.
-/// Equivalent to: moveToNext(source, {kLineFeed}); if (source.more()) source.next();
+/// Equivalent to: moveToNext(source, {kLineFeed}); if (source.more())
+/// source.next();
 /// </summary>
 /// <param name="source">Source stream.</param>
 void Default_Parser::skipLine(ISource &source) {
@@ -214,6 +215,19 @@ void Default_Parser::checkForEnd(ISource &source, const char end) {
                       std::string("Missing closing ") + end + ".");
   }
   source.next();
+}
+/// <summary>
+/// Construct a BufferSource from text and parse it as a document.
+/// </summary>
+/// <param name="text">YAML text to parse.</param>
+/// <param name="delimiters">Delimiters used to parse the document.</param>
+/// <param name="indentation">Parent indentation.</param>
+/// <returns>Parsed Node.</returns>
+Node Default_Parser::parseFromBuffer(const std::string &text,
+                                     const Delimiters &delimiters,
+                                     const unsigned long indentation) {
+  BufferSource src{text};
+  return parseDocument(src, delimiters, indentation);
 }
 
 } // namespace YAML_Lib
