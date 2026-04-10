@@ -56,6 +56,13 @@ std::string Default_Parser::parseBlockString(ISource &source,
                                              unsigned long indentation,
                                              const char fillerDefault) {
   const auto [chomping, explicitIndent] = parseBlockChomping(source);
+  // YAML 1.2 §8.1.1: a comment on the block scalar header line must be
+  // preceded by at least one whitespace character.  '># comment' (no space)
+  // is a syntax error.
+  if (source.more() && isComment(source)) {
+    throw SyntaxError(source.getPosition(),
+                      "Block scalar comment must be preceded by whitespace.");
+  }
   moveToNext(source, delimiters);
   moveToNextIndent(source);
   // Use the explicit indent indicator when present (YAML 1.2 §8.1.1);
