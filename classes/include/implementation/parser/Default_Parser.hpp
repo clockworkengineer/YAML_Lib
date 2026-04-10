@@ -93,6 +93,8 @@ private:
                               unsigned long indentation);
   static std::string captureIndentedBlock(ISource &source,
                                           unsigned long minIndent);
+  static void upsertDictEntry(Dictionary &dict, const std::string &key,
+                              Node value);
   static Node mergeOverrides(Node &overrideRoot);
   static Node convertYAMLToStringNode(const std::string_view &yamlString);
   static bool isValidKey(const std::string_view &key);

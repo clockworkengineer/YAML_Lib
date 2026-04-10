@@ -34,11 +34,7 @@ Node Default_Parser::mergeOverrides(Node &overrideRoot) {
       auto &innerDictionary = NRef<Dictionary>(overrideValue);
       for (auto &entry : overrideKeys) {
         auto overrideEntry = mergeOverrides(dictionary[entry]);
-        if (innerDictionary.contains(entry)) {
-          innerDictionary[entry] = std::move(overrideEntry);
-        } else {
-          innerDictionary.add(DictionaryEntry(entry, overrideEntry));
-        }
+        upsertDictEntry(innerDictionary, entry, std::move(overrideEntry));
       }
       overrideRoot = std::move(overrideValue);
     } else if (isA<Array>(overrideValue)) {
@@ -61,11 +57,7 @@ Node Default_Parser::mergeOverrides(Node &overrideRoot) {
       // Explicit outer keys override the merged base.
       for (auto &entry : overrideKeys) {
         auto overrideEntry = mergeOverrides(dictionary[entry]);
-        if (mergedDict.contains(entry)) {
-          mergedDict[entry] = std::move(overrideEntry);
-        } else {
-          mergedDict.add(DictionaryEntry(entry, overrideEntry));
-        }
+        upsertDictEntry(mergedDict, entry, std::move(overrideEntry));
       }
       overrideRoot = std::move(mergedBase);
     }

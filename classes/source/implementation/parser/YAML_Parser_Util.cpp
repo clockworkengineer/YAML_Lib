@@ -247,5 +247,21 @@ Default_Parser::captureIndentedBlock(ISource &source,
   }
   return text;
 }
+/// <summary>
+/// Insert or overwrite a key in a Dictionary.
+/// If the key already exists its value is replaced; otherwise a new entry
+/// is appended.
+/// </summary>
+/// <param name="dict">Target dictionary.</param>
+/// <param name="key">Key string.</param>
+/// <param name="value">Value node (moved in).</param>
+void Default_Parser::upsertDictEntry(Dictionary &dict, const std::string &key,
+                                     Node value) {
+  if (dict.contains(key)) {
+    dict[key] = std::move(value);
+  } else {
+    dict.add(DictionaryEntry(key, std::move(value)));
+  }
+}
 
 } // namespace YAML_Lib
