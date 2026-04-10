@@ -83,11 +83,8 @@ Node Default_Parser::parseInlineArray(
   inlineArrayDepth--;
   checkForEnd(source, kRightSquareBracket);
   source.ignoreWS();
-  if (source.more() && inlineArrayDepth == 0) {
-    if (!delimiters.contains(source.current())) {
-      throw SyntaxError("Unexpected flow sequence token '" +
-                        std::string(1, source.current()) + "'.");
-    }
+  if (inlineArrayDepth == 0) {
+    checkFlowDelimiter(source, delimiters);
   }
   return arrayNode;
 }

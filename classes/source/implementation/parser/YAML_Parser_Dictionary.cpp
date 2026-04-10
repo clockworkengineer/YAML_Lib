@@ -290,12 +290,8 @@ Node Default_Parser::parseInlineDictionary(
         "Inline dictionary used as key is meant to be on one line.");
   }
   source.ignoreWS();
-
-  if (source.more() && inlineDictionaryDepth == 0) {
-    if (!delimiters.contains(source.current())) {
-      throw SyntaxError("Unexpected flow sequence token '" +
-                        std::string(1, source.current()) + "'.");
-    }
+  if (inlineDictionaryDepth == 0) {
+    checkFlowDelimiter(source, delimiters);
   }
   return dictionaryNode;
 }

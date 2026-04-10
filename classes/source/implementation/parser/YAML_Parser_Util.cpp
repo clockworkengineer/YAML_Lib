@@ -263,5 +263,18 @@ void Default_Parser::upsertDictEntry(Dictionary &dict, const std::string &key,
     dict.add(DictionaryEntry(key, std::move(value)));
   }
 }
+/// <summary>
+/// After closing an outermost inline collection, verify that the next
+/// character belongs to the caller's delimiter set; throw SyntaxError if not.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <param name="delimiters">Expected delimiter set.</param>
+void Default_Parser::checkFlowDelimiter(ISource &source,
+                                        const Delimiters &delimiters) {
+  if (source.more() && !delimiters.contains(source.current())) {
+    throw SyntaxError("Unexpected flow sequence token '" +
+                      std::string(1, source.current()) + "'.");
+  }
+}
 
 } // namespace YAML_Lib

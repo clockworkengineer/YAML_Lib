@@ -89,6 +89,7 @@ private:
   static std::string extractInlineCollectionAt(ISource &source);
   static std::string extractMapping(ISource &source);
   static void checkForEnd(ISource &source, char end);
+  static void checkFlowDelimiter(ISource &source, const Delimiters &delimiters);
   static Node parseFromBuffer(const std::string &text,
                               const Delimiters &delimiters,
                               unsigned long indentation);
