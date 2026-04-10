@@ -235,7 +235,7 @@ Node Default_Parser::parseDictionary(
     if (isKey(source)) {
       auto entry = parseKeyValue(source, delimiters, dictionaryIndent);
       addUniqueDictEntry(dictionaryNode, std::move(entry), source);
-    } else if (isDocumentStart(source) || isDocumentEnd(source)) {
+    } else if (isDocumentBoundary(source)) {
       break;
     } else {
       if (dictionaryIndent == source.getPosition().second) {

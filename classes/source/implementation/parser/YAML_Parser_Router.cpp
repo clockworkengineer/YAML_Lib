@@ -219,6 +219,9 @@ bool Default_Parser::isDocumentStart(ISource &source) {
 bool Default_Parser::isDocumentEnd(ISource &source) {
   return matchesMarker(source, kEndDocument);
 }
+bool Default_Parser::isDocumentBoundary(ISource &source) {
+  return isDocumentStart(source) || isDocumentEnd(source);
+}
 /// <summary>
 /// Last parser router table entry so return true.
 /// </summary>

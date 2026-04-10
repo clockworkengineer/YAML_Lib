@@ -111,6 +111,7 @@ private:
   static bool matchesMarker(ISource &source, const char *marker);
   static bool isDocumentStart(ISource &source);
   static bool isDocumentEnd(ISource &source);
+  static bool isDocumentBoundary(ISource &source);
   static bool isDirective(ISource &source);
   static bool isTagged(const ISource &source);
   static bool isTimestamp(ISource &source);

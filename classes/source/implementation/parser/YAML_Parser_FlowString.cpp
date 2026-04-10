@@ -74,7 +74,7 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
       // This matters especially at indentation 0, where the column check
       // alone (0 < 1) would never exit the loop.
       if (source.getPosition().second == 1 &&
-          (isDocumentEnd(source) || isDocumentStart(source))) {
+          isDocumentBoundary(source)) {
         break;
       }
       // YAML 1.2 §6.8: inline comment on a continuation line — '#' after
