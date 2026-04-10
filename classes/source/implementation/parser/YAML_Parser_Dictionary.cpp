@@ -104,6 +104,28 @@ std::string Default_Parser::extractMapping(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>YAML for key value.</returns>
 std::string Default_Parser::extractKey(ISource &source) {
+  // Handle "&anchor value" prefix (e.g. "&a [...]" or "&a scalar" as a key).
+  // In flow context, a plain-scalar extraction would stop at the first ',' inside
+  // the inline collection; the anchor branch handles it bracket-aware instead.
+  if (source.current() == '&') {
+    std::string result{"&"};
+    source.next();
+    result += extractToNext(source, {kSpace, '\t', kLineFeed});
+    result += ' ';
+    source.ignoreWS();
+    if (isInlineDictionary(source) || isInlineArray(source)) {
+      result += extractInlineCollectionAt(source);
+    } else if (isQuotedString(source)) {
+      result += extractString(source, source.current());
+    } else {
+      const Delimiters valStop = inlineDictionaryDepth > 0
+          ? Delimiters{kColon, kComma, kRightCurlyBrace, kLineFeed}
+          : Delimiters{kColon, kLineFeed};
+      result += extractToNext(source, valStop);
+      rightTrim(result);
+    }
+    return result;
+  }
   if (isInlineDictionary(source) || isInlineArray(source)) {
     return extractInlineCollectionAt(source);
   }
@@ -279,7 +301,23 @@ Node Default_Parser::parseInlineDictionary(
     if (source.current() != kRightCurlyBrace) {
       auto entry =
           parseInlineKeyValue(source, inLineDictionaryDelimiters, indentation);
-      addUniqueDictEntry(dictionaryNode, std::move(entry), source);
+      // Plain string keys (simple scalars) must be unique — throw on duplicate.
+      // Complex keys such as inline arrays or aliases that both stringify to
+      // "[a, b]" are allowed to shadow each other (last-wins) per the YAML
+      // spec's "should be unique, but semantics are unspecified" wording.
+      const std::string keyStr{entry.getKey()};
+      auto &dict = NRef<Dictionary>(dictionaryNode);
+      const bool isComplexKey = (!keyStr.empty() &&
+                                 (keyStr.front() == kLeftSquareBracket ||
+                                  keyStr.front() == kLeftCurlyBrace));
+      if (dict.contains(keyStr) && !isComplexKey) {
+        throw SyntaxError(source.getPosition(),
+                          "Dictionary already contains key '" + keyStr + "'.");
+      } else if (dict.contains(keyStr)) {
+        dict[keyStr] = std::move(entry.getNode());
+      } else {
+        dict.add(std::move(entry));
+      }
     }
   } while (source.current() == kComma);
   inlineDictionaryDepth--;

@@ -108,7 +108,13 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
   source.ignoreWS();
   std::string unparsed{};
   if (source.current() != kLineFeed) {
-    unparsed += extractToNext(source, {kLineFeed});
+    // In flow context the caller's delimiters include ']', '}', ',' etc.
+    // Use them so that an anchor value like "&b b" inside "[a, &b b]" stops
+    // at ']' not at the next newline.  Always include kLineFeed so the
+    // extraction never runs past the end of a line.
+    Delimiters inlineStop = delimiters;
+    inlineStop.insert(kLineFeed);
+    unparsed += extractToNext(source, inlineStop);
     moveToNextIndent(source);
   } else {
     moveToNextIndent(source);
