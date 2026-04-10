@@ -47,8 +47,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
           yl::NRef<yl::Number>(emp["salary"]).value<long long>();
       const auto active = yl::NRef<yl::Boolean>(emp["active"]).value();
 
-      PLOG_INFO << "  " << name << "  dept=" << dept
-                << "  salary=" << salary
+      PLOG_INFO << "  " << name << "  dept=" << dept << "  salary=" << salary
                 << "  active=" << (active ? "yes" : "no");
 
       if (active) {
@@ -66,23 +65,22 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     }
 
     PLOG_INFO << "--- Summary ---";
-    PLOG_INFO << "Active employees          : " << activeCount << " / " << total;
+    PLOG_INFO << "Active employees          : " << activeCount << " / "
+              << total;
     PLOG_INFO << "Average salary (all)      : " << totalSalary / total;
     PLOG_INFO << "Engineering headcount     : " << engCount;
     if (engCount > 0) {
-      PLOG_INFO << "Average Engineering salary: "
-                << engSalaryTotal / engCount;
+      PLOG_INFO << "Average Engineering salary: " << engSalaryTotal / engCount;
     }
-    PLOG_INFO << "Top earner                : " << topEarner
-              << " at " << topSalary;
+    PLOG_INFO << "Top earner                : " << topEarner << " at "
+              << topSalary;
 
     PLOG_INFO << "--- Active Engineering team ---";
     for (std::size_t i = 0; i < employees.size(); ++i) {
       const auto &emp = employees[i];
       if (yl::NRef<yl::String>(emp["department"]).value() == "Engineering" &&
           yl::NRef<yl::Boolean>(emp["active"]).value()) {
-        PLOG_INFO << "  "
-                  << yl::NRef<yl::String>(emp["name"]).value()
+        PLOG_INFO << "  " << yl::NRef<yl::String>(emp["name"]).value()
                   << "  salary="
                   << yl::NRef<yl::Number>(emp["salary"]).value<long long>();
       }

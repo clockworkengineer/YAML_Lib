@@ -128,8 +128,8 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   };
 
   Node result;
-  static const std::unordered_set<std::string> passthroughTags{
-      "seq", "map", "omap", "pairs"};
+  static const std::unordered_set<std::string> passthroughTags{"seq", "map",
+                                                               "omap", "pairs"};
   if (tagHandle == "!!" && !tagSuffix.empty()) {
     if (tagSuffix == "str") {
       // Force string interpretation — preserve quotes so the raw text is used.

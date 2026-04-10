@@ -79,8 +79,7 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
       // Stop at document markers (--- or ...) at the start of a line.
       // This matters especially at indentation 0, where the column check
       // alone (0 < 1) would never exit the loop.
-      if (source.getPosition().second == 1 &&
-          isDocumentBoundary(source)) {
+      if (source.getPosition().second == 1 && isDocumentBoundary(source)) {
         break;
       }
       // YAML 1.2 §6.8: inline comment on a continuation line — '#' after

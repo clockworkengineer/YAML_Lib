@@ -87,13 +87,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     verify.parse(yl::FileSource{kUpdatedConfigFile});
     PLOG_INFO << "--- Re-parsed config (round-trip check) ---";
     PLOG_INFO << "server.workers = "
-              << yl::NRef<yl::Number>(
-                     verify.document(0)["server"]["workers"])
+              << yl::NRef<yl::Number>(verify.document(0)["server"]["workers"])
                      .value<int>();
-    PLOG_INFO << "logging.level  = "
-              << yl::NRef<yl::String>(
-                     verify.document(0)["logging"]["level"])
-                     .value();
+    PLOG_INFO
+        << "logging.level  = "
+        << yl::NRef<yl::String>(verify.document(0)["logging"]["level"]).value();
 
   } catch (const std::exception &ex) {
     PLOG_ERROR << "Error: " << ex.what();

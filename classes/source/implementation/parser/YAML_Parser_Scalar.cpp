@@ -87,7 +87,8 @@ Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
 Node Default_Parser::parseNone(ISource &source, const Delimiters &delimiters,
                                [[maybe_unused]] unsigned long indentation) {
   return tryParseToken(source, delimiters, [](const std::string &tok) -> Node {
-    if (tok == "null" || tok == "~") return Node::make<Null>();
+    if (tok == "null" || tok == "~")
+      return Node::make<Null>();
     return {};
   });
 }
@@ -106,8 +107,10 @@ Node Default_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
     const bool strictMode = strictBooleans || yamlDirectiveMinor >= 2;
     const auto &trueSet = strictMode ? strict12True : Boolean::isTrue;
     const auto &falseSet = strictMode ? strict12False : Boolean::isFalse;
-    if (trueSet.contains(tok)) return Node::make<Boolean>(true, tok);
-    if (falseSet.contains(tok)) return Node::make<Boolean>(false, tok);
+    if (trueSet.contains(tok))
+      return Node::make<Boolean>(true, tok);
+    if (falseSet.contains(tok))
+      return Node::make<Boolean>(false, tok);
     return {};
   });
 }
