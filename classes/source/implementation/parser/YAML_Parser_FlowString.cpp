@@ -75,7 +75,15 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
     rightTrim(yamlString); // strip trailing whitespace before fold
     yamlString += kSpace;  // fold first-line break to a single space
     moveToNextIndent(source);
-    while (source.more() && indentation < source.getPosition().second) {
+    // In a flow context (inside [] or {}), a plain scalar must stop if the
+    // continuation line begins with a flow indicator.  Leave the indicator
+    // for the enclosing collection parser to consume.
+    const bool stopAtFlowIndicator =
+        (inlineArrayDepth > 0 || inlineDictionaryDepth > 0) &&
+        (source.current() == kRightSquareBracket ||
+         source.current() == kRightCurlyBrace ||
+         source.current() == kComma);
+    while (!stopAtFlowIndicator && source.more() && indentation < source.getPosition().second) {
       // Stop at document markers (--- or ...) at the start of a line.
       // This matters especially at indentation 0, where the column check
       // alone (0 < 1) would never exit the loop.

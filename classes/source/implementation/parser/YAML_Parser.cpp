@@ -21,6 +21,13 @@ Node Default_Parser::parseDocument(ISource &source,
                                    const Delimiters &delimiters,
                                    const unsigned long indentation) {
   moveToNextIndent(source);
+  // Document markers (--- / ...) are not permitted as values inside a flow
+  // collection.  Encountering one here means the input is malformed.
+  if ((inlineArrayDepth > 0 || inlineDictionaryDepth > 0) &&
+      isDocumentBoundary(source)) {
+    throw SyntaxError(source.getPosition(),
+                      "Document marker not permitted inside flow collection.");
+  }
   for (const auto &[fst, snd] : parsers) {
     if (fst(source)) {
       if (Node yNode = snd(source, delimiters, indentation); !yNode.isEmpty()) {
