@@ -108,6 +108,17 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
       yamlString.pop_back();
     }
   }
+  // YAML 1.2 §7.3.3: in flow context '-', '?' and ':' may only start a plain
+  // scalar when immediately followed by an ns-plain-safe character.  A scalar
+  // that reduces to a single one of these characters means nothing safe
+  // followed it — reject as invalid.
+  if ((inlineArrayDepth > 0 || inlineDictionaryDepth > 0) &&
+      yamlString.size() == 1 &&
+      (yamlString[0] == '-' || yamlString[0] == '?' || yamlString[0] == ':')) {
+    throw SyntaxError(source.getPosition(),
+                      "Bare '" + yamlString +
+                          "' is not a valid plain scalar in flow context.");
+  }
   return Node::make<String>(yamlString, kNull);
 }
 /// <summary>

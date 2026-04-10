@@ -391,7 +391,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "SKE5",   "SR86",   "SU5Z",   "SU74",   "SY6V",   "U3XV",   "U99R",
       "UV7Q",   "VJP3/1", "W5VH",   "W9L4",   "X38W",   "X4QW",   "XW4D",
       "Y79Y/0", "Y79Y/1", "Y79Y/2", "Y79Y/4", "Y79Y/5", "Y79Y/6", "Y79Y/7",
-      "Y79Y/8", "Y79Y/9", "YJV2",   "Y79Y/3",
+      "Y79Y/8", "Y79Y/9", "Y79Y/3",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
