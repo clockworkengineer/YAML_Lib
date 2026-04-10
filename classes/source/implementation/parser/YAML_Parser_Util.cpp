@@ -229,5 +229,23 @@ Node Default_Parser::parseFromBuffer(const std::string &text,
   BufferSource src{text};
   return parseDocument(src, delimiters, indentation);
 }
+/// <summary>
+/// Collect all lines whose column is >= minIndent into a single string,
+/// preserving synthetic indentation and separating lines with '\n'.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <param name="minIndent">Minimum column for inclusion.</param>
+/// <returns>Captured block text.</returns>
+std::string
+Default_Parser::captureIndentedBlock(ISource &source,
+                                     const unsigned long minIndent) {
+  std::string text;
+  while (source.more() && source.getPosition().second >= minIndent) {
+    const std::string indent(source.getPosition().second, kSpace);
+    text += indent + extractToNext(source, {kLineFeed}) + "\n";
+    moveToNextIndent(source);
+  }
+  return text;
+}
 
 } // namespace YAML_Lib

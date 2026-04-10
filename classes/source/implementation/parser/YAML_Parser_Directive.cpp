@@ -126,11 +126,7 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
     // not the anchor's value — leave source positioned there and store an
     // empty value so the anchor resolves to null.
     if (anchorIndent > indentation) {
-      while (source.more() && source.getPosition().second >= anchorIndent) {
-        std::string indent(source.getPosition().second, kSpace);
-        unparsed += indent + extractToNext(source, {kLineFeed}) + "\n";
-        moveToNextIndent(source);
-      }
+      unparsed = captureIndentedBlock(source, anchorIndent);
     }
   }
   yamlAliasMap[name] = unparsed;
