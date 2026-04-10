@@ -10,6 +10,21 @@
 
 namespace YAML_Lib {
 
+void Default_Parser::convertOctalToDecimal(std::string &numeric,
+                                           const std::string &digits) {
+  try {
+    std::size_t end = 0;
+    const long long val = std::stoll(digits, &end, 8);
+    if (end == digits.size()) {
+      numeric = std::to_string(val);
+    } else {
+      numeric.clear();
+    }
+  } catch (...) {
+    numeric.clear();
+  }
+}
+
 /// <summary>
 /// Parse a numeric value on source stream.
 /// Supports standard integers/floats, YAML 1.2 hex (0x), octal (0o),
@@ -42,34 +57,14 @@ Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
     if (numeric.size() >= 3 && numeric[0] == '0' &&
         (numeric[1] == 'o' || numeric[1] == 'O')) {
       const std::string octalDigits = numeric.substr(2);
-      try {
-        std::size_t end = 0;
-        const long long val = std::stoll(octalDigits, &end, 8);
-        if (end == octalDigits.size()) {
-          numeric = std::to_string(val); // e.g. "0o17" -> "15"
-        } else {
-          numeric.clear(); // malformed octal literal; don't try as a number
-        }
-      } catch (...) {
-        numeric.clear();
-      }
+      convertOctalToDecimal(numeric, octalDigits);
     } else if (yamlDirectiveMinor == 1 && numeric.size() >= 2 &&
                numeric[0] == '0' &&
                std::all_of(
                    numeric.begin() + 1, numeric.end(),
                    [](unsigned char c) { return c >= '0' && c <= '7'; })) {
       // YAML 1.1: C-style octal "0NNN" (leading zero, digits 0-7 only)
-      try {
-        std::size_t end = 0;
-        const long long val = std::stoll(numeric, &end, 8);
-        if (end == numeric.size()) {
-          numeric = std::to_string(val); // e.g. "0777" -> "511"
-        } else {
-          numeric.clear();
-        }
-      } catch (...) {
-        numeric.clear();
-      }
+      convertOctalToDecimal(numeric, numeric);
     }
     if (!numeric.empty()) {
       if (Number number{numeric}; number.is<int>() || number.is<long>() ||

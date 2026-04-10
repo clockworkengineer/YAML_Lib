@@ -113,6 +113,7 @@ private:
   static bool isDocumentEnd(ISource &source);
   static bool isDocumentBoundary(ISource &source);
   static bool isInlineComment(const ISource &source, const std::string &yamlString);
+  static void convertOctalToDecimal(std::string &numeric, const std::string &digits);
   static bool isDirective(ISource &source);
   static bool isTagged(const ISource &source);
   static bool isTimestamp(ISource &source);
