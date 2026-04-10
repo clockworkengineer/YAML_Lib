@@ -47,8 +47,7 @@ std::string Default_Parser::extractInlineCollectionAt(ISource &source) {
 /// <param name="yamlString">YAML string.</param>
 Node Default_Parser::convertYAMLToStringNode(
     const std::string_view &yamlString) {
-  BufferSource yamlKey{std::string(yamlString) + kLineFeed};
-  auto keyNode = parseDocument(yamlKey, {kLineFeed}, 0);
+  auto keyNode = parseFromBuffer(std::string(yamlString) + kLineFeed, {kLineFeed}, 0);
   std::string keyString{NRef<Variant>(keyNode).toKey()};
   char quote = '\"';
   if (isA<String>(keyNode)) {
@@ -66,8 +65,7 @@ Node Default_Parser::convertYAMLToStringNode(
 /// key.</param> <returns> If true value is a valid key.</returns>
 bool Default_Parser::isValidKey(const std::string_view &key) {
   try {
-    BufferSource yamlKey{std::string(key) + kLineFeed};
-    const Node keyNode = parseDocument(yamlKey, {kLineFeed}, 0);
+    const Node keyNode = parseFromBuffer(std::string(key) + kLineFeed, {kLineFeed}, 0);
     return !keyNode.isEmpty() && !isA<Comment>(keyNode);
   } catch ([[maybe_unused]] const std::exception &e) {
     return false;
