@@ -178,9 +178,7 @@ Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
 Node Default_Parser::parseOverride(ISource &source,
                                    const Delimiters &delimiters,
                                    const unsigned long indentation) {
-  source.next();
-  source.next();
-  source.next();
+  [[maybe_unused]] const bool consumed = source.match("<<:");
   source.ignoreWS();
   if (source.current() != '*') {
     throw SyntaxError(source.getPosition(), "Missing '*' from alias.");
