@@ -46,10 +46,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     // Verbatim tag: !<tag:yaml.org,2002:str>
     isVerbatim = true;
     source.next();
-    while (source.more() && source.current() != '>') {
-      tagHandle += source.current();
-      source.next();
-    }
+    tagHandle = extractToNext(source, {'>'});
     if (!source.more() || source.current() != '>') {
       throw SyntaxError(source.getPosition(), "Unclosed verbatim tag '<'.");
     }
@@ -58,28 +55,16 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     // Secondary tag handle: !! -> primary handle "tag:yaml.org,2002:"
     source.next();
     tagHandle = "!!";
-    while (source.more() && source.current() != kSpace &&
-           source.current() != kLineFeed) {
-      tagSuffix += source.current();
-      source.next();
-    }
+    tagSuffix = extractToNext(source, {kSpace, kLineFeed});
   } else {
     // Could be primary !suffix or named handle !ns!suffix.
     // Scan ahead: if we find a second '!' before space/LF it is a named handle.
     std::string preExcl;
-    while (source.more() && source.current() != '!' &&
-           source.current() != kSpace && source.current() != kLineFeed) {
-      preExcl += source.current();
-      source.next();
-    }
+    preExcl = extractToNext(source, {'!', kSpace, kLineFeed});
     if (source.more() && source.current() == '!') {
       source.next(); // consume second '!'
       tagHandle = "!" + preExcl + "!";
-      while (source.more() && source.current() != kSpace &&
-             source.current() != kLineFeed) {
-        tagSuffix += source.current();
-        source.next();
-      }
+      tagSuffix = extractToNext(source, {kSpace, kLineFeed});
     } else {
       // Primary tag handle: !suffix
       tagHandle = "!";
