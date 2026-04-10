@@ -16,14 +16,12 @@ namespace YAML_Lib {
 /// YYYY-MM-DD (4 digits, '-', 2 digits, '-', 2 digits).
 /// </summary>
 bool Default_Parser::looksLikeIso8601Date(const std::string &s) {
-  return s.size() >= 10 && std::isdigit(static_cast<unsigned char>(s[0])) &&
-         std::isdigit(static_cast<unsigned char>(s[1])) &&
-         std::isdigit(static_cast<unsigned char>(s[2])) &&
-         std::isdigit(static_cast<unsigned char>(s[3])) && s[4] == '-' &&
-         std::isdigit(static_cast<unsigned char>(s[5])) &&
-         std::isdigit(static_cast<unsigned char>(s[6])) && s[7] == '-' &&
-         std::isdigit(static_cast<unsigned char>(s[8])) &&
-         std::isdigit(static_cast<unsigned char>(s[9]));
+  if (s.size() < 10) return false;
+  const auto dig = [&](int i) {
+    return std::isdigit(static_cast<unsigned char>(s[i])) != 0;
+  };
+  return dig(0) && dig(1) && dig(2) && dig(3) && s[4] == '-' && dig(5) &&
+         dig(6) && s[7] == '-' && dig(8) && dig(9);
 }
 
 /// <summary>
