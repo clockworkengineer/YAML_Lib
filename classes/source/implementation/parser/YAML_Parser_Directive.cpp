@@ -159,14 +159,11 @@ Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
     return Node::make<Null>();
   }
   activeAliasExpansions.insert(name);
-  try {
-    auto result = parseFromBuffer(unparsed, delimiters, indentation);
-    activeAliasExpansions.erase(name);
-    return result;
-  } catch (...) {
-    activeAliasExpansions.erase(name);
-    throw;
-  }
+  struct AliasGuard {
+    const std::string &name_;
+    ~AliasGuard() { Default_Parser::activeAliasExpansions.erase(name_); }
+  } aliasGuard{name};
+  return parseFromBuffer(unparsed, delimiters, indentation);
 }
 /// <summary>
 /// Parse alias on source stream, substitute alias, and any overrides.
