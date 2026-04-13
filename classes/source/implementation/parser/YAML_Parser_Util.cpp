@@ -169,6 +169,21 @@ std::string Default_Parser::extractString(ISource &source, const char quote) {
   return extracted;
 }
 /// <summary>
+/// Extract a quoted scalar from source, stripping the surrounding quote
+/// characters and trimming trailing whitespace.  The source must be
+/// positioned at the opening quote character.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <returns>Unquoted, right-trimmed scalar value.</returns>
+std::string Default_Parser::extractRawQuotedScalar(ISource &source) {
+  std::string raw = extractString(source);
+  if (raw.size() >= 2) {
+    raw = raw.substr(1, raw.size() - 2);
+  }
+  rightTrim(raw);
+  return raw;
+}
+/// <summary>
 /// Extract characters from source stream up to a delimiter.
 /// </summary>
 /// <param name="source">Source stream.</param>

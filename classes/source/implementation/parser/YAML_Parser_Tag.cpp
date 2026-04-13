@@ -101,13 +101,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   // Helper: extract the raw scalar value (unquoting if quoted) as a string.
   auto extractRawScalar = [&]() -> std::string {
     if (isQuotedString(source)) {
-      // extractString returns the content with surrounding quotes; strip them.
-      std::string raw = extractString(source);
-      if (raw.size() >= 2) {
-        raw = raw.substr(1, raw.size() - 2);
-      }
-      rightTrim(raw);
-      return raw;
+      return extractRawQuotedScalar(source);
     }
     return extractTrimmed(source, delimiters);
   };
