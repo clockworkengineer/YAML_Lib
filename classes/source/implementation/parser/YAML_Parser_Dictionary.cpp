@@ -314,19 +314,21 @@ Node Default_Parser::parseInlineDictionary(
   const auto inLineDictionaryDelimiters =
       withExtras(delimiters, {kComma, kRightCurlyBrace});
   Node dictionaryNode = Node::make<Dictionary>();
-  DepthGuard depthGuard(inlineDictionaryDepth);
-  do {
-    source.next();
-    moveToNextIndent(source);
-    if (source.current() == kComma) {
-      throw SyntaxError("Unexpected ',' in in-line dictionary.");
-    }
-    if (source.current() != kRightCurlyBrace) {
-      auto entry =
-          parseInlineKeyValue(source, inLineDictionaryDelimiters, indentation);
-      addInlineDictEntry(NRef<Dictionary>(dictionaryNode), std::move(entry), source);
-    }
-  } while (source.current() == kComma);
+  {
+    DepthGuard depthGuard(inlineDictionaryDepth);
+    do {
+      source.next();
+      moveToNextIndent(source);
+      if (source.current() == kComma) {
+        throw SyntaxError("Unexpected ',' in in-line dictionary.");
+      }
+      if (source.current() != kRightCurlyBrace) {
+        auto entry =
+            parseInlineKeyValue(source, inLineDictionaryDelimiters, indentation);
+        addInlineDictEntry(NRef<Dictionary>(dictionaryNode), std::move(entry), source);
+      }
+    } while (source.current() == kComma);
+  } // inlineDictionaryDepth decremented here
   checkForEnd(source, kRightCurlyBrace);
   if (source.current() == kColon) {
     throw SyntaxError(

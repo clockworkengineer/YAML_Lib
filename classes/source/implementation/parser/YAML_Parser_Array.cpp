@@ -65,21 +65,23 @@ Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters,
 Node Default_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters,
     const unsigned long indentation) {
-  DepthGuard depthGuard(inlineArrayDepth);
   const auto inLineArrayDelimiters =
       withExtras(delimiters, {kComma, kRightSquareBracket});
   auto arrayNode = Node::make<Array>();
   auto &yamlArray = NRef<Array>(arrayNode);
-  do {
-    source.next();
-    yamlArray.add(parseDocument(source, inLineArrayDelimiters, indentation));
-    if (auto &element = yamlArray.value().back(); isNullStringNode(element)) {
-      if (source.current() != kRightSquareBracket) {
-        throw SyntaxError("Unexpected ',' in in-line array.");
+  {
+    DepthGuard depthGuard(inlineArrayDepth);
+    do {
+      source.next();
+      yamlArray.add(parseDocument(source, inLineArrayDelimiters, indentation));
+      if (auto &element = yamlArray.value().back(); isNullStringNode(element)) {
+        if (source.current() != kRightSquareBracket) {
+          throw SyntaxError("Unexpected ',' in in-line array.");
+        }
+        yamlArray.value().pop_back();
       }
-      yamlArray.value().pop_back();
-    }
-  } while (source.current() == kComma);
+    } while (source.current() == kComma);
+  } // inlineArrayDepth decremented here
   checkForEnd(source, kRightSquareBracket);
   source.ignoreWS();
   if (inlineArrayDepth == 0) {
