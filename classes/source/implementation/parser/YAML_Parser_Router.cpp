@@ -17,8 +17,7 @@ namespace YAML_Lib {
 /// <param name="source">Source stream.</param>
 /// <returns>If true value is an override.</returns>
 bool Default_Parser::isOverride(ISource &source) {
-  SourceGuard guard(source);
-  return source.match("<<:");
+  return matchesMarker(source, "<<:");
 }
 // <summary>
 // Has a dictionary key been found in the source stream?
