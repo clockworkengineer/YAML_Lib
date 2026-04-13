@@ -30,24 +30,25 @@ bool Default_Parser::isNullStringNode(const Node &node) {
 Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters,
                                 [[maybe_unused]] unsigned long indentation) {
   const unsigned long arrayIndent = source.getPosition().second;
-  arrayIndentLevel++;
   auto arrayNode = Node::make<Array>();
-  while (isArray(source) && arrayIndent == source.getPosition().second) {
-    source.next();
-    source.ignoreWS();
-    Node yNode = Node::make<Null>();
-    if (source.current() != kLineFeed) {
-      yNode = parseDocument(source, delimiters, arrayIndent);
-    } else {
-      moveToNextIndent(source);
-      if (arrayIndent < source.getPosition().second) {
+  {
+    DepthGuard depthGuard(arrayIndentLevel);
+    while (isArray(source) && arrayIndent == source.getPosition().second) {
+      source.next();
+      source.ignoreWS();
+      Node yNode = Node::make<Null>();
+      if (source.current() != kLineFeed) {
         yNode = parseDocument(source, delimiters, arrayIndent);
+      } else {
+        moveToNextIndent(source);
+        if (arrayIndent < source.getPosition().second) {
+          yNode = parseDocument(source, delimiters, arrayIndent);
+        }
       }
+      NRef<Array>(arrayNode).add(std::move(yNode));
+      moveToNextIndent(source);
     }
-    NRef<Array>(arrayNode).add(std::move(yNode));
-    moveToNextIndent(source);
-  }
-  arrayIndentLevel--;
+  } // arrayIndentLevel decremented here (even on exception)
   if (isArray(source) && arrayIndentLevel == 0 &&
       arrayIndent > source.getPosition().second) {
     throw SyntaxError(source.getPosition(),
