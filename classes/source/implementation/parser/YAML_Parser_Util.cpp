@@ -116,6 +116,11 @@ void Default_Parser::moveToNextIndent(ISource &source) {
 /// Extract quoted from source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
+/// <returns>Extracted characters (uses source.current() as the quote character).</returns>
+std::string Default_Parser::extractString(ISource &source) {
+  return extractString(source, source.current());
+}
+/// <param name="source">Source stream.</param>
 /// <param name="quote"></param>
 /// <returns>Extracted characters.</returns>
 std::string Default_Parser::extractString(ISource &source, const char quote) {

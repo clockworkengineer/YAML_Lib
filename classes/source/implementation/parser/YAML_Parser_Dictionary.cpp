@@ -122,7 +122,7 @@ std::string Default_Parser::extractKey(ISource &source) {
     if (isInlineCollection(source)) {
       result += extractInlineCollectionAt(source);
     } else if (isQuotedString(source)) {
-      result += extractString(source, source.current());
+      result += extractString(source);
     } else {
       result += extractToNext(source, keyStopDelimiters());
       rightTrim(result);
@@ -133,7 +133,7 @@ std::string Default_Parser::extractKey(ISource &source) {
     return extractInlineCollectionAt(source);
   }
   if (isQuotedString(source)) {
-    return extractString(source, source.current());
+    return extractString(source);
   }
   if (isMapping(source)) {
     return extractMapping(source);

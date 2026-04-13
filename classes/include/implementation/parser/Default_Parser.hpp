@@ -81,6 +81,7 @@ private:
   static bool isNullStringNode(const Node &node);
   static bool looksLikeIso8601Date(const std::string &s);
   static std::string extractString(ISource &source, char quote);
+  static std::string extractString(ISource &source);
   static std::string extractToNext(ISource &source,
                                    const Delimiters &delimiters);
   static std::string extractTrimmed(ISource &source,

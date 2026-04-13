@@ -102,7 +102,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   auto extractRawScalar = [&]() -> std::string {
     if (isQuotedString(source)) {
       // extractString returns the content with surrounding quotes; strip them.
-      std::string raw = extractString(source, source.current());
+      std::string raw = extractString(source);
       if (raw.size() >= 2) {
         raw = raw.substr(1, raw.size() - 2);
       }
