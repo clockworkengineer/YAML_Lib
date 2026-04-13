@@ -306,5 +306,12 @@ Default_Parser::Delimiters Default_Parser::keyStopDelimiters() {
              ? Delimiters{kColon, kComma, kRightCurlyBrace, kLineFeed}
              : Delimiters{kColon, kLineFeed};
 }
+/// <summary>
+/// Is the parser currently inside at least one flow collection ([] or {})?
+/// </summary>
+/// <returns>True when inlineArrayDepth or inlineDictionaryDepth is non-zero.</returns>
+bool Default_Parser::isInsideFlowContext() noexcept {
+  return inlineArrayDepth > 0 || inlineDictionaryDepth > 0;
+}
 
 } // namespace YAML_Lib

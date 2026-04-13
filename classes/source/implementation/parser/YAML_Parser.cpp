@@ -23,7 +23,7 @@ Node Default_Parser::parseDocument(ISource &source,
   moveToNextIndent(source);
   // Document markers (--- / ...) are not permitted as values inside a flow
   // collection.  Encountering one here means the input is malformed.
-  if ((inlineArrayDepth > 0 || inlineDictionaryDepth > 0) &&
+  if (isInsideFlowContext() &&
       isDocumentBoundary(source)) {
     throw SyntaxError(source.getPosition(),
                       "Document marker not permitted inside flow collection.");

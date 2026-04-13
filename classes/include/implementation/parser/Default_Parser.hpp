@@ -191,6 +191,7 @@ private:
   static Delimiters withExtras(const Delimiters &base,
                                std::initializer_list<char> extras);
   static Delimiters keyStopDelimiters();
+  [[nodiscard]] static bool isInsideFlowContext() noexcept;
   static Node parseTagged(ISource &source, const Delimiters &delimiters,
                           unsigned long indentation);
   // YAML parser routing table

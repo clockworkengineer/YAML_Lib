@@ -79,7 +79,7 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
     // continuation line begins with a flow indicator.  Leave the indicator
     // for the enclosing collection parser to consume.
     const bool stopAtFlowIndicator =
-        (inlineArrayDepth > 0 || inlineDictionaryDepth > 0) &&
+        isInsideFlowContext() &&
         (source.current() == kRightSquareBracket ||
          source.current() == kRightCurlyBrace || source.current() == kComma);
     while (!stopAtFlowIndicator && source.more() &&
@@ -112,7 +112,7 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
   // scalar when immediately followed by an ns-plain-safe character.  A scalar
   // that reduces to a single one of these characters means nothing safe
   // followed it — reject as invalid.
-  if ((inlineArrayDepth > 0 || inlineDictionaryDepth > 0) &&
+  if (isInsideFlowContext() &&
       yamlString.size() == 1 &&
       (yamlString[0] == '-' || yamlString[0] == '?' || yamlString[0] == ':')) {
     throw SyntaxError(source.getPosition(),
