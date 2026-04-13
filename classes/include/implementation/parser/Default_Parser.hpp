@@ -48,6 +48,21 @@ private:
     ISource *src_;
   };
 
+  // RAII guard that increments a depth counter on construction and
+  // decrements it on destruction (including on exception).
+  class DepthGuard {
+  public:
+    explicit DepthGuard(long &depth) : depth_(depth) { ++depth_; }
+    ~DepthGuard() { --depth_; }
+    DepthGuard(const DepthGuard &) = delete;
+    DepthGuard &operator=(const DepthGuard &) = delete;
+    DepthGuard(DepthGuard &&) = delete;
+    DepthGuard &operator=(DepthGuard &&) = delete;
+
+  private:
+    long &depth_;
+  };
+
   // Scaffold shared by simple scalar parsers (parseNone, parseBoolean,
   // parseNumber). Saves the source position, extracts the next token up to
   // the given delimiters, right-trims it, then calls pred(token).  If pred

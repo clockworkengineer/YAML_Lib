@@ -65,7 +65,7 @@ Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters,
 Node Default_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters,
     const unsigned long indentation) {
-  inlineArrayDepth++;
+  DepthGuard depthGuard(inlineArrayDepth);
   const auto inLineArrayDelimiters =
       withExtras(delimiters, {kComma, kRightSquareBracket});
   auto arrayNode = Node::make<Array>();
@@ -80,7 +80,6 @@ Node Default_Parser::parseInlineArray(
       yamlArray.value().pop_back();
     }
   } while (source.current() == kComma);
-  inlineArrayDepth--;
   checkForEnd(source, kRightSquareBracket);
   source.ignoreWS();
   if (inlineArrayDepth == 0) {

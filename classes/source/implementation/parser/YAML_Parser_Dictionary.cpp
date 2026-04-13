@@ -314,7 +314,7 @@ Node Default_Parser::parseInlineDictionary(
   const auto inLineDictionaryDelimiters =
       withExtras(delimiters, {kComma, kRightCurlyBrace});
   Node dictionaryNode = Node::make<Dictionary>();
-  inlineDictionaryDepth++;
+  DepthGuard depthGuard(inlineDictionaryDepth);
   do {
     source.next();
     moveToNextIndent(source);
@@ -327,7 +327,6 @@ Node Default_Parser::parseInlineDictionary(
       addInlineDictEntry(NRef<Dictionary>(dictionaryNode), std::move(entry), source);
     }
   } while (source.current() == kComma);
-  inlineDictionaryDepth--;
   checkForEnd(source, kRightCurlyBrace);
   if (source.current() == kColon) {
     throw SyntaxError(
