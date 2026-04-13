@@ -84,10 +84,7 @@ Node Default_Parser::parseInlineArray(
     } while (source.current() == kComma);
   } // inlineArrayDepth decremented here
   checkForEnd(source, kRightSquareBracket);
-  source.ignoreWS();
-  if (inlineArrayDepth == 0) {
-    checkFlowDelimiter(source, delimiters);
-  }
+  checkAtFlowClose(source, delimiters, inlineArrayDepth);
   return arrayNode;
 }
 } // namespace YAML_Lib

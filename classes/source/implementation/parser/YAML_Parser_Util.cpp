@@ -294,6 +294,22 @@ void Default_Parser::checkFlowDelimiter(ISource &source,
   }
 }
 /// <summary>
+/// After closing an inline collection, skip whitespace and — when this was
+/// the outermost inline collection (depth == 0) — verify the next character
+/// belongs to the caller's delimiter set.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <param name="delimiters">Expected delimiter set.</param>
+/// <param name="depth">Post-decrement inline-collection depth.</param>
+void Default_Parser::checkAtFlowClose(ISource &source,
+                                      const Delimiters &delimiters,
+                                      const long depth) {
+  source.ignoreWS();
+  if (depth == 0) {
+    checkFlowDelimiter(source, delimiters);
+  }
+}
+/// <summary>
 /// Return a copy of base with extra delimiter characters added.
 /// </summary>
 /// <param name="base">Base delimiter set to copy.</param>

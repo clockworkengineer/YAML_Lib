@@ -334,10 +334,7 @@ Node Default_Parser::parseInlineDictionary(
         source.getPosition(),
         "Inline dictionary used as key is meant to be on one line.");
   }
-  source.ignoreWS();
-  if (inlineDictionaryDepth == 0) {
-    checkFlowDelimiter(source, delimiters);
-  }
+  checkAtFlowClose(source, delimiters, inlineDictionaryDepth);
   return dictionaryNode;
 }
 

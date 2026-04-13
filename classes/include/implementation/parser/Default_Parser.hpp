@@ -109,6 +109,8 @@ private:
   static std::string extractMapping(ISource &source);
   static void checkForEnd(ISource &source, char end);
   static void checkFlowDelimiter(ISource &source, const Delimiters &delimiters);
+  static void checkAtFlowClose(ISource &source, const Delimiters &delimiters,
+                               long depth);
   static Node parseFromBuffer(const std::string &text,
                               const Delimiters &delimiters,
                               unsigned long indentation);
