@@ -77,7 +77,7 @@ Node Default_Parser::parseInlineArray(
       yamlArray.add(parseDocument(source, inLineArrayDelimiters, indentation));
       if (auto &element = yamlArray.value().back(); isNullStringNode(element)) {
         if (source.current() != kRightSquareBracket) {
-          throw SyntaxError("Unexpected ',' in in-line array.");
+          throw SyntaxError(source.getPosition(), "Unexpected ',' in in-line array.");
         }
         yamlArray.value().pop_back();
       }

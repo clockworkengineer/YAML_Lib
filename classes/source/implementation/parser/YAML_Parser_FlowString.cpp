@@ -101,7 +101,7 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
       }
       appendCharacterToString(source, yamlString);
       if (source.match(": ")) {
-        throw SyntaxError("Invalid YAML encountered.");
+        throw SyntaxError(source.getPosition(), "Invalid YAML encountered.");
       }
     }
     if (yamlString.back() == kSpace || yamlString.back() == kLineFeed) {

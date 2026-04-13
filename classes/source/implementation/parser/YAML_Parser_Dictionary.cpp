@@ -318,7 +318,7 @@ Node Default_Parser::parseInlineDictionary(
       source.next();
       moveToNextIndent(source);
       if (source.current() == kComma) {
-        throw SyntaxError("Unexpected ',' in in-line dictionary.");
+        throw SyntaxError(source.getPosition(), "Unexpected ',' in in-line dictionary.");
       }
       if (source.current() != kRightCurlyBrace) {
         auto entry = parseInlineKeyValue(source, inLineDictionaryDelimiters,

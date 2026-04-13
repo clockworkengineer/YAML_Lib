@@ -240,7 +240,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n[,, three, ]\n..."};
     REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Syntax Error: Unexpected ',' in in-line array.");
+                        Catch::Matchers::ContainsSubstring("Unexpected ',' in in-line array."));
   }
   SECTION("YAML parse inline array containing incorrect bracket numbers "
           "(example 1).",
