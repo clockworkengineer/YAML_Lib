@@ -113,8 +113,7 @@ std::string Default_Parser::extractMapping(ISource &source) {
     if (!isComment(source)) {
       break;
     }
-    moveToNext(source, {kLineFeed}); // advance to but not past '\n'
-    source.next(); // consume '\n'; next iteration re-scans spaces
+    skipLine(source); // advance to and consume '\n'; next iteration re-scans spaces
   }
   if (isInlineCollection(source)) {
     key += extractInlineCollectionAt(source);
