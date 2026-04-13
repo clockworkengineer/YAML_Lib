@@ -452,16 +452,16 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
       "YAML parse in dictionary one key value pair and multipal trailing ','.",
       "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n { one: 1,,,} \n...\n"};
-    REQUIRE_THROWS_WITH(
-        yaml.parse(source),
-        Catch::Matchers::ContainsSubstring("Unexpected ',' in in-line dictionary."));
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        Catch::Matchers::ContainsSubstring(
+                            "Unexpected ',' in in-line dictionary."));
   }
   SECTION("YAML parse in dictionary with no key value pairs just ','.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n { , } n...\n"};
-    REQUIRE_THROWS_WITH(
-        yaml.parse(source),
-        Catch::Matchers::ContainsSubstring("Unexpected ',' in in-line dictionary."));
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        Catch::Matchers::ContainsSubstring(
+                            "Unexpected ',' in in-line dictionary."));
   }
   SECTION("YAML parse  dictionary with just keys (example 1).",
           "[YAML][Parse][Dictionary]") {
@@ -578,7 +578,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
   SECTION("YAML parse string with wit dictionary after.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\ntest string 0\ntest1: 1\ntest2: 2\ntest3: 4\n"};
-    REQUIRE_THROWS_WITH(yaml.parse(source),
-                        Catch::Matchers::ContainsSubstring("Invalid YAML encountered."));
+    REQUIRE_THROWS_WITH(yaml.parse(source), Catch::Matchers::ContainsSubstring(
+                                                "Invalid YAML encountered."));
   }
 }

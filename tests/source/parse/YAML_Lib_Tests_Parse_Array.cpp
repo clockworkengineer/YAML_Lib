@@ -239,8 +239,9 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
   SECTION("YAML parse inline array containing empty elements'.",
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n[,, three, ]\n..."};
-    REQUIRE_THROWS_WITH(yaml.parse(source),
-                        Catch::Matchers::ContainsSubstring("Unexpected ',' in in-line array."));
+    REQUIRE_THROWS_WITH(
+        yaml.parse(source),
+        Catch::Matchers::ContainsSubstring("Unexpected ',' in in-line array."));
   }
   SECTION("YAML parse inline array containing incorrect bracket numbers "
           "(example 1).",
