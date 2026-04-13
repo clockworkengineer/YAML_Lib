@@ -116,7 +116,8 @@ void Default_Parser::moveToNextIndent(ISource &source) {
 /// Extract quoted from source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
-/// <returns>Extracted characters (uses source.current() as the quote character).</returns>
+/// <returns>Extracted characters (uses source.current() as the quote
+/// character).</returns>
 std::string Default_Parser::extractString(ISource &source) {
   return extractString(source, source.current());
 }
@@ -309,7 +310,8 @@ Default_Parser::Delimiters Default_Parser::keyStopDelimiters() {
 /// <summary>
 /// Is the parser currently inside at least one flow collection ([] or {})?
 /// </summary>
-/// <returns>True when inlineArrayDepth or inlineDictionaryDepth is non-zero.</returns>
+/// <returns>True when inlineArrayDepth or inlineDictionaryDepth is
+/// non-zero.</returns>
 bool Default_Parser::isInsideFlowContext() noexcept {
   return inlineArrayDepth > 0 || inlineDictionaryDepth > 0;
 }

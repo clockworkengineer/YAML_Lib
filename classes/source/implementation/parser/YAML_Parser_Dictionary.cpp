@@ -219,8 +219,8 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
   }
   moveToNextIndent(source);
   Node dictionaryNode = Node::make<Null>();
-  if (source.more() && (source.getPosition().second > keyIndent ||
-                        isInlineCollection(source))) {
+  if (source.more() &&
+      (source.getPosition().second > keyIndent || isInlineCollection(source))) {
     dictionaryNode = parseDocument(source, delimiters, indentation);
   }
   return {keyNode, dictionaryNode};

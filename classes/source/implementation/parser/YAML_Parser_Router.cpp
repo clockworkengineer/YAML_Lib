@@ -171,7 +171,8 @@ bool Default_Parser::isInlineDictionary(const ISource &source) {
   return source.current() == kLeftCurlyBrace;
 }
 /// <summary>
-/// Has an inline collection (array or dictionary) been found on the source stream?
+/// Has an inline collection (array or dictionary) been found on the source
+/// stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an inline array or dictionary has been found.</returns>

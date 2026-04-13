@@ -112,8 +112,7 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
   // scalar when immediately followed by an ns-plain-safe character.  A scalar
   // that reduces to a single one of these characters means nothing safe
   // followed it — reject as invalid.
-  if (isInsideFlowContext() &&
-      yamlString.size() == 1 &&
+  if (isInsideFlowContext() && yamlString.size() == 1 &&
       (yamlString[0] == '-' || yamlString[0] == '?' || yamlString[0] == ':')) {
     throw SyntaxError(source.getPosition(),
                       "Bare '" + yamlString +
