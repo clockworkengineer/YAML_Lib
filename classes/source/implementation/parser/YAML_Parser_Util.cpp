@@ -276,5 +276,18 @@ void Default_Parser::checkFlowDelimiter(ISource &source,
                       std::string(1, source.current()) + "'.");
   }
 }
+/// <summary>
+/// Return a copy of base with extra delimiter characters added.
+/// </summary>
+/// <param name="base">Base delimiter set to copy.</param>
+/// <param name="extras">Additional characters to include.</param>
+/// <returns>New Delimiters set.</returns>
+Default_Parser::Delimiters
+Default_Parser::withExtras(const Delimiters &base,
+                           std::initializer_list<char> extras) {
+  Delimiters result{base};
+  result.insert(extras);
+  return result;
+}
 
 } // namespace YAML_Lib

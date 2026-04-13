@@ -294,8 +294,8 @@ Node Default_Parser::parseDictionary(
 Node Default_Parser::parseInlineDictionary(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters,
     const unsigned long indentation) {
-  Delimiters inLineDictionaryDelimiters = {delimiters};
-  inLineDictionaryDelimiters.insert({kComma, kRightCurlyBrace});
+  const auto inLineDictionaryDelimiters =
+      withExtras(delimiters, {kComma, kRightCurlyBrace});
   Node dictionaryNode = Node::make<Dictionary>();
   inlineDictionaryDepth++;
   do {

@@ -66,8 +66,8 @@ Node Default_Parser::parseInlineArray(
     ISource &source, [[maybe_unused]] const Delimiters &delimiters,
     const unsigned long indentation) {
   inlineArrayDepth++;
-  Delimiters inLineArrayDelimiters = {delimiters};
-  inLineArrayDelimiters.insert({kComma, kRightSquareBracket});
+  const auto inLineArrayDelimiters =
+      withExtras(delimiters, {kComma, kRightSquareBracket});
   auto arrayNode = Node::make<Array>();
   auto &yamlArray = NRef<Array>(arrayNode);
   do {

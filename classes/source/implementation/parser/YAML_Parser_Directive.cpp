@@ -113,8 +113,7 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
     // Use them so that an anchor value like "&b b" inside "[a, &b b]" stops
     // at ']' not at the next newline.  Always include kLineFeed so the
     // extraction never runs past the end of a line.
-    Delimiters inlineStop = delimiters;
-    inlineStop.insert(kLineFeed);
+    const auto inlineStop = withExtras(delimiters, {kLineFeed});
     unparsed += extractToNext(source, inlineStop);
     moveToNextIndent(source);
   } else {

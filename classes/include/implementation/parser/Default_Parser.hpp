@@ -185,6 +185,8 @@ private:
                             [[maybe_unused]] const Delimiters &delimiters,
                             unsigned long indentation);
   static void parseDirective(ISource &source, bool inDocument);
+  static Delimiters withExtras(const Delimiters &base,
+                              std::initializer_list<char> extras);
   static Node parseTagged(ISource &source, const Delimiters &delimiters,
                           unsigned long indentation);
   // YAML parser routing table
