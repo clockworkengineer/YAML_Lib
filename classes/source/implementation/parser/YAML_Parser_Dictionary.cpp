@@ -22,6 +22,12 @@ void Default_Parser::addUniqueDictEntry(Node &dictionaryNode,
                                         DictionaryEntry entry,
                                         ISource &source) {
   if (NRef<Dictionary>(dictionaryNode).contains(entry.getKey())) {
+    if (entry.getKey().empty()) {
+      // Empty (null) key: YAML permits duplicate null keys; last-wins.
+      NRef<Dictionary>(dictionaryNode)[entry.getKey()] =
+          std::move(entry.getNode());
+      return;
+    }
     throw SyntaxError(source.getPosition(),
                       "Dictionary already contains key '" +
                           std::string(entry.getKey()) + "'.");

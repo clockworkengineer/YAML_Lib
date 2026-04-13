@@ -406,10 +406,12 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
 
   SECTION("YAML parse dictionary with no key value twice.",
           "[YAML][Parse][Dictionary]") {
-    BufferSource source{"---\n: 'test'\n: 'test'\n...\n"};
-    REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Syntax Error [Line: 4 Column: 1]: Dictionary "
-                        "already contains key ''.");
+    // YAML permits duplicate null/empty keys; last entry wins.
+    BufferSource source{"---\n: 'test'\n: 'test2'\n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<Dictionary>(yaml.document(0)).contains(""));
+    REQUIRE(NRef<String>(yaml.document(0)[""]).value() == "test2");
   }
   SECTION(
       "YAML parse dictionary with non string keys are on more than one line "
