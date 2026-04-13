@@ -124,11 +124,7 @@ std::string Default_Parser::extractKey(ISource &source) {
     } else if (isQuotedString(source)) {
       result += extractString(source, source.current());
     } else {
-      const Delimiters valStop =
-          inlineDictionaryDepth > 0
-              ? Delimiters{kColon, kComma, kRightCurlyBrace, kLineFeed}
-              : Delimiters{kColon, kLineFeed};
-      result += extractToNext(source, valStop);
+      result += extractToNext(source, keyStopDelimiters());
       rightTrim(result);
     }
     return result;
@@ -148,10 +144,7 @@ std::string Default_Parser::extractKey(ISource &source) {
   // In block context (inlineDictionaryDepth == 0) '}' and ',' are ordinary
   // characters and must not terminate key extraction.  They are only special
   // inside flow collections (inlineDictionaryDepth > 0).
-  const Delimiters plainKeyDelimiters =
-      inlineDictionaryDepth > 0
-          ? Delimiters{kColon, kComma, kRightCurlyBrace, kLineFeed}
-          : Delimiters{kColon, kLineFeed};
+  const Delimiters plainKeyDelimiters = keyStopDelimiters();
   std::string key;
   while (source.more()) {
     key += extractToNext(source, plainKeyDelimiters);

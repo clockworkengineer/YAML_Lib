@@ -289,5 +289,17 @@ Default_Parser::withExtras(const Delimiters &base,
   result.insert(extras);
   return result;
 }
+/// <summary>
+/// Return the delimiter set that terminates plain-scalar key extraction,
+/// taking the current flow context into account.
+/// In block context only ':' and '\n' stop extraction; inside a flow
+/// collection '{', '}', and ',' are also stop characters.
+/// </summary>
+/// <returns>Appropriate Delimiters set for the current parser depth.</returns>
+Default_Parser::Delimiters Default_Parser::keyStopDelimiters() {
+  return inlineDictionaryDepth > 0
+             ? Delimiters{kColon, kComma, kRightCurlyBrace, kLineFeed}
+             : Delimiters{kColon, kLineFeed};
+}
 
 } // namespace YAML_Lib
