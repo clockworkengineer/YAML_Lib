@@ -114,6 +114,7 @@ private:
   static bool isAlias(const ISource &source);
   static bool isInlineArray(const ISource &source);
   static bool isInlineDictionary(const ISource &source);
+  static bool isInlineCollection(const ISource &source);
   static bool isMapping(ISource &source);
   static bool isDictionary(ISource &source);
   static bool isDefault(ISource &source);
@@ -187,7 +188,7 @@ private:
   static void parseDirective(ISource &source, bool inDocument);
   static unsigned long scanToFirstBlockContent(ISource &source);
   static Delimiters withExtras(const Delimiters &base,
-                              std::initializer_list<char> extras);
+                               std::initializer_list<char> extras);
   static Node parseTagged(ISource &source, const Delimiters &delimiters,
                           unsigned long indentation);
   // YAML parser routing table

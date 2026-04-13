@@ -30,8 +30,7 @@ void Default_Parser::addUniqueDictEntry(Node &dictionaryNode,
 }
 /// <summary>
 /// Extract a balanced inline collection ('{...}' or '[...]') starting at the
-/// current source position. Precondition: isInlineDictionary(source) ||
-/// isInlineArray(source).
+/// current source position. Precondition: isInlineCollection(source).
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>The raw collection text including its brackets.</returns>
@@ -87,11 +86,13 @@ std::string Default_Parser::extractMapping(ISource &source) {
       key += kSpace;
       source.next();
     }
-    if (!isComment(source)) { break; }
+    if (!isComment(source)) {
+      break;
+    }
     moveToNext(source, {kLineFeed}); // advance to but not past '\n'
-    source.next();                   // consume '\n'; next iteration re-scans spaces
+    source.next(); // consume '\n'; next iteration re-scans spaces
   }
-  if (isInlineDictionary(source) || isInlineArray(source)) {
+  if (isInlineCollection(source)) {
     key += extractInlineCollectionAt(source);
     moveToNext(source, {kColon});
   } else if (isArray(source)) {
@@ -118,7 +119,7 @@ std::string Default_Parser::extractKey(ISource &source) {
     result += extractToNext(source, {kSpace, '\t', kLineFeed});
     result += ' ';
     source.ignoreWS();
-    if (isInlineDictionary(source) || isInlineArray(source)) {
+    if (isInlineCollection(source)) {
       result += extractInlineCollectionAt(source);
     } else if (isQuotedString(source)) {
       result += extractString(source, source.current());
@@ -132,7 +133,7 @@ std::string Default_Parser::extractKey(ISource &source) {
     }
     return result;
   }
-  if (isInlineDictionary(source) || isInlineArray(source)) {
+  if (isInlineCollection(source)) {
     return extractInlineCollectionAt(source);
   }
   if (isQuotedString(source)) {
@@ -226,7 +227,7 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
   moveToNextIndent(source);
   Node dictionaryNode = Node::make<Null>();
   if (source.more() && (source.getPosition().second > keyIndent ||
-                        isInlineArray(source) || isInlineDictionary(source))) {
+                        isInlineCollection(source))) {
     dictionaryNode = parseDocument(source, delimiters, indentation);
   }
   return {keyNode, dictionaryNode};
