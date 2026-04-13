@@ -226,7 +226,7 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
     if (source.more() && source.current() == kSpace) {
       source.next(); // consume optional space after ':'
     }
-  } else if (isKey(source) && !isMapping(source) &&
+  } else if (isKey(source) && !isMapping(source) && !isAlias(source) &&
              (inlineDictionaryDepth > 0 ||
               source.getPosition().second > keyIndent)) {
     // Only throw when inside a flow collection (inlineDictionaryDepth > 0)

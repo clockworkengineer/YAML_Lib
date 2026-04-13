@@ -389,7 +389,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "NP9H",   "P76L",   "Q4CL",   "Q8AD",   "QB6E",   "QF4Y",   "QLJ7",
       "RLU9",   "RXY3",   "RZP5",   "S3PD",   "S4GJ",   "S98Z",   "S9E8",
       "SKE5",   "SR86",   "SU5Z",   "SU74",   "SY6V",   "U3XV",   "U99R",
-      "UV7Q",   "VJP3/1", "W5VH",   "Y79Y/0", "Y79Y/1", "Y79Y/2", "Y79Y/4",
+      "UV7Q",   "VJP3/1", "Y79Y/0", "Y79Y/1", "Y79Y/2", "Y79Y/4",
       "Y79Y/5", "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9", "Y79Y/3",
   };
 
