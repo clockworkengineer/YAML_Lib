@@ -201,7 +201,28 @@ bool Default_Parser::isMapping(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a dictionary has been found.</returns>
-bool Default_Parser::isDictionary(ISource &source) { return isKey(source); }
+bool Default_Parser::isDictionary(ISource &source) {
+  // If the source starts with '*', extract the alias name using alias-name
+  // rules (colon is valid in an anchor/alias name, it is NOT a delimiter).
+  // When the extracted name ends with ':' and matches a known anchor, the
+  // token is an alias reference where the colon is part of the name — not a
+  // dict key followed by a ':' separator.
+  // Example: "*a:\n" where anchor "a:" was defined → alias, not dict key.
+  // Counter-example: "*alias1 : val\n" → name stops at space ("alias1"),
+  // no trailing colon → falls through to isKey → treated as dict key.
+  if (source.current() == '*') {
+    SourceGuard guard(source);
+    source.next();
+    const Delimiters aliasStop{kLineFeed, kSpace, kComma,
+                               kRightSquareBracket, kRightCurlyBrace};
+    const std::string aliasName = extractToNext(source, aliasStop);
+    if (!aliasName.empty() && aliasName.back() == kColon &&
+        yamlAliasMap.count(aliasName)) {
+      return false;
+    }
+  }
+  return isKey(source);
+}
 /// <summary>
 /// Has document start been found on the source stream?
 /// </summary>
