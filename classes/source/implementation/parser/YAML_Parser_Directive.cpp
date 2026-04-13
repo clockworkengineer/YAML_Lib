@@ -28,14 +28,18 @@ Node Default_Parser::mergeOverrides(Node &overrideRoot) {
         overrideKeys.insert(std::string(entry.getKey()));
       }
     }
+    // Apply explicit outer keys on top of a base dictionary (shared by both
+    // single-alias and multi-alias branches).
+    const auto applyOuter = [&](Dictionary &base) {
+      for (auto &entry : overrideKeys) {
+        auto merged = mergeOverrides(dictionary[entry]);
+        upsertDictEntry(base, entry, std::move(merged));
+      }
+    };
     Node &overrideValue = dictionary[kOverride];
     if (isA<Dictionary>(overrideValue)) {
       // Single-alias merge: <<: *alias
-      auto &innerDictionary = NRef<Dictionary>(overrideValue);
-      for (auto &entry : overrideKeys) {
-        auto overrideEntry = mergeOverrides(dictionary[entry]);
-        upsertDictEntry(innerDictionary, entry, std::move(overrideEntry));
-      }
+      applyOuter(NRef<Dictionary>(overrideValue));
       overrideRoot = std::move(overrideValue);
     } else if (isA<Array>(overrideValue)) {
       // Multi-alias merge: <<: [*a, *b, ...]
@@ -55,10 +59,7 @@ Node Default_Parser::mergeOverrides(Node &overrideRoot) {
         }
       }
       // Explicit outer keys override the merged base.
-      for (auto &entry : overrideKeys) {
-        auto overrideEntry = mergeOverrides(dictionary[entry]);
-        upsertDictEntry(mergedDict, entry, std::move(overrideEntry));
-      }
+      applyOuter(mergedDict);
       overrideRoot = std::move(mergedBase);
     }
   }
