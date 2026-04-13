@@ -57,47 +57,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
   for (bool inDocument = false; source.more();) {
     // Directives (%YAML or %TAG) — only valid before a document starts
     if (isDirective(source)) {
-      if (inDocument) {
-        throw SyntaxError(source.getPosition(),
-                          "Directives must appear before document start.");
-      }
-      source.next(); // consume '%'
-      if (source.match("YAML")) {
-        // %YAML major.minor
-        source.ignoreWS();
-        std::string version{extractToNext(source, {kLineFeed, ' '})};
-        const auto dot = version.find('.');
-        if (dot == std::string::npos) {
-          throw SyntaxError(source.getPosition(),
-                            "%YAML directive missing version number.");
-        }
-        const int major = std::stoi(version.substr(0, dot));
-        const int minor = std::stoi(version.substr(dot + 1));
-        if (major != 1) {
-          throw SyntaxError(source.getPosition(),
-                            "%YAML directive: unsupported major version " +
-                                std::to_string(major) + ".");
-        }
-        if (yamlDirectiveSeen) {
-          throw SyntaxError(
-              source.getPosition(),
-              "%YAML directive appears more than once for the same document.");
-        }
-        yamlDirectiveSeen = true;
-        yamlDirectiveMinor = minor;
-        skipLine(source);
-      } else if (source.match("TAG")) {
-        // %TAG handle prefix
-        source.ignoreWS();
-        std::string handle{extractToNext(source, {' '})};
-        source.ignoreWS();
-        std::string prefix{extractToNext(source, {kLineFeed, ' '})};
-        yamlTagPrefixes[handle] = prefix;
-        skipLine(source);
-      } else {
-        // Unknown directive — skip to end of line (per YAML spec: warn)
-        skipLine(source);
-      }
+      parseDirective(source, inDocument);
       // Start of a document
     } else if (isDocumentStart(source)) {
       inDocument = true;
@@ -138,5 +98,53 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
   }
 
   return yNodeTree;
+}
+/// <summary>
+/// Parse a single YAML directive line (%YAML or %TAG).
+/// </summary>
+/// <param name="source">Source stream (positioned at '%').</param>
+/// <param name="inDocument">True if a document has already started.</param>
+void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
+  if (inDocument) {
+    throw SyntaxError(source.getPosition(),
+                      "Directives must appear before document start.");
+  }
+  source.next(); // consume '%'
+  if (source.match("YAML")) {
+    // %YAML major.minor
+    source.ignoreWS();
+    std::string version{extractToNext(source, {kLineFeed, ' '})};
+    const auto dot = version.find('.');
+    if (dot == std::string::npos) {
+      throw SyntaxError(source.getPosition(),
+                        "%YAML directive missing version number.");
+    }
+    const int major = std::stoi(version.substr(0, dot));
+    const int minor = std::stoi(version.substr(dot + 1));
+    if (major != 1) {
+      throw SyntaxError(source.getPosition(),
+                        "%YAML directive: unsupported major version " +
+                            std::to_string(major) + ".");
+    }
+    if (yamlDirectiveSeen) {
+      throw SyntaxError(
+          source.getPosition(),
+          "%YAML directive appears more than once for the same document.");
+    }
+    yamlDirectiveSeen = true;
+    yamlDirectiveMinor = minor;
+    skipLine(source);
+  } else if (source.match("TAG")) {
+    // %TAG handle prefix
+    source.ignoreWS();
+    std::string handle{extractToNext(source, {' '})};
+    source.ignoreWS();
+    std::string prefix{extractToNext(source, {kLineFeed, ' '})};
+    yamlTagPrefixes[handle] = prefix;
+    skipLine(source);
+  } else {
+    // Unknown directive — skip to end of line (per YAML spec: warn)
+    skipLine(source);
+  }
 }
 } // namespace YAML_Lib

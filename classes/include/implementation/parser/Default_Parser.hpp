@@ -184,6 +184,7 @@ private:
   static Node parseDocument(ISource &source,
                             [[maybe_unused]] const Delimiters &delimiters,
                             unsigned long indentation);
+  static void parseDirective(ISource &source, bool inDocument);
   static Node parseTagged(ISource &source, const Delimiters &delimiters,
                           unsigned long indentation);
   // YAML parser routing table
