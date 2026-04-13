@@ -44,6 +44,46 @@ Default_Parser::parseBlockChomping(ISource &source) {
   return {chomping, explicitIndent};
 }
 /// <summary>
+/// Advance source to the first non-blank content line of a block scalar,
+/// tracking the maximum number of leading spaces seen on blank lines.
+/// A blank line is defined here as a line consisting entirely of U+0020 space
+/// characters (any other character — including tab — terminates space-counting
+/// and marks the line as content, not blank).
+/// If source is positioned at '#' on entry (a comment on the block scalar
+/// header line, positioned there by moveToNext), that comment line is skipped.
+/// Does NOT throw on tabs — tabs are valid literal content in block scalars.
+/// Does NOT skip '#'-started content lines — '#' inside a block is literal.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <returns>Maximum leading-space count seen on any blank line.</returns>
+unsigned long Default_Parser::scanToFirstBlockContent(ISource &source) {
+  // Header-line comment: moveToNext may have stopped at '#'.
+  if (source.more() && isComment(source)) {
+    skipLine(source);
+  }
+  unsigned long maxBlankLeadingSpaces = 0;
+  while (source.more()) {
+    if (source.current() == kLineFeed) {
+      source.next();
+      continue;
+    }
+    // Count leading U+0020 spaces only (stop at tab or any other char).
+    unsigned long lineSpaces = 0;
+    while (source.more() && source.current() == kSpace) {
+      ++lineSpaces;
+      source.next();
+    }
+    // Blank line: nothing after the spaces before the next newline (or EOF).
+    if (!source.more() || source.current() == kLineFeed) {
+      maxBlankLeadingSpaces = std::max(maxBlankLeadingSpaces, lineSpaces);
+      continue;
+    }
+    // First non-blank line found; source positioned at first non-space char.
+    break;
+  }
+  return maxBlankLeadingSpaces;
+}
+/// <summary>
 /// Parse a block string.
 /// </summary>
 /// <param name="source">Source stream.</param>
@@ -64,13 +104,21 @@ std::string Default_Parser::parseBlockString(ISource &source,
                       "Block scalar comment must be preceded by whitespace.");
   }
   moveToNext(source, delimiters);
-  moveToNextIndent(source);
+  // Advance to first content, tracking blank-line leading spaces for W9L4.
+  const unsigned long maxBlankLeadingSpaces = scanToFirstBlockContent(source);
   // Use the explicit indent indicator when present (YAML 1.2 §8.1.1);
   // otherwise auto-detect from the first content line's column.
   const unsigned long blockIndent =
       (explicitIndent > 0)
           ? indentation + static_cast<unsigned long>(explicitIndent)
           : source.getPosition().second;
+  // YAML 1.2 §8.1.1: blank lines before block content may not have more
+  // leading spaces than the block indentation level (test case W9L4).
+  if (source.more() && maxBlankLeadingSpaces >= blockIndent) {
+    throw SyntaxError(source.getPosition(),
+                      "Block scalar blank line has more leading spaces than "
+                      "block indentation level.");
+  }
   std::string yamlString{};
   do {
     char filler{fillerDefault};

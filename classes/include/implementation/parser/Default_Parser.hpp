@@ -185,6 +185,7 @@ private:
                             [[maybe_unused]] const Delimiters &delimiters,
                             unsigned long indentation);
   static void parseDirective(ISource &source, bool inDocument);
+  static unsigned long scanToFirstBlockContent(ISource &source);
   static Delimiters withExtras(const Delimiters &base,
                               std::initializer_list<char> extras);
   static Node parseTagged(ISource &source, const Delimiters &delimiters,
