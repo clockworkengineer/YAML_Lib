@@ -74,6 +74,19 @@ void Default_Parser::moveToNext(ISource &source, const Delimiters &delimiters) {
   }
 }
 /// <summary>
+/// If the current character is the start of a comment ('#'), skip the rest
+/// of the line and return true. Otherwise return false.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <returns>True if a comment line was skipped.</returns>
+bool Default_Parser::skipIfComment(ISource &source) {
+  if (isComment(source)) {
+    skipLine(source);
+    return true;
+  }
+  return false;
+}
+/// <summary>
 /// Move to the end of the current line and consume the newline character.
 /// Equivalent to: moveToNext(source, {kLineFeed}); if (source.more())
 /// source.next();
@@ -105,9 +118,7 @@ void Default_Parser::moveToNextIndent(ISource &source) {
       }
       source.next();
     }
-    if (isComment(source)) {
-      skipLine(source);
-    } else {
+    if (!skipIfComment(source)) {
       indentFound = true;
     }
   }

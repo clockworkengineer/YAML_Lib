@@ -36,8 +36,7 @@ void Default_Parser::addUniqueDictEntry(Node &dictionaryNode,
 /// <param name="dict">Target Dictionary (unwrapped).</param>
 /// <param name="entry">Entry to add.</param>
 /// <param name="source">Source stream (used for error position).</param>
-void Default_Parser::addInlineDictEntry(Dictionary &dict,
-                                        DictionaryEntry entry,
+void Default_Parser::addInlineDictEntry(Dictionary &dict, DictionaryEntry entry,
                                         ISource &source) {
   const std::string keyStr{entry.getKey()};
   const bool isComplexKey =
@@ -110,10 +109,9 @@ std::string Default_Parser::extractMapping(ISource &source) {
       key += kSpace;
       source.next();
     }
-    if (!isComment(source)) {
+    if (!skipIfComment(source)) {
       break;
     }
-    skipLine(source); // advance to and consume '\n'; next iteration re-scans spaces
   }
   if (isInlineCollection(source)) {
     key += extractInlineCollectionAt(source);
@@ -323,9 +321,10 @@ Node Default_Parser::parseInlineDictionary(
         throw SyntaxError("Unexpected ',' in in-line dictionary.");
       }
       if (source.current() != kRightCurlyBrace) {
-        auto entry =
-            parseInlineKeyValue(source, inLineDictionaryDelimiters, indentation);
-        addInlineDictEntry(NRef<Dictionary>(dictionaryNode), std::move(entry), source);
+        auto entry = parseInlineKeyValue(source, inLineDictionaryDelimiters,
+                                         indentation);
+        addInlineDictEntry(NRef<Dictionary>(dictionaryNode), std::move(entry),
+                           source);
       }
     } while (source.current() == kComma);
   } // inlineDictionaryDepth decremented here

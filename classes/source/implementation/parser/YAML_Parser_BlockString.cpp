@@ -58,8 +58,8 @@ Default_Parser::parseBlockChomping(ISource &source) {
 /// <returns>Maximum leading-space count seen on any blank line.</returns>
 unsigned long Default_Parser::scanToFirstBlockContent(ISource &source) {
   // Header-line comment: moveToNext may have stopped at '#'.
-  if (source.more() && isComment(source)) {
-    skipLine(source);
+  if (source.more()) {
+    skipIfComment(source);
   }
   unsigned long maxBlankLeadingSpaces = 0;
   while (source.more()) {

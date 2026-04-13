@@ -88,6 +88,7 @@ private:
   static void rightTrim(std::string &str);
   static void moveToNext(ISource &source, const Delimiters &delimiters);
   static void skipLine(ISource &source);
+  static bool skipIfComment(ISource &source);
   static void moveToNextIndent(ISource &source);
   static void addUniqueDictEntry(Node &dictionaryNode, DictionaryEntry entry,
                                  ISource &source);
