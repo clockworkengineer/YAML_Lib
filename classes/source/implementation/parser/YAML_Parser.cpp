@@ -132,7 +132,6 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
     }
     yamlDirectiveSeen = true;
     yamlDirectiveMinor = minor;
-    skipLine(source);
   } else if (source.match("TAG")) {
     // %TAG handle prefix
     source.ignoreWS();
@@ -140,10 +139,9 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
     source.ignoreWS();
     std::string prefix{extractToNext(source, {kLineFeed, ' '})};
     yamlTagPrefixes[handle] = prefix;
-    skipLine(source);
   } else {
-    // Unknown directive — skip to end of line (per YAML spec: warn)
-    skipLine(source);
+    // Unknown directive — YAML spec says warn and ignore
   }
+  skipLine(source); // always advance past the directive line
 }
 } // namespace YAML_Lib
