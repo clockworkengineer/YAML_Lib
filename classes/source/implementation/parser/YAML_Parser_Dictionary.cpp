@@ -80,14 +80,16 @@ bool Default_Parser::isValidKey(const std::string_view &key) {
 /// <returns>Extracted mapping/.</returns>
 std::string Default_Parser::extractMapping(ISource &source) {
   std::string key;
-  source.next();
-  while (source.more() && source.current() == kSpace) {
-    key += kSpace;
-    source.next();
-  }
-  if (isComment(source)) {
-    moveToNext(source, {kLineFeed});
-    return extractMapping(source);
+  source.next(); // consume leading '?' (mapping indicator)
+  while (true) {
+    key.clear();
+    while (source.more() && source.current() == kSpace) {
+      key += kSpace;
+      source.next();
+    }
+    if (!isComment(source)) { break; }
+    moveToNext(source, {kLineFeed}); // advance to but not past '\n'
+    source.next();                   // consume '\n'; next iteration re-scans spaces
   }
   if (isInlineDictionary(source) || isInlineArray(source)) {
     key += extractInlineCollectionAt(source);
