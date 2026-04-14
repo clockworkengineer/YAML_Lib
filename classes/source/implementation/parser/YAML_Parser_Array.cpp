@@ -34,8 +34,21 @@ Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters,
   {
     DepthGuard depthGuard(arrayIndentLevel);
     while (isArray(source) && arrayIndent == source.getPosition().second) {
-      source.next();
+      source.next(); // consume '-'
+      // YAML 1.2 §6.1: block indentation must use spaces, not tabs.
+      // Detect whether a tab was used as the separator after '-'.  If so,
+      // and the content that follows would start another block-sequence
+      // indicator (i.e. another '-' whose position is tab-determined), the
+      // indentation level becomes ambiguous → reject as invalid.
+      const bool tabSeparator = (source.more() && source.current() == '\t');
       source.ignoreWS();
+      if (tabSeparator && source.more() && isArray(source)) {
+        throw SyntaxError(
+            source.getPosition(),
+            "Tab used as block sequence entry separator followed by another "
+            "block structure indicator; block indentation must use spaces, "
+            "not tabs (YAML 1.2 \u00a76.1).");
+      }
       Node yNode = Node::make<Null>();
       if (source.current() != kLineFeed) {
         yNode = parseDocument(source, delimiters, arrayIndent);

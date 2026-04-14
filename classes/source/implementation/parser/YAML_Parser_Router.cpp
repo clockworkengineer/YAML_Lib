@@ -67,7 +67,9 @@ bool Default_Parser::isArray(ISource &source) {
   if (source.more() && ch == '-') {
     source.next();
     ch = source.current();
-    arrayPresent = ch == kSpace || ch == kLineFeed;
+    // YAML 1.2: after '-' indicator, space, tab, or newline all satisfy
+    // the '¬ns-char' lookahead (none is a printable non-space character).
+    arrayPresent = ch == kSpace || ch == kLineFeed || ch == '\t';
   }
   return arrayPresent;
 }
