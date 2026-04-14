@@ -151,7 +151,8 @@ private:
   static bool isDirective(ISource &source);
   static bool isTagged(const ISource &source);
   static bool isTimestamp(ISource &source);
-  static void appendCharacterToString(ISource &source, std::string &yamlString);
+  static void appendCharacterToString(ISource &source, std::string &yamlString,
+                                       bool escapeAware = false);
   static std::string extractKey(ISource &source);
   static std::pair<BlockChomping, int> parseBlockChomping(ISource &source);
   static std::string parseBlockString(ISource &source,

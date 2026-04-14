@@ -26,13 +26,20 @@ bool Default_Parser::isInlineComment(const ISource &source,
 /// <param name="source">Source stream.</param>
 /// <param name="yamlString">YAML string appended too.</param>
 void Default_Parser::appendCharacterToString(ISource &source,
-                                             std::string &yamlString) {
+                                             std::string &yamlString,
+                                             const bool escapeAware) {
   if (source.current() == kLineFeed) {
     source.next();
     source.ignoreWS();
     // Strip trailing whitespace from the current line before folding.
+    // In escape-aware mode (double-quoted strings) do not strip a space or tab
+    // that is the second byte of an escape sequence (e.g. \<TAB> or \ ).
     while (!yamlString.empty() &&
            (yamlString.back() == kSpace || yamlString.back() == '\t')) {
+      if (escapeAware && yamlString.size() >= 2 &&
+          yamlString[yamlString.size() - 2] == '\\') {
+        break; // stop — the trailing char is part of an escape sequence
+      }
       yamlString.pop_back();
     }
     if (source.current() == kLineFeed) {
@@ -138,7 +145,7 @@ Node Default_Parser::parseQuotedFlowString(
         yamlString += source.append();
         yamlString += source.append();
       } else {
-        appendCharacterToString(source, yamlString);
+        appendCharacterToString(source, yamlString, true);
       }
     }
     yamlString = yamlTranslator->from(yamlString);

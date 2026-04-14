@@ -64,17 +64,21 @@ std::vector<std::string> splitTestItems(const std::string &fileContent) {
 ///   ␣ (U+2423)        — trailing space: replace with ' '
 ///   ← (U+2190)        — carriage return: replace with \r
 ///   ⇔ (U+21D4)        — BOM: replace with UTF-8 BOM bytes
-///   ———» / ——» / —» / » (EM-DASH sequence + U+00BB) — hard tab: replace with
-///   \t
+///   EM-DASHes* + » (U+00BB) — hard tab: any number of EM-DASHes followed by »
 static std::string decodeDisplayChars(std::string s) {
   using sz = std::string::size_type;
   const std::string em = "\xe2\x80\x94"; // — U+2014 EM DASH (3 bytes)
   const std::string raq = "\xc2\xbb";    // » U+00BB (2 bytes)
-  // Tab sequences — longest first to prevent partial matches
-  for (const auto &seq : std::initializer_list<std::string>{
-           em + em + em + raq, em + em + raq, em + raq, raq}) {
-    for (sz p; (p = s.find(seq)) != std::string::npos;)
-      s.replace(p, seq.size(), "\t");
+  // Tab sequences: greedily match any number of EM-DASHes (≥0) followed by »
+  // and replace with a single TAB.  The greedy scan handles 4+ EM-DASH cases
+  // (e.g. DE56/2,3) that the old fixed-length approach missed.
+  for (sz raqPos; (raqPos = s.find(raq)) != std::string::npos;) {
+    sz emStart = raqPos;
+    while (emStart >= em.size() &&
+           s.substr(emStart - em.size(), em.size()) == em) {
+      emStart -= em.size();
+    }
+    s.replace(emStart, raqPos - emStart + raq.size(), "\t");
   }
   // Trailing space indicator  ␣  U+2423 → ' '
   for (sz p; (p = s.find("\xe2\x90\xa3")) != std::string::npos;)
@@ -342,6 +346,29 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
     REQUIRE(NRef<String>(yaml.document(0)).value() == "5 leading \t  tab");
   }
 
+  // DE56/2 — trailing \<TAB> at end of line in double-quoted string
+  SECTION("DE56/2: backslash-TAB at end of continuation line does not get "
+          "stripped.",
+          "[YAML][TestSuite][Valid]") {
+    // "3 trailing\<TAB>\n    tab" → value "3 trailing" + TAB + " tab"
+    // The \<TAB> escape must survive the line-folding whitespace stripping.
+    BufferSource source{"\"3 trailing\\\t\n    tab\"\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "3 trailing\t tab");
+  }
+
+  // DE56/3 — trailing \<TAB> + spaces at end of line in double-quoted string
+  SECTION("DE56/3: backslash-TAB plus trailing spaces on continuation line.",
+          "[YAML][TestSuite][Valid]") {
+    // "4 trailing\<TAB>  \n    tab" → value "4 trailing" + TAB + " tab"
+    // Trailing spaces after \<TAB> are stripped; \<TAB> itself is preserved.
+    BufferSource source{"\"4 trailing\\\t  \n    tab\"\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "4 trailing\t tab");
+  }
+
   // 96NN/0 — Tab as leading content in literal block scalar
   SECTION("96NN/0: tab as first content character in literal block scalar.",
           "[YAML][TestSuite][Valid]") {
@@ -470,19 +497,20 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
       "4JVG",   "55WF",   "565N",   "5LLU",   "5TRB",   "5U3A",   "5WE3",
-      "6BCT",   "6BFJ",   "6HB6",   "6PBE",   "7BMT",   "7FWL",   "7LBH",
-      "7TMG",   "7W2P",   "7ZZ5",   "8UDB",   "8XDJ",   "9C9N",   "9JBA",
-      "9KBC",   "9MMA",   "9MMW",   "AVM7",   "AZ63",   "B63P",
+      "6BCT",   "6BFJ",   "6CA3",   "6HB6",   "6PBE",   "7BMT",   "7FWL",
+      "7LBH",   "7TMG",   "7W2P",   "7ZZ5",   "8UDB",   "8XDJ",   "9C9N",
+      "9JBA",   "9KBC",   "9MMA",   "9MMW",   "AVM7",   "AZ63",   "B63P",
       "BF9H",   "CN3R",   "CQ3W",   "CT4Q",   "CVW2",   "CXX2",   "D49Q",
-      "DC7X",   "DE56/2", "DE56/3", "DK95/0", "DK95/1", "DK95/4", "DK95/5",
-      "F2C7",   "FH7J",   "G5U8",   "GDY7",   "H7TQ",   "HMQ5",   "HRE5",
-      "J3BT",   "JKF3",   "JTV5",   "JY7Z",   "K3WX",   "KH5V/1", "KK5P",
-      "LHL4",   "LP6E",   "MUS6/0", "MUS6/6", "NKF9",   "NP9H",   "P76L",
-      "Q4CL",   "Q8AD",   "QB6E",   "QF4Y",   "QLJ7",   "RLU9",   "RXY3",
-      "RZP5",   "S3PD",   "S4GJ",   "S98Z",   "S9E8",   "SKE5",   "SR86",
-      "SU5Z",   "SU74",   "SY6V",   "U3XV",   "U99R",   "UV7Q",   "VJP3/1",
-      "Y79Y/0", "Y79Y/1", "Y79Y/2", "Y79Y/4", "Y79Y/5", "Y79Y/6", "Y79Y/7",
-      "Y79Y/8", "Y79Y/9", "Y79Y/3",
+      "DC7X",
+      "DK95/0", "DK95/1", "DK95/4", "DK95/5", "F2C7",
+      "FH7J",   "G5U8",   "GDY7",   "H7TQ",   "HMQ5",   "HRE5",   "J3BT",
+      "JKF3",   "JTV5",   "JY7Z",   "K3WX",   "KH5V/1", "KK5P",   "LHL4",
+      "LP6E",   "MUS6/0", "MUS6/6", "NKF9",   "NP9H",   "P76L",   "Q4CL",
+      "Q8AD",   "QB6E",   "QF4Y",   "QLJ7",   "RLU9",   "RXY3",   "RZP5",
+      "S3PD",   "S4GJ",   "S98Z",   "S9E8",   "SKE5",   "SR86",   "SU5Z",
+      "SU74",   "SY6V",   "U3XV",   "U99R",   "UV7Q",   "VJP3/1", "Y79Y/0",
+      "Y79Y/1", "Y79Y/2", "Y79Y/4", "Y79Y/5", "Y79Y/6", "Y79Y/7", "Y79Y/8",
+      "Y79Y/9", "Y79Y/3",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
