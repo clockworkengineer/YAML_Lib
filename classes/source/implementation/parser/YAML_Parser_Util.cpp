@@ -108,13 +108,17 @@ void Default_Parser::moveToNextIndent(ISource &source) {
   bool indentFound{false};
   while (!indentFound) {
     bool afterNewline = (source.getPosition().second == 1);
+    bool seenSpaceOnLine = false;
     while (source.more() && (source.isWS() || source.current() == kLineFeed)) {
       if (source.current() == kLineFeed) {
         afterNewline = true;
-      } else if (afterNewline && source.current() == '\t') {
+        seenSpaceOnLine = false;
+      } else if (afterNewline && source.current() == '\t' && !seenSpaceOnLine) {
         throw SyntaxError(
             source.getPosition(),
             "Tab character not allowed in YAML block indentation.");
+      } else if (source.current() == kSpace) {
+        seenSpaceOnLine = true;
       }
       source.next();
     }

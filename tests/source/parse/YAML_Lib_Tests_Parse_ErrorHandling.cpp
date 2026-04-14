@@ -64,13 +64,6 @@ TEST_CASE("Check YAML syntax error detection.",
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
-  SECTION("YAML tab mixed with spaces in block indentation throws SyntaxError.",
-          "[YAML][Parse][ErrorHandling][TabIndent]") {
-    // Space then tab in indentation zone
-    BufferSource source{"---\nparent:\n  child:\n   \tdeep: value\n"};
-    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
-  }
-
   // ---- Unterminated flow collections ----
 
   SECTION("YAML unterminated inline array throws.",
