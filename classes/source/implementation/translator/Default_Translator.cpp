@@ -190,6 +190,8 @@ Default_Translator::Default_Translator() {
       '\0'; // \0 -> null char (read-only; converter rejects null output)
   fromEscape[' '] = ' '; // \  -> space (read-only; spaces don't need escaping)
   fromEscape['/'] = '/'; // \/ -> slash (read-only; slashes don't need escaping)
+  fromEscape['\t'] =
+      '\t'; // \<TAB> -> tab (read-only; YAML 1.2 §7.3.2 #x9 alias)
   // YAML 1.2 multi-byte Unicode escape sequences (bidirectional)
   fromEscape['N'] = 0x0085;
   toEscape[0x0085] = 'N'; // \N -> Next Line (U+0085)

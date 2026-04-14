@@ -321,6 +321,27 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
     REQUIRE(isA<String>(yaml.document(0)));
   }
 
+  // 3RLN/1 — double-quoted string with \<TAB> escape on continuation line
+  SECTION("3RLN/1: backslash-TAB in double-quoted string decodes to tab.",
+          "[YAML][TestSuite][Valid]") {
+    // YAML 1.2 §7.3.2: \<TAB> (#x9) is a valid alias for \t (horizontal tab).
+    // "2 leading\n    \<TAB>tab" → value "2 leading " + TAB + "tab"
+    BufferSource source{"\"2 leading\n    \\\ttab\"\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "2 leading \ttab");
+  }
+
+  // 3RLN/4 — double-quoted with \<TAB> followed by spaces on continuation line
+  SECTION("3RLN/4: backslash-TAB followed by spaces in double-quoted string.",
+          "[YAML][TestSuite][Valid]") {
+    // "5 leading\n    \<TAB>  tab" → value "5 leading " + TAB + "  tab"
+    BufferSource source{"\"5 leading\n    \\\t  tab\"\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "5 leading \t  tab");
+  }
+
   // 2SXE — Anchors With Colon in Name
   SECTION("2SXE: anchor and alias names that contain a colon.",
           "[YAML][TestSuite][Valid]") {
@@ -415,21 +436,20 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
-               "3RLN/1", "3RLN/4", "4JVG",   "55WF",   "565N",   "5LLU",
-      "5TRB",   "5TRB",   "5U3A",   "5WE3",   "6BCT",   "6BFJ",   "6HB6",
-      "6PBE",   "7BMT",   "7FWL",   "7LBH",   "7TMG",   "7W2P",   "7ZZ5",
-      "8UDB",   "8XDJ",   "96NN/0", "96NN/1", "9C9N",   "9JBA",   "9KBC",
-      "9MMA",   "9MMW",   "9MQT/1", "AVM7",   "AZ63",   "B63P",   "BF9H",
-      "CN3R",   "CQ3W",   "CT4Q",   "CVW2",   "CXX2",   "D49Q",   "DC7X",
-      "DE56/2", "DE56/3", "DK95/0", "DK95/1", "DK95/4", "DK95/5", "F2C7",
-      "FH7J",   "G5U8",   "GDY7",   "H7TQ",   "HMQ5",   "HRE5",   "J3BT",
-      "JKF3",   "JTV5",   "JY7Z",   "K3WX",   "KH5V/1", "KK5P",   "LHL4",
-      "LP6E",   "MUS6/0", "MUS6/6", "NKF9",   "NP9H",   "P76L",   "Q4CL",
-      "Q8AD",   "QB6E",   "QF4Y",   "QLJ7",   "RLU9",   "RXY3",   "RZP5",
-      "S3PD",   "S4GJ",   "S98Z",   "S9E8",   "SKE5",   "SR86",   "SU5Z",
-      "SU74",   "SY6V",   "U3XV",   "U99R",   "UV7Q",   "VJP3/1", "Y79Y/0",
-      "Y79Y/1", "Y79Y/2", "Y79Y/4", "Y79Y/5", "Y79Y/6", "Y79Y/7", "Y79Y/8",
-      "Y79Y/9", "Y79Y/3",
+      "4JVG",   "55WF",   "565N",   "5LLU",   "5TRB",   "5U3A",   "5WE3",
+      "6BCT",   "6BFJ",   "6HB6",   "6PBE",   "7BMT",   "7FWL",   "7LBH",
+      "7TMG",   "7W2P",   "7ZZ5",   "8UDB",   "8XDJ",   "96NN/0", "96NN/1",
+      "9C9N",   "9JBA",   "9KBC",   "9MMA",   "9MMW",   "9MQT/1", "AVM7",
+      "AZ63",   "B63P",   "BF9H",   "CN3R",   "CQ3W",   "CT4Q",   "CVW2",
+      "CXX2",   "D49Q",   "DC7X",   "DE56/2", "DE56/3", "DK95/0", "DK95/1",
+      "DK95/4", "DK95/5", "F2C7",   "FH7J",   "G5U8",   "GDY7",   "H7TQ",
+      "HMQ5",   "HRE5",   "J3BT",   "JKF3",   "JTV5",   "JY7Z",   "K3WX",
+      "KH5V/1", "KK5P",   "LHL4",   "LP6E",   "MUS6/0", "MUS6/6", "NKF9",
+      "NP9H",   "P76L",   "Q4CL",   "Q8AD",   "QB6E",   "QF4Y",   "QLJ7",
+      "RLU9",   "RXY3",   "RZP5",   "S3PD",   "S4GJ",   "S98Z",   "S9E8",
+      "SKE5",   "SR86",   "SU5Z",   "SU74",   "SY6V",   "U3XV",   "U99R",
+      "UV7Q",   "VJP3/1", "Y79Y/0", "Y79Y/1", "Y79Y/2", "Y79Y/4", "Y79Y/5",
+      "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9", "Y79Y/3",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
