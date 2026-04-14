@@ -126,7 +126,11 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
                       "Directives must appear before document start.");
   }
   source.next(); // consume '%'
-  if (source.match("YAML")) {
+  // Extract the full directive name so we don't mistake "%YAMLL" for "%YAML"
+  // (source.match does a prefix-match that would consume "YAML" from "YAMLL").
+  const std::string directiveName{
+      extractToNext(source, {kLineFeed, kSpace, '\t'})};
+  if (directiveName == "YAML") {
     // %YAML major.minor
     source.ignoreWS();
     std::string version{extractToNext(source, {kLineFeed, ' '})};
@@ -162,7 +166,7 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
     }
     yamlDirectiveSeen = true;
     yamlDirectiveMinor = minor;
-  } else if (source.match("TAG")) {
+  } else if (directiveName == "TAG") {
     // %TAG handle prefix
     source.ignoreWS();
     std::string handle{extractToNext(source, {' '})};

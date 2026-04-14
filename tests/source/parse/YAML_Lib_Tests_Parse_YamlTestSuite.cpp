@@ -438,6 +438,17 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
     REQUIRE(NRef<String>(yaml.document(0)).value() == "2 inline\ttab");
   }
 
+  // MUS6/6 — Unknown directive %YAMLL (looks like YAML but is not)
+  SECTION("MUS6/6: %YAMLL directive is unknown and silently ignored.",
+          "[YAML][TestSuite][Valid]") {
+    // %YAMLL is not %YAML — the name has extra characters.  It is an
+    // unknown/reserved directive and must be silently ignored; the document
+    // that follows ('---') should parse successfully as a null document.
+    BufferSource source{"%YAMLL 1.1\n---\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+  }
+
   // 2SXE — Anchors With Colon in Name
   SECTION("2SXE: anchor and alias names that contain a colon.",
           "[YAML][TestSuite][Valid]") {
@@ -570,12 +581,12 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "BF9H",   "CN3R",   "CQ3W",   "CT4Q",   "CVW2",   "CXX2",   "D49Q",
       "DC7X",   "F2C7",   "FH7J",   "G5U8",   "GDY7",   "H7TQ",   "HMQ5",
       "HRE5",   "J3BT",   "JKF3",   "JTV5",   "JY7Z",   "K3WX",   "KK5P",
-      "LHL4",   "LP6E",   "MUS6/6", "NKF9",   "NP9H",   "P76L",   "Q4CL",
-      "Q8AD",   "QB6E",   "QF4Y",   "QLJ7",   "RLU9",   "RXY3",   "RZP5",
-      "S3PD",   "S4GJ",   "S98Z",   "S9E8",   "SKE5",   "SR86",   "SU5Z",
-      "SU74",   "SY6V",   "U3XV",   "U99R",   "UV7Q",   "VJP3/1", "Y79Y/0",
-      "Y79Y/1", "Y79Y/2", "Y79Y/4", "Y79Y/5", "Y79Y/6", "Y79Y/7", "Y79Y/8",
-      "Y79Y/9", "Y79Y/3",
+      "LHL4",   "LP6E",   "NKF9",   "NP9H",   "P76L",   "Q4CL",   "Q8AD",
+      "QB6E",   "QF4Y",   "QLJ7",   "RLU9",   "RXY3",   "RZP5",   "S3PD",
+      "S4GJ",   "S98Z",   "S9E8",   "SKE5",   "SR86",   "SU5Z",   "SU74",
+      "SY6V",   "U3XV",   "U99R",   "UV7Q",   "VJP3/1", "Y79Y/0", "Y79Y/1",
+      "Y79Y/2", "Y79Y/4", "Y79Y/5", "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9",
+      "Y79Y/3",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
