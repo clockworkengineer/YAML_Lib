@@ -135,8 +135,21 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
       throw SyntaxError(source.getPosition(),
                         "%YAML directive missing version number.");
     }
-    const int major = std::stoi(version.substr(0, dot));
-    const int minor = std::stoi(version.substr(dot + 1));
+    // Validate: version must be all-digit . all-digit (no stray chars like '#')
+    const std::string majorStr = version.substr(0, dot);
+    const std::string minorStr = version.substr(dot + 1);
+    const auto isAllDigits = [](const std::string &s) {
+      return !s.empty() && std::all_of(s.begin(), s.end(), [](unsigned char c) {
+        return std::isdigit(c) != 0;
+      });
+    };
+    if (!isAllDigits(majorStr) || !isAllDigits(minorStr)) {
+      throw SyntaxError(source.getPosition(),
+                        "%YAML directive has invalid version number '" +
+                            version + "'.");
+    }
+    const int major = std::stoi(majorStr);
+    const int minor = std::stoi(minorStr);
     if (major != 1) {
       throw SyntaxError(source.getPosition(),
                         "%YAML directive: unsupported major version " +
