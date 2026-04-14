@@ -36,13 +36,18 @@ Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters,
     while (isArray(source) && arrayIndent == source.getPosition().second) {
       source.next(); // consume '-'
       // YAML 1.2 §6.1: block indentation must use spaces, not tabs.
-      // Detect whether a tab was used as the separator after '-'.  If so,
-      // and the content that follows would start another block-sequence
-      // indicator (i.e. another '-' whose position is tab-determined), the
-      // indentation level becomes ambiguous → reject as invalid.
-      const bool tabSeparator = (source.more() && source.current() == '\t');
-      source.ignoreWS();
-      if (tabSeparator && source.more() && isArray(source)) {
+      // Scan the separator whitespace between '-' and the content: if ANY
+      // tab appears in that run (e.g. "- \t-" or "-\t-") and the content
+      // that follows starts another block-structure indicator, the
+      // indentation level is tab-determined → reject as invalid.
+      bool tabInSeparator = false;
+      while (source.more() && source.isWS()) {
+        if (source.current() == '\t') {
+          tabInSeparator = true;
+        }
+        source.next();
+      }
+      if (tabInSeparator && source.more() && isArray(source)) {
         throw SyntaxError(
             source.getPosition(),
             "Tab used as block sequence entry separator followed by another "
