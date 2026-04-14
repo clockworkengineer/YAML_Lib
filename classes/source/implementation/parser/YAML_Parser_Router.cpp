@@ -53,7 +53,8 @@ bool Default_Parser::isKey(ISource &source) {
       throw SyntaxError(
           source.getPosition(),
           "Tab used as block value-separator after ':'; block indentation "
-          "must use spaces, not tabs (YAML 1.2 \xc2\xa7""6.1).");
+          "must use spaces, not tabs (YAML 1.2 \xc2\xa7"
+          "6.1).");
     }
     if (source.current() == ' ' || source.current() == kLineFeed ||
         (!key.empty() && key.back() == kColon)) {
@@ -214,7 +215,8 @@ bool Default_Parser::isMapping(ISource &source) {
         source.getPosition(),
         "Tab used as block structure separator after '?' explicit mapping key "
         "indicator; block indentation must use spaces, not tabs "
-        "(YAML 1.2 \xc2\xa7""6.1).");
+        "(YAML 1.2 \xc2\xa7"
+        "6.1).");
   }
   return !source.more() || source.current() == kSpace ||
          source.current() == kLineFeed;

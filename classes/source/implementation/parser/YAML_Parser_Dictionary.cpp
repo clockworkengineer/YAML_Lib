@@ -239,7 +239,8 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
       throw SyntaxError(
           source.getPosition(),
           "Tab used as block value-separator after ':'; block indentation "
-          "must use spaces, not tabs (YAML 1.2 \xc2\xa7""6.1).");
+          "must use spaces, not tabs (YAML 1.2 \xc2\xa7"
+          "6.1).");
     }
   } else if (isKey(source) && !isMapping(source) && !isAlias(source) &&
              (inlineDictionaryDepth > 0 ||
