@@ -479,6 +479,20 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
     REQUIRE(NRef<Number>(yaml.document(0)["bar"]).value<int>() == 1);
   }
 
+  // Y79Y/2 — Tab-only blank line inside flow sequence
+  SECTION("Y79Y/2: tab-only blank line inside flow sequence is valid.",
+          "[YAML][TestSuite][Valid]") {
+    // - [\n\t\n foo\n ] — flow sequence spanning multiple lines with a
+    // tab-only blank line between '[' and 'foo'.  Tabs on blank lines inside
+    // flow collections are whitespace, not block indentation → valid.
+    BufferSource source{"- [\n\t\n foo\n ]\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)));
+    REQUIRE(isA<Array>(yaml.document(0)[0]));
+    REQUIRE(NRef<Array>(yaml.document(0)[0]).size() == 1);
+    REQUIRE(NRef<String>(yaml.document(0)[0][0]).value() == "foo");
+  }
+
   // 2SXE — Anchors With Colon in Name
   SECTION("2SXE: anchor and alias names that contain a colon.",
           "[YAML][TestSuite][Valid]") {
@@ -625,7 +639,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "LHL4",   "LP6E",   "NKF9",   "NP9H",   "P76L",   "Q4CL",   "Q8AD",
       "QB6E",   "QF4Y",   "QLJ7",   "RLU9",   "RXY3",   "RZP5",   "S3PD",
       "S4GJ",   "S98Z",   "S9E8",   "SKE5",   "SR86",   "SU5Z",   "SU74",
-      "SY6V",   "U3XV",   "U99R",   "UV7Q",   "Y79Y/2", "Y79Y/4", "Y79Y/5",
+      "SY6V",   "U3XV",   "U99R",   "UV7Q",   "Y79Y/4", "Y79Y/5",
       "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9", "Y79Y/3",
   };
 
