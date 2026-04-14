@@ -372,6 +372,13 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     BufferSource source{"---\nkey: value\n... invalid\n"};
     REQUIRE_THROWS(yaml.parse(source));
   }
+
+  // 2G84/0 — Literal block with zero indentation indicator
+  SECTION("2G84/0: literal block with explicit indent 0 throws.",
+          "[YAML][TestSuite][Invalid]") {
+    BufferSource source{"--- |0\n"};
+    REQUIRE_THROWS(yaml.parse(source));
+  }
 }
 
 // ============================================================================
@@ -399,7 +406,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
-      "2G84/0", "2G84/1", "3RLN/1", "3RLN/4", "4JVG",   "55WF",   "565N",
+      "2G84/1", "3RLN/1", "3RLN/4", "4JVG",   "55WF",   "565N",   "5LLU",
       "5LLU",   "5TRB",   "5U3A",   "5WE3",   "6BCT",   "6BFJ",   "6HB6",
       "6PBE",   "7BMT",   "7FWL",   "7LBH",   "7TMG",   "7W2P",   "7ZZ5",
       "8UDB",   "8XDJ",   "96NN/0", "96NN/1", "9C9N",   "9JBA",   "9KBC",

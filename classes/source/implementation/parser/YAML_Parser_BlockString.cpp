@@ -28,6 +28,12 @@ Default_Parser::parseBlockChomping(ISource &source) {
   // (|-2).
   for (int i = 0; i < 2; ++i) {
     const auto ch = source.current();
+    if (ch == '0') {
+      // YAML 1.2 §8.1.1: indentation indicator must be 1-9; 0 is invalid.
+      throw SyntaxError(source.getPosition(),
+                        "Block scalar indentation indicator must be 1-9; "
+                        "0 is not allowed.");
+    }
     if (ch >= '1' && ch <= '9' && explicitIndent == 0) {
       explicitIndent = ch - '0';
       source.next();
