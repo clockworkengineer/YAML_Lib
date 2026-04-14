@@ -65,6 +65,21 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       yNodeTree.push_back(Node::make<Document>());
       // End of a document
     } else if (isDocumentEnd(source)) {
+      // Consume "..." then validate what follows on the same line.
+      // Per the YAML spec, "..." is a document-end suffix, not an indicator
+      // embedded in content. Content after "... " (space-separated) is invalid;
+      // the pattern "...x" (no space) is treated as an embedded token and
+      // skipped for backward compatibility.
+      source.next(); source.next(); source.next(); // consume '.', '.', '.'
+      if (source.more() && source.isWS()) {
+        // "... something" form — validate only whitespace/comment allowed.
+        source.ignoreWS();
+        if (source.more() && source.current() != kLineFeed &&
+            !isComment(source)) {
+          throw SyntaxError(source.getPosition(),
+                            "Invalid content after document-end marker '...'.");
+        }
+      }
       skipLine(source);
       moveToNextIndent(source);
       if (!inDocument) {

@@ -213,8 +213,8 @@ bool Default_Parser::isDictionary(ISource &source) {
   if (source.current() == '*') {
     SourceGuard guard(source);
     source.next();
-    const Delimiters aliasStop{kLineFeed, kSpace, kComma,
-                               kRightSquareBracket, kRightCurlyBrace};
+    const Delimiters aliasStop{kLineFeed, kSpace, kComma, kRightSquareBracket,
+                               kRightCurlyBrace};
     const std::string aliasName = extractToNext(source, aliasStop);
     if (!aliasName.empty() && aliasName.back() == kColon &&
         yamlAliasMap.count(aliasName)) {
