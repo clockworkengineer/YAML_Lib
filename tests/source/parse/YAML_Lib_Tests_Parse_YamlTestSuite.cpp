@@ -355,7 +355,8 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // 96NN/1 — Same as 96NN/0 but no trailing newline
-  SECTION("96NN/1: tab as first content in literal block scalar, no trailing newline.",
+  SECTION("96NN/1: tab as first content in literal block scalar, no trailing "
+          "newline.",
           "[YAML][TestSuite][Valid]") {
     BufferSource source{"foo: |-\n \tbar"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -415,6 +416,17 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     REQUIRE_THROWS(yaml.parse(source));
   }
 
+  // 9MQT/1 — '... x' inside a multi-line double-quoted scalar
+  SECTION("9MQT/1: document-end marker with trailing content inside "
+          "multi-line double-quoted string throws.",
+          "[YAML][TestSuite][Invalid]") {
+    // '...x' (no space) is valid content of a quoted string (9MQT/0).
+    // '... x' (space after ...) is a document-end marker followed by invalid
+    // content — the 3HFZ rule applies even when parsing a flow scalar.
+    BufferSource source{"--- \"a\n... x\nb\"\n"};
+    REQUIRE_THROWS(yaml.parse(source));
+  }
+
   // 2G84/0 — Literal block with zero indentation indicator
   SECTION("2G84/0: literal block with explicit indent 0 throws.",
           "[YAML][TestSuite][Invalid]") {
@@ -460,7 +472,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "4JVG",   "55WF",   "565N",   "5LLU",   "5TRB",   "5U3A",   "5WE3",
       "6BCT",   "6BFJ",   "6HB6",   "6PBE",   "7BMT",   "7FWL",   "7LBH",
       "7TMG",   "7W2P",   "7ZZ5",   "8UDB",   "8XDJ",   "9C9N",   "9JBA",
-      "9KBC",   "9MMA",   "9MMW",   "9MQT/1", "AVM7",   "AZ63",   "B63P",
+      "9KBC",   "9MMA",   "9MMW",   "AVM7",   "AZ63",   "B63P",
       "BF9H",   "CN3R",   "CQ3W",   "CT4Q",   "CVW2",   "CXX2",   "D49Q",
       "DC7X",   "DE56/2", "DE56/3", "DK95/0", "DK95/1", "DK95/4", "DK95/5",
       "F2C7",   "FH7J",   "G5U8",   "GDY7",   "H7TQ",   "HMQ5",   "HRE5",
