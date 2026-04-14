@@ -602,6 +602,16 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     BufferSource source{"--- |10\n"};
     REQUIRE_THROWS(yaml.parse(source));
   }
+
+  // Y79Y/3 — Tab-before-content line inside flow sequence (not a blank line)
+  SECTION("Y79Y/3: tab-then-content line inside flow sequence throws.",
+          "[YAML][TestSuite][Invalid]") {
+    // - [\n\t\t\t\tfoo,\n foo\n ] — unlike Y79Y/2, the tab-prefixed line has
+    // non-whitespace after the tabs (\t\t\t\tfoo).  A raw tab before content
+    // is not valid YAML indentation; this differs from a tab-only blank line.
+    BufferSource source{"- [\n\t\t\t\tfoo,\n foo\n ]\n"};
+    REQUIRE_THROWS(yaml.parse(source));
+  }
 }
 
 // ============================================================================
@@ -639,8 +649,8 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "LHL4",   "LP6E",   "NKF9",   "NP9H",   "P76L",   "Q4CL",   "Q8AD",
       "QB6E",   "QF4Y",   "QLJ7",   "RLU9",   "RXY3",   "RZP5",   "S3PD",
       "S4GJ",   "S98Z",   "S9E8",   "SKE5",   "SR86",   "SU5Z",   "SU74",
-      "SY6V",   "U3XV",   "U99R",   "UV7Q",   "Y79Y/4", "Y79Y/5",
-      "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9", "Y79Y/3",
+      "SY6V",   "U3XV",   "U99R",   "UV7Q",   "Y79Y/4", "Y79Y/5", "Y79Y/6",
+      "Y79Y/7", "Y79Y/8", "Y79Y/9",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
