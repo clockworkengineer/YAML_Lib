@@ -70,7 +70,9 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       // embedded in content. Content after "... " (space-separated) is invalid;
       // the pattern "...x" (no space) is treated as an embedded token and
       // skipped for backward compatibility.
-      source.next(); source.next(); source.next(); // consume '.', '.', '.'
+      source.next();
+      source.next();
+      source.next(); // consume '.', '.', '.'
       if (source.more() && source.isWS()) {
         // "... something" form — validate only whitespace/comment allowed.
         source.ignoreWS();
