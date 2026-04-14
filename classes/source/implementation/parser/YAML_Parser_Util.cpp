@@ -114,9 +114,25 @@ void Default_Parser::moveToNextIndent(ISource &source) {
         afterNewline = true;
         seenSpaceOnLine = false;
       } else if (afterNewline && source.current() == '\t' && !seenSpaceOnLine) {
-        throw SyntaxError(
-            source.getPosition(),
-            "Tab character not allowed in YAML block indentation.");
+        // A leading tab (before any space) on this line.  Only reject it as
+        // block indentation when non-whitespace content follows on the same
+        // line.  A line consisting entirely of tabs/spaces is a blank line and
+        // must be accepted (YAML 1.2 §6.5 / DK95/4).
+        const bool blankLine = [&]() {
+          SourceGuard guard(source);
+          source.next(); // look past the tab
+          while (source.more() && source.current() != kLineFeed &&
+                 source.isWS()) {
+            source.next();
+          }
+          return !source.more() || source.current() == kLineFeed;
+        }();
+        if (!blankLine) {
+          throw SyntaxError(
+              source.getPosition(),
+              "Tab character not allowed in YAML block indentation.");
+        }
+        // Blank line — fall through; source.next() below consumes the tab.
       } else if (source.current() == kSpace) {
         seenSpaceOnLine = true;
       }

@@ -402,10 +402,22 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
     REQUIRE(NRef<String>(yaml.document(0)["foo"]).value() == "bar");
   }
 
+  // DK95/4 — Pure tab on a blank line between two top-level keys
+  SECTION("DK95/4: bare tab on blank line between mapping keys does not throw.",
+          "[YAML][TestSuite][Valid]") {
+    // foo: 1\n\t\nbar: 2 → foo=1, bar=2
+    // The tab is the only character on the blank line; it is trailing
+    // whitespace on a blank line, not block indentation, so it is valid.
+    BufferSource source{"foo: 1\n\t\nbar: 2\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<Number>(yaml.document(0)["foo"]).value<int>() == 1);
+    REQUIRE(NRef<Number>(yaml.document(0)["bar"]).value<int>() == 2);
+  }
+
   // DK95/5 — Space + tab on blank line between two top-level keys
   SECTION("DK95/5: space then tab on blank separator line does not throw.",
-          "[YAML][TestSuite][Valid]") {
-    // foo: 1\n \t\nbar: 2 → foo=1, bar=2
+          "[YAML][TestSuite][Valid]") {    // foo: 1\n \t\nbar: 2 → foo=1, bar=2
     // A blank line containing only space+tab is not pure-tab indentation.
     BufferSource source{"foo: 1\n \t\nbar: 2\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -534,14 +546,14 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "7LBH",   "7TMG",   "7W2P",   "7ZZ5",   "8UDB",   "8XDJ",   "9C9N",
       "9JBA",   "9KBC",   "9MMA",   "9MMW",   "AVM7",   "AZ63",   "B63P",
       "BF9H",   "CN3R",   "CQ3W",   "CT4Q",   "CVW2",   "CXX2",   "D49Q",
-      "DC7X",   "DK95/4", "F2C7",   "FH7J",   "G5U8",   "GDY7",   "H7TQ",
-      "HMQ5",   "HRE5",   "J3BT",   "JKF3",   "JTV5",   "JY7Z",   "K3WX",
-      "KH5V/1", "KK5P",   "LHL4",   "LP6E",   "MUS6/0", "MUS6/6", "NKF9",
-      "NP9H",   "P76L",   "Q4CL",   "Q8AD",   "QB6E",   "QF4Y",   "QLJ7",
-      "RLU9",   "RXY3",   "RZP5",   "S3PD",   "S4GJ",   "S98Z",   "S9E8",
-      "SKE5",   "SR86",   "SU5Z",   "SU74",   "SY6V",   "U3XV",   "U99R",
-      "UV7Q",   "VJP3/1", "Y79Y/0", "Y79Y/1", "Y79Y/2", "Y79Y/4", "Y79Y/5",
-      "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9", "Y79Y/3",
+      "DC7X",   "F2C7",   "FH7J",   "G5U8",   "GDY7",   "H7TQ",   "HMQ5",
+      "HRE5",   "J3BT",   "JKF3",   "JTV5",   "JY7Z",   "K3WX",   "KH5V/1",
+      "KK5P",   "LHL4",   "LP6E",   "MUS6/0", "MUS6/6", "NKF9",   "NP9H",
+      "P76L",   "Q4CL",   "Q8AD",   "QB6E",   "QF4Y",   "QLJ7",   "RLU9",
+      "RXY3",   "RZP5",   "S3PD",   "S4GJ",   "S98Z",   "S9E8",   "SKE5",
+      "SR86",   "SU5Z",   "SU74",   "SY6V",   "U3XV",   "U99R",   "UV7Q",
+      "VJP3/1", "Y79Y/0", "Y79Y/1", "Y79Y/2", "Y79Y/4", "Y79Y/5", "Y79Y/6",
+      "Y79Y/7", "Y79Y/8", "Y79Y/9", "Y79Y/3",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
