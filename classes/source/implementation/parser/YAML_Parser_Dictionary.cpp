@@ -265,7 +265,19 @@ Default_Parser::parseInlineKeyValue(ISource &source,
                                     const unsigned long indentation) {
   Node keyNode = parseKey(source);
   Node dictionaryNode = Node::make<Null>();
-  if (source.current() != kComma) {
+  if (source.current() != kComma && source.current() != kRightCurlyBrace) {
+    // In a single-line flow mapping ({k: v}), parseKey already consumed ':'
+    // via its trailing source.next().  In a multi-line flow mapping the key
+    // ends at a newline and parseKey advances past that newline instead,
+    // leaving ':' unconsumed on the next line.  Consume it here so that
+    // parseDocument sees the value, not the separator.
+    source.ignoreWS();
+    if (source.more() && source.current() == kColon) {
+      source.next(); // consume ':'
+      if (source.more() && source.current() == kSpace) {
+        source.next(); // consume optional space after ':'
+      }
+    }
     dictionaryNode = parseDocument(source, delimiters, indentation);
   }
   if (isNullStringNode(dictionaryNode)) {
@@ -321,6 +333,9 @@ Node Default_Parser::parseInlineDictionary(
   {
     DepthGuard depthGuard(inlineDictionaryDepth);
     do {
+      // Save the line number of the '{' or ',' so we can detect if the next
+      // key/value entry starts on a new line (multi-line flow mapping).
+      const auto openLine = source.getPosition().first;
       source.next();
       moveToNextIndent(source);
       if (source.current() == kComma) {
@@ -328,6 +343,20 @@ Node Default_Parser::parseInlineDictionary(
                           "Unexpected ',' in in-line dictionary.");
       }
       if (source.current() != kRightCurlyBrace) {
+        // YAML 1.2 §7.4.2 / c-flow-mapping: when flow-mapping content starts
+        // on a new line, it must be indented strictly deeper than the
+        // surrounding block context (indentation).  Content at column
+        // <= indentation violates the block-indentation rule.
+        // The newline check avoids false positives in parseFromBuffer() where
+        // positions restart at column 1 for re-parsed sub-strings.
+        const bool crossedNewline = source.getPosition().first > openLine;
+        if (crossedNewline && source.getPosition().second <= indentation) {
+          throw SyntaxError(
+              source.getPosition(),
+              "Flow mapping content must be more indented than the surrounding "
+              "block context (indentation level " +
+                  std::to_string(indentation) + ").");
+        }
         auto entry = parseInlineKeyValue(source, inLineDictionaryDelimiters,
                                          indentation);
         addInlineDictEntry(NRef<Dictionary>(dictionaryNode), std::move(entry),

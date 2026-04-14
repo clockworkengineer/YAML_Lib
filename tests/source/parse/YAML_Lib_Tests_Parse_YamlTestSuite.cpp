@@ -449,6 +449,21 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
     REQUIRE(yaml.getNumberOfDocuments() == 1);
   }
 
+  // VJP3/1 — Multi-line flow mapping with proper indentation
+  SECTION("VJP3/1: flow mapping spanning multiple lines with indented content "
+          "parses correctly.",
+          "[YAML][TestSuite][Valid]") {
+    // k: {\n k\n :\n v\n }
+    // The inner flow mapping spans multiple lines; key 'k' and value 'v' are
+    // each on their own line at indentation 2 (more than the outer mapping's
+    // indentation of 1), which is valid YAML 1.2 §7.4.2.
+    BufferSource source{"k: {\n k\n :\n v\n }\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(isA<Dictionary>(yaml.document(0)["k"]));
+    REQUIRE(NRef<String>(yaml.document(0)["k"]["k"]).value() == "v");
+  }
+
   // 2SXE — Anchors With Colon in Name
   SECTION("2SXE: anchor and alias names that contain a colon.",
           "[YAML][TestSuite][Valid]") {
@@ -584,9 +599,8 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "LHL4",   "LP6E",   "NKF9",   "NP9H",   "P76L",   "Q4CL",   "Q8AD",
       "QB6E",   "QF4Y",   "QLJ7",   "RLU9",   "RXY3",   "RZP5",   "S3PD",
       "S4GJ",   "S98Z",   "S9E8",   "SKE5",   "SR86",   "SU5Z",   "SU74",
-      "SY6V",   "U3XV",   "U99R",   "UV7Q",   "VJP3/1", "Y79Y/0", "Y79Y/1",
-      "Y79Y/2", "Y79Y/4", "Y79Y/5", "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9",
-      "Y79Y/3",
+      "SY6V",   "U3XV",   "U99R",   "UV7Q",   "Y79Y/0", "Y79Y/1", "Y79Y/2",
+      "Y79Y/4", "Y79Y/5", "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9", "Y79Y/3",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
