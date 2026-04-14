@@ -632,6 +632,14 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     BufferSource source{"- \t\t-\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
+  SECTION("Y79Y/6: '?' followed by tabs then bare '-' throws.",
+          "[YAML][TestSuite][Invalid]") {
+    // ?\t\t\t\t- — '?' is the explicit mapping key indicator; the separator
+    // run consists entirely of tabs; YAML 1.2 §6.1 forbids tabs in block
+    // structure separators.
+    BufferSource source{"?\t\t\t\t-\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
 }
 
 // ============================================================================
@@ -668,7 +676,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "KK5P", "LHL4", "LP6E",   "NKF9",   "NP9H",   "P76L",   "Q4CL", "Q8AD",
       "QB6E", "QF4Y", "QLJ7",   "RLU9",   "RXY3",   "RZP5",   "S3PD", "S4GJ",
       "S98Z", "S9E8", "SKE5",   "SR86",   "SU5Z",   "SU74",   "SY6V", "U3XV",
-      "U99R", "UV7Q", "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9",
+      "U99R", "UV7Q", "Y79Y/7", "Y79Y/8", "Y79Y/9",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt

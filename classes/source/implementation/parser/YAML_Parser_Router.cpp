@@ -183,9 +183,10 @@ bool Default_Parser::isInlineCollection(const ISource &source) {
 }
 /// <summary>
 /// Has a mapping been found on the source stream?
-/// The explicit mapping key indicator '?' requires a space, tab, or linefeed
+/// The explicit mapping key indicator '?' requires a space or linefeed
 /// immediately after it.  '?foo' (no whitespace) is a plain scalar, not an
-/// explicit key.
+/// explicit key.  '?\t' (tab immediately after '?') is also invalid per
+/// YAML 1.2 §6.1 — block structure separators must use spaces, not tabs.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a mapping has been found.</returns>
@@ -195,6 +196,15 @@ bool Default_Parser::isMapping(ISource &source) {
   }
   SourceGuard guard(source);
   source.next(); // peek at char after '?'
+  // YAML 1.2 §6.1: block indentation must use spaces, not tabs.
+  // A tab immediately after '?' uses a tab as the block-structure separator.
+  if (source.more() && source.current() == '\t') {
+    throw SyntaxError(
+        source.getPosition(),
+        "Tab used as block structure separator after '?' explicit mapping key "
+        "indicator; block indentation must use spaces, not tabs "
+        "(YAML 1.2 \xc2\xa7""6.1).");
+  }
   return !source.more() || source.current() == kSpace ||
          source.current() == kLineFeed;
 }
