@@ -640,6 +640,30 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     BufferSource source{"?\t\t\t\t-\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
+  SECTION("Y79Y/7: explicit key '? -' with ':'+tab value separator throws.",
+          "[YAML][TestSuite][Invalid]") {
+    // ? -\n:\t\t\t\t- — '?' + space makes an explicit mapping key whose
+    // content is '-'; the ':' value separator is immediately followed by tabs.
+    // YAML 1.2 §6.1: block value separators must use spaces, not tabs.
+    BufferSource source{"? -\n:\t\t\t\t-\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+  SECTION("Y79Y/8: '?' followed by tabs then 'key:' throws.",
+          "[YAML][TestSuite][Invalid]") {
+    // ?\t\t\t\tkey: — '?' is the explicit mapping key indicator; tabs follow
+    // immediately; same as Y79Y/6 but the content is a key rather than '-'.
+    // YAML 1.2 §6.1: block structure separators must use spaces, not tabs.
+    BufferSource source{"?\t\t\t\tkey:\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+  SECTION("Y79Y/9: explicit key '? key:' with ':'+tab value separator throws.",
+          "[YAML][TestSuite][Invalid]") {
+    // ? key:\n:\t\t\t\tkey: — the ':' explicit value separator is immediately
+    // followed by tabs before the value content.
+    // YAML 1.2 §6.1: block value separators must use spaces, not tabs.
+    BufferSource source{"? key:\n:\t\t\t\tkey:\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
 }
 
 // ============================================================================
@@ -676,7 +700,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "KK5P", "LHL4", "LP6E",   "NKF9",   "NP9H",   "P76L",   "Q4CL", "Q8AD",
       "QB6E", "QF4Y", "QLJ7",   "RLU9",   "RXY3",   "RZP5",   "S3PD", "S4GJ",
       "S98Z", "S9E8", "SKE5",   "SR86",   "SU5Z",   "SU74",   "SY6V", "U3XV",
-      "U99R", "UV7Q", "Y79Y/7", "Y79Y/8", "Y79Y/9",
+      "U99R", "UV7Q",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt

@@ -44,6 +44,17 @@ bool Default_Parser::isKey(ISource &source) {
     if (source.more()) {
       source.next();
     }
+    // YAML 1.2 §6.1: block indentation must use spaces, not tabs.
+    // If ':' (the key-value separator) is immediately followed by a tab in
+    // block context (not inside a flow collection), the tab is being used as a
+    // block structure separator — reject it.
+    if (inlineDictionaryDepth == 0 && source.more() &&
+        source.current() == '\t') {
+      throw SyntaxError(
+          source.getPosition(),
+          "Tab used as block value-separator after ':'; block indentation "
+          "must use spaces, not tabs (YAML 1.2 \xc2\xa7""6.1).");
+    }
     if (source.current() == ' ' || source.current() == kLineFeed ||
         (!key.empty() && key.back() == kColon)) {
       if (!key.empty() && key.back() == kColon) {

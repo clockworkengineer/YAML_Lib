@@ -231,6 +231,15 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
     source.next(); // consume ':'
     if (source.more() && source.current() == kSpace) {
       source.next(); // consume optional space after ':'
+    } else if (inlineDictionaryDepth == 0 && source.more() &&
+               source.current() == '\t') {
+      // YAML 1.2 §6.1: block indentation must use spaces, not tabs.
+      // A tab immediately after the ':' explicit value separator is an
+      // invalid block structure separator — reject it.
+      throw SyntaxError(
+          source.getPosition(),
+          "Tab used as block value-separator after ':'; block indentation "
+          "must use spaces, not tabs (YAML 1.2 \xc2\xa7""6.1).");
     }
   } else if (isKey(source) && !isMapping(source) && !isAlias(source) &&
              (inlineDictionaryDepth > 0 ||
