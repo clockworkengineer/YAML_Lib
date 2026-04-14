@@ -417,13 +417,25 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
 
   // DK95/5 — Space + tab on blank line between two top-level keys
   SECTION("DK95/5: space then tab on blank separator line does not throw.",
-          "[YAML][TestSuite][Valid]") {    // foo: 1\n \t\nbar: 2 → foo=1, bar=2
+          "[YAML][TestSuite][Valid]") { // foo: 1\n \t\nbar: 2 → foo=1, bar=2
     // A blank line containing only space+tab is not pure-tab indentation.
     BufferSource source{"foo: 1\n \t\nbar: 2\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<Number>(yaml.document(0)["foo"]).value<int>() == 1);
     REQUIRE(NRef<Number>(yaml.document(0)["bar"]).value<int>() == 2);
+  }
+
+  // KH5V/1 — Backslash + literal tab inline in double-quoted string
+  SECTION("KH5V/1: backslash followed by literal tab inline in double-quoted "
+          "string.",
+          "[YAML][TestSuite][Valid]") {
+    // "2 inline\<TAB>tab" — YAML 1.2 §7.3.1: \<TAB> (backslash + U+0009) is
+    // a valid single-char escape equivalent to \t (horizontal tab).
+    BufferSource source{std::string("\"2 inline\\") + "\ttab\"\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "2 inline\ttab");
   }
 
   // 2SXE — Anchors With Colon in Name
@@ -547,7 +559,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "9JBA",   "9KBC",   "9MMA",   "9MMW",   "AVM7",   "AZ63",   "B63P",
       "BF9H",   "CN3R",   "CQ3W",   "CT4Q",   "CVW2",   "CXX2",   "D49Q",
       "DC7X",   "F2C7",   "FH7J",   "G5U8",   "GDY7",   "H7TQ",   "HMQ5",
-      "HRE5",   "J3BT",   "JKF3",   "JTV5",   "JY7Z",   "K3WX",   "KH5V/1",
+      "HRE5",   "J3BT",   "JKF3",   "JTV5",   "JY7Z",   "K3WX",
       "KK5P",   "LHL4",   "LP6E",   "MUS6/0", "MUS6/6", "NKF9",   "NP9H",
       "P76L",   "Q4CL",   "Q8AD",   "QB6E",   "QF4Y",   "QLJ7",   "RLU9",
       "RXY3",   "RZP5",   "S3PD",   "S4GJ",   "S98Z",   "S9E8",   "SKE5",
