@@ -464,6 +464,21 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
     REQUIRE(NRef<String>(yaml.document(0)["k"]["k"]).value() == "v");
   }
 
+  // Y79Y/1 — Block scalar with space+tab content line
+  SECTION("Y79Y/1: block scalar with space-then-tab content line parses "
+          "correctly.",
+          "[YAML][TestSuite][Valid]") {
+    // foo: |\n \t\nbar: 1 — the content line has 1 leading space (sets
+    // blockIndent=2) then a tab.  Block indentation is 2 > parent indent 1,
+    // so this is valid.  foo maps to "\t" (library clips trailing newline),
+    // bar maps to 1.
+    BufferSource source{"foo: |\n \t\nbar: 1\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)["foo"]).value() == "\t");
+    REQUIRE(NRef<Number>(yaml.document(0)["bar"]).value<int>() == 1);
+  }
+
   // 2SXE — Anchors With Colon in Name
   SECTION("2SXE: anchor and alias names that contain a colon.",
           "[YAML][TestSuite][Valid]") {
@@ -610,8 +625,8 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "LHL4",   "LP6E",   "NKF9",   "NP9H",   "P76L",   "Q4CL",   "Q8AD",
       "QB6E",   "QF4Y",   "QLJ7",   "RLU9",   "RXY3",   "RZP5",   "S3PD",
       "S4GJ",   "S98Z",   "S9E8",   "SKE5",   "SR86",   "SU5Z",   "SU74",
-      "SY6V",   "U3XV",   "U99R",   "UV7Q",   "Y79Y/1", "Y79Y/2", "Y79Y/4",
-      "Y79Y/5", "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9", "Y79Y/3",
+      "SY6V",   "U3XV",   "U99R",   "UV7Q",   "Y79Y/2", "Y79Y/4", "Y79Y/5",
+      "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9", "Y79Y/3",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
