@@ -27,9 +27,19 @@ bool Default_Parser::isInlineComment(const ISource &source,
 /// <param name="yamlString">YAML string appended too.</param>
 void Default_Parser::appendCharacterToString(ISource &source,
                                              std::string &yamlString,
-                                             const bool escapeAware) {
+                                             const bool escapeAware,
+                                             const unsigned long minIndent) {
   if (source.current() == kLineFeed) {
     source.next();
+    // YAML 1.2 §6.1: s-indent(n) consists of spaces only.  A tab at the
+    // very first position of a continuation line (before any spaces) acts as
+    // indentation, which is invalid when the context requires n>=1 spaces.
+    // Only check when the caller supplies a non-zero minIndent — root-level
+    // scalars (minIndent=0) allow a leading tab (s-indent(0) is empty).
+    if (minIndent > 0 && source.more() && source.current() == '\t') {
+      throw SyntaxError(source.getPosition(),
+                        "Tab character not allowed in YAML block indentation.");
+    }
     source.ignoreWS();
     // Strip trailing whitespace from the current line before folding.
     // In escape-aware mode (double-quoted strings) do not strip a space or tab
@@ -134,9 +144,9 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>String Node.</returns>
-Node Default_Parser::parseQuotedFlowString(
-    ISource &source, const Delimiters &delimiters,
-    [[maybe_unused]] unsigned long indentation) {
+Node Default_Parser::parseQuotedFlowString(ISource &source,
+                                           const Delimiters &delimiters,
+                                           const unsigned long indentation) {
   const char quote = source.append();
   std::string yamlString;
   if (quote == kDoubleQuote) {
@@ -145,7 +155,7 @@ Node Default_Parser::parseQuotedFlowString(
         yamlString += source.append();
         yamlString += source.append();
       } else {
-        appendCharacterToString(source, yamlString, true);
+        appendCharacterToString(source, yamlString, true, indentation);
       }
     }
     yamlString = yamlTranslator->from(yamlString);

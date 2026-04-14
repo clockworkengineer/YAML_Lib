@@ -152,7 +152,8 @@ private:
   static bool isTagged(const ISource &source);
   static bool isTimestamp(ISource &source);
   static void appendCharacterToString(ISource &source, std::string &yamlString,
-                                      bool escapeAware = false);
+                                      bool escapeAware = false,
+                                      unsigned long minIndent = 0);
   static std::string extractKey(ISource &source);
   static std::pair<BlockChomping, int> parseBlockChomping(ISource &source);
   static std::string parseBlockString(ISource &source,

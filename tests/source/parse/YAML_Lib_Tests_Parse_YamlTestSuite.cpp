@@ -435,6 +435,16 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
           "[YAML][TestSuite][Invalid]") {
   const YAML yaml;
 
+  // DK95/1 — Tab as the first character of a double-quoted continuation line
+  SECTION("DK95/1: raw tab at start of double-quoted continuation line throws.",
+          "[YAML][TestSuite][Invalid]") {
+    // foo: "bar\n\tbaz" — the continuation line begins with a raw TAB.
+    // YAML 1.2 §6.1: s-indent(n) requires spaces; a leading TAB violates it
+    // when n>=1 (i.e. the scalar is nested inside a block mapping).
+    BufferSource source{"foo: \"bar\n\tbaz\"\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
   // 236B — Invalid value after mapping block
   SECTION("236B: invalid content after block mapping value throws.",
           "[YAML][TestSuite][Invalid]") {
@@ -524,14 +534,14 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "7LBH",   "7TMG",   "7W2P",   "7ZZ5",   "8UDB",   "8XDJ",   "9C9N",
       "9JBA",   "9KBC",   "9MMA",   "9MMW",   "AVM7",   "AZ63",   "B63P",
       "BF9H",   "CN3R",   "CQ3W",   "CT4Q",   "CVW2",   "CXX2",   "D49Q",
-      "DC7X",   "DK95/1", "DK95/4", "F2C7",   "FH7J",   "G5U8",   "GDY7",
-      "H7TQ",   "HMQ5",   "HRE5",   "J3BT",   "JKF3",   "JTV5",   "JY7Z",
-      "K3WX",   "KH5V/1", "KK5P",   "LHL4",   "LP6E",   "MUS6/0", "MUS6/6",
-      "NKF9",   "NP9H",   "P76L",   "Q4CL",   "Q8AD",   "QB6E",   "QF4Y",
-      "QLJ7",   "RLU9",   "RXY3",   "RZP5",   "S3PD",   "S4GJ",   "S98Z",
-      "S9E8",   "SKE5",   "SR86",   "SU5Z",   "SU74",   "SY6V",   "U3XV",
-      "U99R",   "UV7Q",   "VJP3/1", "Y79Y/0", "Y79Y/1", "Y79Y/2", "Y79Y/4",
-      "Y79Y/5", "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9", "Y79Y/3",
+      "DC7X",   "DK95/4", "F2C7",   "FH7J",   "G5U8",   "GDY7",   "H7TQ",
+      "HMQ5",   "HRE5",   "J3BT",   "JKF3",   "JTV5",   "JY7Z",   "K3WX",
+      "KH5V/1", "KK5P",   "LHL4",   "LP6E",   "MUS6/0", "MUS6/6", "NKF9",
+      "NP9H",   "P76L",   "Q4CL",   "Q8AD",   "QB6E",   "QF4Y",   "QLJ7",
+      "RLU9",   "RXY3",   "RZP5",   "S3PD",   "S4GJ",   "S98Z",   "S9E8",
+      "SKE5",   "SR86",   "SU5Z",   "SU74",   "SY6V",   "U3XV",   "U99R",
+      "UV7Q",   "VJP3/1", "Y79Y/0", "Y79Y/1", "Y79Y/2", "Y79Y/4", "Y79Y/5",
+      "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9", "Y79Y/3",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
