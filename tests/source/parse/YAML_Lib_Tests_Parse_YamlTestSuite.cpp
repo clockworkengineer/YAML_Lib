@@ -485,6 +485,17 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
           "[YAML][TestSuite][Invalid]") {
   const YAML yaml;
 
+  // Y79Y/0 — Tab-only line as first block scalar content with no space indent
+  SECTION("Y79Y/0: tab-only first content line in block scalar throws.",
+          "[YAML][TestSuite][Invalid]") {
+    // foo: |\n\t\nbar: 1 — the line after '|' is a bare TAB (no leading
+    // spaces).  0 space-indentation at column 1 = parent indentation 1.
+    // YAML 1.2 §6.1: tabs are not valid block indentation.  The block scalar
+    // cannot be distinguished from the outer mapping context → invalid.
+    BufferSource source{"foo: |\n\t\nbar: 1\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
   // MUS6/0 — %YAML directive with comment immediately after version (no space)
   SECTION("MUS6/0: %YAML version with '#' immediately after (no space) throws.",
           "[YAML][TestSuite][Invalid]") {
@@ -599,8 +610,8 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "LHL4",   "LP6E",   "NKF9",   "NP9H",   "P76L",   "Q4CL",   "Q8AD",
       "QB6E",   "QF4Y",   "QLJ7",   "RLU9",   "RXY3",   "RZP5",   "S3PD",
       "S4GJ",   "S98Z",   "S9E8",   "SKE5",   "SR86",   "SU5Z",   "SU74",
-      "SY6V",   "U3XV",   "U99R",   "UV7Q",   "Y79Y/0", "Y79Y/1", "Y79Y/2",
-      "Y79Y/4", "Y79Y/5", "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9", "Y79Y/3",
+      "SY6V",   "U3XV",   "U99R",   "UV7Q",   "Y79Y/1", "Y79Y/2", "Y79Y/4",
+      "Y79Y/5", "Y79Y/6", "Y79Y/7", "Y79Y/8", "Y79Y/9", "Y79Y/3",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt

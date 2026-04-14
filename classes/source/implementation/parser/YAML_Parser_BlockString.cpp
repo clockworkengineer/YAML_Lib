@@ -118,6 +118,21 @@ std::string Default_Parser::parseBlockString(ISource &source,
       (explicitIndent > 0)
           ? indentation + static_cast<unsigned long>(explicitIndent)
           : source.getPosition().second;
+  // YAML 1.2 §6.1: Tab characters are NOT valid block indentation — only
+  // spaces count.  If the first content line starts with a TAB (meaning 0
+  // leading spaces) at a column that cannot distinguish the block scalar from
+  // its parent context (column <= parent indentation), the input is invalid.
+  // Example: "foo: |\n\t\nbar: 1" — the \t line has 0 space-indentation and
+  // sits at column 1 = parent indentation 1, so the block border is ambiguous.
+  // Note: a leading space BEFORE the tab is fine (e.g. " \t" at column 2
+  // when parent indent is 1) because the space establishes proper indentation.
+  if (explicitIndent == 0 && source.more() && source.current() == '\t' &&
+      source.getPosition().second <= indentation) {
+    throw SyntaxError(source.getPosition(),
+                      "Tab character used as block scalar indentation; "
+                      "block scalar content must be more indented than its "
+                      "parent context with spaces (not tabs).");
+  }
   // YAML 1.2 §8.1.1: blank lines before block content may not have more
   // leading spaces than the block indentation level (test case W9L4).
   if (source.more() && maxBlankLeadingSpaces >= blockIndent) {
