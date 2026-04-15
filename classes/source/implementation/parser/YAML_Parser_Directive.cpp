@@ -121,11 +121,11 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
     // skips any comment and whitespace to find the anchor's block value.
     moveToNextIndent(source);
     const auto anchorIndent = source.getPosition().second;
-    // Only capture lines that are MORE indented than the parent (indentation).
-    // If anchorIndent <= indentation the next line is a sibling mapping key,
-    // not the anchor's value — leave source positioned there and store an
-    // empty value so the anchor resolves to null.
-    if (anchorIndent > indentation) {
+    // Usually the anchor value must be more indented than the parent.
+    // Exception: a zero-indented block sequence value may start at the same
+    // column as the parent mapping key (e.g. SKE5), so allow that form.
+    if (anchorIndent > indentation ||
+        (anchorIndent == indentation && isArray(source))) {
       unparsed = captureIndentedBlock(source, anchorIndent);
     }
   }
