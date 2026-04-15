@@ -200,6 +200,25 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
     yamlString = yamlTranslator->from(yamlString);
   } else {
     while (source.more()) {
+      // YAML 1.2: document-start (---) and document-end (...) markers at
+      // column 1 terminate a flow scalar. Inside a single-quoted string that
+      // is a syntax error (RXY3).
+      if (source.getPosition().second == 1) {
+        if (isDocumentStart(source)) {
+          throw SyntaxError(source.getPosition(),
+                            "Document start marker inside single-quoted "
+                            "string.");
+        }
+        {
+          SourceGuard guard(source);
+          if (source.match("...") && (!source.more() || source.isWS() ||
+                                     source.current() == kLineFeed)) {
+            throw SyntaxError(source.getPosition(),
+                              "Document end marker inside single-quoted "
+                              "string.");
+          }
+        }
+      }
       if (source.current() == quote) {
         source.next();
         if (source.current() == quote) {
