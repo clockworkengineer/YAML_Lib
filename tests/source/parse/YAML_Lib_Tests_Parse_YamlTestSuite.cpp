@@ -546,6 +546,19 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     REQUIRE_THROWS(yaml.parse(source));
   }
 
+  // 5LLU — Folded block scalar with over-indented whitespace-only lines
+  SECTION("5LLU: folded block scalar with blank lines having more leading "
+          "spaces than the block indent throws.",
+          "[YAML][TestSuite][Invalid]") {
+    // block scalar: >\n \n  \n   \n invalid
+    // The block's indentation is 1 (first content " invalid" at column 2).
+    // Blank lines must not have more leading spaces than the block indentation
+    // level (YAML 1.2 §8.1.1 l-empty rule requires ≤n spaces).  The lines
+    // "  " and "   " violate this and must cause a parse error.
+    BufferSource source{"block scalar: >\n \n  \n   \n invalid\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
   // 565N — !!binary tagged double-quoted and literal block scalars
   SECTION("565N: !!binary tag with double-quoted line-continuation and literal "
           "block parses without error.",
@@ -732,14 +745,14 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
-      "5LLU",   "5TRB",   "5U3A",   "5WE3", "6BCT", "6BFJ", "6CA3", "6HB6",
-      "6PBE", "7BMT", "7FWL", "7LBH", "7TMG", "7W2P", "7ZZ5", "8UDB", "8XDJ",
-      "9C9N", "9JBA", "9KBC", "9MMA", "9MMW", "AVM7", "AZ63", "B63P", "BF9H",
-      "CN3R", "CQ3W", "CT4Q", "CVW2", "CXX2", "D49Q", "DC7X", "F2C7", "FH7J",
-      "G5U8", "GDY7", "H7TQ", "HMQ5", "HRE5", "J3BT", "JKF3", "JTV5", "JY7Z",
-      "K3WX", "KK5P", "LHL4", "LP6E", "NKF9", "NP9H", "P76L", "Q4CL", "Q8AD",
-      "QB6E", "QF4Y", "QLJ7", "RLU9", "RXY3", "RZP5", "S3PD", "S4GJ", "S98Z",
-      "S9E8", "SKE5", "SR86", "SU5Z", "SU74", "SY6V", "U3XV", "U99R", "UV7Q",
+      "5TRB", "5U3A", "5WE3", "6BCT", "6BFJ", "6CA3", "6HB6", "6PBE", "7BMT",
+      "7FWL", "7LBH", "7TMG", "7W2P", "7ZZ5", "8UDB", "8XDJ", "9C9N", "9JBA",
+      "9KBC", "9MMA", "9MMW", "AVM7", "AZ63", "B63P", "BF9H", "CN3R", "CQ3W",
+      "CT4Q", "CVW2", "CXX2", "D49Q", "DC7X", "F2C7", "FH7J", "G5U8", "GDY7",
+      "H7TQ", "HMQ5", "HRE5", "J3BT", "JKF3", "JTV5", "JY7Z", "K3WX", "KK5P",
+      "LHL4", "LP6E", "NKF9", "NP9H", "P76L", "Q4CL", "Q8AD", "QB6E", "QF4Y",
+      "QLJ7", "RLU9", "RXY3", "RZP5", "S3PD", "S4GJ", "S98Z", "S9E8", "SKE5",
+      "SR86", "SU5Z", "SU74", "SY6V", "U3XV", "U99R", "UV7Q",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
