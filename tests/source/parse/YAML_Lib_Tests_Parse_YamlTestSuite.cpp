@@ -508,6 +508,21 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
     REQUIRE(NRef<String>(yaml.document(0)["key"]).value() == "value");
     REQUIRE(NRef<String>(yaml.document(0)["foo"]).value() == "key");
   }
+
+  // UV7Q — Legal tab after indentation
+  SECTION("UV7Q: spaces-then-tab in plain scalar continuation line is valid.",
+          "[YAML][TestSuite][Valid]") {
+    // x:\n - x\n  <TAB>x — the block sequence item '- x' at indent 2 has a
+    // continuation line '  <TAB>x' (2 spaces then tab then 'x').  YAML 1.2
+    // §6.1: tabs are not valid block indentation but ARE valid when preceded
+    // by at least one space.  The plain scalar folds to "x x".
+    BufferSource source{"x:\n - x\n  \tx\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(isA<Array>(yaml.document(0)["x"]));
+    REQUIRE(NRef<Array>(yaml.document(0)["x"]).size() == 1);
+    REQUIRE(NRef<String>(yaml.document(0)["x"][0]).value() == "x x");
+  }
 }
 
 TEST_CASE("YAML test-suite — invalid documents throw on parse.",
@@ -802,7 +817,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "J3BT", "JKF3", "JTV5", "JY7Z", "K3WX", "KK5P", "LHL4", "LP6E", "NKF9",
       "NP9H", "P76L", "Q4CL", "Q8AD", "QB6E", "QF4Y", "QLJ7", "RLU9", "RXY3",
       "RZP5", "S3PD", "S4GJ", "S98Z", "S9E8", "SKE5", "SR86", "SU5Z", "SU74",
-      "SY6V", "U3XV", "U99R", "UV7Q",
+      "SY6V", "U3XV", "U99R",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
