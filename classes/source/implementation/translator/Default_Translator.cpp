@@ -240,12 +240,8 @@ Default_Translator::from(const std::string_view &escapedString) const {
         utf16Buffer +=
             decodeUTF8(current, std::distance(current, escapedString.end()));
       }
-      // Escaped ASCII
-      else if (isASCII(*current)) {
-        utf16Buffer += *current;
-        ++current;
-      }
-      // Invalid escaped character
+      // Invalid escaped character — only the sequences listed in YAML 1.2
+      // §7.3.1 are valid; anything else (e.g. \. or \%) must be rejected.
       else {
         throw Error("Invalid escaped character.");
       }
