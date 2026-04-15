@@ -102,6 +102,30 @@ std::string Default_Parser::parseBlockString(ISource &source,
                                              unsigned long indentation,
                                              const char fillerDefault) {
   const auto [chomping, explicitIndent] = parseBlockChomping(source);
+  // YAML 1.2 §8.1.1: after '|' / '>' and optional chomping/indent indicators,
+  // only separation whitespace and an optional comment are allowed on the
+  // header line. Plain text (e.g. "> first") is invalid.
+  if (source.more() && source.current() != kLineFeed) {
+    if (source.current() == '#') {
+      throw SyntaxError(source.getPosition(),
+                        "Block scalar comment must be preceded by whitespace.");
+    }
+    if (source.current() != kSpace && source.current() != '\t') {
+      throw SyntaxError(source.getPosition(),
+                        "Invalid text after block scalar indicator.");
+    }
+    while (source.more() && (source.current() == kSpace || source.current() == '\t')) {
+      source.next();
+    }
+    if (source.more() && source.current() != kLineFeed) {
+      if (source.current() == '#') {
+        moveToNext(source, {kLineFeed});
+      } else {
+        throw SyntaxError(source.getPosition(),
+                          "Invalid text after block scalar indicator.");
+      }
+    }
+  }
   // YAML 1.2 §8.1.1: a comment on the block scalar header line must be
   // preceded by at least one whitespace character.  '># comment' (no space)
   // is a syntax error.
