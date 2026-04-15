@@ -209,6 +209,19 @@ std::string Default_Parser::extractRawQuotedScalar(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters"></param>
 /// <returns>Extracted characters.</returns>
+/// <summary>
+/// Extract the tag suffix from source, using a flow-context-aware delimiter
+/// set.  Inside a flow collection ([] or {}) the stop characters include ',',
+/// ']' and '}'; in block context only space and linefeed stop extraction.
+/// </summary>
+/// <param name="source">Source stream.</param>
+/// <returns>Extracted tag suffix string.</returns>
+std::string Default_Parser::extractTagSuffix(ISource &source) {
+  if (isInsideFlowContext()) {
+    return extractToNext(source, {kSpace, kLineFeed, ',', ']', '}'});
+  }
+  return extractToNext(source, {kSpace, kLineFeed});
+}
 std::string Default_Parser::extractToNext(ISource &source,
                                           const Delimiters &delimiters) {
   std::string extracted;

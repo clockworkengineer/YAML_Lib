@@ -55,15 +55,9 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     // Secondary tag handle: !! -> primary handle "tag:yaml.org,2002:"
     source.next();
     tagHandle = "!!";
-    // In flow context (inside [] or {}), ',' ']' '}' are flow separators and
-    // must terminate tag extraction; the comma is NOT part of the suffix.
-    // In block context there is no flow separator — read until space/LF, then
-    // validate below that no invalid characters (e.g. ',') crept in.
-    if (isInsideFlowContext()) {
-      tagSuffix = extractToNext(source, {kSpace, kLineFeed, ',', ']', '}'});
-    } else {
-      tagSuffix = extractToNext(source, {kSpace, kLineFeed});
-    }
+    // Flow-aware extraction: ',' ']' '}' are additional stops inside a flow
+    // collection; in block context only space/LF apply. See extractTagSuffix.
+    tagSuffix = extractTagSuffix(source);
   } else {
     // Could be primary !suffix or named handle !ns!suffix.
     // Scan ahead: if we find a second '!' before space/LF it is a named handle.
@@ -72,11 +66,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     if (source.more() && source.current() == '!') {
       source.next(); // consume second '!'
       tagHandle = "!" + preExcl + "!";
-      if (isInsideFlowContext()) {
-        tagSuffix = extractToNext(source, {kSpace, kLineFeed, ',', ']', '}'});
-      } else {
-        tagSuffix = extractToNext(source, {kSpace, kLineFeed});
-      }
+      tagSuffix = extractTagSuffix(source);
     } else {
       // Primary tag handle: !suffix
       tagHandle = "!";

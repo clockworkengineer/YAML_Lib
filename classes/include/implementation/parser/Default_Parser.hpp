@@ -101,6 +101,7 @@ private:
   static std::string extractString(ISource &source, char quote);
   static std::string extractString(ISource &source);
   static std::string extractRawQuotedScalar(ISource &source);
+  static std::string extractTagSuffix(ISource &source);
   static std::string extractToNext(ISource &source,
                                    const Delimiters &delimiters);
   static std::string extractTrimmed(ISource &source,

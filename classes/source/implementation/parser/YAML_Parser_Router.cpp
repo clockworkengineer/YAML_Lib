@@ -44,17 +44,26 @@ bool Default_Parser::isKey(ISource &source) {
     if (source.more()) {
       source.next();
     }
-    // YAML 1.2 §6.1: block indentation must use spaces, not tabs.
-    // If ':' (the key-value separator) is immediately followed by a tab in
-    // block context (not inside a flow collection), the tab is being used as a
-    // block structure separator — reject it.
+    // YAML 1.2 §6.1/§6.3: a tab after ':' in block context is only a valid
+    // separation space (§6.3) when at least one space immediately follows the
+    // tab(s). A bare tab with no following space structurally determines the
+    // block-value indentation → reject it (e.g. Y79Y/7: ":" + TAB + "-").
+    // A tab followed by a space is a valid s-white separation sequence
+    // (e.g. 6BCT: "foo:" + TAB + " bar").
     if (inlineDictionaryDepth == 0 && source.more() &&
         source.current() == '\t') {
-      throw SyntaxError(
-          source.getPosition(),
-          "Tab used as block value-separator after ':'; block indentation "
-          "must use spaces, not tabs (YAML 1.2 \xc2\xa7"
-          "6.1).");
+      SourceGuard tabGuard(source);
+      while (source.more() && source.current() == '\t') {
+        source.next();
+      }
+      if (!source.more() || source.current() != kSpace) {
+        throw SyntaxError(
+            source.getPosition(),
+            "Tab used as block value-separator after ':'; block indentation "
+            "must use spaces, not tabs (YAML 1.2 \xc2\xa7"
+            "6.1).");
+      }
+      tabGuard.release(); // space follows — consume the tab(s) and continue
     }
     if (source.current() == ' ' || source.current() == kLineFeed ||
         (!key.empty() && key.back() == kColon)) {
