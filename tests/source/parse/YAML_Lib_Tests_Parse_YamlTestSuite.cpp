@@ -794,6 +794,48 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     BufferSource source{"- !!str, xxx\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
+
+  // U3XV — Node and Mapping Key Anchors
+  SECTION("U3XV: anchor on mapping node and anchor on mapping key are "
+          "distinct nodes; multiple anchor uses in one document parse without "
+          "error.",
+          "[YAML][TestSuite][Valid]") {
+    // &node1/&node2/etc. anchor the mapping values; &k1/&k3/&k4 anchor the
+    // mapping keys; &val6/&val7 anchor scalar values.  None of these anchor
+    // the same node twice, so the YAML 1.2 §3.2.3 single-anchor-per-node
+    // rule is not violated.  Two anchors appearing on consecutive lines
+    // (e.g. &node4 on one line, &k4 key4: four on the next) anchor different
+    // nodes: the outer anchor anchors the mapping collection; the inner
+    // anchor anchors the key scalar inside that mapping.
+    BufferSource source{"---\n"
+                        "top1: &node1\n"
+                        "  &k1 key1: one\n"
+                        "top2: &node2 # comment\n"
+                        "  key2: two\n"
+                        "top3:\n"
+                        "  &k3 key3: three\n"
+                        "top4:\n"
+                        "  &node4\n"
+                        "  &k4 key4: four\n"
+                        "top5:\n"
+                        "  &node5\n"
+                        "  key5: five\n"
+                        "top6: &val6\n"
+                        "  six\n"
+                        "top7:\n"
+                        "  &val7 seven\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<Dictionary>(yaml.document(0)).size() == 7);
+    REQUIRE(isA<Dictionary>(yaml.document(0)["top1"]));
+    REQUIRE(NRef<String>(yaml.document(0)["top1"]["key1"]).value() == "one");
+    REQUIRE(isA<Dictionary>(yaml.document(0)["top2"]));
+    REQUIRE(NRef<String>(yaml.document(0)["top2"]["key2"]).value() == "two");
+    REQUIRE(isA<String>(yaml.document(0)["top6"]));
+    REQUIRE(NRef<String>(yaml.document(0)["top6"]).value() == "six");
+    REQUIRE(isA<String>(yaml.document(0)["top7"]));
+    REQUIRE(NRef<String>(yaml.document(0)["top7"]).value() == "seven");
+  }
 }
 
 // ============================================================================
@@ -821,14 +863,14 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
-      "6BCT", "6BFJ", "6CA3", "6HB6", "6PBE", "7BMT", "7FWL", "7LBH", "7TMG",
-      "7W2P", "7ZZ5", "8UDB", "8XDJ", "9C9N", "9JBA", "9KBC", "9MMA", "9MMW",
-      "AVM7", "AZ63", "B63P", "BF9H", "CN3R", "CQ3W", "CT4Q", "CVW2", "CXX2",
-      "D49Q", "DC7X", "F2C7", "FH7J", "G5U8", "GDY7", "H7TQ", "HMQ5", "HRE5",
-      "J3BT", "JKF3", "JTV5", "JY7Z", "K3WX", "KK5P", "LHL4", "LP6E", "NKF9",
-      "NP9H", "P76L", "Q4CL", "Q8AD", "QB6E", "QF4Y", "QLJ7", "RLU9", "RXY3",
-      "RZP5", "S3PD", "S4GJ", "S98Z", "S9E8", "SKE5", "SR86", "SU5Z", "SU74",
-      "SY6V", "U3XV",
+      "6BCT", "6BFJ", "6CA3", "6HB6", "6PBE", "7BMT", "7FWL", "7LBH",
+      "7TMG", "7W2P", "7ZZ5", "8UDB", "8XDJ", "9C9N", "9JBA", "9KBC",
+      "9MMA", "9MMW", "AVM7", "AZ63", "B63P", "BF9H", "CN3R", "CQ3W",
+      "CT4Q", "CVW2", "CXX2", "D49Q", "DC7X", "F2C7", "FH7J", "G5U8",
+      "GDY7", "H7TQ", "HMQ5", "HRE5", "J3BT", "JKF3", "JTV5", "JY7Z",
+      "K3WX", "KK5P", "LHL4", "LP6E", "NKF9", "NP9H", "P76L", "Q4CL",
+      "Q8AD", "QB6E", "QF4Y", "QLJ7", "RLU9", "RXY3", "RZP5", "S3PD",
+      "S4GJ", "S98Z", "S9E8", "SKE5", "SR86", "SU5Z", "SU74", "SY6V",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
