@@ -151,6 +151,29 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
   std::string yamlString;
   if (quote == kDoubleQuote) {
     while (source.more() && source.current() != quote) {
+      // YAML 1.2: document-start (---) and document-end (...) markers at
+      // column 1 terminate a flow scalar.  Inside a double-quoted string that
+      // is always a syntax error (test 5TRB / 9MQT).
+      // '---' at column 1 is ALWAYS a document-start marker.
+      // '...' at column 1 is a document-end marker only when followed by
+      // whitespace or EOF ('...x' without space is valid literal content).
+      if (source.getPosition().second == 1) {
+        if (isDocumentStart(source)) {
+          throw SyntaxError(source.getPosition(),
+                            "Document start marker inside double-quoted "
+                            "string.");
+        }
+        {
+          SourceGuard guard(source);
+          if (source.match("...") &&
+              (!source.more() || source.isWS() ||
+               source.current() == kLineFeed)) {
+            throw SyntaxError(source.getPosition(),
+                              "Document end marker inside double-quoted "
+                              "string.");
+          }
+        }
+      }
       if (source.current() == '\\') {
         source.next(); // consume '\'
         if (source.more() && source.current() == kLineFeed) {
