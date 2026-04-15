@@ -783,6 +783,17 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     BufferSource source{"? key:\n:\t\t\t\tkey:\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
+
+  // U99R — Invalid comma in tag
+  SECTION("U99R: comma immediately after tag handle in block context throws.",
+          "[YAML][TestSuite][Invalid]") {
+    // - !!str, xxx — in block context ',' is not a flow separator; it becomes
+    // part of the tag suffix making "str," an invalid ns-tag-char sequence.
+    // YAML 1.2 §6.8.1: ns-tag-char excludes c-flow-indicator characters
+    // including comma.
+    BufferSource source{"- !!str, xxx\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
 }
 
 // ============================================================================
@@ -817,7 +828,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
       "J3BT", "JKF3", "JTV5", "JY7Z", "K3WX", "KK5P", "LHL4", "LP6E", "NKF9",
       "NP9H", "P76L", "Q4CL", "Q8AD", "QB6E", "QF4Y", "QLJ7", "RLU9", "RXY3",
       "RZP5", "S3PD", "S4GJ", "S98Z", "S9E8", "SKE5", "SR86", "SU5Z", "SU74",
-      "SY6V", "U3XV", "U99R",
+      "SY6V", "U3XV",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt

@@ -55,7 +55,15 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     // Secondary tag handle: !! -> primary handle "tag:yaml.org,2002:"
     source.next();
     tagHandle = "!!";
-    tagSuffix = extractToNext(source, {kSpace, kLineFeed});
+    // In flow context (inside [] or {}), ',' ']' '}' are flow separators and
+    // must terminate tag extraction; the comma is NOT part of the suffix.
+    // In block context there is no flow separator — read until space/LF, then
+    // validate below that no invalid characters (e.g. ',') crept in.
+    if (isInsideFlowContext()) {
+      tagSuffix = extractToNext(source, {kSpace, kLineFeed, ',', ']', '}'});
+    } else {
+      tagSuffix = extractToNext(source, {kSpace, kLineFeed});
+    }
   } else {
     // Could be primary !suffix or named handle !ns!suffix.
     // Scan ahead: if we find a second '!' before space/LF it is a named handle.
@@ -64,7 +72,11 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     if (source.more() && source.current() == '!') {
       source.next(); // consume second '!'
       tagHandle = "!" + preExcl + "!";
-      tagSuffix = extractToNext(source, {kSpace, kLineFeed});
+      if (isInsideFlowContext()) {
+        tagSuffix = extractToNext(source, {kSpace, kLineFeed, ',', ']', '}'});
+      } else {
+        tagSuffix = extractToNext(source, {kSpace, kLineFeed});
+      }
     } else {
       // Primary tag handle: !suffix
       tagHandle = "!";
@@ -73,6 +85,17 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   }
 
   source.ignoreWS();
+
+  // YAML 1.2 §6.8.1: ns-tag-char excludes c-flow-indicator characters
+  // (comma, square brackets, curly braces).  In block context these chars are
+  // not flow separators; if they appear inside the extracted suffix the tag is
+  // malformed; reject by throwing.
+  static constexpr std::string_view kInvalidTagChars{",[]{}"};
+  if (!tagSuffix.empty() &&
+      tagSuffix.find_first_of(kInvalidTagChars) != std::string::npos) {
+    throw SyntaxError(source.getPosition(),
+                      "Invalid character in tag suffix '" + tagSuffix + "'.");
+  }
 
   // Build full tag name
   std::string fullTag;
