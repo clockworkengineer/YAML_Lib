@@ -149,6 +149,7 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
                                            const unsigned long indentation) {
   const char quote = source.append();
   std::string yamlString;
+  bool closedQuote = false;
   if (quote == kDoubleQuote) {
     while (source.more() && source.current() != quote) {
       // YAML 1.2: document-start (---) and document-end (...) markers at
@@ -191,6 +192,11 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
         appendCharacterToString(source, yamlString, true, indentation);
       }
     }
+    if (!source.more() || source.current() != quote) {
+      throw SyntaxError(source.getPosition(), "Missing closing quote.");
+    }
+    source.next(); // consume closing quote
+    closedQuote = true;
     yamlString = yamlTranslator->from(yamlString);
   } else {
     while (source.more()) {
@@ -199,12 +205,21 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
         if (source.current() == quote) {
           yamlString += source.append();
         } else {
+          closedQuote = true;
           break;
         }
       } else {
         appendCharacterToString(source, yamlString);
       }
     }
+  }
+  if (!closedQuote) {
+    throw SyntaxError(source.getPosition(), "Missing closing quote.");
+  }
+  // YAML 1.2 §6.6: comments must be separated from scalars by whitespace.
+  if (source.more() && source.current() == '#') {
+    throw SyntaxError(source.getPosition(),
+                      "Comment must be preceded by whitespace.");
   }
   moveToNext(source, delimiters);
   return Node::make<String>(yamlString, quote);
