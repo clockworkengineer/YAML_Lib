@@ -133,6 +133,28 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
   if (unparsed.empty()) {
     return Node::make<Null>();
   }
+  // YAML 1.2 §3.2.3: a node may have at most one anchor property.
+  // Detect: if `unparsed` (after leading whitespace) starts with another '&'
+  // and the buffer would be parsed by parseAnchor (not by a collection parser
+  // that handles anchored keys internally), then two anchors are on the same
+  // node → reject.
+  {
+    const auto firstContent = unparsed.find_first_not_of(" \t\n\r");
+    if (firstContent != std::string::npos && unparsed[firstContent] == '&') {
+      // Create a temporary buffer to probe which parser would match.
+      // isDictionary / isArray handle anchored keys/elements internally
+      // (the inner anchor is on a sub-node); only if neither matches does the
+      // outer and inner anchor both apply to the same scalar/collection node.
+      BufferSource tmpSrc{unparsed};
+      if (!isDictionary(tmpSrc) && !isArray(tmpSrc)) {
+        throw SyntaxError(
+            source.getPosition(),
+            "A node may have at most one anchor property; two anchors found "
+            "on the same node (YAML 1.2 \xc2\xa7"
+            "3.2.3).");
+      }
+    }
+  }
   return parseFromBuffer(unparsed, delimiters, indentation);
 }
 /// <summary>
