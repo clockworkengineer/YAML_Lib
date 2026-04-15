@@ -143,6 +143,14 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
   {
     const auto firstContent = unparsed.find_first_not_of(" \t\n\r");
     if (firstContent != std::string::npos) {
+      if (inlineValue && unparsed[firstContent] == '-' &&
+          firstContent + 1 < unparsed.size() &&
+          (unparsed[firstContent + 1] == ' ' ||
+           unparsed[firstContent + 1] == '\t')) {
+        throw SyntaxError(source.getPosition(),
+                          "Anchor may not precede a block sequence entry on "
+                          "the same line.");
+      }
       if (inlineValue && unparsed[firstContent] == '*') {
         throw SyntaxError(source.getPosition(),
                           "Alias nodes may not have anchor properties.");
