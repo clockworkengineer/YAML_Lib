@@ -122,6 +122,31 @@ std::string Default_Parser::extractMapping(ISource &source) {
       break;
     }
   }
+  // Explicit mapping key with node content on following lines, e.g.:
+  // ?\n- a\n- b\n:\n- c\n- d
+  // Capture lines up to a ':' at the same column as the '?' indicator.
+  if (inlineDictionaryDepth == 0 && source.current() == kLineFeed) {
+    source.next(); // first line of key node content (or ':' line)
+    std::string multilineKey;
+    while (source.more()) {
+      if (source.getPosition().second == questionCol &&
+          source.current() == kColon) {
+        key += multilineKey;
+        key += kColon;
+        return key;
+      }
+      multilineKey += extractToNext(source, {kLineFeed});
+      if (source.more() && source.current() == kLineFeed) {
+        multilineKey += kLineFeed;
+        source.next();
+      } else {
+        break;
+      }
+    }
+    key += multilineKey;
+    key += kColon;
+    return key;
+  }
   if (isInlineCollection(source)) {
     key += extractInlineCollectionAt(source);
     moveToNext(source, {kColon});
@@ -282,12 +307,15 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
                                               const unsigned long indentation) {
   const unsigned long keyIndent = source.getPosition().second;
   const auto keyLine = source.getPosition().first;
+  const bool explicitMappingKey = isMapping(source);
+  bool explicitValueSeparator = false;
   Node keyNode = parseKey(source);
   source.ignoreWS();
   // Explicit-key value separator: "? key\n: value" form — after parsing a '?'
   // key, source lands on the ': value' line.  Consume ':' (and optional space)
   // BEFORE calling isKey(), because isKey() treats ':' as a valid key start.
   if (source.more() && source.current() == kColon) {
+    explicitValueSeparator = true;
     source.next(); // consume ':'
     if (source.more() && source.current() == kSpace) {
       source.next(); // consume optional space after ':'
@@ -330,7 +358,8 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
   }
   Node dictionaryNode = Node::make<Null>();
   if (source.more() &&
-      (source.getPosition().second > keyIndent || isInlineCollection(source))) {
+      (source.getPosition().second > keyIndent || isInlineCollection(source) ||
+       (explicitMappingKey && isArray(source)))) {
     dictionaryNode = parseDocument(source, delimiters, indentation);
   }
   return {keyNode, dictionaryNode};
