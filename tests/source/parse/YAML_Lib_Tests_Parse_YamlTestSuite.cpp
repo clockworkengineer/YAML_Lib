@@ -582,6 +582,33 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
+  // 5WE3 — Spec Example 8.17. Explicit Block Mapping Entries
+  SECTION(
+      "5WE3: explicit block mapping with block-scalar key and block-sequence "
+      "value parses correctly.",
+      "[YAML][TestSuite][Valid]") {
+    // Two explicit-key entries:
+    //   1. ? explicit key  (bare scalar key, null value)
+    //   2. ? |             (literal block scalar key "block key\n")
+    //        block key
+    //      : - one         (block sequence value)
+    //        - two
+    // The '?' + '|' + continuation lines form the key; ': - one' is the value.
+    BufferSource source{"? explicit key # Empty value\n"
+                        "? |\n"
+                        "  block key\n"
+                        ": - one # Explicit compact\n"
+                        "  - two # block value\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<Dictionary>(yaml.document(0)).size() == 2);
+    REQUIRE(isA<Null>(yaml.document(0)["explicit key"]));
+    REQUIRE(isA<Array>(yaml.document(0)["block key"]));
+    REQUIRE(NRef<Array>(yaml.document(0)["block key"]).size() == 2);
+    REQUIRE(NRef<String>(yaml.document(0)["block key"][0]).value() == "one");
+    REQUIRE(NRef<String>(yaml.document(0)["block key"][1]).value() == "two");
+  }
+
   // 565N — !!binary tagged double-quoted and literal block scalars
   SECTION("565N: !!binary tag with double-quoted line-continuation and literal "
           "block parses without error.",
@@ -768,14 +795,14 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
-      "5WE3", "6BCT", "6BFJ", "6CA3", "6HB6", "6PBE", "7BMT", "7FWL", "7LBH",
-      "7TMG", "7W2P", "7ZZ5", "8UDB", "8XDJ", "9C9N", "9JBA", "9KBC", "9MMA",
-      "9MMW", "AVM7", "AZ63", "B63P", "BF9H", "CN3R", "CQ3W", "CT4Q", "CVW2",
-      "CXX2", "D49Q", "DC7X", "F2C7", "FH7J", "G5U8", "GDY7", "H7TQ", "HMQ5",
-      "HRE5", "J3BT", "JKF3", "JTV5", "JY7Z", "K3WX", "KK5P", "LHL4", "LP6E",
-      "NKF9", "NP9H", "P76L", "Q4CL", "Q8AD", "QB6E", "QF4Y", "QLJ7", "RLU9",
-      "RXY3", "RZP5", "S3PD", "S4GJ", "S98Z", "S9E8", "SKE5", "SR86", "SU5Z",
-      "SU74", "SY6V", "U3XV", "U99R", "UV7Q",
+      "6BCT", "6BFJ", "6CA3", "6HB6", "6PBE", "7BMT", "7FWL", "7LBH", "7TMG",
+      "7W2P", "7ZZ5", "8UDB", "8XDJ", "9C9N", "9JBA", "9KBC", "9MMA", "9MMW",
+      "AVM7", "AZ63", "B63P", "BF9H", "CN3R", "CQ3W", "CT4Q", "CVW2", "CXX2",
+      "D49Q", "DC7X", "F2C7", "FH7J", "G5U8", "GDY7", "H7TQ", "HMQ5", "HRE5",
+      "J3BT", "JKF3", "JTV5", "JY7Z", "K3WX", "KK5P", "LHL4", "LP6E", "NKF9",
+      "NP9H", "P76L", "Q4CL", "Q8AD", "QB6E", "QF4Y", "QLJ7", "RLU9", "RXY3",
+      "RZP5", "S3PD", "S4GJ", "S98Z", "S9E8", "SKE5", "SR86", "SU5Z", "SU74",
+      "SY6V", "U3XV", "U99R", "UV7Q",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt

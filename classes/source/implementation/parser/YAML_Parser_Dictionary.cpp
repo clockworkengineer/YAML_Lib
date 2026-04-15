@@ -108,6 +108,9 @@ bool Default_Parser::isValidKey(const std::string_view &key) {
 /// <returns>Extracted mapping/.</returns>
 std::string Default_Parser::extractMapping(ISource &source) {
   std::string key;
+  // Save the column of the '?' indicator so we know how deep the block key
+  // content must be indented when capturing continuation lines.
+  const auto questionCol = source.getPosition().second;
   source.next(); // consume leading '?' (mapping indicator)
   while (true) {
     key.clear();
@@ -124,8 +127,64 @@ std::string Default_Parser::extractMapping(ISource &source) {
     moveToNext(source, {kColon});
   } else if (isArray(source)) {
     key += extractToNext(source, {kColon});
+  } else if (isPipedBlockString(source) || isFoldedBlockString(source)) {
+    // Block scalar as explicit mapping key (? | or ? >). Capture the
+    // indicator line plus all continuation lines that are more indented
+    // than the '?' column.  This allows "? |\n  content\n: value" to be
+    // correctly parsed: the content lines become the key text rather than
+    // being mis-parsed as the value of a bare-'|' key.
+    key += extractToNext(source, {kLineFeed}); // reads '|...' or '>...'
+    if (source.more() && source.current() == kLineFeed) {
+      key += kLineFeed;
+      source.next(); // consume LF after indicator
+      // Capture continuation lines whose leading-space count is at least
+      // questionCol (i.e. they are more indented than the '?' indicator).
+      // IMPORTANT: SourceGuard is used only for peek, and release() is never
+      // called: the guard always fires normally (restoring), then the line is
+      // re-read without a guard.  This prevents orphaned context entries on
+      // the save/restore stack that would corrupt outer SourceGuards.
+      while (source.more()) {
+        // Peek: check line indentation using a guard that always restores.
+        bool lineIsContent = false;
+        unsigned long spaces = 0;
+        {
+          SourceGuard peekGuard(source);
+          while (source.more() && source.current() == kSpace) {
+            spaces++;
+            source.next();
+          }
+          const bool isBlankLine =
+              !source.more() || source.current() == kLineFeed;
+          lineIsContent = !isBlankLine && spaces >= questionCol;
+        } // peekGuard always restores here — no release() used
+        if (!lineIsContent) {
+          break;
+        }
+        // Line is sufficiently indented: re-read and append to key.
+        std::string lineContent;
+        while (source.more() && source.current() == kSpace) {
+          lineContent += source.current();
+          source.next();
+        }
+        key += lineContent;
+        key += extractToNext(source, {kLineFeed});
+        key += kLineFeed;
+        if (source.more() && source.current() == kLineFeed) {
+          source.next(); // consume LF
+        }
+      }
+    }
+    key += kColon;
   } else {
-    key += extractToNext(source, {kLineFeed});
+    std::string text = extractToNext(source, {kLineFeed});
+    // Strip inline comment: in YAML, '#' preceded by whitespace is a comment.
+    for (std::size_t i = 1; i < text.size(); ++i) {
+      if (text[i] == '#' && (text[i - 1] == ' ' || text[i - 1] == '\t')) {
+        text.erase(i - 1); // erase from the whitespace before '#'
+        break;
+      }
+    }
+    key += text;
     key += kColon;
   }
   return key;
