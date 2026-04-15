@@ -147,9 +147,8 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
         result = Node::make<String>(value, kNull);
       }
     } else if (tagSuffix == "binary") {
-      // base64 value — keep raw string, tag carries the type signal
-      std::string value{extractTrimmed(source, delimiters)};
-      result = Node::make<String>(value, kNull);
+      // base64 value — parse normally (handles double-quoted and block scalars)
+      result = parseDocument(source, delimiters, indentation);
     } else {
       // Unknown standard tag — parse value normally and attach tag
       result = parseDocument(source, delimiters, indentation);

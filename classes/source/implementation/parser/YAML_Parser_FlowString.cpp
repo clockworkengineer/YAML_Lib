@@ -152,8 +152,19 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
   if (quote == kDoubleQuote) {
     while (source.more() && source.current() != quote) {
       if (source.current() == '\\') {
-        yamlString += source.append();
-        yamlString += source.append();
+        source.next(); // consume '\'
+        if (source.more() && source.current() == kLineFeed) {
+          // YAML 1.2 §7.3.1: \<newline> is a line continuation — discard
+          // the backslash, the newline, and all leading white space on the
+          // continuation line.
+          source.next();     // consume LF
+          source.ignoreWS(); // trim leading spaces/tabs
+        } else {
+          yamlString += '\\';
+          if (source.more()) {
+            yamlString += source.append();
+          }
+        }
       } else {
         appendCharacterToString(source, yamlString, true, indentation);
       }

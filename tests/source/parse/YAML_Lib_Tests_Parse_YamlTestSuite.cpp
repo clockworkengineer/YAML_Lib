@@ -546,6 +546,26 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     REQUIRE_THROWS(yaml.parse(source));
   }
 
+  // 565N — !!binary tagged double-quoted and literal block scalars
+  SECTION("565N: !!binary tag with double-quoted line-continuation and literal "
+          "block parses without error.",
+          "[YAML][TestSuite][Valid]") {
+    // canonical uses !!binary with a double-quoted string whose source lines
+    // are joined via YAML 1.2 §7.3.1 \<newline> continuation escapes.
+    // generic uses !!binary with a literal block scalar (|).
+    // Both must parse successfully; the tag carries the binary type signal.
+    BufferSource source{
+        "canonical: !!binary \"\\  \n"
+        " R0lGODlhDAAMAIQAAP//9/X17unp5WZmZgAAAOfn515eXvPz7Y6OjuDg4J+fn5\\\n"
+        " OTk6enp56enmlpaWNjY6Ojo4SEhP/++f/++f/++f/++SH+Dk1hZGUgd2l0aCBI\\\n"
+        " ACWAAAAADAAMA AAFLCAgjoEwnuNAFOhpEMTRiggcz4BNJHrv/zCFcLiwMAADs=\"\n"
+        "generic: !!binary |\n"
+        " R0lGODlhDAAMAIQAAP//9/X17unp5WZmZgAAAOfn515eXvPz7Y6OjuDg4J+fn5\n"
+        " OTk6enp56enmlpaWNjY6Ojo4SEhP/++f/++f/++f/++SH+ACWAAAAADAAMAAA=\n"
+        "description: A tiny binary value.\n"};
+    CHECK_NOTHROW(yaml.parse(source));
+  }
+
   // MUS6/0 — %YAML directive with comment immediately after version (no space)
   SECTION("MUS6/0: %YAML version with '#' immediately after (no space) throws.",
           "[YAML][TestSuite][Invalid]") {
@@ -712,7 +732,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
-      "565N", "5LLU", "5TRB", "5U3A", "5WE3", "6BCT", "6BFJ", "6CA3", "6HB6",
+      "5LLU",   "5TRB",   "5U3A",   "5WE3", "6BCT", "6BFJ", "6CA3", "6HB6",
       "6PBE", "7BMT", "7FWL", "7LBH", "7TMG", "7W2P", "7ZZ5", "8UDB", "8XDJ",
       "9C9N", "9JBA", "9KBC", "9MMA", "9MMW", "AVM7", "AZ63", "B63P", "BF9H",
       "CN3R", "CQ3W", "CT4Q", "CVW2", "CXX2", "D49Q", "DC7X", "F2C7", "FH7J",
