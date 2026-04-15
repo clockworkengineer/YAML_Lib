@@ -222,6 +222,7 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
                                               const Delimiters &delimiters,
                                               const unsigned long indentation) {
   const unsigned long keyIndent = source.getPosition().second;
+  const auto keyLine = source.getPosition().first;
   Node keyNode = parseKey(source);
   source.ignoreWS();
   // Explicit-key value separator: "? key\n: value" form — after parsing a '?'
@@ -255,6 +256,19 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
                       "Only an inline/compact dictionary is allowed.");
   }
   moveToNextIndent(source);
+  // YAML 1.2 §8.2.1: a block sequence indicator '-' must start on its own
+  // line, more indented than the surrounding block context.  If '-' appears
+  // on the same line as the mapping key (implicit block mapping form where
+  // the ':' was already consumed inline), it is a syntax error
+  // (e.g. "key: - a" is invalid).
+  if (inlineDictionaryDepth == 0 && isArray(source) &&
+      source.getPosition().first == keyLine) {
+    throw SyntaxError(
+        source.getPosition(),
+        "Block sequence indicator '-' cannot appear inline on the same line "
+        "as a mapping key value (YAML 1.2 \xc2\xa7"
+        "8.2.1).");
+  }
   Node dictionaryNode = Node::make<Null>();
   if (source.more() &&
       (source.getPosition().second > keyIndent || isInlineCollection(source))) {
