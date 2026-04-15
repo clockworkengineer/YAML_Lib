@@ -114,25 +114,34 @@ void Default_Parser::moveToNextIndent(ISource &source) {
         afterNewline = true;
         seenSpaceOnLine = false;
       } else if (afterNewline && source.current() == '\t' && !seenSpaceOnLine) {
-        // A leading tab (before any space) on this line.  Only reject it as
-        // block indentation when non-whitespace content follows on the same
-        // line.  A line consisting entirely of tabs/spaces is a blank line and
-        // must be accepted (YAML 1.2 §6.5 / DK95/4).
-        const bool blankLine = [&]() {
+        // A leading tab (before any space) on this line. Reject it when it is
+        // used as block indentation before block-style content, but allow it
+        // for blank lines and top-level flow-style lines such as "\t[" / "\t]"
+        // (yaml-test-suite 6CA3).
+        const auto firstNonWsOnLine = [&]() -> char {
           SourceGuard guard(source);
-          source.next(); // look past the tab
+          source.next(); // look past the first tab
           while (source.more() && source.current() != kLineFeed &&
                  source.isWS()) {
             source.next();
           }
-          return !source.more() || source.current() == kLineFeed;
+          if (!source.more() || source.current() == kLineFeed) {
+            return '\0';
+          }
+          return source.current();
         }();
-        if (!blankLine) {
+        const bool blankLine = (firstNonWsOnLine == '\0');
+        const bool flowLine = firstNonWsOnLine == kLeftSquareBracket ||
+                              firstNonWsOnLine == kRightSquareBracket ||
+                              firstNonWsOnLine == kLeftCurlyBrace ||
+                              firstNonWsOnLine == kRightCurlyBrace ||
+                              firstNonWsOnLine == kComma;
+        if (!blankLine && !flowLine) {
           throw SyntaxError(
               source.getPosition(),
               "Tab character not allowed in YAML block indentation.");
         }
-        // Blank line — fall through; source.next() below consumes the tab.
+        // Blank/flow line — fall through; source.next() below consumes the tab.
       } else if (source.current() == kSpace) {
         seenSpaceOnLine = true;
       }
