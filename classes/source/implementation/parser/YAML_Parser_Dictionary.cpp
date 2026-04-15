@@ -307,7 +307,6 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
                                               const unsigned long indentation) {
   const unsigned long keyIndent = source.getPosition().second;
   const auto keyLine = source.getPosition().first;
-  const bool explicitMappingKey = isMapping(source);
   bool explicitValueSeparator = false;
   Node keyNode = parseKey(source);
   source.ignoreWS();
@@ -357,9 +356,8 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
         "8.2.1).");
   }
   Node dictionaryNode = Node::make<Null>();
-  if (source.more() &&
-      (source.getPosition().second > keyIndent || isInlineCollection(source) ||
-       (explicitMappingKey && isArray(source)))) {
+  if (source.more() && (source.getPosition().second > keyIndent ||
+                        isInlineCollection(source) || isArray(source))) {
     dictionaryNode = parseDocument(source, delimiters, indentation);
   }
   return {keyNode, dictionaryNode};
