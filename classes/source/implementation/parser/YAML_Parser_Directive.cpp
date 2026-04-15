@@ -107,8 +107,10 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.ignoreWS();
+  bool inlineValue = false;
   std::string unparsed{};
   if (source.current() != kLineFeed && !isComment(source)) {
+    inlineValue = true;
     // In flow context the caller's delimiters include ']', '}', ',' etc.
     // Use them so that an anchor value like "&b b" inside "[a, &b b]" stops
     // at ']' not at the next newline.  Always include kLineFeed so the
@@ -129,8 +131,8 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
       unparsed = captureIndentedBlock(source, anchorIndent);
     }
   }
-  yamlAliasMap[name] = unparsed;
   if (unparsed.empty()) {
+    yamlAliasMap[name] = unparsed;
     return Node::make<Null>();
   }
   // YAML 1.2 §3.2.3: a node may have at most one anchor property.
@@ -140,21 +142,29 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
   // node → reject.
   {
     const auto firstContent = unparsed.find_first_not_of(" \t\n\r");
-    if (firstContent != std::string::npos && unparsed[firstContent] == '&') {
-      // Create a temporary buffer to probe which parser would match.
-      // isDictionary / isArray handle anchored keys/elements internally
-      // (the inner anchor is on a sub-node); only if neither matches does the
-      // outer and inner anchor both apply to the same scalar/collection node.
-      BufferSource tmpSrc{unparsed};
-      if (!isDictionary(tmpSrc) && !isArray(tmpSrc)) {
-        throw SyntaxError(
-            source.getPosition(),
-            "A node may have at most one anchor property; two anchors found "
-            "on the same node (YAML 1.2 \xc2\xa7"
-            "3.2.3).");
+    if (firstContent != std::string::npos) {
+      if (inlineValue && unparsed[firstContent] == '*') {
+        throw SyntaxError(source.getPosition(),
+                          "Alias nodes may not have anchor properties.");
+      }
+      if (unparsed[firstContent] == '&') {
+        // Create a temporary buffer to probe which parser would match.
+        // isDictionary / isArray handle anchored keys/elements internally
+        // (the inner anchor is on a sub-node); only if neither matches does
+        // the outer and inner anchor both apply to the same scalar/collection
+        // node.
+        BufferSource tmpSrc{unparsed};
+        if (!isDictionary(tmpSrc) && !isArray(tmpSrc)) {
+          throw SyntaxError(
+              source.getPosition(),
+              "A node may have at most one anchor property; two anchors found "
+              "on the same node (YAML 1.2 \xc2\xa7"
+              "3.2.3).");
+        }
       }
     }
   }
+  yamlAliasMap[name] = unparsed;
   return parseFromBuffer(unparsed, delimiters, indentation);
 }
 /// <summary>
