@@ -212,7 +212,7 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
         {
           SourceGuard guard(source);
           if (source.match("...") && (!source.more() || source.isWS() ||
-                                     source.current() == kLineFeed)) {
+                                      source.current() == kLineFeed)) {
             throw SyntaxError(source.getPosition(),
                               "Document end marker inside single-quoted "
                               "string.");

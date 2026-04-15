@@ -114,7 +114,8 @@ std::string Default_Parser::parseBlockString(ISource &source,
       throw SyntaxError(source.getPosition(),
                         "Invalid text after block scalar indicator.");
     }
-    while (source.more() && (source.current() == kSpace || source.current() == '\t')) {
+    while (source.more() &&
+           (source.current() == kSpace || source.current() == '\t')) {
       source.next();
     }
     if (source.more() && source.current() != kLineFeed) {
