@@ -457,6 +457,20 @@ TEST_CASE("Check YAML 1.2 plain scalar inline comment rule (§6.8).",
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)["version"]).value() == "csharp#net6");
   }
+  SECTION("Quoted mapping value with trailing plain content throws.",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+    BufferSource source{"key1: \"quoted1\"\n"
+                        "key2: \"quoted2\" trailing content\n"
+                        "key3: \"quoted3\"\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+  SECTION("Quoted mapping value allows a separating inline comment.",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+    BufferSource source{"key: \"quoted\" # comment\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)["key"]).value() == "quoted");
+  }
   SECTION("Plain scalar with '#' preceded by space is still a comment.",
           "[YAML][Parse][Scalar][String][InlineComment]") {
     BufferSource source{"key: value # this is a comment\n"};

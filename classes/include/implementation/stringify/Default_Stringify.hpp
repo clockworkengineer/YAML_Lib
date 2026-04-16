@@ -49,6 +49,17 @@ private:
     // Fully-resolved non-yaml.org URI from a named handle expansion
     return "!<" + std::string(tag) + ">";
   }
+  static std::string escapeSingleQuoted(const std::string_view value) {
+    std::string escaped;
+    escaped.reserve(value.size());
+    for (const char ch : value) {
+      escaped.push_back(ch);
+      if (ch == kApostrophe) {
+        escaped.push_back(kApostrophe);
+      }
+    }
+    return escaped;
+  }
   static std::vector<std::string> splitString(const std::string_view &target,
                                               const char delimiter) {
     std::vector<std::string> splitStrings;
@@ -138,6 +149,8 @@ private:
       std::string yamlString{NRef<String>(yNode).toString()};
       if (quote == kDoubleQuote) {
         yamlString = yamlTranslator->to(yamlString);
+      } else {
+        yamlString = escapeSingleQuoted(yamlString);
       }
       destination.add(quote + yamlString + quote);
     } else {
@@ -175,8 +188,11 @@ private:
       destination.add(calculateIndent(destination, indent));
       if (const char quote = NRef<String>(entryNode.getKeyNode()).getQuote();
           quote == kApostrophe || quote == kDoubleQuote) {
-        destination.add(
-            quote + NRef<String>(entryNode.getKeyNode()).toString() + quote);
+        std::string keyString{NRef<String>(entryNode.getKeyNode()).toString()};
+        if (quote == kApostrophe) {
+          keyString = escapeSingleQuoted(keyString);
+        }
+        destination.add(quote + keyString + quote);
       } else {
         destination.add(NRef<String>(entryNode.getKeyNode()).toString());
       }

@@ -211,6 +211,14 @@ TEST_CASE("Check YAML stringify round-trip correctness.",
     compareYAML(yaml, "---\n'single quoted'\n...\n");
   }
 
+  SECTION(
+      "YAML round-trip: single-quoted string escapes apostrophes in output.",
+      "[YAML][Stringify][RoundTrip][String]") {
+    BufferSource source{"---\n' # not a ''comment''.'\n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    compareYAML(yaml, "---\n' # not a ''comment''.'\n...\n");
+  }
+
   // ---- Numeric literal representations survive round-trip ----
 
   SECTION("YAML round-trip: hex integer parsed and re-stringified as decimal.",

@@ -235,10 +235,22 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
   if (!closedQuote) {
     throw SyntaxError(source.getPosition(), "Missing closing quote.");
   }
+  bool sawTrailingWhitespace = false;
+  while (source.more() &&
+         (source.current() == kSpace || source.current() == '\t')) {
+    sawTrailingWhitespace = true;
+    source.next();
+  }
   // YAML 1.2 §6.6: comments must be separated from scalars by whitespace.
   if (source.more() && source.current() == '#') {
+    if (!sawTrailingWhitespace) {
+      throw SyntaxError(source.getPosition(),
+                        "Comment must be preceded by whitespace.");
+    }
+  } else if (source.more() && source.current() != kLineFeed &&
+             !delimiters.contains(source.current())) {
     throw SyntaxError(source.getPosition(),
-                      "Comment must be preceded by whitespace.");
+                      "Invalid trailing content after quoted scalar.");
   }
   moveToNext(source, delimiters);
   return Node::make<String>(yamlString, quote);
