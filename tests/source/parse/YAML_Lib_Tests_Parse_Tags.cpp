@@ -108,6 +108,17 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
             "!<tag:example.com,2024:item>");
   }
 
+  SECTION("YAML parse verbatim-tagged mapping key with tagged scalar value.",
+          "[YAML][Parse][Tags][Verbatim]") {
+    BufferSource source{"!<tag:yaml.org,2002:str> foo :\n"
+                        "  !<!bar> baz\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(isA<String>(yaml.document(0)["foo"]));
+    REQUIRE(NRef<String>(yaml.document(0)["foo"]).value() == "baz");
+    REQUIRE(yaml.document(0)["foo"].getVariant().getTag() == "!<!bar>");
+  }
+
   // ---- Named tag handle !ns!suffix ----
 
   SECTION("YAML named tag handle !m! expands to registered prefix.",

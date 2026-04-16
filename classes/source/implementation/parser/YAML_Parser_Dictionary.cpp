@@ -220,6 +220,27 @@ std::string Default_Parser::extractMapping(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>YAML for key value.</returns>
 std::string Default_Parser::extractKey(ISource &source) {
+  const auto extractPlainKeyTail = [&source]() {
+    const Delimiters plainKeyDelimiters = keyStopDelimiters();
+    std::string keyTail;
+    while (source.more()) {
+      keyTail += extractToNext(source, plainKeyDelimiters);
+      if (!source.more() || source.current() != kColon)
+        break;
+      const bool isSeparator = [&source]() -> bool {
+        SourceGuard guard(source);
+        source.next(); // peek past ':'
+        return !source.more() || source.current() == kSpace ||
+               source.current() == kLineFeed;
+      }();
+      if (isSeparator)
+        break; // ':' is the key-value separator, stop here
+      keyTail += kColon;
+      source.next(); // consume ':', it is part of the key
+    }
+    return keyTail;
+  };
+
   // Handle "&anchor value" prefix (e.g. "&a [...]" or "&a scalar" as a key).
   // In flow context, a plain-scalar extraction would stop at the first ','
   // inside the inline collection; the anchor branch handles it bracket-aware
@@ -235,8 +256,49 @@ std::string Default_Parser::extractKey(ISource &source) {
     } else if (isQuotedString(source)) {
       result += extractString(source);
     } else {
-      result += extractToNext(source, keyStopDelimiters());
+      result += extractPlainKeyTail();
       rightTrim(result);
+    }
+    return result;
+  }
+  // Handle tagged keys (e.g. "!!str key: value" or
+  // "!<tag:yaml.org,2002:str> foo : ..."). The tag token may contain ':'
+  // characters, so plain-scalar key extraction cannot start at the tag.
+  if (source.current() == '!') {
+    std::string result{"!"};
+    source.next();
+    if (!source.more()) {
+      return result;
+    }
+    if (source.current() == '<') {
+      result += source.append();
+      result += extractToNext(source, {'>'});
+      if (!source.more() || source.current() != '>') {
+        return result;
+      }
+      result += source.append();
+    } else if (source.current() == '!') {
+      result += source.append();
+      result += extractTagSuffix(source);
+    } else {
+      result += extractToNext(source, {'!', kSpace, '\t', kLineFeed});
+      if (source.more() && source.current() == '!') {
+        result += source.append();
+        result += extractTagSuffix(source);
+      }
+    }
+    if (source.more() &&
+        (source.current() == kSpace || source.current() == '\t')) {
+      result += ' ';
+      source.ignoreWS();
+      if (isInlineCollection(source)) {
+        result += extractInlineCollectionAt(source);
+      } else if (isQuotedString(source)) {
+        result += extractString(source);
+      } else {
+        result += extractPlainKeyTail();
+        rightTrim(result);
+      }
     }
     return result;
   }
@@ -255,24 +317,7 @@ std::string Default_Parser::extractKey(ISource &source) {
   // In block context (inlineDictionaryDepth == 0) '}' and ',' are ordinary
   // characters and must not terminate key extraction.  They are only special
   // inside flow collections (inlineDictionaryDepth > 0).
-  const Delimiters plainKeyDelimiters = keyStopDelimiters();
-  std::string key;
-  while (source.more()) {
-    key += extractToNext(source, plainKeyDelimiters);
-    if (!source.more() || source.current() != kColon)
-      break;
-    const bool isSeparator = [&source]() -> bool {
-      SourceGuard guard(source);
-      source.next(); // peek past ':'
-      return !source.more() || source.current() == kSpace ||
-             source.current() == kLineFeed;
-    }();
-    if (isSeparator)
-      break; // ':' is the key-value separator, stop here
-    key += kColon;
-    source.next(); // consume ':', it is part of the key
-  }
-  return key;
+  return extractPlainKeyTail();
 }
 /// <summary>
 /// Parse dictionary key on source stream.
