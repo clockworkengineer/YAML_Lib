@@ -91,6 +91,10 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       }
       // End of a document
     } else if (isDocumentEnd(source)) {
+      if (!inDocument && pendingDirectives) {
+        throw SyntaxError(source.getPosition(),
+                          "Directive must be followed by a document.");
+      }
       // Consume "..." then validate what follows on the same line.
       // Per the YAML spec, "..." is a document-end suffix, not an indicator
       // embedded in content. Content after "... " (space-separated) is invalid;
