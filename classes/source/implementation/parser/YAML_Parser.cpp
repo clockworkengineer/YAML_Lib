@@ -61,16 +61,18 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
     yamlDirectiveMinor = 2;
     yamlDirectiveSeen = false;
   };
-  for (bool inDocument = false; source.more();) {
+  for (bool inDocument = false, pendingDirectives = false; source.more();) {
     // Directives (%YAML or %TAG) — only valid before a document starts
     if (isDirective(source)) {
       parseDirective(source, inDocument);
+      pendingDirectives = true;
       // Start of a document
     } else if (isDocumentStart(source)) {
       if (inDocument) {
         resetDocumentState();
       }
       inDocument = true;
+      pendingDirectives = false;
       yNodeTree.push_back(Node::make<Document>());
       source.next();
       source.next();
@@ -126,6 +128,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
     } else {
       if (!inDocument) {
         yNodeTree.push_back(Node::make<Document>());
+        pendingDirectives = false;
       }
       inDocument = true;
       if (NRef<Document>(yNodeTree.back()).size() == 0) {
@@ -134,6 +137,10 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       } else {
         throw SyntaxError(source.getPosition(), "Invalid YAML encountered.");
       }
+    }
+    if (!source.more() && pendingDirectives) {
+      throw SyntaxError(source.getPosition(),
+                        "Directive must be followed by a document.");
     }
   }
 

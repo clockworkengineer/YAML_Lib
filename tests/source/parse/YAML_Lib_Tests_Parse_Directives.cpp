@@ -33,6 +33,12 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
     REQUIRE_THROWS(yaml.parse(source));
   }
 
+  SECTION("YAML bare %YAML directive with no document throws.",
+          "[YAML][Parse][Directives][YAMLNoDocument]") {
+    BufferSource source{"%YAML 1.2\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
   SECTION("YAML parse %YAML directive after document start is invalid content.",
           "[YAML][Parse][Directives][YAMLAfterDoc]") {
     // Inside a document, % starts a plain scalar not a directive.
