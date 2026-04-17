@@ -43,6 +43,12 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
     REQUIRE_THROWS(yaml.parse(source));
   }
 
+  SECTION("YAML block mapping cannot start on same line as document start.",
+          "[YAML][Parse][Directives]") {
+    BufferSource source{"--- key1: value1\n    key2: value2\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
   // ---- %TAG directives ----
 
   SECTION("YAML parse %TAG directive maps handle to prefix.",

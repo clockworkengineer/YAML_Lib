@@ -76,6 +76,13 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       source.next();
       source.next(); // consume '-', '-', '-'
       source.ignoreWS();
+      if (source.more() && source.current() != kLineFeed &&
+          !isComment(source) &&
+          (isKey(source) || isMapping(source) || isArray(source))) {
+        throw SyntaxError(source.getPosition(),
+                          "Block collection cannot start on the same line as "
+                          "document start.");
+      }
       if (!source.more() || source.current() == kLineFeed ||
           isComment(source)) {
         moveToNextIndent(source);
