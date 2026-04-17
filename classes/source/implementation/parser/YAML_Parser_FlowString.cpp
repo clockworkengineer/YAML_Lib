@@ -102,6 +102,23 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
   } else {
     rightTrim(yamlString); // strip trailing whitespace before fold
     yamlString += kSpace;  // fold first-line break to a single space
+    const bool commentTerminatesBlockPlainScalar = [&]() {
+      if (isInsideFlowContext()) {
+        return false;
+      }
+      SourceGuard guard(source);
+      source.next();
+      while (source.more() && source.current() == kSpace) {
+        source.next();
+      }
+      return source.more() && source.current() == '#';
+    }();
+    if (commentTerminatesBlockPlainScalar) {
+      if (!yamlString.empty() && yamlString.back() == kSpace) {
+        yamlString.pop_back();
+      }
+      return Node::make<String>(yamlString, kNull);
+    }
     bool commentOnlyContinuationInFlow = false;
     if (isInsideFlowContext()) {
       SourceGuard guard(source);
@@ -173,11 +190,11 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
       // of the line; the '\n' is left for appendCharacterToString to fold.
       if (isInlineComment(source, yamlString)) {
         skipLine(source);
+        moveToNextIndent(source);
+        if (!yamlString.empty() && yamlString.back() == kSpace) {
+          yamlString.pop_back();
+        }
         if (isInsideFlowContext()) {
-          moveToNextIndent(source);
-          if (!yamlString.empty() && yamlString.back() == kSpace) {
-            yamlString.pop_back();
-          }
           if (!source.more() || source.current() == kComma ||
               source.current() == kRightSquareBracket ||
               source.current() == kRightCurlyBrace) {
@@ -185,7 +202,7 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
           }
           throw SyntaxError(source.getPosition(), "Invalid YAML encountered.");
         }
-        continue;
+        break;
       }
       appendCharacterToString(source, yamlString);
       if (source.match(": ")) {

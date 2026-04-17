@@ -188,6 +188,14 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
     REQUIRE(NRef<String>(yaml.document(0)[1]).value() == "word2");
   }
 
+  SECTION("YAML block plain scalar cannot continue after comment-only line.",
+          "[YAML][Parse][Collections][Flow]") {
+    BufferSource source{"key: word1\n"
+                        "#  xxx\n"
+                        "  word2\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
   SECTION("YAML flow sequence allows implicit single-pair flow mapping.",
           "[YAML][Parse][Collections][Flow]") {
     BufferSource source{"---\n[\nfoo: bar\n]\n"};
