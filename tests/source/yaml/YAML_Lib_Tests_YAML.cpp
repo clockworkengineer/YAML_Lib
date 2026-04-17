@@ -15,8 +15,14 @@ TEST_CASE("Check YAML creation.", "[YAML][API]") {
     REQUIRE_NOTHROW(yaml.parse(buffer));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
   }
+  SECTION("Parse empty YAML stream.", "[YAML][API][Parse]") {
+    YAML yaml;
+    BufferSource buffer("");
+    REQUIRE_NOTHROW(yaml.parse(buffer));
+    REQUIRE(yaml.getNumberOfDocuments() == 0);
+  }
   SECTION("Create Null Node.", "[YAML][API][Parse]") {
-    Node yNode = Node::make<Null>() ;
+    Node yNode = Node::make<Null>();
     REQUIRE_FALSE(!isA<Null>(yNode));
   }
 }

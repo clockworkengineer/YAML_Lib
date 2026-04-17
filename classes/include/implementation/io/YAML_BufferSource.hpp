@@ -4,11 +4,7 @@ namespace YAML_Lib {
 
 class BufferSource final : public ISource {
 public:
-  explicit BufferSource(const std::string_view &buffer) : buffer(buffer) {
-    if (buffer.empty()) {
-      throw Error("Empty source buffer passed to be parsed.");
-    }
-  }
+  explicit BufferSource(const std::string_view &buffer) : buffer(buffer) {}
   BufferSource() = delete;
   BufferSource(const BufferSource &other) = delete;
   BufferSource &operator=(const BufferSource &other) = delete;
