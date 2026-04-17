@@ -178,6 +178,34 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
     REQUIRE(NRef<Number>(yaml.document(0)[2]).value<int>() == 3);
   }
 
+  SECTION("YAML flow collections allow whitespace after scalars.",
+          "[YAML][Parse][Collections][Flow]") {
+    BufferSource source{"---\n"
+                        "- [a, b , c ]\n"
+                        "- { \"a\"  : b\n"
+                        "   , c : 'd' ,\n"
+                        "   e   : \"f\"\n"
+                        "  }\n"
+                        "- [      ]\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)));
+    REQUIRE(NRef<Array>(yaml.document(0)).size() == 3);
+
+    REQUIRE(isA<Array>(yaml.document(0)[0]));
+    REQUIRE(NRef<Array>(yaml.document(0)[0]).size() == 3);
+    REQUIRE(NRef<String>(yaml.document(0)[0][0]).value() == "a");
+    REQUIRE(NRef<String>(yaml.document(0)[0][1]).value() == "b");
+    REQUIRE(NRef<String>(yaml.document(0)[0][2]).value() == "c");
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)[1]));
+    REQUIRE(NRef<String>(yaml.document(0)[1]["a"]).value() == "b");
+    REQUIRE(NRef<String>(yaml.document(0)[1]["c"]).value() == "d");
+    REQUIRE(NRef<String>(yaml.document(0)[1]["e"]).value() == "f");
+
+    REQUIRE(isA<Array>(yaml.document(0)[2]));
+    REQUIRE(NRef<Array>(yaml.document(0)[2]).size() == 0);
+  }
+
   SECTION("YAML rejects comment glued to flow sequence close.",
           "[YAML][Parse][Collections][Flow]") {
     BufferSource source{"---\n[a, b, c,]#invalid\n"};
