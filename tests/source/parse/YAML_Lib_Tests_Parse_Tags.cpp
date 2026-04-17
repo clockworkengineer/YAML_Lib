@@ -119,6 +119,12 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     REQUIRE(yaml.document(0)["foo"].getVariant().getTag() == "!<!bar>");
   }
 
+  SECTION("YAML local tag with flow-indicator characters in suffix throws.",
+          "[YAML][Parse][Tags][Invalid]") {
+    BufferSource source{"---\n!invalid{}tag scalar\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
   // ---- Named tag handle !ns!suffix ----
 
   SECTION("YAML named tag handle !m! expands to registered prefix.",
