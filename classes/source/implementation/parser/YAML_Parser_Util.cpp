@@ -364,7 +364,16 @@ void Default_Parser::checkFlowDelimiter(ISource &source,
 void Default_Parser::checkAtFlowClose(ISource &source,
                                       const Delimiters &delimiters,
                                       const long depth) {
-  source.ignoreWS();
+  bool separatedFromClose = false;
+  while (source.more() && source.isWS()) {
+    separatedFromClose = true;
+    source.next();
+  }
+  if (source.more() && source.current() == '#' && !separatedFromClose) {
+    throw SyntaxError(
+        source.getPosition(),
+        "Comment after flow collection close requires separation whitespace.");
+  }
   if (depth == 0) {
     checkFlowDelimiter(source, delimiters);
   }

@@ -178,6 +178,12 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
     REQUIRE(NRef<Number>(yaml.document(0)[2]).value<int>() == 3);
   }
 
+  SECTION("YAML rejects comment glued to flow sequence close.",
+          "[YAML][Parse][Collections][Flow]") {
+    BufferSource source{"---\n[a, b, c,]#invalid\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
   SECTION("YAML flow sequence allows comment before comma separator.",
           "[YAML][Parse][Collections][Flow]") {
     BufferSource source{"---\n[word1\n# comment\n, word2]\n"};
