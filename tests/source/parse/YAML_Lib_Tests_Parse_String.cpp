@@ -81,6 +81,12 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     // Key "can't stop won't stop" must be reachable; value is a bool.
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)["can't stop won't stop"]));
   }
+  SECTION("Multiline double-quoted implicit key throws.",
+          "[YAML][Parse][Scalar][String][SingleQuoteKey]") {
+    BufferSource source{"\"a\\nb\": 1\n"
+                        "\"c\n d\": 1\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
   SECTION("YAML parse an unquoted string with that terminated by EOF.",
           "[YAML][Parse][Scalar][String]") {
     BufferSource source{"---\n test string."};

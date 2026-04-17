@@ -29,6 +29,12 @@ bool Default_Parser::isKey(ISource &source) {
   bool keyPresent{false};
   if (std::string key{extractKey(source)};
       source.current() == kColon || (!key.empty() && key.back() == kColon)) {
+    if (inlineDictionaryDepth == 0 && !key.empty() &&
+        (key.front() == kDoubleQuote || key.front() == kApostrophe) &&
+        key.find('\n') != std::string::npos) {
+      throw SyntaxError(source.getPosition(),
+                        "Implicit quoted keys must be on a single line.");
+    }
     if (key[0] == kLeftCurlyBrace || key[0] == kLeftSquareBracket) {
       if (key.find('\n') != std::string::npos) {
         if (key[0] == kLeftCurlyBrace) {
