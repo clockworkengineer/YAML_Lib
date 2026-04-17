@@ -863,11 +863,11 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
-      "7W2P", "7ZZ5", "8UDB", "8XDJ", "9C9N", "9JBA", "9KBC", "9MMA", "9MMW",
-      "AVM7", "AZ63", "B63P", "BF9H", "CN3R", "CQ3W", "CT4Q", "CVW2", "CXX2",
-      "D49Q", "DC7X", "F2C7", "FH7J", "G5U8", "GDY7", "H7TQ", "HMQ5", "HRE5",
-      "J3BT", "JKF3", "JTV5", "JY7Z", "K3WX", "KK5P", "LHL4", "LP6E", "NKF9",
-      "NP9H", "P76L", "Q8AD", "QB6E", "QF4Y", "QLJ7",
+      "7ZZ5", "8UDB", "8XDJ", "9C9N", "9JBA", "9KBC", "9MMA", "9MMW", "AVM7",
+      "AZ63", "B63P", "BF9H", "CN3R", "CQ3W", "CT4Q", "CVW2", "CXX2", "D49Q",
+      "DC7X", "F2C7", "FH7J", "G5U8", "GDY7", "H7TQ", "HMQ5", "HRE5", "J3BT",
+      "JKF3", "JTV5", "JY7Z", "K3WX", "KK5P", "LHL4", "LP6E", "NKF9", "NP9H",
+      "P76L", "Q8AD", "QB6E", "QF4Y", "QLJ7",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
