@@ -48,6 +48,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
   arrayIndentLevel = 0;
   inlineArrayDepth = 0;
   inlineDictionaryDepth = 0;
+  blockFlowValueIndent = 0;
   yamlAliasMap.clear();
   yamlTagPrefixes.clear();
   activeAliasExpansions.clear();

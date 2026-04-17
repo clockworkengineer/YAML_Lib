@@ -247,6 +247,9 @@ private:
   inline static long inlineArrayDepth{0};
   // Inline Dictionary depth
   inline static long inlineDictionaryDepth{0};
+  // Parent indentation for a same-line flow collection used as a block
+  // mapping value; 0 when not in that context.
+  inline static unsigned long blockFlowValueIndent{0};
   // YAML directive version (minor)
   inline static int yamlDirectiveMinor{2};
   // Strict YAML 1.2 boolean mode — only 'true'/'false' accepted (default: false

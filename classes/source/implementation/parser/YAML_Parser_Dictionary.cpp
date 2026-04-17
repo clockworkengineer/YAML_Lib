@@ -403,7 +403,15 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
   Node dictionaryNode = Node::make<Null>();
   if (source.more() && (source.getPosition().second > keyIndent ||
                         isInlineCollection(source) || isArray(source))) {
+    const bool sameLineBlockFlowValue =
+        inlineDictionaryDepth == 0 && isInlineCollection(source) &&
+        source.getPosition().first == keyLine;
+    const auto previousBlockFlowValueIndent = blockFlowValueIndent;
+    if (sameLineBlockFlowValue) {
+      blockFlowValueIndent = keyIndent;
+    }
     dictionaryNode = parseDocument(source, delimiters, indentation);
+    blockFlowValueIndent = previousBlockFlowValueIndent;
   }
   return {keyNode, dictionaryNode};
 }

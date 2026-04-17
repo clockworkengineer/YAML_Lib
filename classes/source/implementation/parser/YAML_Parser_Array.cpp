@@ -92,6 +92,25 @@ Node Default_Parser::parseInlineArray(
     DepthGuard depthGuard(inlineArrayDepth);
     do {
       source.next();
+      if (inlineArrayDepth == 1 && source.more() &&
+          source.current() == kLineFeed && blockFlowValueIndent > 0) {
+        SourceGuard guard(source);
+        source.next();
+        while (source.more() && source.current() == kLineFeed) {
+          source.next();
+        }
+        unsigned long continuationIndent = 1;
+        while (source.more() && source.current() == kSpace) {
+          continuationIndent++;
+          source.next();
+        }
+        if (source.more() && source.current() != kRightSquareBracket &&
+            continuationIndent <= blockFlowValueIndent) {
+          throw SyntaxError(source.getPosition(),
+                            "Flow sequence continuation must be indented "
+                            "beyond its parent block context.");
+        }
+      }
       yamlArray.add(parseDocument(source, inLineArrayDelimiters, indentation));
       if (auto &element = yamlArray.value().back(); isNullStringNode(element)) {
         if (source.current() != kRightSquareBracket) {
