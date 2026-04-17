@@ -126,10 +126,9 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   if (tagHandle == "!!" && !tagSuffix.empty()) {
     if (tagSuffix == "str") {
       std::string value;
-      const bool needsNodeParse = source.more() &&
-                                  (source.current() == '&' ||
-                                   source.current() == '*' ||
-                                   source.current() == '!');
+      const bool needsNodeParse =
+          source.more() && (source.current() == '&' ||
+                            source.current() == '*' || source.current() == '!');
       if (!valueStartsOnNextLine && !needsNodeParse) {
         // Same-line scalar: preserve the raw token so !!str 007 stays "007".
         value = extractRawScalar();

@@ -160,8 +160,9 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
             "myapp_dev");
   }
 
-  SECTION("YAML anchor with standalone tag token captures following block value.",
-          "[YAML][Parse][Anchors][Valid]") {
+  SECTION(
+      "YAML anchor with standalone tag token captures following block value.",
+      "[YAML][Parse][Anchors][Valid]") {
     BufferSource source{"---\n&a4 !!map\n&a5 !!str key5: value4\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
@@ -174,8 +175,7 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() == "scalar1");
-    REQUIRE(yaml.document(0).getVariant().getTag() ==
-            "tag:yaml.org,2002:str");
+    REQUIRE(yaml.document(0).getVariant().getTag() == "tag:yaml.org,2002:str");
   }
 
   SECTION("YAML !!map with tagged anchored key parses.",
@@ -186,43 +186,43 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
     REQUIRE(NRef<String>(yaml.document(0)["key10"]).value() == "value9");
   }
 
-        SECTION("YAML stream preserves anchor and tag parsing across documents.",
-                                        "[YAML][Parse][Anchors][Valid]") {
-                BufferSource source{"---\n"
-                                                                                                "&a1\n"
-                                                                                                "!!str\n"
-                                                                                                "scalar1\n"
-                                                                                                "---\n"
-                                                                                                "!!str\n"
-                                                                                                "&a2\n"
-                                                                                                "scalar2\n"
-                                                                                                "---\n"
-                                                                                                "&a3\n"
-                                                                                                "!!str scalar3\n"
-                                                                                                "---\n"
-                                                                                                "&a4 !!map\n"
-                                                                                                "&a5 !!str key5: value4\n"};
-                REQUIRE_NOTHROW(yaml.parse(source));
-                REQUIRE(yaml.getNumberOfDocuments() == 4);
-                REQUIRE(isA<Dictionary>(yaml.document(3)));
-                REQUIRE(NRef<String>(yaml.document(3)["key5"]).value() == "value4");
-        }
+  SECTION("YAML stream preserves anchor and tag parsing across documents.",
+          "[YAML][Parse][Anchors][Valid]") {
+    BufferSource source{"---\n"
+                        "&a1\n"
+                        "!!str\n"
+                        "scalar1\n"
+                        "---\n"
+                        "!!str\n"
+                        "&a2\n"
+                        "scalar2\n"
+                        "---\n"
+                        "&a3\n"
+                        "!!str scalar3\n"
+                        "---\n"
+                        "&a4 !!map\n"
+                        "&a5 !!str key5: value4\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 4);
+    REQUIRE(isA<Dictionary>(yaml.document(3)));
+    REQUIRE(NRef<String>(yaml.document(3)["key5"]).value() == "value4");
+  }
 
-        SECTION("YAML !!str followed by anchored scalar on next line parses.",
-                                        "[YAML][Parse][Anchors][Valid]") {
-                BufferSource source{"---\n!!str\n&a2\nscalar2\n"};
-                REQUIRE_NOTHROW(yaml.parse(source));
-                REQUIRE(isA<String>(yaml.document(0)));
-                REQUIRE(NRef<String>(yaml.document(0)).value() == "scalar2");
-        }
+  SECTION("YAML !!str followed by anchored scalar on next line parses.",
+          "[YAML][Parse][Anchors][Valid]") {
+    BufferSource source{"---\n!!str\n&a2\nscalar2\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "scalar2");
+  }
 
-        SECTION("YAML anchor followed by tagged scalar on next line parses.",
-                                        "[YAML][Parse][Anchors][Valid]") {
-                BufferSource source{"---\n&a3\n!!str scalar3\n"};
-                REQUIRE_NOTHROW(yaml.parse(source));
-                REQUIRE(isA<String>(yaml.document(0)));
-                REQUIRE(NRef<String>(yaml.document(0)).value() == "scalar3");
-        }
+  SECTION("YAML anchor followed by tagged scalar on next line parses.",
+          "[YAML][Parse][Anchors][Valid]") {
+    BufferSource source{"---\n&a3\n!!str scalar3\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "scalar3");
+  }
 
   // ---- !!binary tag ----
 
