@@ -212,6 +212,26 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
     REQUIRE(NRef<String>(yaml.document(0)[0]["foo"]).value() == "bar");
   }
 
+  SECTION("YAML flow sequence allows implicit single-pair flow mappings with "
+          "quoted and collection keys.",
+          "[YAML][Parse][Collections][Flow]") {
+    BufferSource source{"---\n"
+                        "- [ YAML : separate ]\n"
+                        "- [ \"JSON like\":adjacent ]\n"
+                        "- [ {JSON: like}:adjacent ]\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)));
+    REQUIRE(NRef<Array>(yaml.document(0)).size() == 3);
+    REQUIRE(isA<Dictionary>(yaml.document(0)[0][0]));
+    REQUIRE(NRef<String>(yaml.document(0)[0][0]["YAML"]).value() == "separate");
+    REQUIRE(isA<Dictionary>(yaml.document(0)[1][0]));
+    REQUIRE(NRef<String>(yaml.document(0)[1][0]["JSON like"]).value() ==
+            "adjacent");
+    REQUIRE(isA<Dictionary>(yaml.document(0)[2][0]));
+    REQUIRE(NRef<String>(yaml.document(0)[2][0]["{JSON: like}"]).value() ==
+            "adjacent");
+  }
+
   SECTION("YAML flow dict with quoted keys.",
           "[YAML][Parse][Collections][Flow]") {
     BufferSource source{

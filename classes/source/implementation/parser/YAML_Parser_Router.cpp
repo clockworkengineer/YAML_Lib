@@ -29,6 +29,11 @@ bool Default_Parser::isKey(ISource &source) {
   bool keyPresent{false};
   if (std::string key{extractKey(source)};
       source.current() == kColon || (!key.empty() && key.back() == kColon)) {
+    const bool nonPlainFlowKey =
+        !key.empty() &&
+        (key.front() == kDoubleQuote || key.front() == kApostrophe ||
+         key.front() == kLeftSquareBracket || key.front() == kLeftCurlyBrace ||
+         key.front() == '&' || key.front() == '!');
     if (inlineDictionaryDepth == 0 && !key.empty() &&
         (key.front() == kDoubleQuote || key.front() == kApostrophe) &&
         key.find('\n') != std::string::npos) {
@@ -72,7 +77,8 @@ bool Default_Parser::isKey(ISource &source) {
       tabGuard.release(); // space follows — consume the tab(s) and continue
     }
     if (source.current() == ' ' || source.current() == kLineFeed ||
-        (!key.empty() && key.back() == kColon)) {
+        (!key.empty() && key.back() == kColon) ||
+        (isInsideFlowContext() && nonPlainFlowKey)) {
       if (!key.empty() && key.back() == kColon) {
         key.pop_back();
       }
