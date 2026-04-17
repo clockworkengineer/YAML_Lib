@@ -489,6 +489,15 @@ TEST_CASE("Check YAML 1.2 plain scalar inline comment rule (§6.8).",
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)["key"]).value() == "value");
   }
+  SECTION("Block plain scalar cannot continue after inline comment on a "
+          "continuation line.",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+    BufferSource source{"---\n"
+                        "plain: a\n"
+                        "       b # end of scalar\n"
+                        "       c\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
   SECTION("Plain scalar: literal '#' then space-hash comment.",
           "[YAML][Parse][Scalar][String][InlineComment]") {
     // "foo#bar # comment" -> value is "foo#bar", rest is a comment.

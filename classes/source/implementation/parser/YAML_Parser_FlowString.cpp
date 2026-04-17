@@ -202,6 +202,12 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
           }
           throw SyntaxError(source.getPosition(), "Invalid YAML encountered.");
         }
+        if (source.more() && indentation < source.getPosition().second &&
+            !isDocumentBoundary(source)) {
+          throw SyntaxError(
+              source.getPosition(),
+              "Block plain scalar cannot continue after an inline comment.");
+        }
         break;
       }
       appendCharacterToString(source, yamlString);
