@@ -178,6 +178,16 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
     REQUIRE(NRef<Number>(yaml.document(0)[2]).value<int>() == 3);
   }
 
+  SECTION("YAML flow sequence allows comment before comma separator.",
+          "[YAML][Parse][Collections][Flow]") {
+    BufferSource source{"---\n[word1\n# comment\n, word2]\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)));
+    REQUIRE(NRef<Array>(yaml.document(0)).size() == 2);
+    REQUIRE(NRef<String>(yaml.document(0)[0]).value() == "word1");
+    REQUIRE(NRef<String>(yaml.document(0)[1]).value() == "word2");
+  }
+
   SECTION("YAML flow dict with quoted keys.",
           "[YAML][Parse][Collections][Flow]") {
     BufferSource source{

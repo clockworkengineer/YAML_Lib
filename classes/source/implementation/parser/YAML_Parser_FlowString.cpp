@@ -91,16 +91,66 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
   } else {
     rightTrim(yamlString); // strip trailing whitespace before fold
     yamlString += kSpace;  // fold first-line break to a single space
+    bool commentOnlyContinuationInFlow = false;
+    if (isInsideFlowContext()) {
+      SourceGuard guard(source);
+      while (source.more()) {
+        if (source.current() == kLineFeed) {
+          source.next();
+          continue;
+        }
+        while (source.more() && source.isWS()) {
+          source.next();
+        }
+        if (!source.more() || source.current() == kLineFeed) {
+          continue;
+        }
+        if (source.current() == '#') {
+          commentOnlyContinuationInFlow = true;
+          skipLine(source);
+          continue;
+        }
+        break;
+      }
+    }
     moveToNextIndent(source);
-    // In a flow context (inside [] or {}), a plain scalar must stop if the
-    // continuation line begins with a flow indicator.  Leave the indicator
-    // for the enclosing collection parser to consume.
-    const bool stopAtFlowIndicator =
-        isInsideFlowContext() &&
-        (source.current() == kRightSquareBracket ||
-         source.current() == kRightCurlyBrace || source.current() == kComma);
-    while (!stopAtFlowIndicator && source.more() &&
-           indentation < source.getPosition().second) {
+    if (commentOnlyContinuationInFlow) {
+      if (!yamlString.empty() && yamlString.back() == kSpace) {
+        yamlString.pop_back();
+      }
+      if (source.more() && source.current() != kComma &&
+          source.current() != kRightSquareBracket &&
+          source.current() != kRightCurlyBrace) {
+        throw SyntaxError(source.getPosition(), "Invalid YAML encountered.");
+      }
+    }
+    while (source.more() && indentation < source.getPosition().second) {
+      // In flow context, a continuation line may legally reduce to a comment
+      // followed by a separator on the next line. Re-check the current token
+      // on each iteration so commas/closers revealed after skipping comments
+      // remain collection syntax rather than scalar content.
+      const bool stopAtFlowIndicator = [&]() {
+        if (!isInsideFlowContext()) {
+          return false;
+        }
+        if (source.current() == kRightSquareBracket ||
+            source.current() == kRightCurlyBrace ||
+            source.current() == kComma) {
+          return true;
+        }
+        if (source.current() != kColon) {
+          return false;
+        }
+        SourceGuard guard(source);
+        source.next();
+        return !source.more() || source.isWS() ||
+               source.current() == kLineFeed || source.current() == kComma ||
+               source.current() == kRightSquareBracket ||
+               source.current() == kRightCurlyBrace;
+      }();
+      if (stopAtFlowIndicator) {
+        break;
+      }
       // Stop at document markers (--- or ...) at the start of a line.
       // This matters especially at indentation 0, where the column check
       // alone (0 < 1) would never exit the loop.
@@ -111,8 +161,18 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
       // whitespace in the accumulated string.  Consume the comment to the end
       // of the line; the '\n' is left for appendCharacterToString to fold.
       if (isInlineComment(source, yamlString)) {
-        while (source.more() && source.current() != kLineFeed) {
-          source.next();
+        skipLine(source);
+        if (isInsideFlowContext()) {
+          moveToNextIndent(source);
+          if (!yamlString.empty() && yamlString.back() == kSpace) {
+            yamlString.pop_back();
+          }
+          if (!source.more() || source.current() == kComma ||
+              source.current() == kRightSquareBracket ||
+              source.current() == kRightCurlyBrace) {
+            break;
+          }
+          throw SyntaxError(source.getPosition(), "Invalid YAML encountered.");
         }
         continue;
       }
