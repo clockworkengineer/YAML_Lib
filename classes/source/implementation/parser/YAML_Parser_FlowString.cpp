@@ -11,6 +11,26 @@
 
 namespace YAML_Lib {
 
+namespace {
+
+void prepareQuotedContinuationLine(ISource &source,
+                                   const unsigned long minIndent) {
+  if (minIndent > 0 && source.more() && source.current() == '\t') {
+    throw SyntaxError(source.getPosition(),
+                      "Tab character not allowed in YAML block indentation.");
+  }
+  source.ignoreWS();
+  if (minIndent > 0 && source.more() && source.current() != kLineFeed &&
+      source.getPosition().second <= minIndent) {
+    throw SyntaxError(
+        source.getPosition(),
+        "Multiline quoted scalar continuation must be indented beyond its "
+        "parent context.");
+  }
+}
+
+} // namespace
+
 bool Default_Parser::isInlineComment(const ISource &source,
                                      const std::string &yamlString) {
   return source.current() == '#' && !yamlString.empty() &&
@@ -31,16 +51,7 @@ void Default_Parser::appendCharacterToString(ISource &source,
                                              const unsigned long minIndent) {
   if (source.current() == kLineFeed) {
     source.next();
-    // YAML 1.2 §6.1: s-indent(n) consists of spaces only.  A tab at the
-    // very first position of a continuation line (before any spaces) acts as
-    // indentation, which is invalid when the context requires n>=1 spaces.
-    // Only check when the caller supplies a non-zero minIndent — root-level
-    // scalars (minIndent=0) allow a leading tab (s-indent(0) is empty).
-    if (minIndent > 0 && source.more() && source.current() == '\t') {
-      throw SyntaxError(source.getPosition(),
-                        "Tab character not allowed in YAML block indentation.");
-    }
-    source.ignoreWS();
+    prepareQuotedContinuationLine(source, minIndent);
     // Strip trailing whitespace from the current line before folding.
     // In escape-aware mode (double-quoted strings) do not strip a space or tab
     // that is the second byte of an escape sequence (e.g. \<TAB> or \ ).
@@ -240,8 +251,8 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
           // YAML 1.2 §7.3.1: \<newline> is a line continuation — discard
           // the backslash, the newline, and all leading white space on the
           // continuation line.
-          source.next();     // consume LF
-          source.ignoreWS(); // trim leading spaces/tabs
+          source.next(); // consume LF
+          prepareQuotedContinuationLine(source, indentation);
         } else {
           yamlString += '\\';
           if (source.more()) {

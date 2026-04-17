@@ -317,6 +317,11 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "them from being converted to a space.\nNewlines can also be added "
             "by leaving a blank line. Leading whitespace on lines is ignored.");
   }
+  SECTION("YAML parse underindented multiline double quoted scalar throws",
+          "[YAML][Parse][Flow Scalar]") {
+    BufferSource source{"quoted: \"a\nb\nc\"\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
   SECTION("YAML parse plain flow scalar", "[YAML][Parse][Flow Scalar]") {
     BufferSource source{
         "example: Several lines of text,\n  with some \"quotes\" of various "
