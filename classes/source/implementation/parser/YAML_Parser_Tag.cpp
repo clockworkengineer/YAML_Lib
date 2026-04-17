@@ -121,9 +121,13 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   };
 
   Node result;
+  static const std::string kCoreTagPrefix{"tag:yaml.org,2002:"};
   static const std::unordered_set<std::string> passthroughTags{"seq", "map",
                                                                "omap", "pairs"};
-  if (tagHandle == "!!" && !tagSuffix.empty()) {
+  const bool isCoreSecondaryTag =
+      fullTag.rfind(kCoreTagPrefix, 0) == 0 &&
+      fullTag.size() == kCoreTagPrefix.size() + tagSuffix.size();
+  if (isCoreSecondaryTag && !tagSuffix.empty()) {
     if (tagSuffix == "str") {
       std::string value;
       const bool needsNodeParse =

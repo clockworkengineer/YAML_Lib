@@ -158,4 +158,18 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
     REQUIRE(yaml.document(0).getVariant().getTag() ==
             "tag:custom.org,2024:mytype");
   }
+
+  SECTION("YAML remapped !!int stays a tagged string instead of core integer "
+          "coercion.",
+          "[YAML][Parse][Directives][SecondaryHandle]") {
+    BufferSource source{"%TAG !! tag:example.com,2000:app/\n"
+                        "---\n"
+                        "!!int 1 - 3\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "1 - 3");
+    REQUIRE(yaml.document(0).getVariant().getTag() ==
+            "tag:example.com,2000:app/int");
+  }
 }
