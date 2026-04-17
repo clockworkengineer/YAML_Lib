@@ -456,6 +456,11 @@ Node Default_Parser::parseDictionary(
     if (isKey(source)) {
       auto entry = parseKeyValue(source, delimiters, dictionaryIndent);
       addUniqueDictEntry(dictionaryNode, std::move(entry), source);
+    } else if (isInsideFlowContext() &&
+               (source.current() == kComma ||
+                source.current() == kRightSquareBracket ||
+                source.current() == kRightCurlyBrace)) {
+      break;
     } else if (isDocumentBoundary(source)) {
       break;
     } else {
