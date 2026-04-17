@@ -413,6 +413,37 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     REQUIRE(NRef<Dictionary>(yaml.document(0)).contains(""));
     REQUIRE(NRef<String>(yaml.document(0)[""]).value() == "test2");
   }
+
+  SECTION("YAML parses empty keys in block and flow mappings.",
+          "[YAML][Parse][Dictionary][EmptyKey]") {
+    BufferSource source{"---\n"
+                        "key: value\n"
+                        ": empty key\n"
+                        "---\n"
+                        "{\n"
+                        " key: value, : empty key\n"
+                        "}\n"
+                        "---\n"
+                        ":\n"
+                        "---\n"
+                        "{ : }\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 4);
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)["key"]).value() == "value");
+    REQUIRE(NRef<String>(yaml.document(0)[""]).value() == "empty key");
+
+    REQUIRE(isA<Dictionary>(yaml.document(1)));
+    REQUIRE(NRef<String>(yaml.document(1)["key"]).value() == "value");
+    REQUIRE(NRef<String>(yaml.document(1)[""]).value() == "empty key");
+
+    REQUIRE(isA<Dictionary>(yaml.document(2)));
+    REQUIRE(isA<Null>(yaml.document(2)[""]));
+
+    REQUIRE(isA<Dictionary>(yaml.document(3)));
+    REQUIRE(isA<Null>(yaml.document(3)[""]));
+  }
   SECTION(
       "YAML parse dictionary with non string keys are on more than one line "
       "(inline dictionary).",
