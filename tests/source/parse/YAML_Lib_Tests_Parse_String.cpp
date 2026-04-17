@@ -317,6 +317,20 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "them from being converted to a space.\nNewlines can also be added "
             "by leaving a blank line. Leading whitespace on lines is ignored.");
   }
+  SECTION("YAML preserves folded blank line and escaped continuation content "
+          "in double-quoted scalars.",
+          "[YAML][Parse][Flow Scalar]") {
+    BufferSource source{"---\n"
+                        "\"folded \n"
+                        "to a space,\t\n"
+                        " \n"
+                        "to a line feed, or \t\\\n"
+                        " \\ \tnon-content\"\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() ==
+            "folded to a space,\nto a line feed, or \t \tnon-content");
+  }
   SECTION("YAML parse underindented multiline double quoted scalar throws",
           "[YAML][Parse][Flow Scalar]") {
     BufferSource source{"quoted: \"a\nb\nc\"\n"};
