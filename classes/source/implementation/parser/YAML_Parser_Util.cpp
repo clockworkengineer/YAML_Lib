@@ -315,6 +315,9 @@ Default_Parser::captureIndentedBlock(ISource &source,
                                      const unsigned long minIndent) {
   std::string text;
   while (source.more() && source.getPosition().second >= minIndent) {
+    if (isDocumentBoundary(source)) {
+      break;
+    }
     const std::string indent(source.getPosition().second, kSpace);
     text += indent + extractToNext(source, {kLineFeed}) + "\n";
     moveToNextIndent(source);

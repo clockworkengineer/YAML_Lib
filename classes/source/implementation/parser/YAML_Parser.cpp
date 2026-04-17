@@ -53,16 +53,32 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
   activeAliasExpansions.clear();
   yamlDirectiveMinor = 2;
   yamlDirectiveSeen = false;
+  const auto resetDocumentState = [&]() {
+    yamlAliasMap.clear();
+    activeAliasExpansions.clear();
+    yamlTagPrefixes.clear();
+    yamlDirectiveMinor = 2;
+    yamlDirectiveSeen = false;
+  };
   for (bool inDocument = false; source.more();) {
     // Directives (%YAML or %TAG) — only valid before a document starts
     if (isDirective(source)) {
       parseDirective(source, inDocument);
       // Start of a document
     } else if (isDocumentStart(source)) {
+      if (inDocument) {
+        resetDocumentState();
+      }
       inDocument = true;
-      moveToNext(source, {kLineFeed, '|', '>'});
-      moveToNextIndent(source);
       yNodeTree.push_back(Node::make<Document>());
+      source.next();
+      source.next();
+      source.next(); // consume '-', '-', '-'
+      source.ignoreWS();
+      if (!source.more() || source.current() == kLineFeed ||
+          isComment(source)) {
+        moveToNextIndent(source);
+      }
       // End of a document
     } else if (isDocumentEnd(source)) {
       // Consume "..." then validate what follows on the same line.
@@ -88,7 +104,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
         yNodeTree.push_back(Node::make<Document>());
       }
       inDocument = false;
-      yamlDirectiveSeen = false;
+      resetDocumentState();
       // Inter document comment
     } else if (isComment(source) && !inDocument) {
       parseComment(source, {kLineFeed});

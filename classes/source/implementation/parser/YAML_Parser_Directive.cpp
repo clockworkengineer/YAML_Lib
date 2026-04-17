@@ -107,6 +107,13 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.ignoreWS();
+  const auto isStandaloneTagToken = [](const std::string &text) {
+    const auto first = text.find_first_not_of(" \t");
+    if (first == std::string::npos || text[first] != '!') {
+      return false;
+    }
+    return text.find_first_of(" \t", first) == std::string::npos;
+  };
   bool inlineValue = false;
   std::string unparsed{};
   if (source.current() != kLineFeed && !isComment(source)) {
@@ -118,6 +125,11 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
     const auto inlineStop = withExtras(delimiters, {kLineFeed});
     unparsed += extractToNext(source, inlineStop);
     moveToNextIndent(source);
+    if (isStandaloneTagToken(unparsed) && source.more() &&
+        source.getPosition().second > indentation) {
+      unparsed += kLineFeed;
+      unparsed += captureIndentedBlock(source, source.getPosition().second);
+    }
   } else {
     // Line ends here (either linefeed or a trailing comment); moveToNextIndent
     // skips any comment and whitespace to find the anchor's block value.
@@ -125,7 +137,7 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
     const auto anchorIndent = source.getPosition().second;
     // Usually the anchor value must be more indented than the parent.
     // Exception: a zero-indented block sequence value may start at the same
-    // column as the parent mapping key (e.g. SKE5), so allow that form.
+    // column as the parent mapping key (e.g. SKE5).
     if (anchorIndent > indentation ||
         (anchorIndent == indentation && isArray(source))) {
       unparsed = captureIndentedBlock(source, anchorIndent);

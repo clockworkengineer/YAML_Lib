@@ -74,6 +74,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     }
   }
 
+  const bool valueStartsOnNextLine = source.current() == kLineFeed;
   source.ignoreWS();
 
   // YAML 1.2 §6.8.1: ns-tag-char excludes c-flow-indicator characters
@@ -105,8 +106,8 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     } else if (tagHandle == "!") {
       fullTag = "!" + tagSuffix;
     } else {
-      // Unknown named handle - keep verbatim
-      fullTag = tagHandle + tagSuffix;
+      throw SyntaxError(source.getPosition(),
+                        "Undefined tag handle '" + tagHandle + "'.");
     }
   }
 
@@ -124,8 +125,24 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
                                                                "omap", "pairs"};
   if (tagHandle == "!!" && !tagSuffix.empty()) {
     if (tagSuffix == "str") {
-      // Force string interpretation — preserve quotes so the raw text is used.
-      const std::string value = extractRawScalar();
+      std::string value;
+      const bool needsNodeParse = source.more() &&
+                                  (source.current() == '&' ||
+                                   source.current() == '*' ||
+                                   source.current() == '!');
+      if (!valueStartsOnNextLine && !needsNodeParse) {
+        // Same-line scalar: preserve the raw token so !!str 007 stays "007".
+        value = extractRawScalar();
+      } else {
+        // Later-line scalar: parse the full node so multiline plain scalars
+        // and anchor/tag-leading values retain normal YAML parsing semantics
+        // before coercion to string.
+        Node parsed = parseDocument(source, delimiters, indentation);
+        value = parsed.getVariant().toString();
+        if (value.empty() && !isA<String>(parsed)) {
+          value = parsed.getVariant().toKey();
+        }
+      }
       result = Node::make<String>(value, kNull);
     } else if (tagSuffix == "int" || tagSuffix == "float" ||
                tagSuffix == "bool" || tagSuffix == "null") {

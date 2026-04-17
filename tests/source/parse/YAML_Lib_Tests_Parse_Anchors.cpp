@@ -5,7 +5,7 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
   SECTION("YAML parse array with one simple anchor.",
           "[YAML][Parse][Anchors]") {
     BufferSource source{
-        "----\nhr:\n  - Mark McGwire\n  # Following node labeled SS\n  - &SS "
+        "---\nhr:\n  - Mark McGwire\n  # Following node labeled SS\n  - &SS "
         "Sammy Sosa\nrbi:\n  - *SS # Subsequent occurance\n  - Ken Griffey"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
