@@ -377,6 +377,16 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     compareYAML(yaml, "---\none: 1\ntwo: 2\nthree: 3\nfour: 4\n...\n");
   }
 
+  SECTION("YAML flow mapping allows a comment line between key and ':' value "
+          "separator.",
+          "[YAML][Parse][Dictionary][Flow]") {
+    BufferSource source{"---\n{ \"foo\" # comment\n  :bar }\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<Dictionary>(yaml.document(0)).size() == 1);
+    REQUIRE(NRef<String>(yaml.document(0)["foo"]).value() == "bar");
+  }
+
   SECTION("YAML parse nexted inline dictionary on more than line. "
           "(inline dictionary).",
           "[YAML][Parse][Dictionary]") {

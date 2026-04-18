@@ -329,8 +329,8 @@ Node Default_Parser::parseKey(ISource &source) {
   if (!key.empty() && key.back() == kColon) {
     key.pop_back();
   }
-  if (source.more() && source.current() != kRightCurlyBrace &&
-      source.current() != kComma) {
+  if (source.more() &&
+      (source.current() == kColon || source.current() == kLineFeed)) {
     source.next();
   }
   rightTrim(key);
@@ -428,19 +428,19 @@ Default_Parser::parseInlineKeyValue(ISource &source,
                                     const unsigned long indentation) {
   Node keyNode = parseKey(source);
   Node dictionaryNode = Node::make<Null>();
-  if (source.current() != kComma && source.current() != kRightCurlyBrace) {
-    // In a single-line flow mapping ({k: v}), parseKey already consumed ':'
-    // via its trailing source.next().  In a multi-line flow mapping the key
-    // ends at a newline and parseKey advances past that newline instead,
-    // leaving ':' unconsumed on the next line.  Consume it here so that
-    // parseDocument sees the value, not the separator.
+  // In a single-line flow mapping ({k: v}), parseKey already consumed ':'
+  // when it was the next token. In multi-line flow mappings, comments or a
+  // line break can separate the key from its ':' value separator.
+  source.ignoreWS();
+  if (source.more() && (source.current() == kLineFeed || isComment(source))) {
+    moveToNextIndent(source);
+  }
+  if (source.more() && source.current() == kColon) {
+    source.next(); // consume ':'
     source.ignoreWS();
-    if (source.more() && source.current() == kColon) {
-      source.next(); // consume ':'
-      if (source.more() && source.current() == kSpace) {
-        source.next(); // consume optional space after ':'
-      }
-    }
+  }
+  if (source.more() && source.current() != kComma &&
+      source.current() != kRightCurlyBrace) {
     dictionaryNode = parseDocument(source, delimiters, indentation);
   }
   if (isNullStringNode(dictionaryNode)) {
