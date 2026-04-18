@@ -454,6 +454,48 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     REQUIRE(isA<Dictionary>(yaml.document(3)));
     REQUIRE(isA<Null>(yaml.document(3)[""]));
   }
+
+  SECTION("YAML parses explicit block mappings with complex keys and mixed "
+          "value forms.",
+          "[YAML][Parse][Dictionary][ExplicitKey]") {
+    BufferSource source{"complex1:\n"
+                        "  ? - a\n"
+                        "complex2:\n"
+                        "  ? - a\n"
+                        "  : b\n"
+                        "complex3:\n"
+                        "  ? - a\n"
+                        "  : >\n"
+                        "    b\n"
+                        "complex4:\n"
+                        "  ? >\n"
+                        "    a\n"
+                        "  :\n"
+                        "complex5:\n"
+                        "  ? - a\n"
+                        "  : - b\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)["complex1"]));
+    REQUIRE(isA<Null>(yaml.document(0)["complex1"]["[a]"]));
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)["complex2"]));
+    REQUIRE(NRef<String>(yaml.document(0)["complex2"]["[a]"]).value() == "b");
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)["complex3"]));
+    REQUIRE(NRef<String>(yaml.document(0)["complex3"]["[a]"]).value() == "b");
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)["complex4"]));
+    REQUIRE(isA<Null>(yaml.document(0)["complex4"]["a"]));
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)["complex5"]));
+    REQUIRE(isA<Array>(yaml.document(0)["complex5"]["[a]"]));
+    REQUIRE(NRef<Array>(yaml.document(0)["complex5"]["[a]"]).size() == 1);
+    REQUIRE(NRef<String>(yaml.document(0)["complex5"]["[a]"][0]).value() ==
+            "b");
+  }
   SECTION(
       "YAML parse dictionary with non string keys are on more than one line "
       "(inline dictionary).",

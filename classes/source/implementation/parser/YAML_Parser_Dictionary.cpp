@@ -149,9 +149,36 @@ std::string Default_Parser::extractMapping(ISource &source) {
   }
   if (isInlineCollection(source)) {
     key += extractInlineCollectionAt(source);
-    moveToNext(source, {kColon});
+    moveToNext(source, {kColon, kLineFeed});
+    key += kColon;
   } else if (isArray(source)) {
-    key += extractToNext(source, {kColon});
+    key += extractToNext(source, {kLineFeed});
+    if (source.more() && source.current() == kLineFeed) {
+      std::string multilineKey;
+      multilineKey += kLineFeed;
+      source.next();
+      while (source.more()) {
+        if (source.getPosition().second == questionCol &&
+            source.current() == kColon) {
+          key += multilineKey;
+          key += kColon;
+          return key;
+        }
+        if (source.getPosition().second < questionCol) {
+          break;
+        }
+        multilineKey += extractToNext(source, {kLineFeed});
+        if (source.more() && source.current() == kLineFeed) {
+          multilineKey += kLineFeed;
+          source.next();
+        } else {
+          break;
+        }
+      }
+      key += multilineKey;
+    }
+    key += kColon;
+    return key;
   } else if (isPipedBlockString(source) || isFoldedBlockString(source)) {
     // Block scalar as explicit mapping key (? | or ? >). Capture the
     // indicator line plus all continuation lines that are more indented
