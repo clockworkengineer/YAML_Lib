@@ -114,6 +114,26 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
     }
     return text.find_first_of(" \t", first) == std::string::npos;
   };
+  const auto isStandaloneFlowCollectionStart = [](const std::string &text) {
+    const auto first = text.find_first_not_of(" \t");
+    if (first == std::string::npos) {
+      return false;
+    }
+    const char firstChar = text[first];
+    if (firstChar != kLeftSquareBracket && firstChar != kLeftCurlyBrace) {
+      return false;
+    }
+    return text.find_first_not_of(" \t", first + 1) == std::string::npos;
+  };
+  const auto closingFlowCollectionChar = [](const std::string &text) {
+    const auto first = text.find_first_not_of(" \t");
+    if (first == std::string::npos) {
+      return '\0';
+    }
+    return text[first] == kLeftSquareBracket
+               ? kRightSquareBracket
+               : (text[first] == kLeftCurlyBrace ? kRightCurlyBrace : '\0');
+  };
   bool inlineValue = false;
   std::string unparsed{};
   if (source.current() != kLineFeed && !isComment(source)) {
@@ -125,10 +145,16 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
     const auto inlineStop = withExtras(delimiters, {kLineFeed});
     unparsed += extractToNext(source, inlineStop);
     moveToNextIndent(source);
-    if (isStandaloneTagToken(unparsed) && source.more() &&
-        source.getPosition().second > indentation) {
+    if ((isStandaloneTagToken(unparsed) ||
+         isStandaloneFlowCollectionStart(unparsed)) &&
+        source.more() && source.getPosition().second > indentation) {
       unparsed += kLineFeed;
       unparsed += captureIndentedBlock(source, source.getPosition().second);
+      const char flowClose = closingFlowCollectionChar(unparsed);
+      if (flowClose != '\0' && source.more() && source.current() == flowClose) {
+        unparsed += flowClose;
+        skipLine(source);
+      }
     }
   } else {
     // Line ends here (either linefeed or a trailing comment); moveToNextIndent

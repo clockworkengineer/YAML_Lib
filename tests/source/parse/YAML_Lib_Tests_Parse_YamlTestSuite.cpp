@@ -509,6 +509,28 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
     REQUIRE(NRef<String>(yaml.document(0)["foo"]).value() == "key");
   }
 
+  // CN3R — Various location of anchors in flow sequence
+  SECTION("CN3R: various anchor locations in flow sequence.",
+          "[YAML][TestSuite][Valid]") {
+    BufferSource source{"&flowseq [\n"
+                        " a: b,\n"
+                        " &c c: d,\n"
+                        " { &e e: f },\n"
+                        " &g { g: h }\n"
+                        "]\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)));
+    REQUIRE(NRef<Array>(yaml.document(0)).size() == 4);
+    REQUIRE(isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE(NRef<String>(yaml.document(0)[0]["a"]).value() == "b");
+    REQUIRE(isA<Dictionary>(yaml.document(0)[1]));
+    REQUIRE(NRef<String>(yaml.document(0)[1]["c"]).value() == "d");
+    REQUIRE(isA<Dictionary>(yaml.document(0)[2]));
+    REQUIRE(NRef<String>(yaml.document(0)[2]["e"]).value() == "f");
+    REQUIRE(isA<Dictionary>(yaml.document(0)[3]));
+    REQUIRE(NRef<String>(yaml.document(0)[3]["g"]).value() == "h");
+  }
+
   // UV7Q — Legal tab after indentation
   SECTION("UV7Q: spaces-then-tab in plain scalar continuation line is valid.",
           "[YAML][TestSuite][Valid]") {
@@ -863,9 +885,9 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
-      "CN3R", "CQ3W", "CT4Q", "CVW2", "CXX2", "D49Q", "DC7X",
-      "F2C7", "FH7J", "G5U8", "GDY7", "H7TQ", "HMQ5", "HRE5",
-      "J3BT", "JKF3", "JTV5", "JY7Z",
+      "CQ3W", "CT4Q", "CVW2", "CXX2", "D49Q", "DC7X", "F2C7",
+      "FH7J", "G5U8", "GDY7", "H7TQ", "HMQ5", "HRE5", "J3BT",
+      "JKF3", "JTV5", "JY7Z",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
