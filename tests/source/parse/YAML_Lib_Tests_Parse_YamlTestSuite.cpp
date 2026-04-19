@@ -509,6 +509,13 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
     REQUIRE(NRef<String>(yaml.document(0)["foo"]).value() == "key");
   }
 
+  // CQ3W — Double quoted string without closing quote (should throw)
+  SECTION("CQ3W: double quoted string without closing quote.",
+          "[YAML][TestSuite][Invalid]") {
+    BufferSource source{"---\nkey: \"missing closing quote\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
   // CN3R — Various location of anchors in flow sequence
   SECTION("CN3R: various anchor locations in flow sequence.",
           "[YAML][TestSuite][Valid]") {
@@ -885,9 +892,8 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
-      "CQ3W", "CT4Q", "CVW2", "CXX2", "D49Q", "DC7X", "F2C7",
-      "FH7J", "G5U8", "GDY7", "H7TQ", "HMQ5", "HRE5", "J3BT",
-      "JKF3", "JTV5", "JY7Z",
+      "CT4Q", "CVW2", "CXX2", "D49Q", "DC7X", "F2C7", "FH7J", "G5U8",
+      "GDY7", "H7TQ", "HMQ5", "HRE5", "J3BT", "JKF3", "JTV5", "JY7Z",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt

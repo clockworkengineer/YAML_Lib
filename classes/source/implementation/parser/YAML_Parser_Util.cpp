@@ -167,6 +167,7 @@ std::string Default_Parser::extractString(ISource &source) {
 std::string Default_Parser::extractString(ISource &source, const char quote) {
   std::string extracted{quote};
   source.next(); // skip opening quote
+  bool foundClosing = false;
   while (source.more()) {
     if (source.current() == quote) {
       if (quote == kApostrophe) {
@@ -185,10 +186,15 @@ std::string Default_Parser::extractString(ISource &source, const char quote) {
         source.ignoreWS();
         return extracted;
       }
+      foundClosing = true;
       break; // double-quoted (or other): closing quote
     }
     extracted += source.current();
     source.next();
+  }
+  if (!foundClosing) {
+    throw SyntaxError(source.getPosition(),
+                      "Unterminated quoted string: missing closing quote");
   }
   extracted += quote;
   if (source.more()) {
