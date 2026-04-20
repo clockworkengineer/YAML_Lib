@@ -94,6 +94,10 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
   // delimiter.
   while (source.more() && source.current() == '#' && !yamlString.empty() &&
          !isInlineComment(source, yamlString)) {
+    // Patch: In flow context, disallow comment immediately after comma (require whitespace)
+    if (isInsideFlowContext() && !yamlString.empty() && yamlString.back() == ',') {
+      throw SyntaxError(source.getPosition(), "Comment must be separated from comma by whitespace in flow context.");
+    }
     yamlString += source.append();                   // consume literal '#'
     yamlString += extractToNext(source, delimiters); // read to next delimiter
   }

@@ -92,6 +92,10 @@ Node Default_Parser::parseInlineArray(
     DepthGuard depthGuard(inlineArrayDepth);
     do {
       source.next();
+      // Patch: Disallow comment immediately after comma in flow sequence (YAML 1.2)
+      if (source.current() == '#') {
+        throw SyntaxError(source.getPosition(), "Comment must be separated from comma by whitespace in flow sequence.");
+      }
       if (inlineArrayDepth == 1 && source.more() &&
           source.current() == kLineFeed && blockFlowValueIndent > 0) {
         SourceGuard guard(source);
