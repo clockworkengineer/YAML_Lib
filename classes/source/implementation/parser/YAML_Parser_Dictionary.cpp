@@ -353,6 +353,28 @@ std::string Default_Parser::extractKey(ISource &source) {
 /// <returns>Dictionary entry key.</returns>
 Node Default_Parser::parseKey(ISource &source) {
   std::string key{extractKey(source)};
+  // Patch: In flow context, allow multi-line explicit keys (e.g., '? foo\n bar : baz')
+  if (isInsideFlowContext()) {
+    // Accumulate lines until ':' is found at the correct indentation or a flow delimiter
+    while (source.more() && source.current() == kLineFeed) {
+      // Peek ahead to see if next line is indented (continuation of key)
+      SourceGuard guard(source);
+      source.next();
+      unsigned long spaces = 0;
+      while (source.more() && source.current() == ' ') {
+        ++spaces;
+        source.next();
+      }
+      // If next non-space is ':' or a flow delimiter, stop
+      if (source.more() && (source.current() == ':' || source.current() == ',' || source.current() == ']' || source.current() == '}')) {
+        break;
+      }
+      // Otherwise, treat as continuation of key
+      guard.release();
+      key += ' ';
+      key += extractToNext(source, {':', ',', ']', '}', '\n'});
+    }
+  }
   if (!key.empty() && key.back() == kColon) {
     key.pop_back();
   }
