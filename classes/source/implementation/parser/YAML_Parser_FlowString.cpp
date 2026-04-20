@@ -297,6 +297,18 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
     closedQuote = true;
     yamlString = yamlTranslator->from(yamlString);
   } else {
+    bool isKeyContext = false;
+    // Heuristic: If the next non-whitespace after the quoted string is ':', assume key context.
+    // Save position for lookahead.
+    {
+      SourceGuard guard(source);
+      size_t pos = source.getPosition().second;
+      // Skip the opening quote
+      // (already consumed above)
+      // Look ahead for ':' after closing quote
+      while (source.more() && (source.current() == ' ' || source.current() == '\t')) source.next();
+      if (source.more() && source.current() == ':') isKeyContext = true;
+    }
     while (source.more()) {
       // YAML 1.2: document-start (---) and document-end (...) markers at
       // column 1 terminate a flow scalar. Inside a single-quoted string that
@@ -325,6 +337,9 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
           closedQuote = true;
           break;
         }
+      } else if (source.current() == kLineFeed && isKeyContext) {
+        // Disallow multi-line single-quoted string as mapping key (YAML 1.2)
+        throw SyntaxError(source.getPosition(), "Multi-line single-quoted string is not allowed as a mapping key.");
       } else {
         appendCharacterToString(source, yamlString);
       }

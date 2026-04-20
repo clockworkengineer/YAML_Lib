@@ -892,7 +892,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
-       "CXX2", "D49Q", "DC7X", "F2C7", "FH7J", "G5U8",
+       "CXX2", "DC7X", "F2C7", "FH7J", "G5U8",
       "GDY7", "H7TQ", "HMQ5", "HRE5", "J3BT", "JKF3", "JTV5", "JY7Z",
   };
 
