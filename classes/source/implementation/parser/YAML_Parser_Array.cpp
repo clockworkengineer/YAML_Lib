@@ -116,6 +116,13 @@ Node Default_Parser::parseInlineArray(
         }
       }
       yamlArray.add(parseDocument(source, inLineArrayDelimiters, indentation));
+      // YAML 1.2 §7.3.3: A plain scalar consisting of only '-' is not allowed in flow context
+      if (!yamlArray.value().empty()) {
+        const auto &element = yamlArray.value().back();
+        if (isA<String>(element) && NRef<String>(element).value() == "-" && NRef<String>(element).getQuote() == kNull) {
+          throw SyntaxError(source.getPosition(), "Bare '-' is not a valid plain scalar in flow context.");
+        }
+      }
       if (auto &element = yamlArray.value().back(); isNullStringNode(element)) {
         if (source.current() != kRightSquareBracket) {
           throw SyntaxError(source.getPosition(),
