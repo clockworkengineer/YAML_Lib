@@ -27,19 +27,99 @@ public:
   static void setStrictBooleans(const bool strict) { strictBooleans = strict; }
 
 private:
+  // RAII save/restore guard for ISource lookahead.
+  // Calls source.restore() in the destructor unless release() is called first.
+  class SourceGuard {
+  public:
+    explicit SourceGuard(ISource &src) : src_(&src) { src_->save(); }
+    ~SourceGuard() {
+      if (src_) {
+        src_->restore();
+      }
+    }
+    // Disarm the guard: the caller takes responsibility for the stream pos.
+    void release() { src_ = nullptr; }
+    SourceGuard(const SourceGuard &) = delete;
+    SourceGuard &operator=(const SourceGuard &) = delete;
+    SourceGuard(SourceGuard &&) = delete;
+    SourceGuard &operator=(SourceGuard &&) = delete;
+
+  private:
+    ISource *src_;
+  };
+
+  // RAII guard that increments a depth counter on construction and
+  // decrements it on destruction (including on exception).
+  class DepthGuard {
+  public:
+    explicit DepthGuard(long &depth) : depth_(depth) { ++depth_; }
+    ~DepthGuard() { --depth_; }
+    DepthGuard(const DepthGuard &) = delete;
+    DepthGuard &operator=(const DepthGuard &) = delete;
+    DepthGuard(DepthGuard &&) = delete;
+    DepthGuard &operator=(DepthGuard &&) = delete;
+
+  private:
+    long &depth_;
+  };
+
+  // Scaffold shared by simple scalar parsers (parseNone, parseBoolean,
+  // parseNumber). Saves the source position, extracts the next token up to
+  // the given delimiters, right-trims it, then calls pred(token).  If pred
+  // returns a non-empty Node the guard is released (position stays consumed);
+  // otherwise the guard restores the source to where it was.
+  template <typename Predicate>
+  static Node tryParseToken(ISource &source, const Delimiters &delimiters,
+                            Predicate &&pred) {
+    SourceGuard guard(source);
+    std::string token{extractToNext(source, delimiters)};
+    rightTrim(token);
+    Node result = std::forward<Predicate>(pred)(token);
+    if (!result.isEmpty()) {
+      guard.release();
+    }
+    return result;
+  }
+
   // YAML parser
   static bool endsWith(const std::string_view &str,
                        const std::string_view &substr);
   static void validateInputCharacters(ISource &source);
   static void rightTrim(std::string &str);
   static void moveToNext(ISource &source, const Delimiters &delimiters);
+  static void skipLine(ISource &source);
+  static bool skipIfComment(ISource &source);
   static void moveToNextIndent(ISource &source);
+  static void addUniqueDictEntry(Node &dictionaryNode, DictionaryEntry entry,
+                                 ISource &source);
+  static void addInlineDictEntry(Dictionary &dict, DictionaryEntry entry,
+                                 ISource &source);
+  static const std::string &resolveAlias(const std::string &name,
+                                         ISource &source);
+  static bool isNullStringNode(const Node &node);
+  static bool looksLikeIso8601Date(const std::string &s);
   static std::string extractString(ISource &source, char quote);
+  static std::string extractString(ISource &source);
+  static std::string extractRawQuotedScalar(ISource &source);
+  static std::string extractTagSuffix(ISource &source);
   static std::string extractToNext(ISource &source,
                                    const Delimiters &delimiters);
+  static std::string extractTrimmed(ISource &source,
+                                    const Delimiters &delimiters);
   static std::string extractInLine(ISource &source, char start, char end);
+  static std::string extractInlineCollectionAt(ISource &source);
   static std::string extractMapping(ISource &source);
   static void checkForEnd(ISource &source, char end);
+  static void checkFlowDelimiter(ISource &source, const Delimiters &delimiters);
+  static void checkAtFlowClose(ISource &source, const Delimiters &delimiters,
+                               long depth);
+  static Node parseFromBuffer(const std::string &text,
+                              const Delimiters &delimiters,
+                              unsigned long indentation);
+  static std::string captureIndentedBlock(ISource &source,
+                                          unsigned long minIndent);
+  static void upsertDictEntry(Dictionary &dict, const std::string &key,
+                              Node value);
   static Node mergeOverrides(Node &overrideRoot);
   static Node convertYAMLToStringNode(const std::string_view &yamlString);
   static bool isValidKey(const std::string_view &key);
@@ -57,15 +137,24 @@ private:
   static bool isAlias(const ISource &source);
   static bool isInlineArray(const ISource &source);
   static bool isInlineDictionary(const ISource &source);
+  static bool isInlineCollection(const ISource &source);
   static bool isMapping(ISource &source);
   static bool isDictionary(ISource &source);
   static bool isDefault(ISource &source);
+  static bool matchesMarker(ISource &source, const char *marker);
   static bool isDocumentStart(ISource &source);
   static bool isDocumentEnd(ISource &source);
+  static bool isDocumentBoundary(ISource &source);
+  static bool isInlineComment(const ISource &source,
+                              const std::string &yamlString);
+  static void convertOctalToDecimal(std::string &numeric,
+                                    const std::string &digits);
   static bool isDirective(ISource &source);
   static bool isTagged(const ISource &source);
   static bool isTimestamp(ISource &source);
-  static void appendCharacterToString(ISource &source, std::string &yamlString);
+  static void appendCharacterToString(ISource &source, std::string &yamlString,
+                                      bool escapeAware = false,
+                                      unsigned long minIndent = 0);
   static std::string extractKey(ISource &source);
   static std::pair<BlockChomping, int> parseBlockChomping(ISource &source);
   static std::string parseBlockString(ISource &source,
@@ -121,6 +210,12 @@ private:
   static Node parseDocument(ISource &source,
                             [[maybe_unused]] const Delimiters &delimiters,
                             unsigned long indentation);
+  static void parseDirective(ISource &source, bool inDocument);
+  static unsigned long scanToFirstBlockContent(ISource &source);
+  static Delimiters withExtras(const Delimiters &base,
+                               std::initializer_list<char> extras);
+  static Delimiters keyStopDelimiters();
+  [[nodiscard]] static bool isInsideFlowContext() noexcept;
   static Node parseTagged(ISource &source, const Delimiters &delimiters,
                           unsigned long indentation);
   // YAML parser routing table
@@ -152,6 +247,9 @@ private:
   inline static long inlineArrayDepth{0};
   // Inline Dictionary depth
   inline static long inlineDictionaryDepth{0};
+  // Parent indentation for a same-line flow collection used as a block
+  // mapping value; 0 when not in that context.
+  inline static unsigned long blockFlowValueIndent{0};
   // YAML directive version (minor)
   inline static int yamlDirectiveMinor{2};
   // Strict YAML 1.2 boolean mode — only 'true'/'false' accepted (default: false

@@ -164,7 +164,7 @@ TEST_CASE("Check YAML stringify.", "[YAML][Stringify]") {
         yaml, "---\nunicode: \"Sosa did fine.\\u263A\"\ncontrol: "
               "\"\\b1998\\t1999\\t2000\\n\"\nhexesc: \"\\u0013\\u0010 is "
               "\\r\\n\"\nsingle: \'\"Howdy!\" he cried.\'\nquoted: \' # not a "
-              "\'comment\'.\'\ntie-fighter: \'|\\-*-/|\'\n...\n");
+              "\'\'comment\'\'.\'\ntie-fighter: \'|\\-*-/|\'\n...\n");
   }
   SECTION("YAML parse dictionary with null for value entry and  stringify back",
           "[YAML][Parse][Null]") {

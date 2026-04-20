@@ -8,6 +8,7 @@
 //
 
 #include "YAML_Impl.hpp"
+#include <unordered_set>
 
 namespace YAML_Lib {
 
@@ -45,10 +46,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     // Verbatim tag: !<tag:yaml.org,2002:str>
     isVerbatim = true;
     source.next();
-    while (source.more() && source.current() != '>') {
-      tagHandle += source.current();
-      source.next();
-    }
+    tagHandle = extractToNext(source, {'>'});
     if (!source.more() || source.current() != '>') {
       throw SyntaxError(source.getPosition(), "Unclosed verbatim tag '<'.");
     }
@@ -57,28 +55,18 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     // Secondary tag handle: !! -> primary handle "tag:yaml.org,2002:"
     source.next();
     tagHandle = "!!";
-    while (source.more() && source.current() != kSpace &&
-           source.current() != kLineFeed) {
-      tagSuffix += source.current();
-      source.next();
-    }
+    // Flow-aware extraction: ',' ']' '}' are additional stops inside a flow
+    // collection; in block context only space/LF apply. See extractTagSuffix.
+    tagSuffix = extractTagSuffix(source);
   } else {
     // Could be primary !suffix or named handle !ns!suffix.
     // Scan ahead: if we find a second '!' before space/LF it is a named handle.
     std::string preExcl;
-    while (source.more() && source.current() != '!' &&
-           source.current() != kSpace && source.current() != kLineFeed) {
-      preExcl += source.current();
-      source.next();
-    }
+    preExcl = extractToNext(source, {'!', kSpace, kLineFeed});
     if (source.more() && source.current() == '!') {
       source.next(); // consume second '!'
       tagHandle = "!" + preExcl + "!";
-      while (source.more() && source.current() != kSpace &&
-             source.current() != kLineFeed) {
-        tagSuffix += source.current();
-        source.next();
-      }
+      tagSuffix = extractTagSuffix(source);
     } else {
       // Primary tag handle: !suffix
       tagHandle = "!";
@@ -86,7 +74,19 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     }
   }
 
+  const bool valueStartsOnNextLine = source.current() == kLineFeed;
   source.ignoreWS();
+
+  // YAML 1.2 §6.8.1: ns-tag-char excludes c-flow-indicator characters
+  // (comma, square brackets, curly braces).  In block context these chars are
+  // not flow separators; if they appear inside the extracted suffix the tag is
+  // malformed; reject by throwing.
+  static constexpr std::string_view kInvalidTagChars{",[]{}"};
+  if (!tagSuffix.empty() &&
+      tagSuffix.find_first_of(kInvalidTagChars) != std::string::npos) {
+    throw SyntaxError(source.getPosition(),
+                      "Invalid character in tag suffix '" + tagSuffix + "'.");
+  }
 
   // Build full tag name
   std::string fullTag;
@@ -106,8 +106,8 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     } else if (tagHandle == "!") {
       fullTag = "!" + tagSuffix;
     } else {
-      // Unknown named handle - keep verbatim
-      fullTag = tagHandle + tagSuffix;
+      throw SyntaxError(source.getPosition(),
+                        "Undefined tag handle '" + tagHandle + "'.");
     }
   }
 
@@ -115,102 +115,73 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   // Helper: extract the raw scalar value (unquoting if quoted) as a string.
   auto extractRawScalar = [&]() -> std::string {
     if (isQuotedString(source)) {
-      // extractString returns the content with surrounding quotes; strip them.
-      std::string raw = extractString(source, source.current());
-      if (raw.size() >= 2) {
-        raw = raw.substr(1, raw.size() - 2);
-      }
-      rightTrim(raw);
-      return raw;
+      return extractRawQuotedScalar(source);
     }
-    std::string raw = extractToNext(source, delimiters);
-    rightTrim(raw);
-    return raw;
+    return extractTrimmed(source, delimiters);
   };
 
   Node result;
-  if (tagHandle == "!!" && !tagSuffix.empty()) {
+  static const std::string kCoreTagPrefix{"tag:yaml.org,2002:"};
+  static const std::unordered_set<std::string> passthroughTags{"seq", "map",
+                                                               "omap", "pairs"};
+  const bool isCoreSecondaryTag =
+      fullTag.rfind(kCoreTagPrefix, 0) == 0 &&
+      fullTag.size() == kCoreTagPrefix.size() + tagSuffix.size();
+  if (isCoreSecondaryTag && !tagSuffix.empty()) {
     if (tagSuffix == "str") {
-      // Force string interpretation — preserve quotes so the raw text is used.
-      const std::string value = extractRawScalar();
+      std::string value;
+      const bool needsNodeParse =
+          source.more() && (source.current() == '&' ||
+                            source.current() == '*' || source.current() == '!');
+      if (!valueStartsOnNextLine && !needsNodeParse) {
+        // Same-line scalar: preserve the raw token so !!str 007 stays "007".
+        value = extractRawScalar();
+      } else {
+        // Later-line scalar: parse the full node so multiline plain scalars
+        // and anchor/tag-leading values retain normal YAML parsing semantics
+        // before coercion to string.
+        Node parsed = parseDocument(source, delimiters, indentation);
+        value = parsed.getVariant().toString();
+        if (value.empty() && !isA<String>(parsed)) {
+          value = parsed.getVariant().toKey();
+        }
+      }
       result = Node::make<String>(value, kNull);
-    } else if (tagSuffix == "int") {
-      // Force integer interpretation; support quoted string values.
+    } else if (tagSuffix == "int" || tagSuffix == "float" ||
+               tagSuffix == "bool" || tagSuffix == "null") {
+      // Dispatch table for the four core type-coercion tags.
+      using CoerceFunc = Node (*)(ISource &, const Delimiters &, unsigned long);
+      static const std::unordered_map<std::string,
+                                      std::pair<CoerceFunc, const char *>>
+          coercions{{"int", {parseNumber, "!!int"}},
+                    {"float", {parseNumber, "!!float"}},
+                    {"bool", {parseBoolean, "!!bool"}},
+                    {"null", {parseNone, "!!null"}}};
+      const auto &[fn, tagName] = coercions.at(tagSuffix);
       if (isQuotedString(source)) {
         const std::string raw = extractRawScalar();
         BufferSource bs{raw + "\n"};
-        result = parseNumber(bs, {kLineFeed}, indentation);
+        result = fn(bs, {kLineFeed}, indentation);
       } else {
-        result = parseNumber(source, delimiters, indentation);
+        result = fn(source, delimiters, indentation);
       }
       if (result.isEmpty()) {
         throw SyntaxError(source.getPosition(),
-                          "Value cannot be parsed as !!int.");
+                          std::string("Value cannot be parsed as ") + tagName +
+                              ".");
       }
-    } else if (tagSuffix == "float") {
-      // Force float interpretation; support quoted string values.
-      if (isQuotedString(source)) {
-        const std::string raw = extractRawScalar();
-        BufferSource bs{raw + "\n"};
-        result = parseNumber(bs, {kLineFeed}, indentation);
-      } else {
-        result = parseNumber(source, delimiters, indentation);
-      }
-      if (result.isEmpty()) {
-        throw SyntaxError(source.getPosition(),
-                          "Value cannot be parsed as !!float.");
-      }
-    } else if (tagSuffix == "bool") {
-      // Force boolean interpretation; support quoted string values.
-      if (isQuotedString(source)) {
-        const std::string raw = extractRawScalar();
-        BufferSource bs{raw + "\n"};
-        result = parseBoolean(bs, {kLineFeed}, indentation);
-      } else {
-        result = parseBoolean(source, delimiters, indentation);
-      }
-      if (result.isEmpty()) {
-        throw SyntaxError(source.getPosition(),
-                          "Value cannot be parsed as !!bool.");
-      }
-    } else if (tagSuffix == "null") {
-      // Force null interpretation; support quoted string values.
-      if (isQuotedString(source)) {
-        const std::string raw = extractRawScalar();
-        BufferSource bs{raw + "\n"};
-        result = parseNone(bs, {kLineFeed}, indentation);
-      } else {
-        result = parseNone(source, delimiters, indentation);
-      }
-      if (result.isEmpty()) {
-        throw SyntaxError(source.getPosition(),
-                          "Value cannot be parsed as !!null.");
-      }
-    } else if (tagSuffix == "seq") {
-      result = parseDocument(source, delimiters, indentation);
-    } else if (tagSuffix == "map") {
-      result = parseDocument(source, delimiters, indentation);
-    } else if (tagSuffix == "omap") {
-      // !!omap — ordered map; Dictionary already preserves insertion order.
-      // Parse as a normal mapping and attach the tag for semantic distinction.
-      result = parseDocument(source, delimiters, indentation);
-    } else if (tagSuffix == "pairs") {
-      // !!pairs — sequence of key-value pairs; duplicate keys allowed.
-      // Parse as a normal sequence and attach the tag.
+    } else if (passthroughTags.count(tagSuffix)) {
       result = parseDocument(source, delimiters, indentation);
     } else if (tagSuffix == "timestamp") {
       // Try to parse as a native timestamp; fall back to string
       result = parseTimestamp(source, delimiters, indentation);
       if (result.isEmpty()) {
-        std::string value{extractToNext(source, delimiters)};
-        rightTrim(value);
+        std::string value{extractTrimmed(source, delimiters)};
         result = Node::make<String>(value, kNull);
       }
     } else if (tagSuffix == "binary") {
-      // base64 value — keep raw string, tag carries the type signal
-      std::string value{extractToNext(source, delimiters)};
-      rightTrim(value);
-      result = Node::make<String>(value, kNull);
+      // base64 value — parse normally (handles double-quoted and block scalars)
+      result = parseDocument(source, delimiters, indentation);
     } else {
       // Unknown standard tag — parse value normally and attach tag
       result = parseDocument(source, delimiters, indentation);

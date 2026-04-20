@@ -212,6 +212,12 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(NRef<Number>(yaml.document(0)[4]).value<int>() == 5);
     REQUIRE(NRef<Number>(yaml.document(0)[5]).value<int>() == 6);
   }
+  SECTION(
+      "YAML reject wrongly indented multiline flow sequence in mapping value.",
+      "[YAML][Parse][Array]") {
+    BufferSource source{"---\nflow: [a,\nb,\nc]\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
   SECTION("YAML parse array with incorrect indentation in element.",
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n   - test\n- test"};
@@ -239,8 +245,9 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
   SECTION("YAML parse inline array containing empty elements'.",
           "[YAML][Parse][Array]") {
     BufferSource source{"---\n[,, three, ]\n..."};
-    REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Syntax Error: Unexpected ',' in in-line array.");
+    REQUIRE_THROWS_WITH(
+        yaml.parse(source),
+        Catch::Matchers::ContainsSubstring("Unexpected ',' in in-line array."));
   }
   SECTION("YAML parse inline array containing incorrect bracket numbers "
           "(example 1).",

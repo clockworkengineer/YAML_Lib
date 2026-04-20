@@ -21,6 +21,12 @@ Node Default_Parser::parseDocument(ISource &source,
                                    const Delimiters &delimiters,
                                    const unsigned long indentation) {
   moveToNextIndent(source);
+  // Document markers (--- / ...) are not permitted as values inside a flow
+  // collection.  Encountering one here means the input is malformed.
+  if (isInsideFlowContext() && isDocumentBoundary(source)) {
+    throw SyntaxError(source.getPosition(),
+                      "Document marker not permitted inside flow collection.");
+  }
   for (const auto &[fst, snd] : parsers) {
     if (fst(source)) {
       if (Node yNode = snd(source, delimiters, indentation); !yNode.isEmpty()) {
@@ -42,79 +48,77 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
   arrayIndentLevel = 0;
   inlineArrayDepth = 0;
   inlineDictionaryDepth = 0;
+  blockFlowValueIndent = 0;
   yamlAliasMap.clear();
   yamlTagPrefixes.clear();
   activeAliasExpansions.clear();
   yamlDirectiveMinor = 2;
   yamlDirectiveSeen = false;
-  for (bool inDocument = false; source.more();) {
+  const auto resetDocumentState = [&]() {
+    yamlAliasMap.clear();
+    activeAliasExpansions.clear();
+    yamlTagPrefixes.clear();
+    yamlDirectiveMinor = 2;
+    yamlDirectiveSeen = false;
+  };
+  for (bool inDocument = false, pendingDirectives = false; source.more();) {
     // Directives (%YAML or %TAG) — only valid before a document starts
     if (isDirective(source)) {
-      if (inDocument) {
-        throw SyntaxError(source.getPosition(),
-                          "Directives must appear before document start.");
-      }
-      source.next(); // consume '%'
-      if (source.match("YAML")) {
-        // %YAML major.minor
-        source.ignoreWS();
-        std::string version{extractToNext(source, {kLineFeed, ' '})};
-        const auto dot = version.find('.');
-        if (dot == std::string::npos) {
-          throw SyntaxError(source.getPosition(),
-                            "%YAML directive missing version number.");
-        }
-        const int major = std::stoi(version.substr(0, dot));
-        const int minor = std::stoi(version.substr(dot + 1));
-        if (major != 1) {
-          throw SyntaxError(source.getPosition(),
-                            "%YAML directive: unsupported major version " +
-                                std::to_string(major) + ".");
-        }
-        if (yamlDirectiveSeen) {
-          throw SyntaxError(
-              source.getPosition(),
-              "%YAML directive appears more than once for the same document.");
-        }
-        yamlDirectiveSeen = true;
-        yamlDirectiveMinor = minor;
-        moveToNext(source, {kLineFeed});
-        if (source.more()) {
-          source.next();
-        }
-      } else if (source.match("TAG")) {
-        // %TAG handle prefix
-        source.ignoreWS();
-        std::string handle{extractToNext(source, {' '})};
-        source.ignoreWS();
-        std::string prefix{extractToNext(source, {kLineFeed, ' '})};
-        yamlTagPrefixes[handle] = prefix;
-        moveToNext(source, {kLineFeed});
-        if (source.more()) {
-          source.next();
-        }
-      } else {
-        // Unknown directive — skip to end of line (per YAML spec: warn)
-        moveToNext(source, {kLineFeed});
-        if (source.more()) {
-          source.next();
-        }
-      }
+      parseDirective(source, inDocument);
+      pendingDirectives = true;
       // Start of a document
     } else if (isDocumentStart(source)) {
+      if (inDocument) {
+        resetDocumentState();
+      }
       inDocument = true;
-      moveToNext(source, {kLineFeed, '|', '>'});
-      moveToNextIndent(source);
+      pendingDirectives = false;
       yNodeTree.push_back(Node::make<Document>());
+      source.next();
+      source.next();
+      source.next(); // consume '-', '-', '-'
+      source.ignoreWS();
+      if (source.more() && source.current() != kLineFeed &&
+          !isComment(source) &&
+          (isKey(source) || isMapping(source) || isArray(source))) {
+        throw SyntaxError(source.getPosition(),
+                          "Block collection cannot start on the same line as "
+                          "document start.");
+      }
+      if (!source.more() || source.current() == kLineFeed ||
+          isComment(source)) {
+        moveToNextIndent(source);
+      }
       // End of a document
     } else if (isDocumentEnd(source)) {
-      moveToNext(source, {kLineFeed});
+      if (!inDocument && pendingDirectives) {
+        throw SyntaxError(source.getPosition(),
+                          "Directive must be followed by a document.");
+      }
+      // Consume "..." then validate what follows on the same line.
+      // Per the YAML spec, "..." is a document-end suffix, not an indicator
+      // embedded in content. Content after "... " (space-separated) is invalid;
+      // the pattern "...x" (no space) is treated as an embedded token and
+      // skipped for backward compatibility.
+      source.next();
+      source.next();
+      source.next(); // consume '.', '.', '.'
+      if (source.more() && source.isWS()) {
+        // "... something" form — validate only whitespace/comment allowed.
+        source.ignoreWS();
+        if (source.more() && source.current() != kLineFeed &&
+            !isComment(source)) {
+          throw SyntaxError(source.getPosition(),
+                            "Invalid content after document-end marker '...'.");
+        }
+      }
+      skipLine(source);
       moveToNextIndent(source);
       if (!inDocument) {
         yNodeTree.push_back(Node::make<Document>());
       }
       inDocument = false;
-      yamlDirectiveSeen = false;
+      resetDocumentState();
       // Inter document comment
     } else if (isComment(source) && !inDocument) {
       parseComment(source, {kLineFeed});
@@ -128,6 +132,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
     } else {
       if (!inDocument) {
         yNodeTree.push_back(Node::make<Document>());
+        pendingDirectives = false;
       }
       inDocument = true;
       if (NRef<Document>(yNodeTree.back()).size() == 0) {
@@ -137,8 +142,75 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
         throw SyntaxError(source.getPosition(), "Invalid YAML encountered.");
       }
     }
+    if (!source.more() && pendingDirectives) {
+      throw SyntaxError(source.getPosition(),
+                        "Directive must be followed by a document.");
+    }
   }
 
   return yNodeTree;
+}
+/// <summary>
+/// Parse a single YAML directive line (%YAML or %TAG).
+/// </summary>
+/// <param name="source">Source stream (positioned at '%').</param>
+/// <param name="inDocument">True if a document has already started.</param>
+void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
+  if (inDocument) {
+    throw SyntaxError(source.getPosition(),
+                      "Directives must appear before document start.");
+  }
+  source.next(); // consume '%'
+  // Extract the full directive name so we don't mistake "%YAMLL" for "%YAML"
+  // (source.match does a prefix-match that would consume "YAML" from "YAMLL").
+  const std::string directiveName{
+      extractToNext(source, {kLineFeed, kSpace, '\t'})};
+  if (directiveName == "YAML") {
+    // %YAML major.minor
+    source.ignoreWS();
+    std::string version{extractToNext(source, {kLineFeed, ' '})};
+    const auto dot = version.find('.');
+    if (dot == std::string::npos) {
+      throw SyntaxError(source.getPosition(),
+                        "%YAML directive missing version number.");
+    }
+    // Validate: version must be all-digit . all-digit (no stray chars like '#')
+    const std::string majorStr = version.substr(0, dot);
+    const std::string minorStr = version.substr(dot + 1);
+    const auto isAllDigits = [](const std::string &s) {
+      return !s.empty() && std::all_of(s.begin(), s.end(), [](unsigned char c) {
+        return std::isdigit(c) != 0;
+      });
+    };
+    if (!isAllDigits(majorStr) || !isAllDigits(minorStr)) {
+      throw SyntaxError(source.getPosition(),
+                        "%YAML directive has invalid version number '" +
+                            version + "'.");
+    }
+    const int major = std::stoi(majorStr);
+    const int minor = std::stoi(minorStr);
+    if (major != 1) {
+      throw SyntaxError(source.getPosition(),
+                        "%YAML directive: unsupported major version " +
+                            std::to_string(major) + ".");
+    }
+    if (yamlDirectiveSeen) {
+      throw SyntaxError(
+          source.getPosition(),
+          "%YAML directive appears more than once for the same document.");
+    }
+    yamlDirectiveSeen = true;
+    yamlDirectiveMinor = minor;
+  } else if (directiveName == "TAG") {
+    // %TAG handle prefix
+    source.ignoreWS();
+    std::string handle{extractToNext(source, {' '})};
+    source.ignoreWS();
+    std::string prefix{extractToNext(source, {kLineFeed, ' '})};
+    yamlTagPrefixes[handle] = prefix;
+  } else {
+    // Unknown directive — YAML spec says warn and ignore
+  }
+  skipLine(source); // always advance past the directive line
 }
 } // namespace YAML_Lib

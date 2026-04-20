@@ -108,6 +108,23 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
             "!<tag:example.com,2024:item>");
   }
 
+  SECTION("YAML parse verbatim-tagged mapping key with tagged scalar value.",
+          "[YAML][Parse][Tags][Verbatim]") {
+    BufferSource source{"!<tag:yaml.org,2002:str> foo :\n"
+                        "  !<!bar> baz\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(isA<String>(yaml.document(0)["foo"]));
+    REQUIRE(NRef<String>(yaml.document(0)["foo"]).value() == "baz");
+    REQUIRE(yaml.document(0)["foo"].getVariant().getTag() == "!<!bar>");
+  }
+
+  SECTION("YAML local tag with flow-indicator characters in suffix throws.",
+          "[YAML][Parse][Tags][Invalid]") {
+    BufferSource source{"---\n!invalid{}tag scalar\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
   // ---- Named tag handle !ns!suffix ----
 
   SECTION("YAML named tag handle !m! expands to registered prefix.",
@@ -142,13 +159,10 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
             "tag:example.com,2024:widget");
   }
 
-  SECTION("YAML unknown named handle falls back to verbatim.",
+  SECTION("YAML unknown named handle throws.",
           "[YAML][Parse][Tags][NamedHandle]") {
-    // !x!bar with no %TAG !x! registered - kept verbatim
     BufferSource source{"---\n!x!bar baz\n"};
-    REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(isA<String>(yaml.document(0)));
-    REQUIRE(yaml.document(0).getVariant().getTag() == "!x!bar");
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
   SECTION("YAML named tag handle on dictionary value.",
@@ -160,6 +174,35 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     REQUIRE(isA<String>(yaml.document(0)["color"]));
     REQUIRE(yaml.document(0)["color"].getVariant().getTag() ==
             "tag:example.com,rgb");
+  }
+
+  SECTION("YAML named tag handle defined for only first document throws in "
+          "later documents.",
+          "[YAML][Parse][Tags][NamedHandle]") {
+    BufferSource source{"%TAG !prefix! tag:example.com,2011:\n"
+                        "--- !prefix!A\n"
+                        "a: b\n"
+                        "--- !prefix!B\n"
+                        "c: d\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
+  SECTION("YAML !!str after document start preserves multiline plain scalar.",
+          "[YAML][Parse][Tags][Str]") {
+    BufferSource source{"--- !!str\n"
+                        "d\n"
+                        "e\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "d e");
+  }
+
+  SECTION("YAML !!str with anchor parses anchored scalar before coercion.",
+          "[YAML][Parse][Tags][Str]") {
+    BufferSource source{"---\n!!str &a11\nvalue11\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "value11");
   }
 
   // ---- !!omap and !!pairs ----

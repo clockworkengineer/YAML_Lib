@@ -377,6 +377,16 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     compareYAML(yaml, "---\none: 1\ntwo: 2\nthree: 3\nfour: 4\n...\n");
   }
 
+  SECTION("YAML flow mapping allows a comment line between key and ':' value "
+          "separator.",
+          "[YAML][Parse][Dictionary][Flow]") {
+    BufferSource source{"---\n{ \"foo\" # comment\n  :bar }\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<Dictionary>(yaml.document(0)).size() == 1);
+    REQUIRE(NRef<String>(yaml.document(0)["foo"]).value() == "bar");
+  }
+
   SECTION("YAML parse nexted inline dictionary on more than line. "
           "(inline dictionary).",
           "[YAML][Parse][Dictionary]") {
@@ -406,10 +416,85 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
 
   SECTION("YAML parse dictionary with no key value twice.",
           "[YAML][Parse][Dictionary]") {
-    BufferSource source{"---\n: 'test'\n: 'test'\n...\n"};
-    REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Syntax Error [Line: 4 Column: 1]: Dictionary "
-                        "already contains key ''.");
+    // YAML permits duplicate null/empty keys; last entry wins.
+    BufferSource source{"---\n: 'test'\n: 'test2'\n...\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<Dictionary>(yaml.document(0)).contains(""));
+    REQUIRE(NRef<String>(yaml.document(0)[""]).value() == "test2");
+  }
+
+  SECTION("YAML parses empty keys in block and flow mappings.",
+          "[YAML][Parse][Dictionary][EmptyKey]") {
+    BufferSource source{"---\n"
+                        "key: value\n"
+                        ": empty key\n"
+                        "---\n"
+                        "{\n"
+                        " key: value, : empty key\n"
+                        "}\n"
+                        "---\n"
+                        ":\n"
+                        "---\n"
+                        "{ : }\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 4);
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)["key"]).value() == "value");
+    REQUIRE(NRef<String>(yaml.document(0)[""]).value() == "empty key");
+
+    REQUIRE(isA<Dictionary>(yaml.document(1)));
+    REQUIRE(NRef<String>(yaml.document(1)["key"]).value() == "value");
+    REQUIRE(NRef<String>(yaml.document(1)[""]).value() == "empty key");
+
+    REQUIRE(isA<Dictionary>(yaml.document(2)));
+    REQUIRE(isA<Null>(yaml.document(2)[""]));
+
+    REQUIRE(isA<Dictionary>(yaml.document(3)));
+    REQUIRE(isA<Null>(yaml.document(3)[""]));
+  }
+
+  SECTION("YAML parses explicit block mappings with complex keys and mixed "
+          "value forms.",
+          "[YAML][Parse][Dictionary][ExplicitKey]") {
+    BufferSource source{"complex1:\n"
+                        "  ? - a\n"
+                        "complex2:\n"
+                        "  ? - a\n"
+                        "  : b\n"
+                        "complex3:\n"
+                        "  ? - a\n"
+                        "  : >\n"
+                        "    b\n"
+                        "complex4:\n"
+                        "  ? >\n"
+                        "    a\n"
+                        "  :\n"
+                        "complex5:\n"
+                        "  ? - a\n"
+                        "  : - b\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)["complex1"]));
+    REQUIRE(isA<Null>(yaml.document(0)["complex1"]["[a]"]));
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)["complex2"]));
+    REQUIRE(NRef<String>(yaml.document(0)["complex2"]["[a]"]).value() == "b");
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)["complex3"]));
+    REQUIRE(NRef<String>(yaml.document(0)["complex3"]["[a]"]).value() == "b");
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)["complex4"]));
+    REQUIRE(isA<Null>(yaml.document(0)["complex4"]["a"]));
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)["complex5"]));
+    REQUIRE(isA<Array>(yaml.document(0)["complex5"]["[a]"]));
+    REQUIRE(NRef<Array>(yaml.document(0)["complex5"]["[a]"]).size() == 1);
+    REQUIRE(NRef<String>(yaml.document(0)["complex5"]["[a]"][0]).value() ==
+            "b");
   }
   SECTION(
       "YAML parse dictionary with non string keys are on more than one line "
@@ -452,16 +537,16 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
       "YAML parse in dictionary one key value pair and multipal trailing ','.",
       "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n { one: 1,,,} \n...\n"};
-    REQUIRE_THROWS_WITH(
-        yaml.parse(source),
-        "YAML Syntax Error: Unexpected ',' in in-line dictionary.");
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        Catch::Matchers::ContainsSubstring(
+                            "Unexpected ',' in in-line dictionary."));
   }
   SECTION("YAML parse in dictionary with no key value pairs just ','.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\n { , } n...\n"};
-    REQUIRE_THROWS_WITH(
-        yaml.parse(source),
-        "YAML Syntax Error: Unexpected ',' in in-line dictionary.");
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        Catch::Matchers::ContainsSubstring(
+                            "Unexpected ',' in in-line dictionary."));
   }
   SECTION("YAML parse  dictionary with just keys (example 1).",
           "[YAML][Parse][Dictionary]") {
@@ -578,7 +663,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
   SECTION("YAML parse string with wit dictionary after.",
           "[YAML][Parse][Dictionary]") {
     BufferSource source{"---\ntest string 0\ntest1: 1\ntest2: 2\ntest3: 4\n"};
-    REQUIRE_THROWS_WITH(yaml.parse(source),
-                        "YAML Syntax Error: Invalid YAML encountered.");
+    REQUIRE_THROWS_WITH(yaml.parse(source), Catch::Matchers::ContainsSubstring(
+                                                "Invalid YAML encountered."));
   }
 }

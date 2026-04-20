@@ -12,32 +12,61 @@
 namespace YAML_Lib {
 
 /// <summary>
+/// Return true if node is an unquoted empty string (represents a null element
+/// produced by a trailing comma in an inline collection).
+/// </summary>
+bool Default_Parser::isNullStringNode(const Node &node) {
+  return isA<String>(node) && NRef<String>(node).value().empty() &&
+         NRef<String>(node).getQuote() == kNull;
+}
+
+/// <summary>
 /// Parse array on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse the array.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Array Node.</returns>
-Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters, [[maybe_unused]] unsigned long indentation) {
+Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters,
+                                [[maybe_unused]] unsigned long indentation) {
   const unsigned long arrayIndent = source.getPosition().second;
-  arrayIndentLevel++;
   auto arrayNode = Node::make<Array>();
-  while (isArray(source) && arrayIndent == source.getPosition().second) {
-    source.next();
-    source.ignoreWS();
-    Node yNode = Node::make<Null>();
-    if (source.current() != kLineFeed) {
-      yNode = parseDocument(source, delimiters, arrayIndent);
-    } else {
-      moveToNextIndent(source);
-      if (arrayIndent < source.getPosition().second) {
-        yNode = parseDocument(source, delimiters, arrayIndent);
+  {
+    DepthGuard depthGuard(arrayIndentLevel);
+    while (isArray(source) && arrayIndent == source.getPosition().second) {
+      source.next(); // consume '-'
+      // YAML 1.2 §6.1: block indentation must use spaces, not tabs.
+      // Scan the separator whitespace between '-' and the content: if ANY
+      // tab appears in that run (e.g. "- \t-" or "-\t-") and the content
+      // that follows starts another block-structure indicator, the
+      // indentation level is tab-determined → reject as invalid.
+      bool tabInSeparator = false;
+      while (source.more() && source.isWS()) {
+        if (source.current() == '\t') {
+          tabInSeparator = true;
+        }
+        source.next();
       }
+      if (tabInSeparator && source.more() && isArray(source)) {
+        throw SyntaxError(
+            source.getPosition(),
+            "Tab used as block sequence entry separator followed by another "
+            "block structure indicator; block indentation must use spaces, "
+            "not tabs (YAML 1.2 \u00a76.1).");
+      }
+      Node yNode = Node::make<Null>();
+      if (source.current() != kLineFeed) {
+        yNode = parseDocument(source, delimiters, arrayIndent);
+      } else {
+        moveToNextIndent(source);
+        if (arrayIndent < source.getPosition().second) {
+          yNode = parseDocument(source, delimiters, arrayIndent);
+        }
+      }
+      NRef<Array>(arrayNode).add(std::move(yNode));
+      moveToNextIndent(source);
     }
-    NRef<Array>(arrayNode).add(std::move(yNode));
-    moveToNextIndent(source);
-  }
-  arrayIndentLevel--;
+  } // arrayIndentLevel decremented here (even on exception)
   if (isArray(source) && arrayIndentLevel == 0 &&
       arrayIndent > source.getPosition().second) {
     throw SyntaxError(source.getPosition(),
@@ -53,34 +82,47 @@ Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters, [
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Array Node.</returns>
 Node Default_Parser::parseInlineArray(
-    ISource &source, [[maybe_unused]] const Delimiters &delimiters, const unsigned long indentation) {
-  inlineArrayDepth++;
-  Delimiters inLineArrayDelimiters = {delimiters};
-  inLineArrayDelimiters.insert({kComma, kRightSquareBracket});
+    ISource &source, [[maybe_unused]] const Delimiters &delimiters,
+    const unsigned long indentation) {
+  const auto inLineArrayDelimiters =
+      withExtras(delimiters, {kComma, kRightSquareBracket});
   auto arrayNode = Node::make<Array>();
   auto &yamlArray = NRef<Array>(arrayNode);
-  do {
-    source.next();
-    yamlArray.add(parseDocument(source, inLineArrayDelimiters, indentation));
-    if (auto &element = yamlArray.value().back(); isA<String>(element)) {
-      if (NRef<String>(element).value().empty() &&
-          NRef<String>(element).getQuote() == kNull) {
+  {
+    DepthGuard depthGuard(inlineArrayDepth);
+    do {
+      source.next();
+      if (inlineArrayDepth == 1 && source.more() &&
+          source.current() == kLineFeed && blockFlowValueIndent > 0) {
+        SourceGuard guard(source);
+        source.next();
+        while (source.more() && source.current() == kLineFeed) {
+          source.next();
+        }
+        unsigned long continuationIndent = 1;
+        while (source.more() && source.current() == kSpace) {
+          continuationIndent++;
+          source.next();
+        }
+        if (source.more() && source.current() != kRightSquareBracket &&
+            continuationIndent <= blockFlowValueIndent) {
+          throw SyntaxError(source.getPosition(),
+                            "Flow sequence continuation must be indented "
+                            "beyond its parent block context.");
+        }
+      }
+      yamlArray.add(parseDocument(source, inLineArrayDelimiters, indentation));
+      if (auto &element = yamlArray.value().back(); isNullStringNode(element)) {
         if (source.current() != kRightSquareBracket) {
-          throw SyntaxError("Unexpected ',' in in-line array.");
+          throw SyntaxError(source.getPosition(),
+                            "Unexpected ',' in in-line array.");
         }
         yamlArray.value().pop_back();
       }
-    }
-  } while (source.current() == kComma);
-  inlineArrayDepth--;
+    } while (source.current() == kComma);
+  } // inlineArrayDepth decremented here
   checkForEnd(source, kRightSquareBracket);
-  source.ignoreWS();
-  if (source.more() && inlineArrayDepth == 0) {
-    if (!delimiters.contains(source.current())) {
-      throw SyntaxError("Unexpected flow sequence token '" +
-                        std::string(1, source.current()) + "'.");
-    }
-  }
+  checkAtFlowClose(source, delimiters, inlineArrayDepth);
   return arrayNode;
 }
 } // namespace YAML_Lib

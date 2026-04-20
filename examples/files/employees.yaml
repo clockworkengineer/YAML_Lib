@@ -1,0 +1,30 @@
+---
+employees:
+  - name: Alice Chen
+    department: Engineering
+    salary: 95000
+    active: true
+  - name: Bob Smith
+    department: Marketing
+    salary: 72000
+    active: true
+  - name: Carol White
+    department: Engineering
+    salary: 88000
+    active: false
+  - name: David Lee
+    department: Engineering
+    salary: 102000
+    active: true
+  - name: Eve Brown
+    department: HR
+    salary: 68000
+    active: true
+  - name: Frank Diaz
+    department: Marketing
+    salary: 79500
+    active: false
+  - name: Grace Kim
+    department: Engineering
+    salary: 115000
+    active: true

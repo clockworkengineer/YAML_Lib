@@ -64,11 +64,11 @@ TEST_CASE("Check ISource (Buffer) interface.", "[YAML][ISource][Buffer]") {
     REQUIRE(source.position() == 3);     // new position
   }
   SECTION("Create BufferSource with empty buffer.",
-          "[YAML][ISource][Buffer][Exception]") {
-    REQUIRE_THROWS_AS(BufferSource(""), ISource::Error);
-    REQUIRE_THROWS_WITH(
-        BufferSource(""),
-        "ISource Error: Empty source buffer passed to be parsed.");
+          "[YAML][ISource][Buffer][Construct]") {
+    BufferSource source("");
+    REQUIRE_FALSE(source.more());
+    REQUIRE(source.position() == 0);
+    REQUIRE(source.current() == static_cast<char>(EOF));
   }
   SECTION("Create BufferSource and then try to read off the end.",
           "[YAML][ISource][Buffer][Exception]") {

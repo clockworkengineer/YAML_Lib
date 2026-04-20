@@ -178,6 +178,88 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
     REQUIRE(NRef<Number>(yaml.document(0)[2]).value<int>() == 3);
   }
 
+  SECTION("YAML flow collections allow whitespace after scalars.",
+          "[YAML][Parse][Collections][Flow]") {
+    BufferSource source{"---\n"
+                        "- [a, b , c ]\n"
+                        "- { \"a\"  : b\n"
+                        "   , c : 'd' ,\n"
+                        "   e   : \"f\"\n"
+                        "  }\n"
+                        "- [      ]\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)));
+    REQUIRE(NRef<Array>(yaml.document(0)).size() == 3);
+
+    REQUIRE(isA<Array>(yaml.document(0)[0]));
+    REQUIRE(NRef<Array>(yaml.document(0)[0]).size() == 3);
+    REQUIRE(NRef<String>(yaml.document(0)[0][0]).value() == "a");
+    REQUIRE(NRef<String>(yaml.document(0)[0][1]).value() == "b");
+    REQUIRE(NRef<String>(yaml.document(0)[0][2]).value() == "c");
+
+    REQUIRE(isA<Dictionary>(yaml.document(0)[1]));
+    REQUIRE(NRef<String>(yaml.document(0)[1]["a"]).value() == "b");
+    REQUIRE(NRef<String>(yaml.document(0)[1]["c"]).value() == "d");
+    REQUIRE(NRef<String>(yaml.document(0)[1]["e"]).value() == "f");
+
+    REQUIRE(isA<Array>(yaml.document(0)[2]));
+    REQUIRE(NRef<Array>(yaml.document(0)[2]).size() == 0);
+  }
+
+  SECTION("YAML rejects comment glued to flow sequence close.",
+          "[YAML][Parse][Collections][Flow]") {
+    BufferSource source{"---\n[a, b, c,]#invalid\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
+  SECTION("YAML flow sequence allows comment before comma separator.",
+          "[YAML][Parse][Collections][Flow]") {
+    BufferSource source{"---\n[word1\n# comment\n, word2]\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)));
+    REQUIRE(NRef<Array>(yaml.document(0)).size() == 2);
+    REQUIRE(NRef<String>(yaml.document(0)[0]).value() == "word1");
+    REQUIRE(NRef<String>(yaml.document(0)[1]).value() == "word2");
+  }
+
+  SECTION("YAML block plain scalar cannot continue after comment-only line.",
+          "[YAML][Parse][Collections][Flow]") {
+    BufferSource source{"key: word1\n"
+                        "#  xxx\n"
+                        "  word2\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
+  SECTION("YAML flow sequence allows implicit single-pair flow mapping.",
+          "[YAML][Parse][Collections][Flow]") {
+    BufferSource source{"---\n[\nfoo: bar\n]\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)));
+    REQUIRE(NRef<Array>(yaml.document(0)).size() == 1);
+    REQUIRE(isA<Dictionary>(yaml.document(0)[0]));
+    REQUIRE(NRef<String>(yaml.document(0)[0]["foo"]).value() == "bar");
+  }
+
+  SECTION("YAML flow sequence allows implicit single-pair flow mappings with "
+          "quoted and collection keys.",
+          "[YAML][Parse][Collections][Flow]") {
+    BufferSource source{"---\n"
+                        "- [ YAML : separate ]\n"
+                        "- [ \"JSON like\":adjacent ]\n"
+                        "- [ {JSON: like}:adjacent ]\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)));
+    REQUIRE(NRef<Array>(yaml.document(0)).size() == 3);
+    REQUIRE(isA<Dictionary>(yaml.document(0)[0][0]));
+    REQUIRE(NRef<String>(yaml.document(0)[0][0]["YAML"]).value() == "separate");
+    REQUIRE(isA<Dictionary>(yaml.document(0)[1][0]));
+    REQUIRE(NRef<String>(yaml.document(0)[1][0]["JSON like"]).value() ==
+            "adjacent");
+    REQUIRE(isA<Dictionary>(yaml.document(0)[2][0]));
+    REQUIRE(NRef<String>(yaml.document(0)[2][0]["{JSON: like}"]).value() ==
+            "adjacent");
+  }
+
   SECTION("YAML flow dict with quoted keys.",
           "[YAML][Parse][Collections][Flow]") {
     BufferSource source{

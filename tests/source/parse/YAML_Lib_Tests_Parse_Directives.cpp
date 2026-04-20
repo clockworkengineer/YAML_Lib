@@ -33,6 +33,18 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
     REQUIRE_THROWS(yaml.parse(source));
   }
 
+  SECTION("YAML bare %YAML directive with no document throws.",
+          "[YAML][Parse][Directives][YAMLNoDocument]") {
+    BufferSource source{"%YAML 1.2\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
+  SECTION("YAML %YAML directive followed only by document end throws.",
+          "[YAML][Parse][Directives][YAMLNoDocument]") {
+    BufferSource source{"%YAML 1.2\n...\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
   SECTION("YAML parse %YAML directive after document start is invalid content.",
           "[YAML][Parse][Directives][YAMLAfterDoc]") {
     // Inside a document, % starts a plain scalar not a directive.
@@ -41,6 +53,12 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
     // % inside document content is parsed as a plain scalar which fails
     // since "value: 42" causes a syntax error after it
     REQUIRE_THROWS(yaml.parse(source));
+  }
+
+  SECTION("YAML block mapping cannot start on same line as document start.",
+          "[YAML][Parse][Directives]") {
+    BufferSource source{"--- key1: value1\n    key2: value2\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
   // ---- %TAG directives ----
@@ -145,5 +163,19 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE(yaml.document(0).getVariant().getTag() ==
             "tag:custom.org,2024:mytype");
+  }
+
+  SECTION("YAML remapped !!int stays a tagged string instead of core integer "
+          "coercion.",
+          "[YAML][Parse][Directives][SecondaryHandle]") {
+    BufferSource source{"%TAG !! tag:example.com,2000:app/\n"
+                        "---\n"
+                        "!!int 1 - 3\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "1 - 3");
+    REQUIRE(yaml.document(0).getVariant().getTag() ==
+            "tag:example.com,2000:app/int");
   }
 }

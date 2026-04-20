@@ -81,6 +81,12 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     // Key "can't stop won't stop" must be reachable; value is a bool.
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)["can't stop won't stop"]));
   }
+  SECTION("Multiline double-quoted implicit key throws.",
+          "[YAML][Parse][Scalar][String][SingleQuoteKey]") {
+    BufferSource source{"\"a\\nb\": 1\n"
+                        "\"c\n d\": 1\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
   SECTION("YAML parse an unquoted string with that terminated by EOF.",
           "[YAML][Parse][Scalar][String]") {
     BufferSource source{"---\n test string."};
@@ -311,6 +317,25 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "them from being converted to a space.\nNewlines can also be added "
             "by leaving a blank line. Leading whitespace on lines is ignored.");
   }
+  SECTION("YAML preserves folded blank line and escaped continuation content "
+          "in double-quoted scalars.",
+          "[YAML][Parse][Flow Scalar]") {
+    BufferSource source{"---\n"
+                        "\"folded \n"
+                        "to a space,\t\n"
+                        " \n"
+                        "to a line feed, or \t\\\n"
+                        " \\ \tnon-content\"\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<String>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)).value() ==
+            "folded to a space,\nto a line feed, or \t \tnon-content");
+  }
+  SECTION("YAML parse underindented multiline double quoted scalar throws",
+          "[YAML][Parse][Flow Scalar]") {
+    BufferSource source{"quoted: \"a\nb\nc\"\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
   SECTION("YAML parse plain flow scalar", "[YAML][Parse][Flow Scalar]") {
     BufferSource source{
         "example: Several lines of text,\n  with some \"quotes\" of various "
@@ -457,12 +482,35 @@ TEST_CASE("Check YAML 1.2 plain scalar inline comment rule (§6.8).",
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)["version"]).value() == "csharp#net6");
   }
+  SECTION("Quoted mapping value with trailing plain content throws.",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+    BufferSource source{"key1: \"quoted1\"\n"
+                        "key2: \"quoted2\" trailing content\n"
+                        "key3: \"quoted3\"\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+  SECTION("Quoted mapping value allows a separating inline comment.",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+    BufferSource source{"key: \"quoted\" # comment\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)["key"]).value() == "quoted");
+  }
   SECTION("Plain scalar with '#' preceded by space is still a comment.",
           "[YAML][Parse][Scalar][String][InlineComment]") {
     BufferSource source{"key: value # this is a comment\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)["key"]).value() == "value");
+  }
+  SECTION("Block plain scalar cannot continue after inline comment on a "
+          "continuation line.",
+          "[YAML][Parse][Scalar][String][InlineComment]") {
+    BufferSource source{"---\n"
+                        "plain: a\n"
+                        "       b # end of scalar\n"
+                        "       c\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
   SECTION("Plain scalar: literal '#' then space-hash comment.",
           "[YAML][Parse][Scalar][String][InlineComment]") {
