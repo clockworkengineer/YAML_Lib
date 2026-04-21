@@ -128,6 +128,12 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
+  SECTION("YAML mapping with anchor on document start line throws.",
+          "[YAML][Parse][Anchors][Invalid]") {
+    BufferSource source{"--- &anchor a: b\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
   // ---- Override (<<) with undefined alias ----
 
   SECTION("YAML override with undefined alias throws SyntaxError.",
