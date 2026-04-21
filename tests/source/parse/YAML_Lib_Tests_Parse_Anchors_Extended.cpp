@@ -222,6 +222,21 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
     REQUIRE(NRef<String>(yaml.document(0)).value() == "scalar2");
   }
 
+  SECTION(
+      "YAML tag followed by anchor and scalar parses for core tag coercion.",
+      "[YAML][Parse][Anchors][Valid]") {
+    BufferSource source{"---\n- &a !!str a\n- !!int &c 4\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)[0]).value() == "a");
+    REQUIRE(yaml.document(0)[0].getVariant().getTag() ==
+            "tag:yaml.org,2002:str");
+    REQUIRE(isA<Number>(yaml.document(0)[1]));
+    REQUIRE(NRef<Number>(yaml.document(0)[1]).value<int>() == 4);
+    REQUIRE(yaml.document(0)[1].getVariant().getTag() ==
+            "tag:yaml.org,2002:int");
+  }
+
   SECTION("YAML anchor followed by tagged scalar on next line parses.",
           "[YAML][Parse][Anchors][Valid]") {
     BufferSource source{"---\n&a3\n!!str scalar3\n"};

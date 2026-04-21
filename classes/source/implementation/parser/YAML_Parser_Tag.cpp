@@ -124,16 +124,20 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   static const std::string kCoreTagPrefix{"tag:yaml.org,2002:"};
   static const std::unordered_set<std::string> passthroughTags{"seq", "map",
                                                                "omap", "pairs"};
+  const auto valueRequiresNodeParse = [&]() {
+    return valueStartsOnNextLine ||
+           (source.more() &&
+            (source.current() == '&' || source.current() == '*' ||
+             source.current() == '!'));
+  };
   const bool isCoreSecondaryTag =
       fullTag.rfind(kCoreTagPrefix, 0) == 0 &&
       fullTag.size() == kCoreTagPrefix.size() + tagSuffix.size();
   if (isCoreSecondaryTag && !tagSuffix.empty()) {
     if (tagSuffix == "str") {
       std::string value;
-      const bool needsNodeParse =
-          source.more() && (source.current() == '&' ||
-                            source.current() == '*' || source.current() == '!');
-      if (!valueStartsOnNextLine && !needsNodeParse) {
+      const bool needsNodeParse = valueRequiresNodeParse();
+      if (!needsNodeParse) {
         // Same-line scalar: preserve the raw token so !!str 007 stays "007".
         value = extractRawScalar();
       } else {
@@ -158,12 +162,27 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
                     {"bool", {parseBoolean, "!!bool"}},
                     {"null", {parseNone, "!!null"}}};
       const auto &[fn, tagName] = coercions.at(tagSuffix);
-      if (isQuotedString(source)) {
+      const bool needsNodeParse = valueRequiresNodeParse();
+      if (!needsNodeParse && isQuotedString(source)) {
         const std::string raw = extractRawScalar();
         BufferSource bs{raw + "\n"};
         result = fn(bs, {kLineFeed}, indentation);
-      } else {
+      } else if (!needsNodeParse) {
         result = fn(source, delimiters, indentation);
+      } else {
+        Node parsed = parseDocument(source, delimiters, indentation);
+        if (isA<Number>(parsed) &&
+            (tagSuffix == "int" || tagSuffix == "float")) {
+          result = std::move(parsed);
+        } else if (isA<Boolean>(parsed) && tagSuffix == "bool") {
+          result = std::move(parsed);
+        } else if (isA<Null>(parsed) && tagSuffix == "null") {
+          result = std::move(parsed);
+        } else {
+          const std::string raw = parsed.getVariant().toString();
+          BufferSource bs{raw + "\n"};
+          result = fn(bs, {kLineFeed}, indentation);
+        }
       }
       if (result.isEmpty()) {
         throw SyntaxError(source.getPosition(),
