@@ -100,6 +100,17 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
             "tag:example.com,2024:item");
   }
 
+  SECTION("YAML parse tagged mapping key with anchor prefix.",
+          "[YAML][Parse][Directives][TagAnchorKey]") {
+    BufferSource source{"!!str &a1 \"foo\":\n"
+                        "  !!str bar\n"
+                        "&a2 baz: *a1\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<String>(yaml.document(0)["foo"]).value() == "bar");
+    REQUIRE(NRef<String>(yaml.document(0)["baz"]).value() == "foo");
+  }
+
   SECTION("YAML parse multiple directives before a document.",
           "[YAML][Parse][Directives][Multiple]") {
     BufferSource source{

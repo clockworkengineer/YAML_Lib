@@ -318,7 +318,24 @@ std::string Default_Parser::extractKey(ISource &source) {
         (source.current() == kSpace || source.current() == '\t')) {
       result += ' ';
       source.ignoreWS();
-      if (isInlineCollection(source)) {
+      if (source.more() && source.current() == '&') {
+        result += '&';
+        source.next();
+        result += extractToNext(source, {kSpace, '\t', kLineFeed});
+        if (source.more() &&
+            (source.current() == kSpace || source.current() == '\t')) {
+          result += ' ';
+          source.ignoreWS();
+        }
+        if (isInlineCollection(source)) {
+          result += extractInlineCollectionAt(source);
+        } else if (isQuotedString(source)) {
+          result += extractString(source);
+        } else {
+          result += extractPlainKeyTail();
+          rightTrim(result);
+        }
+      } else if (isInlineCollection(source)) {
         result += extractInlineCollectionAt(source);
       } else if (isQuotedString(source)) {
         result += extractString(source);
@@ -353,9 +370,11 @@ std::string Default_Parser::extractKey(ISource &source) {
 /// <returns>Dictionary entry key.</returns>
 Node Default_Parser::parseKey(ISource &source) {
   std::string key{extractKey(source)};
-  // Patch: In flow context, allow multi-line explicit keys (e.g., '? foo\n bar : baz')
+  // Patch: In flow context, allow multi-line explicit keys (e.g., '? foo\n bar
+  // : baz')
   if (isInsideFlowContext()) {
-    // Accumulate lines until ':' is found at the correct indentation or a flow delimiter
+    // Accumulate lines until ':' is found at the correct indentation or a flow
+    // delimiter
     while (source.more() && source.current() == kLineFeed) {
       // Peek ahead to see if next line is indented (continuation of key)
       SourceGuard guard(source);
@@ -366,7 +385,9 @@ Node Default_Parser::parseKey(ISource &source) {
         source.next();
       }
       // If next non-space is ':' or a flow delimiter, stop
-      if (source.more() && (source.current() == ':' || source.current() == ',' || source.current() == ']' || source.current() == '}')) {
+      if (source.more() &&
+          (source.current() == ':' || source.current() == ',' ||
+           source.current() == ']' || source.current() == '}')) {
         break;
       }
       // Otherwise, treat as continuation of key
