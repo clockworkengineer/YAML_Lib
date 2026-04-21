@@ -245,6 +245,24 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
     REQUIRE(NRef<String>(yaml.document(0)).value() == "scalar3");
   }
 
+  SECTION("YAML tags on empty scalars parse correctly (FH7J).",
+          "[YAML][Parse][Anchors][Valid]") {
+    BufferSource source{"---\n"
+                        "- !!str\n"
+                        "-\n"
+                        "  !!null : a\n"
+                        "  b: !!str\n"
+                        "- !!str : !!null\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Array>(yaml.document(0)));
+    REQUIRE(isA<String>(yaml.document(0)[0]));
+    REQUIRE(NRef<String>(yaml.document(0)[0]).value() == "");
+    REQUIRE(isA<Dictionary>(yaml.document(0)[1]));
+    REQUIRE(NRef<String>(yaml.document(0)[1]["b"]).value() == "");
+    REQUIRE(isA<Dictionary>(yaml.document(0)[2]));
+    REQUIRE(isA<Null>(yaml.document(0)[2][""]));
+  }
+
   // ---- !!binary tag ----
 
   SECTION("YAML !!binary tag preserves base64 string as String node.",

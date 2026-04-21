@@ -892,8 +892,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
-      "DC7X", "FH7J", "GDY7", "H7TQ", "HMQ5",
-      "HRE5", "J3BT", "JKF3", "JTV5", "JY7Z",
+      "DC7X", "GDY7", "H7TQ", "HMQ5", "HRE5", "J3BT", "JKF3", "JTV5", "JY7Z",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt

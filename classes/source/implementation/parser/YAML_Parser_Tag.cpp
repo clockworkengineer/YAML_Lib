@@ -77,6 +77,23 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   const bool valueStartsOnNextLine = source.current() == kLineFeed;
   source.ignoreWS();
 
+  const auto isEmptyScalar = [&]() {
+    if (!source.more()) {
+      return true;
+    }
+    if (source.current() == kColon || source.current() == kComma ||
+        source.current() == kRightSquareBracket ||
+        source.current() == kRightCurlyBrace || source.current() == '#') {
+      return true;
+    }
+    if (source.current() == kLineFeed) {
+      SourceGuard guard(source);
+      moveToNextIndent(source);
+      return !source.more() || source.getPosition().second <= indentation;
+    }
+    return false;
+  }();
+
   // YAML 1.2 §6.8.1: ns-tag-char excludes c-flow-indicator characters
   // (comma, square brackets, curly braces).  In block context these chars are
   // not flow separators; if they appear inside the extracted suffix the tag is
@@ -137,7 +154,9 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     if (tagSuffix == "str") {
       std::string value;
       const bool needsNodeParse = valueRequiresNodeParse();
-      if (!needsNodeParse) {
+      if (isEmptyScalar) {
+        value = "";
+      } else if (!needsNodeParse) {
         // Same-line scalar: preserve the raw token so !!str 007 stays "007".
         value = extractRawScalar();
       } else {
@@ -163,7 +182,9 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
                     {"null", {parseNone, "!!null"}}};
       const auto &[fn, tagName] = coercions.at(tagSuffix);
       const bool needsNodeParse = valueRequiresNodeParse();
-      if (!needsNodeParse && isQuotedString(source)) {
+      if (isEmptyScalar && tagSuffix == "null") {
+        result = Node::make<Null>();
+      } else if (!needsNodeParse && isQuotedString(source)) {
         const std::string raw = extractRawScalar();
         BufferSource bs{raw + "\n"};
         result = fn(bs, {kLineFeed}, indentation);
