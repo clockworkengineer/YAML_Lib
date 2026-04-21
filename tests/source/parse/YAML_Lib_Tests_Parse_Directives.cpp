@@ -33,6 +33,20 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
     REQUIRE_THROWS(yaml.parse(source));
   }
 
+  SECTION("YAML parse %YAML directive with extra content after version throws.",
+          "[YAML][Parse][Directives][YAMLExtraContent]") {
+    BufferSource source{"%YAML 1.2 foo\n---\nvalue: 42\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
+  SECTION(
+      "YAML parse %YAML directive with numeric extra content after version.",
+      "[YAML][Parse][Directives][YAMLNumericExtraContent]") {
+    BufferSource source{"%YAML 1.1 1.2\n---\nvalue: 42\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(yaml.getNumberOfDocuments() == 1);
+  }
+
   SECTION("YAML bare %YAML directive with no document throws.",
           "[YAML][Parse][Directives][YAMLNoDocument]") {
     BufferSource source{"%YAML 1.2\n"};

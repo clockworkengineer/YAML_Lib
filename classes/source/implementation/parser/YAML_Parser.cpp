@@ -201,6 +201,33 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
     }
     yamlDirectiveSeen = true;
     yamlDirectiveMinor = minor;
+    source.ignoreWS();
+    if (source.more() && source.current() != kLineFeed &&
+        source.current() != '#') {
+      // Allow one extra version-looking token such as "1.2" in weird but
+      // valid legacy directive forms (e.g. ZYU8/2).
+      const std::string trailing{extractToNext(source, {kLineFeed, ' '})};
+      const auto dot2 = trailing.find('.');
+      if (dot2 == std::string::npos) {
+        throw SyntaxError(
+            source.getPosition(),
+            "%YAML directive has unexpected content after version.");
+      }
+      const std::string majorSuffix = trailing.substr(0, dot2);
+      const std::string minorSuffix = trailing.substr(dot2 + 1);
+      if (!isAllDigits(majorSuffix) || !isAllDigits(minorSuffix)) {
+        throw SyntaxError(
+            source.getPosition(),
+            "%YAML directive has unexpected content after version.");
+      }
+      source.ignoreWS();
+      if (source.more() && source.current() != kLineFeed &&
+          source.current() != '#') {
+        throw SyntaxError(
+            source.getPosition(),
+            "%YAML directive has unexpected content after version.");
+      }
+    }
   } else if (directiveName == "TAG") {
     // %TAG handle prefix
     source.ignoreWS();
