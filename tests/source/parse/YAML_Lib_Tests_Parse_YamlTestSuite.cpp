@@ -653,6 +653,14 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     REQUIRE(NRef<String>(yaml.document(0)["block key"][1]).value() == "two");
   }
 
+  // JKF3 — Multiline unindented double quoted block key
+  SECTION("JKF3: multiline unindented double-quoted block key throws.",
+          "[YAML][TestSuite][Invalid]") {
+    BufferSource source{"- - \"bar\n"
+                        "bar\": x\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
   // 565N — !!binary tagged double-quoted and literal block scalars
   SECTION("565N: !!binary tag with double-quoted line-continuation and literal "
           "block parses without error.",
@@ -892,7 +900,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
-      "DC7X", "GDY7", "J3BT", "JKF3", "JTV5", "JY7Z",
+      "DC7X", "GDY7", "J3BT", "JTV5", "JY7Z",
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt

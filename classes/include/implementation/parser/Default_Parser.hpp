@@ -99,6 +99,8 @@ private:
   static bool isNullStringNode(const Node &node);
   static bool looksLikeIso8601Date(const std::string &s);
   static std::string extractString(ISource &source, char quote);
+  static std::string extractString(ISource &source, char quote,
+                                   unsigned long *quoteColumn);
   static std::string extractString(ISource &source);
   static std::string extractRawQuotedScalar(ISource &source);
   static std::string extractTagSuffix(ISource &source);
@@ -122,6 +124,8 @@ private:
                               Node value);
   static Node mergeOverrides(Node &overrideRoot);
   static Node convertYAMLToStringNode(const std::string_view &yamlString);
+  static Node convertYAMLToStringNode(const std::string_view &yamlString,
+                                      unsigned long indentation);
   static bool isValidKey(const std::string_view &key);
   static bool isOverride(ISource &source);
   static bool isKey(ISource &source);
@@ -155,7 +159,8 @@ private:
   static void appendCharacterToString(ISource &source, std::string &yamlString,
                                       bool escapeAware = false,
                                       unsigned long minIndent = 0);
-  static std::string extractKey(ISource &source);
+  static std::string extractKey(ISource &source,
+                                unsigned long *quoteIndent = nullptr);
   static std::pair<BlockChomping, int> parseBlockChomping(ISource &source);
   static std::string parseBlockString(ISource &source,
                                       const Delimiters &delimiters,

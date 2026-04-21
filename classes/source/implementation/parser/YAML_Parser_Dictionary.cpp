@@ -75,8 +75,12 @@ std::string Default_Parser::extractInlineCollectionAt(ISource &source) {
 /// <param name="yamlString">YAML string.</param>
 Node Default_Parser::convertYAMLToStringNode(
     const std::string_view &yamlString) {
-  auto keyNode =
-      parseFromBuffer(std::string(yamlString) + kLineFeed, {kLineFeed}, 0);
+  return convertYAMLToStringNode(yamlString, 0);
+}
+Node Default_Parser::convertYAMLToStringNode(const std::string_view &yamlString,
+                                             unsigned long indentation) {
+  auto keyNode = parseFromBuffer(std::string(yamlString) + kLineFeed,
+                                 {kLineFeed}, indentation);
   std::string keyString{NRef<Variant>(keyNode).toKey()};
   char quote = '\"';
   if (isA<String>(keyNode)) {
@@ -246,7 +250,8 @@ std::string Default_Parser::extractMapping(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>YAML for key value.</returns>
-std::string Default_Parser::extractKey(ISource &source) {
+std::string Default_Parser::extractKey(ISource &source,
+                                       unsigned long *quoteIndent) {
   const auto extractPlainKeyTail = [&source]() {
     const Delimiters plainKeyDelimiters = keyStopDelimiters();
     std::string keyTail;
@@ -330,7 +335,10 @@ std::string Default_Parser::extractKey(ISource &source) {
         if (isInlineCollection(source)) {
           result += extractInlineCollectionAt(source);
         } else if (isQuotedString(source)) {
-          result += extractString(source);
+          if (quoteIndent) {
+            *quoteIndent = source.getPosition().second;
+          }
+          result += extractString(source, source.current(), quoteIndent);
         } else {
           result += extractPlainKeyTail();
           rightTrim(result);
@@ -338,7 +346,10 @@ std::string Default_Parser::extractKey(ISource &source) {
       } else if (isInlineCollection(source)) {
         result += extractInlineCollectionAt(source);
       } else if (isQuotedString(source)) {
-        result += extractString(source);
+        if (quoteIndent) {
+          *quoteIndent = source.getPosition().second;
+        }
+        result += extractString(source, source.current(), quoteIndent);
       } else {
         result += extractPlainKeyTail();
         rightTrim(result);
@@ -350,7 +361,10 @@ std::string Default_Parser::extractKey(ISource &source) {
     return extractInlineCollectionAt(source);
   }
   if (isQuotedString(source)) {
-    return extractString(source);
+    if (quoteIndent) {
+      *quoteIndent = source.getPosition().second;
+    }
+    return extractString(source, source.current(), quoteIndent);
   }
   if (isMapping(source)) {
     return extractMapping(source);
@@ -369,7 +383,8 @@ std::string Default_Parser::extractKey(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>Dictionary entry key.</returns>
 Node Default_Parser::parseKey(ISource &source) {
-  std::string key{extractKey(source)};
+  unsigned long keyQuoteIndent = 0;
+  std::string key{extractKey(source, &keyQuoteIndent)};
   // Patch: In flow context, allow multi-line explicit keys (e.g., '? foo\n bar
   // : baz')
   if (isInsideFlowContext()) {
@@ -408,7 +423,10 @@ Node Default_Parser::parseKey(ISource &source) {
     throw SyntaxError(source.getPosition(),
                       "Invalid key '" + key + "' specified.");
   }
-  return convertYAMLToStringNode(key);
+  if (isInsideFlowContext()) {
+    return convertYAMLToStringNode(key, 0);
+  }
+  return convertYAMLToStringNode(key, keyQuoteIndent);
 }
 /// <summary>
 /// Parse dictionary key/value pair on source stream.

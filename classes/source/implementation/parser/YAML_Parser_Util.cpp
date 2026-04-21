@@ -161,10 +161,14 @@ void Default_Parser::moveToNextIndent(ISource &source) {
 std::string Default_Parser::extractString(ISource &source) {
   return extractString(source, source.current());
 }
-/// <param name="source">Source stream.</param>
-/// <param name="quote"></param>
-/// <returns>Extracted characters.</returns>
 std::string Default_Parser::extractString(ISource &source, const char quote) {
+  return extractString(source, quote, nullptr);
+}
+std::string Default_Parser::extractString(ISource &source, const char quote,
+                                          unsigned long *quoteColumn) {
+  if (quoteColumn) {
+    *quoteColumn = source.getPosition().second;
+  }
   std::string extracted{quote};
   source.next(); // skip opening quote
   bool foundClosing = false;
