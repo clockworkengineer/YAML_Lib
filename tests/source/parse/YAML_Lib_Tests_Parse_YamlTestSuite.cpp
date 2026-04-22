@@ -615,6 +615,16 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
+  // JY7Z — Quoted scalar with trailing content that looks like a mapping
+  SECTION("JY7Z: quoted scalar with trailing content that looks like a "
+          "mapping throws.",
+          "[YAML][TestSuite][Invalid]") {
+    BufferSource source{"key1: \"quoted1\"\n"
+                        "key2: \"quoted2\" no key: nor value\n"
+                        "key3: \"quoted3\"\n"};
+    REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
+  }
+
   // 5U3A — Block sequence indicator on same line as mapping key
   SECTION("5U3A: block sequence indicator '-' on same line as mapping key "
           "value throws.",
@@ -900,7 +910,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
-      "JTV5", "JY7Z",
+      "JTV5", 
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
