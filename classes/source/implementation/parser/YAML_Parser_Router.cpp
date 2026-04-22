@@ -69,7 +69,8 @@ bool Default_Parser::isKey(ISource &source) {
         source.next();
       }
       if (!source.more() || source.current() == kSpace ||
-          source.current() == kLineFeed || source.current() == '#') {
+          source.current() == kLineFeed || source.current() == '#' ||
+          source.current() == '|' || source.current() == '>') {
         validTabSeparator = true;
         if (source.current() == kSpace) {
           tabGuard.release(); // space follows — consume the tab(s)

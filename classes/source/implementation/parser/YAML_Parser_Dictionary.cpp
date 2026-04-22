@@ -282,7 +282,8 @@ std::string Default_Parser::extractKey(ISource &source,
             source.next();
           }
           return !source.more() || source.current() == kSpace ||
-                 source.current() == kLineFeed || source.current() == '#';
+                 source.current() == kLineFeed || source.current() == '#'
+                 || source.current() == '|' || source.current() == '>';
         }
         return false;
       }();
