@@ -75,10 +75,21 @@ private:
   // otherwise the guard restores the source to where it was.
   template <typename Predicate>
   static Node tryParseToken(ISource &source, const Delimiters &delimiters,
-                            Predicate &&pred) {
+                            Predicate &&pred, unsigned long indentation = 0) {
     SourceGuard guard(source);
     std::string token{extractToNext(source, delimiters)};
     rightTrim(token);
+    if (source.more() && source.current() == kLineFeed) {
+      SourceGuard peek(source);
+      source.next();
+      while (source.more() && source.current() == kSpace) {
+        source.next();
+      }
+      if (source.more() && source.current() != kLineFeed &&
+          source.getPosition().second > indentation) {
+        return {};
+      }
+    }
     Node result = std::forward<Predicate>(pred)(token);
     if (!result.isEmpty()) {
       guard.release();

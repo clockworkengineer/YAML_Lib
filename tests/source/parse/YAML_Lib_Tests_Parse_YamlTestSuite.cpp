@@ -909,9 +909,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // previously-passing tests are still caught while known-broken tests do
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
-  static const std::unordered_set<std::string> knownFailures{
-      "JTV5", 
-  };
+  static const std::unordered_set<std::string> knownFailures{};
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
   const path suiteDir{YAML_SUITE_SRC_DIR};
