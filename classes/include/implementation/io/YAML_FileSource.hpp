@@ -69,6 +69,9 @@ public:
     source.seekg(context.bufferPosition, std::ios_base::beg);
     bufferPosition = source.tellg();
   }
+  void discardSave() override {
+    contexts.pop_back();
+  }
   std::string getFileName() { return filename; }
   void close() { source.close(); }
 protected:

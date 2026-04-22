@@ -302,7 +302,6 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
     // Save position for lookahead.
     {
       SourceGuard guard(source);
-      size_t pos = source.getPosition().second;
       // Skip the opening quote
       // (already consumed above)
       // Look ahead for ':' after closing quote

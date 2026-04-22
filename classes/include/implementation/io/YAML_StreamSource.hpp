@@ -96,6 +96,9 @@ public:
                  std::ios_base::beg);
     bufferPosition = static_cast<std::size_t>(stream.tellg());
   }
+  void discardSave() override {
+    contexts.pop_back();
+  }
 
 protected:
   void backup(const unsigned long length) override {

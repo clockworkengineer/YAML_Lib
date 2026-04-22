@@ -99,6 +99,7 @@ public:
   // ====================
   virtual void save() = 0;
   virtual void restore() = 0;
+  virtual void discardSave() = 0;
 
 protected:
   // ========================

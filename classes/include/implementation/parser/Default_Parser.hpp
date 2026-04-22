@@ -38,7 +38,12 @@ private:
       }
     }
     // Disarm the guard: the caller takes responsibility for the stream pos.
-    void release() { src_ = nullptr; }
+    void release() {
+      if (src_) {
+        src_->discardSave();
+      }
+      src_ = nullptr;
+    }
     SourceGuard(const SourceGuard &) = delete;
     SourceGuard &operator=(const SourceGuard &) = delete;
     SourceGuard(SourceGuard &&) = delete;

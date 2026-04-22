@@ -49,6 +49,9 @@ public:
     column = context.column;
     bufferPosition = context.bufferPosition;
   }
+  void discardSave() override {
+    contexts.pop_back();
+  }
 
 protected:
   void backup(const unsigned long length) override {
