@@ -16,8 +16,7 @@ namespace YAML_Lib {
 /// YYYY-MM-DD (4 digits, '-', 2 digits, '-', 2 digits).
 /// </summary>
 bool Default_Parser::looksLikeIso8601Date(const std::string &s) {
-  if (s.size() < 10)
-    return false;
+  if (s.size() < 10) return false;
   const auto dig = [&](int i) {
     return std::isdigit(static_cast<unsigned char>(s[i])) != 0;
   };
@@ -67,14 +66,11 @@ bool Default_Parser::isTimestamp(ISource &source) {
 Node Default_Parser::parseTimestamp(
     ISource &source, const Delimiters &delimiters,
     [[maybe_unused]] unsigned long indentation) {
-  return tryParseToken(
-      source, delimiters,
-      [](const std::string &tok) -> Node {
-        if (looksLikeIso8601Date(tok))
-          return Node::make<Timestamp>(tok);
-        return {};
-      },
-      indentation);
+  return tryParseToken(source, delimiters, [](const std::string &tok) -> Node {
+    if (looksLikeIso8601Date(tok))
+      return Node::make<Timestamp>(tok);
+    return {};
+  });
 }
 
 } // namespace YAML_Lib
