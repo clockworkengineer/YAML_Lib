@@ -27,7 +27,8 @@ Node Default_Parser::parseDocument(ISource &source,
     throw SyntaxError(source.getPosition(),
                       "Document marker not permitted inside flow collection.");
   }
-  for (const auto &[fst, snd] : parsers) {
+  for (std::size_t i = 0; i < parsers.size(); ++i) {
+    const auto &[fst, snd] = parsers[i];
     if (fst(source)) {
       if (Node yNode = snd(source, delimiters, indentation); !yNode.isEmpty()) {
         moveToNextIndent(source);

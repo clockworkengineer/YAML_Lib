@@ -61,24 +61,30 @@ bool Default_Parser::isKey(ISource &source) {
     // block-value indentation → reject it (e.g. Y79Y/7: ":" + TAB + "-").
     // A tab followed by a space is a valid s-white separation sequence
     // (e.g. 6BCT: "foo:" + TAB + " bar").
+    bool validTabSeparator = false;
     if (inlineDictionaryDepth == 0 && source.more() &&
         source.current() == '\t') {
       SourceGuard tabGuard(source);
       while (source.more() && source.current() == '\t') {
         source.next();
       }
-      if (!source.more() || source.current() != kSpace) {
+      if (!source.more() || source.current() == kSpace ||
+          source.current() == kLineFeed || source.current() == '#') {
+        validTabSeparator = true;
+        if (source.current() == kSpace) {
+          tabGuard.release(); // space follows — consume the tab(s)
+        }
+      } else {
         throw SyntaxError(
             source.getPosition(),
             "Tab used as block value-separator after ':'; block indentation "
             "must use spaces, not tabs (YAML 1.2 \xc2\xa7"
             "6.1).");
       }
-      tabGuard.release(); // space follows — consume the tab(s) and continue
     }
     if (source.current() == ' ' || source.current() == kLineFeed ||
-        (!key.empty() && key.back() == kColon) ||
-        (isInsideFlowContext() && nonPlainFlowKey)) {
+        source.current() == '\t' || (!key.empty() && key.back() == kColon) ||
+        (isInsideFlowContext() && nonPlainFlowKey) || validTabSeparator) {
       if (!key.empty() && key.back() == kColon) {
         key.pop_back();
       }

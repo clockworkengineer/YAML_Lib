@@ -262,8 +262,18 @@ std::string Default_Parser::extractKey(ISource &source,
       const bool isSeparator = [&source]() -> bool {
         SourceGuard guard(source);
         source.next(); // peek past ':'
-        return !source.more() || source.current() == kSpace ||
-               source.current() == kLineFeed;
+        if (!source.more() || source.current() == kSpace ||
+            source.current() == kLineFeed || source.current() == '#') {
+          return true;
+        }
+        if (source.current() == '\t') {
+          while (source.more() && source.current() == '\t') {
+            source.next();
+          }
+          return !source.more() || source.current() == kSpace ||
+                 source.current() == kLineFeed || source.current() == '#';
+        }
+        return false;
       }();
       if (isSeparator)
         break; // ':' is the key-value separator, stop here
@@ -440,27 +450,33 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
                                               const unsigned long indentation) {
   const unsigned long keyIndent = source.getPosition().second;
   const auto keyLine = source.getPosition().first;
-  bool explicitValueSeparator = false;
   Node keyNode = parseKey(source);
   source.ignoreWS();
   // Explicit-key value separator: "? key\n: value" form — after parsing a '?'
   // key, source lands on the ': value' line.  Consume ':' (and optional space)
   // BEFORE calling isKey(), because isKey() treats ':' as a valid key start.
   if (source.more() && source.current() == kColon) {
-    explicitValueSeparator = true;
     source.next(); // consume ':'
     if (source.more() && source.current() == kSpace) {
       source.next(); // consume optional space after ':'
     } else if (inlineDictionaryDepth == 0 && source.more() &&
                source.current() == '\t') {
-      // YAML 1.2 §6.1: block indentation must use spaces, not tabs.
-      // A tab immediately after the ':' explicit value separator is an
-      // invalid block structure separator — reject it.
-      throw SyntaxError(
-          source.getPosition(),
-          "Tab used as block value-separator after ':'; block indentation "
-          "must use spaces, not tabs (YAML 1.2 \xc2\xa7"
-          "6.1).");
+      SourceGuard tabGuard(source);
+      while (source.more() && source.current() == '\t') {
+        source.next();
+      }
+      if (!source.more() || source.current() == kSpace ||
+          source.current() == kLineFeed || source.current() == '#') {
+        if (source.current() == kSpace) {
+          tabGuard.release();
+        }
+      } else {
+        throw SyntaxError(
+            source.getPosition(),
+            "Tab used as block value-separator after ':'; block indentation "
+            "must use spaces, not tabs (YAML 1.2 \xc2\xa7"
+            "6.1).");
+      }
     }
   } else if (isKey(source) && !isMapping(source) && !isAlias(source) &&
              (inlineDictionaryDepth > 0 ||
