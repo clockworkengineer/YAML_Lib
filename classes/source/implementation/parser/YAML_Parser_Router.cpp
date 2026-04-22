@@ -82,8 +82,9 @@ bool Default_Parser::isKey(ISource &source) {
             "6.1).");
       }
     }
-    if (source.current() == ' ' || source.current() == kLineFeed ||
-        source.current() == '\t' || (!key.empty() && key.back() == kColon) ||
+    if (!source.more() || source.current() == ' ' || source.current() == '\t' ||
+        source.current() == kLineFeed ||
+        (!key.empty() && key.back() == kColon) ||
         (isInsideFlowContext() && nonPlainFlowKey) || validTabSeparator) {
       if (!key.empty() && key.back() == kColon) {
         key.pop_back();

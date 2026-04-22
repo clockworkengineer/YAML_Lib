@@ -236,12 +236,7 @@ std::string Default_Parser::extractMapping(ISource &source) {
     // Strip inline comment: in YAML, '#' preceded by whitespace is a comment.
     for (std::size_t i = 1; i < text.size(); ++i) {
       if (text[i] == '#' && (text[i - 1] == ' ' || text[i - 1] == '\t')) {
-        text.resize(i - 1);
-        // Skip the remainder of the comment in the source stream so a colon
-        // inside the comment does not get interpreted as a key/value separator.
-        while (source.more() && source.current() != kLineFeed) {
-          source.next();
-        }
+        text.erase(i - 1); // erase from the whitespace before '#'
         break;
       }
     }
@@ -259,10 +254,21 @@ std::string Default_Parser::extractKey(ISource &source,
                                        unsigned long *quoteIndent) {
   const auto extractPlainKeyTail = [&source]() {
     const Delimiters plainKeyDelimiters = keyStopDelimiters();
+    const Delimiters delimitersWithComment = withExtras(plainKeyDelimiters, {'#'});
     std::string keyTail;
     while (source.more()) {
-      keyTail += extractToNext(source, plainKeyDelimiters);
-      if (!source.more() || source.current() != kColon)
+      keyTail += extractToNext(source, delimitersWithComment);
+      if (!source.more())
+        break;
+      if (source.current() == '#') {
+        if (!keyTail.empty() &&
+            (keyTail.back() == kSpace || keyTail.back() == '\t')) {
+          break; // comment begins here; do not include the '#' or the rest
+        }
+        keyTail += source.append();
+        continue;
+      }
+      if (source.current() != kColon)
         break;
       const bool isSeparator = [&source]() -> bool {
         SourceGuard guard(source);
