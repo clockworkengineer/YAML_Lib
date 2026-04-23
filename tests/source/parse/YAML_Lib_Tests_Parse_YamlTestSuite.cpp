@@ -552,6 +552,24 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
     REQUIRE(NRef<Array>(yaml.document(0)["x"]).size() == 1);
     REQUIRE(NRef<String>(yaml.document(0)["x"][0]).value() == "x x");
   }
+
+  // JTV5 — Block Mapping with Multiline Scalars
+  SECTION("JTV5: explicit block mapping with multiline scalar keys and values.",
+          "[YAML][TestSuite][Valid]") {
+    BufferSource source{"? a\n"
+                        "  true\n"
+                        ": null\n"
+                        "  d\n"
+                        "?\n"
+                        "e\n"
+                        "  42\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Dictionary>(yaml.document(0)));
+    REQUIRE(NRef<Dictionary>(yaml.document(0)).size() == 2);
+    REQUIRE(isA<String>(yaml.document(0)["a true"]));
+    REQUIRE(NRef<String>(yaml.document(0)["a true"]).value() == "null d");
+    REQUIRE(isA<Null>(yaml.document(0)["e 42"]));
+  }
 }
 
 TEST_CASE("YAML test-suite — invalid documents throw on parse.",
@@ -910,7 +928,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // not pollute the CI failure count.  Remove an entry here once the
   // underlying parser issue has been fixed.
   static const std::unordered_set<std::string> knownFailures{
-      "JTV5", 
+     
   };
 
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt

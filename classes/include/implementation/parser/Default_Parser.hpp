@@ -75,16 +75,25 @@ private:
   // otherwise the guard restores the source to where it was.
   template <typename Predicate>
   static Node tryParseToken(ISource &source, const Delimiters &delimiters,
+                            unsigned long indentation,
                             Predicate &&pred) {
+    const unsigned long tokenIndent = source.getPosition().second;
     SourceGuard guard(source);
     std::string token{extractToNext(source, delimiters)};
     rightTrim(token);
+    if (source.more() && source.current() == kLineFeed &&
+        hasPlainScalarContinuation(source, tokenIndent)) {
+      return {};
+    }
     Node result = std::forward<Predicate>(pred)(token);
     if (!result.isEmpty()) {
       guard.release();
     }
     return result;
   }
+
+  static bool hasPlainScalarContinuation(ISource &source,
+                                         unsigned long indentation);
 
   // YAML parser
   static bool endsWith(const std::string_view &str,

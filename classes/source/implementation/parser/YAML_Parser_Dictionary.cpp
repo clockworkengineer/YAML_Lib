@@ -233,6 +233,43 @@ std::string Default_Parser::extractMapping(ISource &source) {
     key += kColon;
   } else {
     std::string text = extractToNext(source, {kLineFeed});
+    std::string multilineKey;
+    bool multiline = false;
+    if (source.more() && source.current() == kLineFeed) {
+      source.next();
+      while (source.more()) {
+        if (source.getPosition().second == questionCol &&
+            source.current() == kColon) {
+          // Found the explicit key terminator. Preserve the full key text.
+          // Example: '? a\n  true\n: value' -> 'a\n  true'.
+          // 'text' holds the first line, 'multilineKey' holds subsequent lines.
+          key += text;
+          key += kLineFeed;
+          key += multilineKey;
+          key += kColon;
+          return key;
+        }
+        const bool lineTooShallow = [&]() {
+          SourceGuard guard(source);
+          while (source.more() &&
+                 (source.current() == kSpace || source.current() == '\t')) {
+            source.next();
+          }
+          return source.getPosition().second <= questionCol;
+        }();
+        if (lineTooShallow) {
+          break;
+        }
+        multilineKey += extractToNext(source, {kLineFeed});
+        if (source.more() && source.current() == kLineFeed) {
+          multilineKey += kLineFeed;
+          source.next();
+        } else {
+          break;
+        }
+      }
+      multiline = true;
+    }
     // Strip inline comment: in YAML, '#' preceded by whitespace is a comment.
     for (std::size_t i = 1; i < text.size(); ++i) {
       if (text[i] == '#' && (text[i - 1] == ' ' || text[i - 1] == '\t')) {
@@ -241,6 +278,10 @@ std::string Default_Parser::extractMapping(ISource &source) {
       }
     }
     key += text;
+    if (multiline) {
+      key += kLineFeed;
+      key += multilineKey;
+    }
     key += kColon;
   }
   return key;

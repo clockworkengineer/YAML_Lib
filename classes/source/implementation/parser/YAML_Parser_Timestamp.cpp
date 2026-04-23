@@ -66,7 +66,8 @@ bool Default_Parser::isTimestamp(ISource &source) {
 Node Default_Parser::parseTimestamp(
     ISource &source, const Delimiters &delimiters,
     [[maybe_unused]] unsigned long indentation) {
-  return tryParseToken(source, delimiters, [](const std::string &tok) -> Node {
+  return tryParseToken(source, delimiters, indentation,
+                       [](const std::string &tok) -> Node {
     if (looksLikeIso8601Date(tok))
       return Node::make<Timestamp>(tok);
     return {};
@@ -74,3 +75,4 @@ Node Default_Parser::parseTimestamp(
 }
 
 } // namespace YAML_Lib
+

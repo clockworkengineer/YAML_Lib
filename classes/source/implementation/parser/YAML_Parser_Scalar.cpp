@@ -36,7 +36,8 @@ void Default_Parser::convertOctalToDecimal(std::string &numeric,
 /// <returns>Number Node.</returns>
 Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
                                  [[maybe_unused]] unsigned long indentation) {
-  return tryParseToken(source, delimiters, [](std::string numeric) -> Node {
+  return tryParseToken(source, delimiters, indentation,
+                       [](std::string numeric) -> Node {
     // YAML 1.2 special float literals (case-insensitive).
     {
       std::string lower = numeric;
@@ -86,7 +87,8 @@ Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
 /// <returns>None Node.</returns>
 Node Default_Parser::parseNone(ISource &source, const Delimiters &delimiters,
                                [[maybe_unused]] unsigned long indentation) {
-  return tryParseToken(source, delimiters, [](const std::string &tok) -> Node {
+  return tryParseToken(source, delimiters, indentation,
+                       [](const std::string &tok) -> Node {
     if (tok == "null" || tok == "~")
       return Node::make<Null>();
     return {};
@@ -103,7 +105,8 @@ Node Default_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
                                   [[maybe_unused]] unsigned long indentation) {
   static const std::set<std::string_view> strict12True{"true"};
   static const std::set<std::string_view> strict12False{"false"};
-  return tryParseToken(source, delimiters, [&](const std::string &tok) -> Node {
+  return tryParseToken(source, delimiters, indentation,
+                       [&](const std::string &tok) -> Node {
     const bool strictMode = strictBooleans || yamlDirectiveMinor >= 2;
     const auto &trueSet = strictMode ? strict12True : Boolean::isTrue;
     const auto &falseSet = strictMode ? strict12False : Boolean::isFalse;
@@ -113,6 +116,43 @@ Node Default_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
       return Node::make<Boolean>(false, tok);
     return {};
   });
+}
+
+bool Default_Parser::hasPlainScalarContinuation(ISource &source,
+                                                unsigned long indentation) {
+  if (!source.more() || source.current() != kLineFeed) {
+    return false;
+  }
+  SourceGuard guard(source);
+  source.next();
+  while (source.more()) {
+    while (source.more() &&
+           (source.current() == kSpace || source.current() == '\t')) {
+      source.next();
+    }
+    if (!source.more()) {
+      return false;
+    }
+    if (source.current() == kLineFeed) {
+      source.next();
+      continue;
+    }
+    if (source.current() == '#') {
+      while (source.more() && source.current() != kLineFeed) {
+        source.next();
+      }
+      if (source.more()) {
+        source.next();
+      }
+      continue;
+    }
+    if (isDocumentBoundary(source)) {
+      return false;
+    }
+    bool result = source.getPosition().second >= indentation;
+    return result;
+  }
+  return false;
 }
 
 } // namespace YAML_Lib
