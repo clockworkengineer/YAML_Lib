@@ -260,6 +260,34 @@ std::string Default_Parser::extractMapping(ISource &source) {
         if (lineTooShallow) {
           break;
         }
+        std::size_t separatorPos = std::string::npos;
+        {
+          SourceGuard lineGuard(source);
+          const std::string line = extractToNext(source, {kLineFeed});
+          for (std::size_t pos = 0; pos < line.size(); ++pos) {
+            if (line[pos] != kColon) {
+              continue;
+            }
+            const char nextChar = (pos + 1 < line.size() ? line[pos + 1] : '\0');
+            if (nextChar == kSpace || nextChar == '\t' || nextChar == '#' ||
+                nextChar == '\0') {
+              separatorPos = pos;
+              break;
+            }
+          }
+        }
+        if (separatorPos != std::string::npos) {
+          std::string linePrefix;
+          for (std::size_t i = 0; i < separatorPos; ++i) {
+            linePrefix += source.append();
+          }
+          key += text;
+          key += kLineFeed;
+          key += multilineKey;
+          key += linePrefix;
+          key += kColon;
+          return key;
+        }
         multilineKey += extractToNext(source, {kLineFeed});
         if (source.more() && source.current() == kLineFeed) {
           multilineKey += kLineFeed;
