@@ -167,7 +167,7 @@ inline std::string Dictionary::toKey() const {
                                ? yNodeDictionary.size() - 1
                                : 0;
   for (const auto &entryNode : yNodeDictionary) {
-    result += entryNode.getKeyNode().toString();
+    result += std::string(entryNode.getKey());
     result += ": ";
     // toString() dispatches to toKey() for containers, toString() for scalars
     result += entryNode.getNode().toString();

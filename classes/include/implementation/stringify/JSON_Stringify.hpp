@@ -85,7 +85,7 @@ private:
     auto comma = NRef<Dictionary>(yNode).value().size() - 1;
     destination.add('{');
     for (auto &entry : NRef<Dictionary>(yNode).value()) {
-      stringifyNodes(entry.getKeyNode(), destination, 0);
+      destination.add('"' + jsonTranslator->to(entry.getKey()) + '"');
       destination.add(":");
       stringifyNodes(entry.getNode(), destination, 0);
       if (comma-- > 0) {

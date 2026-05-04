@@ -186,15 +186,15 @@ private:
                                   const unsigned long indent) {
     for (const auto &entryNode : NRef<Dictionary>(yNode).value()) {
       destination.add(calculateIndent(destination, indent));
-      if (const char quote = NRef<String>(entryNode.getKeyNode()).getQuote();
+      if (const char quote = entryNode.getKeyQuote();
           quote == kApostrophe || quote == kDoubleQuote) {
-        std::string keyString{NRef<String>(entryNode.getKeyNode()).toString()};
+        std::string keyString{std::string(entryNode.getKey())};
         if (quote == kApostrophe) {
           keyString = escapeSingleQuoted(keyString);
         }
         destination.add(quote + keyString + quote);
       } else {
-        destination.add(NRef<String>(entryNode.getKeyNode()).toString());
+        destination.add(std::string(entryNode.getKey()));
       }
       destination.add(": ");
       stringifyAnyBlockStyle(destination, entryNode.getNode());

@@ -4,27 +4,27 @@ namespace YAML_Lib {
 
 // Dictionary entry
 struct DictionaryEntry {
-  DictionaryEntry(const std::string_view &key, Node &yNode)
-      : key(Node::make<String>(key, kNull)), yNode(std::move(yNode)) {}
-  DictionaryEntry(const std::string_view &key, Node &&yNode)
-      : key(Node::make<String>(key, kNull)), yNode(std::move(yNode)) {}
+  DictionaryEntry(const std::string_view &key, Node &yNode, char quote = kNull)
+      : yNodeKey(key), yNodeKeyQuote(quote), yNode(std::move(yNode)) {}
+  DictionaryEntry(const std::string_view &key, Node &&yNode,
+                  char quote = kNull)
+      : yNodeKey(key), yNodeKeyQuote(quote), yNode(std::move(yNode)) {}
   DictionaryEntry(Node &keyNode, Node &yNode)
-      : key(std::move(keyNode)), yNode(std::move(yNode)) {}
+      : yNodeKey(std::get<String>(keyNode.getVariant()).toString()),
+        yNodeKeyQuote(std::get<String>(keyNode.getVariant()).getQuote()),
+        yNode(std::move(yNode)) {}
   DictionaryEntry(Node &keyNode, Node &&yNode)
-      : key(std::move(keyNode)), yNode(std::move(yNode)) {}
-  [[nodiscard]] std::string_view getKey() {
-    return std::get<String>(key.getVariant()).value();
-  }
-  [[nodiscard]] std::string_view getKey() const {
-    return std::get<String>(key.getVariant()).value();
-  }
-  [[nodiscard]] Node &getKeyNode() { return key; }
-  [[nodiscard]] const Node &getKeyNode() const { return key; }
+      : yNodeKey(std::get<String>(keyNode.getVariant()).toString()),
+        yNodeKeyQuote(std::get<String>(keyNode.getVariant()).getQuote()),
+        yNode(std::move(yNode)) {}
+  [[nodiscard]] std::string_view getKey() const { return yNodeKey; }
+  [[nodiscard]] char getKeyQuote() const { return yNodeKeyQuote; }
   [[nodiscard]] Node &getNode() { return yNode; }
   [[nodiscard]] const Node &getNode() const { return yNode; }
 
 private:
-  Node key;
+  std::string yNodeKey;
+  char yNodeKeyQuote{kNull};
   Node yNode;
 };
 

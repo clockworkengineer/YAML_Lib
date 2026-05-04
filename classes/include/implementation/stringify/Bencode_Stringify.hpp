@@ -82,7 +82,9 @@ private:
                                   IDestination &destination) {
     destination.add('d');
     for (auto &entry : NRef<Dictionary>(yNode).value()) {
-      stringifyNodes(entry.getKeyNode(), destination, 0);
+      const auto key = entry.getKey();
+      destination.add(std::to_string(static_cast<int>(key.length())) + ":" +
+                      std::string(key));
       stringifyNodes(entry.getNode(), destination, 0);
     }
     destination.add("e");
