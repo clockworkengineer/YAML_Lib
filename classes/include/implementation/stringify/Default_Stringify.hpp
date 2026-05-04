@@ -81,12 +81,17 @@ private:
     }
     return parts;
   }
-  static std::string calculateIndent(IDestination &destination,
-                                     const unsigned long indent) {
+  static std::string_view calculateIndent(IDestination &destination,
+                                          const unsigned long indent) {
     if (destination.last() == kLineFeed) {
-      return std::string(indent, kSpace);
+      // Grow cache only when needed; reuse existing allocation otherwise.
+      static std::string indentBuf;
+      if (indentBuf.size() < indent) {
+        indentBuf.assign(indent, kSpace);
+      }
+      return std::string_view(indentBuf.data(), indent);
     }
-    return std::string("");
+    return {};
   }
   static void stringifyAnyBlockStyle(IDestination &destination,
                                      const Node &yNode) {
@@ -220,7 +225,8 @@ private:
   static void stringifyArray(const Node &yNode, IDestination &destination,
                              const unsigned long indent) {
     for (const auto &entryNode : NRef<Array>(yNode).value()) {
-      destination.add(calculateIndent(destination, indent) + "- ");
+      destination.add(calculateIndent(destination, indent));
+      destination.add("- ");
       stringifyAnyBlockStyle(destination, entryNode);
       stringifyNodes(entryNode, destination, indent + yamlIndentation);
       if (destination.last() != kLineFeed) {
