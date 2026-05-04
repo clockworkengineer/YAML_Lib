@@ -17,6 +17,9 @@ endif()
 
 configure_file(YAML_Config.h.in YAML_Config.hpp)
 
+option(BUILD_YAML_EXAMPLES "Build YAML_Lib example programs" ON)
+option(BUILD_YAML_TESTS "Build YAML_Lib unit tests" ON)
+
 set(YAML_LIBRARY_NAME ${PROJECT_NAME})
 
 # Sources
@@ -98,8 +101,13 @@ target_include_directories(${YAML_LIBRARY_NAME}
 
 target_precompile_headers(${YAML_LIBRARY_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/stdafx.h)
 
-add_subdirectory(tests)
-add_subdirectory(examples)
+if(BUILD_YAML_TESTS)
+  add_subdirectory(tests)
+endif()
+
+if(BUILD_YAML_EXAMPLES)
+  add_subdirectory(examples)
+endif()
 
 install(TARGETS ${YAML_LIBRARY_NAME}
   EXPORT YAML_LibTargets
