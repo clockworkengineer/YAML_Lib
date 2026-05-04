@@ -19,9 +19,10 @@
 // 4. Node struct + NodeVariant definition (uses scalar types; forward-declares containers)
 #include "YAML_Node.hpp"
 // 5. Container variant types (depend on complete Node for vector<Node> members)
-#include "YAML_Array.hpp"       // struct Array { vector<Node> }
+#include "YAML_Sequence.hpp"    // SequenceBase<Derived> CRTP base for Array and Document
+#include "YAML_Array.hpp"       // struct Array : SequenceBase<Array>
 #include "YAML_Dictionary.hpp"  // struct Dictionary, DictionaryEntry (uses Node, String)
-#include "YAML_Document.hpp"    // struct Document { vector<Node> }
+#include "YAML_Document.hpp"    // struct Document : SequenceBase<Document>
 // 6. Node method implementations (depend on all variant types above)
 #include "YAML_Node_Reference.hpp" // isA<T>/NRef<T>; also defines Node::toString/toKey,
                                    // Array::toKey/resize, Dictionary::toKey, Document::resize

@@ -136,9 +136,9 @@ inline std::string Node::toKey() const {
 // Array::toKey() — build "[a, b, c]" key string
 inline std::string Array::toKey() const {
   std::string result{kLeftSquareBracket};
-  if (!yNodeArray.empty()) {
-    std::size_t commaCount = yNodeArray.size() - 1;
-    for (const auto &entryNode : yNodeArray) {
+  if (!entries_.empty()) {
+    std::size_t commaCount = entries_.size() - 1;
+    for (const auto &entryNode : entries_) {
       // Matches old behavior: toString() dispatches to toKey() for containers
       result += entryNode.toString();
       if (commaCount-- > 0) {
@@ -150,10 +150,12 @@ inline std::string Array::toKey() const {
   return result;
 }
 
-// Array::resize() — grow array and fill new slots with Hole nodes
-inline void Array::resize(const std::size_t index) {
-  yNodeArray.resize(index + 1);
-  for (auto &entry : yNodeArray) {
+// SequenceBase<Derived>::resize() — grow sequence and fill new slots with Hole nodes.
+// Shared by Array and Document; defined here after Node::make<Hole>() is available.
+template <typename Derived>
+inline void SequenceBase<Derived>::resize(const std::size_t index) {
+  entries_.resize(index + 1);
+  for (auto &entry : entries_) {
     if (entry.isEmpty()) {
       entry = Node::make<Hole>();
     }
@@ -177,16 +179,6 @@ inline std::string Dictionary::toKey() const {
   }
   result += "}";
   return result;
-}
-
-// Document::resize() — grow document and fill new slots with Hole nodes
-inline void Document::resize(const std::size_t index) {
-  yNodeDocument.resize(index + 1);
-  for (auto &entry : yNodeDocument) {
-    if (entry.isEmpty()) {
-      entry = Node::make<Hole>();
-    }
-  }
 }
 
 } // namespace YAML_Lib
