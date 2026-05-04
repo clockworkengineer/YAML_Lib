@@ -26,6 +26,7 @@ public:
   }
   void add(const char ch) override { buffer.push_back(ch); }
   void clear() override { buffer.clear(); }
+  void reserve(const std::size_t n) override { buffer.reserve(n); }
 
   [[nodiscard]] std::string toString() const { return buffer; }
   [[nodiscard]] std::size_t size() const { return buffer.size(); }

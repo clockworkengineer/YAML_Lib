@@ -35,6 +35,9 @@ std::string YAML_Impl::version() {
 void YAML_Impl::parse(ISource &source) { yamlTree = yamlParser->parse(source); }
 
 void YAML_Impl::stringify(IDestination &destination) const {
+  // Pre-reserve a heuristic capacity to reduce reallocations during stringify.
+  // 512 bytes per document is a conservative estimate for typical YAML.
+  destination.reserve(std::max(std::size_t{4096}, yamlTree.size() * 512));
   for (auto &document : yamlTree) {
     yamlStringify->stringify(document ,destination, 0);
   }

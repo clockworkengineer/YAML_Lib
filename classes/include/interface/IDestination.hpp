@@ -36,5 +36,9 @@ public:
   // Return the last character written
   // =================================
   virtual char last() = 0;
+  // ===========================================
+  // Reserve capacity (no-op for non-buffer destinations)
+  // ===========================================
+  virtual void reserve([[maybe_unused]] std::size_t n) {}
 };
 } // namespace YAML_Lib
