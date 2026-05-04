@@ -258,11 +258,14 @@ private:
   [[nodiscard]] static bool isInsideFlowContext() noexcept;
   static Node parseTagged(ISource &source, const Delimiters &delimiters,
                           unsigned long indentation);
-  // YAML parser routing table
+  // YAML parser routing table — fixed size known at compile time; std::array
+  // avoids one heap allocation per Default_Parser construction and lets the
+  // compiler unroll the dispatch loop.
   using IsAFunc = std::function<bool(ISource &)>;
   using ParseFunc =
       std::function<Node(ISource &, const Delimiters &, unsigned long)>;
-  inline static std::vector<std::pair<IsAFunc, ParseFunc>> parsers{
+  using ParserEntry = std::pair<IsAFunc, ParseFunc>;
+  inline static std::array<ParserEntry, 16> parsers{{
       // Mappings
       {isArray, parseArray},
       {isDictionary, parseDictionary},
@@ -280,7 +283,7 @@ private:
       {isAlias, parseAlias},
       {isOverride, parseOverride},
       {isTagged, parseTagged},
-      {isDefault, parsePlainFlowString}};
+      {isDefault, parsePlainFlowString}}};
   // Array Indent level
   inline static long arrayIndentLevel{0};
   // Inline Array depth
