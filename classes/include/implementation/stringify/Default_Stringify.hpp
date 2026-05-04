@@ -60,20 +60,26 @@ private:
     }
     return escaped;
   }
-  static std::vector<std::string> splitString(const std::string_view &target,
-                                              const char delimiter) {
-    std::vector<std::string> splitStrings;
-    if (!target.empty()) {
-      std::stringstream sourceStream{target.data()};
-
-      for (std::string splitOffItem{};
-           std::getline(sourceStream, splitOffItem, delimiter);) {
-        splitStrings.push_back(splitOffItem);
-        splitStrings.back().push_back(delimiter);
+  static std::vector<std::string_view> splitString(const std::string_view target,
+                                                    const char delimiter) {
+    std::vector<std::string_view> parts;
+    if (target.empty()) return parts;
+    std::string_view sv = target;
+    while (!sv.empty()) {
+      const auto pos = sv.find(delimiter);
+      if (pos == std::string_view::npos) {
+        parts.push_back(sv);
+        break;
       }
-      splitStrings.back().pop_back();
+      parts.push_back(sv.substr(0, pos + 1)); // include delimiter
+      sv.remove_prefix(pos + 1);
     }
-    return splitStrings;
+    // Strip delimiter from last element (matches stringstream/getline behaviour)
+    if (!parts.empty() && !parts.back().empty() &&
+        parts.back().back() == delimiter) {
+      parts.back() = parts.back().substr(0, parts.back().size() - 1);
+    }
+    return parts;
   }
   static std::string calculateIndent(IDestination &destination,
                                      const unsigned long indent) {
@@ -154,8 +160,8 @@ private:
       }
       destination.add(quote + yamlString + quote);
     } else {
-      for (const auto &line :
-           splitString(NRef<String>(yNode).toString(), kLineFeed)) {
+      const std::string strValue = NRef<String>(yNode).toString();
+      for (const auto &line : splitString(strValue, kLineFeed)) {
         destination.add(calculateIndent(destination, indent));
         destination.add(line);
       }
