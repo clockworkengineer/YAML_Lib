@@ -45,7 +45,7 @@ public:
   std::vector<Node> parse(ISource &source) override;
 
   // Alias Map
-  inline static std::map<std::string, std::string> yamlAliasMap{};
+  inline static std::unordered_map<std::string, std::string> yamlAliasMap{};
   // Enable/disable strict YAML 1.2 boolean mode (only 'true'/'false' valid)
   static void setStrictBooleans(const bool strict) { strictBooleans = strict; }
 
