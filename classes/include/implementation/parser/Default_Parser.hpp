@@ -161,7 +161,7 @@ private:
   static Node convertYAMLToStringNode(const std::string_view &yamlString);
   static Node convertYAMLToStringNode(const std::string_view &yamlString,
                                       unsigned long indentation);
-  static bool isValidKey(const std::string_view &key);
+  static bool isValidKey(const std::string_view &key) noexcept;
   static bool isOverride(ISource &source);
   static bool isKey(ISource &source);
   static bool isArray(ISource &source);

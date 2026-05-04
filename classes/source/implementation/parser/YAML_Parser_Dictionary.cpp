@@ -92,18 +92,32 @@ Node Default_Parser::convertYAMLToStringNode(const std::string_view &yamlString,
   return Node::make<String>(keyString, quote);
 }
 /// <summary>
-/// Does YAML that is  passed in constitute a valid dictionary key?
+/// Does the string constitute a valid dictionary key?
+/// Empty / whitespace-only strings map to YAML null keys (valid).
+/// A key whose first non-whitespace character is '#' is a comment (invalid).
+/// Plain scalar keys are accepted directly (fast path, no allocation).
+/// Quoted-string extractions are re-validated via parseFromBuffer because
+/// extractString() does not process escape sequences: "foo\": bar" is
+/// extracted raw as "foo\" (stopping at the wrong "), and only the
+/// mini-parse can tell that the result is not a well-formed YAML value.
 /// </summary>
-/// <param name="key">YAML sequence to be converted to be used as the
-/// key.</param> <returns> If true value is a valid key.</returns>
-bool Default_Parser::isValidKey(const std::string_view &key) {
-  try {
-    const Node keyNode =
-        parseFromBuffer(std::string(key) + kLineFeed, {kLineFeed}, 0);
-    return !keyNode.isEmpty() && !isA<Comment>(keyNode);
-  } catch ([[maybe_unused]] const std::exception &e) {
-    return false;
+/// <param name="key">Candidate key string.</param>
+/// <returns>True if key is valid.</returns>
+bool Default_Parser::isValidKey(const std::string_view &key) noexcept {
+  const auto first = key.find_first_not_of(" \t");
+  if (first == std::string_view::npos) return true; // null/empty key
+  if (key[first] == '#') return false;              // comment
+  if (key[first] == kDoubleQuote || key[first] == kApostrophe) {
+    // Slow path: re-parse to catch truncated quoted-string extractions.
+    try {
+      const Node keyNode =
+          parseFromBuffer(std::string(key) + kLineFeed, {kLineFeed}, 0);
+      return !keyNode.isEmpty() && !isA<Comment>(keyNode);
+    } catch ([[maybe_unused]] const std::exception &e) {
+      return false;
+    }
   }
+  return true; // fast path: plain scalar, anchor, tag, inline collection, etc.
 }
 /// <summary>
 /// Extract mapping on source stream.
