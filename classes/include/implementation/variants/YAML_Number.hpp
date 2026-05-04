@@ -2,7 +2,7 @@
 
 namespace YAML_Lib {
 
-struct Number final : Variant {
+struct Number {
   // Number values variant
   using Values = std::variant<std::monostate, int, long, long long, float,
                               double, long double>;
@@ -12,13 +12,13 @@ struct Number final : Variant {
   // Floating point notation
   enum class numberNotation { normal = 0, fixed, scientific };
   // Constructors/Destructors
-  Number() : Variant(Type::number) {}
+  Number() = default;
   template <typename T> explicit Number(T value);
   Number(const Number &other) = default;
   Number &operator=(const Number &other) = default;
   Number(Number &&other) = default;
   Number &operator=(Number &&other) = default;
-  ~Number() override = default;
+  ~Number() = default;
   // Is number an int/long/long long/float/double/long double ?
   template <typename T> [[nodiscard]] bool is() const {
     return std::get_if<T>(&yNodeNumber) != nullptr;
@@ -29,13 +29,9 @@ struct Number final : Variant {
   // Set numbers value to int/long/long long/float/double/long double
   template <typename T> void set(T number) { *this = Number(number); }
   // Return string representation of value
-  [[nodiscard]] std::string toString() const override {
-    return getAs<std::string>();
-  }
+  [[nodiscard]] std::string toString() const { return getAs<std::string>(); }
   // Convert variant to a key
-  [[nodiscard]] std::string toKey() const override {
-    return getAs<std::string>();
-  }
+  [[nodiscard]] std::string toKey() const { return getAs<std::string>(); }
   // Set floating point to string conversion parameters
   static void setPrecision(const int precision) { numberPrecision = precision; }
   static void setNotation(const numberNotation notation) {
@@ -67,7 +63,7 @@ private:
   inline static auto numberNotation{numberNotation::normal};
 };
 // Construct Number from value
-template <typename T> Number::Number(T value) : Variant(Type::number) {
+template <typename T> Number::Number(T value) {
   if constexpr (std::is_same_v<T, std::string>) {
     convertNumber(value);
   } else {
@@ -180,6 +176,6 @@ template <typename T> T Number::getAs() const {
   if (const auto pValue = std::get_if<long double>(&yNodeNumber)) {
     return convertTo<T>(*pValue);
   }
-  throw Node::Error("Could not convert unknown type.");
+  throw std::runtime_error("Could not convert unknown type.");
 }
 } // namespace YAML_Lib

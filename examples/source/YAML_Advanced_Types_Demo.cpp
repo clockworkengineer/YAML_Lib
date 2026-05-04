@@ -54,17 +54,17 @@ static void demoStandardTags() {
   yaml.parse(source);
   const auto &doc = yaml.document(0);
   PLOG_INFO << "  id      (str)  : " << yl::NRef<yl::String>(doc["id"]).value()
-            << "  tag=" << doc["id"].getVariant().getTag();
+            << "  tag=" << doc["id"].getTag();
   PLOG_INFO << "  count   (int)  : "
             << yl::NRef<yl::Number>(doc["count"]).value<int>()
-            << "  tag=" << doc["count"].getVariant().getTag();
+            << "  tag=" << doc["count"].getTag();
   PLOG_INFO << "  enabled (bool) : "
             << (yl::NRef<yl::Boolean>(doc["enabled"]).value() ? "true"
                                                               : "false")
-            << "  tag=" << doc["enabled"].getVariant().getTag();
+            << "  tag=" << doc["enabled"].getTag();
   PLOG_INFO << "  nothing (null) : "
             << (yl::isA<yl::Null>(doc["nothing"]) ? "null" : "not null")
-            << "  tag=" << doc["nothing"].getVariant().getTag();
+            << "  tag=" << doc["nothing"].getTag();
 }
 
 // ---------------------------------------------------------------------------
@@ -82,10 +82,10 @@ static void demoNamedTagHandles() {
                           "theme:     !m!color dark\n"};
   yaml.parse(source);
   const auto &doc = yaml.document(0);
-  PLOG_INFO << "  component tag  : " << doc["component"].getVariant().getTag();
+  PLOG_INFO << "  component tag  : " << doc["component"].getTag();
   PLOG_INFO << "  component value: "
             << yl::NRef<yl::String>(doc["component"]).value();
-  PLOG_INFO << "  theme tag      : " << doc["theme"].getVariant().getTag();
+  PLOG_INFO << "  theme tag      : " << doc["theme"].getTag();
   PLOG_INFO << "  theme value    : "
             << yl::NRef<yl::String>(doc["theme"]).value();
 }
@@ -100,7 +100,7 @@ static void demoVerbatimTags() {
                           "item: !<tag:example.com,2024:product> widget\n"};
   yaml.parse(source);
   const auto &doc = yaml.document(0);
-  PLOG_INFO << "  item tag  : " << doc["item"].getVariant().getTag();
+  PLOG_INFO << "  item tag  : " << doc["item"].getTag();
   PLOG_INFO << "  item value: " << yl::NRef<yl::String>(doc["item"]).value();
 }
 
@@ -117,7 +117,7 @@ static void demoBinary() {
                           "  2RstVAAAnAAACg8=\n"};
   yaml.parse(source);
   const auto &doc = yaml.document(0);
-  PLOG_INFO << "  thumbnail tag   : " << doc["thumbnail"].getVariant().getTag();
+  PLOG_INFO << "  thumbnail tag   : " << doc["thumbnail"].getTag();
   // The value is the raw base64 string
   PLOG_INFO << "  thumbnail (raw) : "
             << yl::NRef<yl::String>(doc["thumbnail"]).value().substr(0, 20)

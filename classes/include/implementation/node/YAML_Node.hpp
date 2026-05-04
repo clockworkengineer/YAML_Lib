@@ -2,6 +2,20 @@
 
 namespace YAML_Lib {
 
+// Forward declarations for container types (stored via unique_ptr in NodeVariant)
+struct Array;
+struct Dictionary;
+struct Document;
+
+// NodeVariant: scalars stored inline, containers via unique_ptr to avoid
+// circular sizeof dependency (Array/Document contain vector<Node>).
+using NodeVariant = std::variant<
+    std::monostate,            // empty / "hole" sentinel
+    Boolean, Null, Number, String, Timestamp, Comment, Hole,
+    std::unique_ptr<Array>,
+    std::unique_ptr<Dictionary>,
+    std::unique_ptr<Document>>;
+
 struct Node {
   // Node Error
   struct Error final : std::runtime_error {
@@ -23,21 +37,37 @@ struct Node {
     return *this = Node(value);
   }
   // Has the variant been created?
-  [[nodiscard]] bool isEmpty() const { return yNodeVariant == nullptr; }
+  [[nodiscard]] bool isEmpty() const {
+    return std::holds_alternative<std::monostate>(yNodeVariant);
+  }
   // Indexing operators
   Node &operator[](const std::string_view &key);
   const Node &operator[](const std::string_view &key) const;
   Node &operator[](std::size_t index);
   const Node &operator[](std::size_t index) const;
   // Get reference to Node variant
-  Variant &getVariant() { return *yNodeVariant; }
-  [[nodiscard]] const Variant &getVariant() const { return *yNodeVariant; }
-  // Make Node
-  template <typename T, typename... Args> static auto make(Args &&...args) {
-    return Node{std::make_unique<T>(std::forward<Args>(args)...)};
+  NodeVariant &getVariant() { return yNodeVariant; }
+  [[nodiscard]] const NodeVariant &getVariant() const { return yNodeVariant; }
+  // Tag access (was on Variant base class; now lives here)
+  [[nodiscard]] std::string_view getTag() const { return yamlTag; }
+  void setTag(const std::string_view &tag) { yamlTag = std::string(tag); }
+  // String conversion helpers (bodies defined in YAML_Node_Reference.hpp)
+  [[nodiscard]] std::string toString() const;
+  [[nodiscard]] std::string toKey() const;
+  // Make Node — scalars stored inline, containers via unique_ptr
+  template <typename T, typename... Args> static Node make(Args &&...args) {
+    Node n;
+    if constexpr (std::is_same_v<T, Array> || std::is_same_v<T, Dictionary> ||
+                  std::is_same_v<T, Document>) {
+      n.yNodeVariant = std::make_unique<T>(std::forward<Args>(args)...);
+    } else {
+      n.yNodeVariant = T(std::forward<Args>(args)...);
+    }
+    return n;
   }
 
 private:
-  std::unique_ptr<Variant> yNodeVariant;
+  NodeVariant yNodeVariant;
+  std::string yamlTag;
 };
 } // namespace YAML_Lib

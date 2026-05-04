@@ -13,7 +13,7 @@ inline Node &Node::operator[](const std::string_view &key) {
   return NRef<Dictionary>(*this)[key];
 }
 inline const Node &Node::operator[](const std::string_view &key) const {
-  return NRef<const Dictionary>(*this)[key];
+  return NRef<Dictionary>(*this)[key];
 }
 // Array
 inline Node &Node::operator[](const std::size_t index) {

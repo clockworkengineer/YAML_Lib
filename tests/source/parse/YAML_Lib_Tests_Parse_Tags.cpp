@@ -10,7 +10,7 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() == "42");
-    REQUIRE(yaml.document(0).getVariant().getTag() == "tag:yaml.org,2002:str");
+    REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:str");
   }
 
   SECTION("YAML parse !!str on a boolean-looking value forces string.",
@@ -26,7 +26,7 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Number>(yaml.document(0)));
     REQUIRE(NRef<Number>(yaml.document(0)).value<int>() == 42);
-    REQUIRE(yaml.document(0).getVariant().getTag() == "tag:yaml.org,2002:int");
+    REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:int");
   }
 
   SECTION("YAML parse !!float forces float type.",
@@ -34,7 +34,7 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     BufferSource source{"---\n!!float 3.14\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Number>(yaml.document(0)));
-    REQUIRE(yaml.document(0).getVariant().getTag() ==
+    REQUIRE(yaml.document(0).getTag() ==
             "tag:yaml.org,2002:float");
   }
 
@@ -44,14 +44,14 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Boolean>(yaml.document(0)));
     REQUIRE(NRef<Boolean>(yaml.document(0)).value() == true);
-    REQUIRE(yaml.document(0).getVariant().getTag() == "tag:yaml.org,2002:bool");
+    REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:bool");
   }
 
   SECTION("YAML parse !!null forces null type.", "[YAML][Parse][Tags][Null]") {
     BufferSource source{"---\n!!null ~\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Null>(yaml.document(0)));
-    REQUIRE(yaml.document(0).getVariant().getTag() == "tag:yaml.org,2002:null");
+    REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:null");
   }
 
   SECTION("YAML parse !!seq on a YAML sequence.", "[YAML][Parse][Tags][Seq]") {
@@ -59,14 +59,14 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 2);
-    REQUIRE(yaml.document(0).getVariant().getTag() == "tag:yaml.org,2002:seq");
+    REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:seq");
   }
 
   SECTION("YAML parse !!map on a YAML mapping.", "[YAML][Parse][Tags][Map]") {
     BufferSource source{"---\n!!map\nkey: value\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
-    REQUIRE(yaml.document(0).getVariant().getTag() == "tag:yaml.org,2002:map");
+    REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:map");
   }
 
   // ---- Custom/local ! tags ----
@@ -76,7 +76,7 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     BufferSource source{"---\n!mytag some value\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
-    REQUIRE(yaml.document(0).getVariant().getTag() == "!mytag");
+    REQUIRE(yaml.document(0).getTag() == "!mytag");
   }
 
   SECTION("YAML parse !!str in a dictionary value.",
@@ -104,7 +104,7 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     BufferSource source{"---\n!<tag:example.com,2024:item> some value\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
-    REQUIRE(yaml.document(0).getVariant().getTag() ==
+    REQUIRE(yaml.document(0).getTag() ==
             "!<tag:example.com,2024:item>");
   }
 
@@ -116,7 +116,7 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<String>(yaml.document(0)["foo"]));
     REQUIRE(NRef<String>(yaml.document(0)["foo"]).value() == "baz");
-    REQUIRE(yaml.document(0)["foo"].getVariant().getTag() == "!<!bar>");
+    REQUIRE(yaml.document(0)["foo"].getTag() == "!<!bar>");
   }
 
   SECTION("YAML local tag with flow-indicator characters in suffix throws.",
@@ -133,7 +133,7 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     BufferSource source{"%TAG !m! !my-\n---\n!m!light fluorescent\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
-    REQUIRE(yaml.document(0).getVariant().getTag() == "!my-light");
+    REQUIRE(yaml.document(0).getTag() == "!my-light");
     REQUIRE(NRef<String>(yaml.document(0)).value() == "fluorescent");
   }
 
@@ -144,9 +144,9 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
         "%TAG !m! !my-\n--- # second\n!m!light green\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 2);
-    REQUIRE(yaml.document(0).getVariant().getTag() == "!my-light");
+    REQUIRE(yaml.document(0).getTag() == "!my-light");
     REQUIRE(NRef<String>(yaml.document(0)).value() == "fluorescent");
-    REQUIRE(yaml.document(1).getVariant().getTag() == "!my-light");
+    REQUIRE(yaml.document(1).getTag() == "!my-light");
     REQUIRE(NRef<String>(yaml.document(1)).value() == "green");
   }
 
@@ -155,7 +155,7 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     BufferSource source{"%TAG !e! tag:example.com,2024:\n---\n!e!widget foo\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
-    REQUIRE(yaml.document(0).getVariant().getTag() ==
+    REQUIRE(yaml.document(0).getTag() ==
             "tag:example.com,2024:widget");
   }
 
@@ -172,7 +172,7 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<String>(yaml.document(0)["color"]));
-    REQUIRE(yaml.document(0)["color"].getVariant().getTag() ==
+    REQUIRE(yaml.document(0)["color"].getTag() ==
             "tag:example.com,rgb");
   }
 
@@ -211,21 +211,21 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
           "[YAML][Parse][Tags][OMap]") {
     BufferSource source{"---\n!!omap\n- a: 1\n- b: 2\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(yaml.document(0).getVariant().getTag() == "tag:yaml.org,2002:omap");
+    REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:omap");
   }
 
   SECTION("YAML !!omap preserves key insertion order.",
           "[YAML][Parse][Tags][OMap]") {
     BufferSource source{"---\n!!omap\n- z: last\n- a: first\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(yaml.document(0).getVariant().getTag() == "tag:yaml.org,2002:omap");
+    REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:omap");
   }
 
   SECTION("YAML !!pairs parses as an Array with tag preserved.",
           "[YAML][Parse][Tags][Pairs]") {
     BufferSource source{"---\n!!pairs\n- key: value\n- key: another\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(yaml.document(0).getVariant().getTag() ==
+    REQUIRE(yaml.document(0).getTag() ==
             "tag:yaml.org,2002:pairs");
   }
 }

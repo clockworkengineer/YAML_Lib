@@ -219,7 +219,7 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
                         "!m!light fluorescent\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE(yaml.document(0).getVariant().getTag() == "!my-light");
+    REQUIRE(yaml.document(0).getTag() == "!my-light");
     REQUIRE(NRef<String>(yaml.document(0)).value() == "fluorescent");
   }
 

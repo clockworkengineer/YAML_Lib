@@ -81,7 +81,7 @@ Node Default_Parser::convertYAMLToStringNode(const std::string_view &yamlString,
                                              unsigned long indentation) {
   auto keyNode = parseFromBuffer(std::string(yamlString) + kLineFeed,
                                  {kLineFeed}, indentation);
-  std::string keyString{NRef<Variant>(keyNode).toKey()};
+  std::string keyString{keyNode.toKey()};
   char quote = '\"';
   if (isA<String>(keyNode)) {
     quote = NRef<String>(keyNode).getQuote();

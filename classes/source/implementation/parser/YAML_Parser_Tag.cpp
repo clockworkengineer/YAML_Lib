@@ -164,9 +164,9 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
         // and anchor/tag-leading values retain normal YAML parsing semantics
         // before coercion to string.
         Node parsed = parseDocument(source, delimiters, indentation);
-        value = parsed.getVariant().toString();
+        value = parsed.toString();
         if (value.empty() && !isA<String>(parsed)) {
-          value = parsed.getVariant().toKey();
+          value = parsed.toKey();
         }
       }
       result = Node::make<String>(value, kNull);
@@ -200,7 +200,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
         } else if (isA<Null>(parsed) && tagSuffix == "null") {
           result = std::move(parsed);
         } else {
-          const std::string raw = parsed.getVariant().toString();
+          const std::string raw = parsed.toString();
           BufferSource bs{raw + "\n"};
           result = fn(bs, {kLineFeed}, indentation);
         }
@@ -233,7 +233,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
 
   // Apply tag to the result node's variant
   if (!result.isEmpty()) {
-    result.getVariant().setTag(fullTag);
+    result.setTag(fullTag);
   }
 
   return result;

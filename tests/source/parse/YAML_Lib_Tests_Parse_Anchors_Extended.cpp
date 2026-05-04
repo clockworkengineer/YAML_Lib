@@ -181,7 +181,7 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() == "scalar1");
-    REQUIRE(yaml.document(0).getVariant().getTag() == "tag:yaml.org,2002:str");
+    REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:str");
   }
 
   SECTION("YAML !!map with tagged anchored key parses.",
@@ -229,11 +229,11 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)[0]).value() == "a");
-    REQUIRE(yaml.document(0)[0].getVariant().getTag() ==
+    REQUIRE(yaml.document(0)[0].getTag() ==
             "tag:yaml.org,2002:str");
     REQUIRE(isA<Number>(yaml.document(0)[1]));
     REQUIRE(NRef<Number>(yaml.document(0)[1]).value<int>() == 4);
-    REQUIRE(yaml.document(0)[1].getVariant().getTag() ==
+    REQUIRE(yaml.document(0)[1].getTag() ==
             "tag:yaml.org,2002:int");
   }
 
@@ -271,7 +271,7 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() == "SGVsbG8gV29ybGQ=");
-    REQUIRE(yaml.document(0).getVariant().getTag() ==
+    REQUIRE(yaml.document(0).getTag() ==
             "tag:yaml.org,2002:binary");
   }
 
@@ -282,7 +282,7 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<String>(yaml.document(0)["data"]));
     REQUIRE(NRef<String>(yaml.document(0)["data"]).value() == "AAEC");
-    REQUIRE(yaml.document(0)["data"].getVariant().getTag() ==
+    REQUIRE(yaml.document(0)["data"].getTag() ==
             "tag:yaml.org,2002:binary");
   }
 }

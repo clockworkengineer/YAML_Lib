@@ -30,7 +30,7 @@ static void dumpConfig(const yl::YAML &yaml) {
       for (const auto &field :
            yl::NRef<yl::Dictionary>(section.getNode()).value()) {
         PLOG_INFO << "    " << field.getKey() << " = "
-                  << field.getNode().getVariant().toString();
+                  << field.getNode().toString();
       }
     }
   }

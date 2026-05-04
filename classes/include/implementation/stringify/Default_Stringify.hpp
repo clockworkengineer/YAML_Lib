@@ -88,7 +88,7 @@ private:
       if (const auto quote = NRef<String>(yNode).getQuote();
           quote == '>' || quote == '|') {
         // Emit tag (if any) before the block scalar marker
-        const auto tag = tagToEmitForm(yNode.getVariant().getTag());
+        const auto tag = tagToEmitForm(yNode.getTag());
         if (!tag.empty()) {
           destination.add(tag + " ");
         }
@@ -108,7 +108,7 @@ private:
           isA<String>(yNode) && (NRef<String>(yNode).getQuote() == '>' ||
                                  NRef<String>(yNode).getQuote() == '|');
       if (!isBlockString) {
-        const auto tag = tagToEmitForm(yNode.getVariant().getTag());
+        const auto tag = tagToEmitForm(yNode.getTag());
         if (!tag.empty()) {
           destination.add(tag + " ");
         }

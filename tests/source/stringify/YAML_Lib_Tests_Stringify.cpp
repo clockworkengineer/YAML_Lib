@@ -368,7 +368,7 @@ TEST_CASE("Check YAML stringify preserves explicit tags (gap 3.6).",
     REQUIRE_NOTHROW(yaml2.parse(reparsed));
     REQUIRE(isA<String>(yaml2.document(0)));
     REQUIRE(NRef<String>(yaml2.document(0)).value() == "42");
-    REQUIRE(yaml2.document(0).getVariant().getTag() == "tag:yaml.org,2002:str");
+    REQUIRE(yaml2.document(0).getTag() == "tag:yaml.org,2002:str");
   }
 
   SECTION("Stringify round-trip: !!timestamp tag preserved.",

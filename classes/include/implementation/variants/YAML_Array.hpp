@@ -2,16 +2,16 @@
 
 namespace YAML_Lib {
 
-struct Array final : Variant {
+struct Array {
   using Entry = Node;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
-  Array() : Variant(Type::array) {}
-  Array(const Array &other) = default;
-  Array &operator=(const Array &other) = default;
+  Array() = default;
+  Array(const Array &other) = delete;
+  Array &operator=(const Array &other) = delete;
   Array(Array &&other) = default;
   Array &operator=(Array &&other) = default;
-  ~Array() override = default;
+  ~Array() = default;
   // Add array element
   void add(Entry yNode) { yNodeArray.emplace_back(std::move(yNode)); }
   // Return the size of an array
@@ -19,26 +19,10 @@ struct Array final : Variant {
   // Return reference to array base
   Entries &value() { return yNodeArray; }
   [[nodiscard]] const Entries &value() const { return yNodeArray; }
-  // Convert variant to a key
-  [[nodiscard]]  std::string toKey() const override {
-    std::string array{kLeftSquareBracket};
-    if (!yNodeArray.empty()) {
-      size_t commaCount = yNodeArray.size() - 1;
-      for (auto &entryNode : yNodeArray) {
-        if (const auto type = entryNode.getVariant().getNodeType(); type == Type::dictionary || type == Type::array) {
-          array += entryNode.getVariant().toKey();
-        } else {
-          array += entryNode.getVariant().toString();
-        }
-
-        if (commaCount-- > 0) {
-          array += ", ";
-        }
-      }
-    }
-    array += "]";
-    return array;
-  }
+  // Convert variant to a key (defined in YAML_Node_Reference.hpp after all types are complete)
+  [[nodiscard]] std::string toKey() const;
+  // toString for compatibility
+  [[nodiscard]] std::string toString() const { return ""; }
   // Array indexing operators
   Node &operator[](const std::size_t index) {
     if (index < yNodeArray.size()) {
@@ -53,14 +37,7 @@ struct Array final : Variant {
     throw Node::Error("Invalid index used to access array.");
   }
   // Resize Array
-  void resize(const std::size_t index) {
-    yNodeArray.resize(index + 1);
-    for (auto &entry : yNodeArray) {
-      if (entry.isEmpty()) {
-        entry = Node::make<Hole>();
-      }
-    }
-  }
+  void resize(const std::size_t index);
 
 private:
   // Array entries list

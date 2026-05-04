@@ -70,7 +70,7 @@ TEST_CASE("Check YAML parsing of timestamps.", "[YAML][Parse][Timestamp]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Timestamp>(yaml.document(0)));
     REQUIRE(NRef<Timestamp>(yaml.document(0)).value() == "2001-07-08");
-    REQUIRE(yaml.document(0).getVariant().getTag() ==
+    REQUIRE(yaml.document(0).getTag() ==
             "tag:yaml.org,2002:timestamp");
   }
 

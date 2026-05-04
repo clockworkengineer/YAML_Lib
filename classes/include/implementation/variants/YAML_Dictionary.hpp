@@ -13,10 +13,10 @@ struct DictionaryEntry {
   DictionaryEntry(Node &keyNode, Node &&yNode)
       : key(std::move(keyNode)), yNode(std::move(yNode)) {}
   [[nodiscard]] std::string_view getKey() {
-    return dynamic_cast<String &>(key.getVariant()).value();
+    return std::get<String>(key.getVariant()).value();
   }
   [[nodiscard]] std::string_view getKey() const {
-    return dynamic_cast<const String &>(key.getVariant()).value();
+    return std::get<String>(key.getVariant()).value();
   }
   [[nodiscard]] Node &getKeyNode() { return key; }
   [[nodiscard]] const Node &getKeyNode() const { return key; }
@@ -28,16 +28,16 @@ private:
   Node yNode;
 };
 
-struct Dictionary final : Variant {
+struct Dictionary {
   using Entry = DictionaryEntry;
   using Entries = std::vector<Entry>;
   // Constructors/Destructors
-  explicit Dictionary() : Variant(Type::dictionary) {}
-  Dictionary(const Dictionary &other) = default;
-  Dictionary &operator=(const Dictionary &other) = default;
+  explicit Dictionary() = default;
+  Dictionary(const Dictionary &other) = delete;
+  Dictionary &operator=(const Dictionary &other) = delete;
   Dictionary(Dictionary &&other) = default;
   Dictionary &operator=(Dictionary &&other) = default;
-  ~Dictionary() override = default;
+  ~Dictionary() = default;
   // Add Entry to Dictionary
   template <typename T> void add(T &&entry) {
     yNodeDictionary.emplace_back(std::forward<T>(entry));
@@ -65,25 +65,9 @@ struct Dictionary final : Variant {
   // Return reference to base of dictionary entries
   Entries &value() { return yNodeDictionary; }
   [[nodiscard]] const Entries &value() const { return yNodeDictionary; }
-  // Convert variant to a key
-  [[nodiscard]]  std::string toKey() const override {
-    std::string dictionary{kLeftCurlyBrace};
-    size_t commaCount = yNodeDictionary.size() - 1;
-    for (auto &entryNode : yNodeDictionary) {
-      dictionary += entryNode.getKeyNode().getVariant().toString();
-      dictionary += ": ";
-      if (const auto type = entryNode.getNode().getVariant().getNodeType(); type == Type::dictionary || type == Type::array) {
-        dictionary += entryNode.getNode().getVariant().toKey();
-      } else {
-        dictionary += entryNode.getNode().getVariant().toString();
-      }
-      if (commaCount-- > 0) {
-        dictionary += ", ";
-      }
-    }
-    dictionary += "}";
-    return dictionary;
-  }
+  // Convert variant to a key (body defined in YAML_Node_Reference.hpp)
+  [[nodiscard]] std::string toKey() const;
+  [[nodiscard]] std::string toString() const { return ""; }
 
 private:
   // Search for a given entry given a key and dictionary list

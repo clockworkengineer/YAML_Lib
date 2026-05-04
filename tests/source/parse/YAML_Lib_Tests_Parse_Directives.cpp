@@ -85,7 +85,7 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE(isA<String>(yaml.document(0)));
     // Tag was expanded using the custom prefix
-    REQUIRE(yaml.document(0).getVariant().getTag() ==
+    REQUIRE(yaml.document(0).getTag() ==
             "tag:example.com,2024:str");
   }
 
@@ -96,7 +96,7 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE(isA<String>(yaml.document(0)));
-    REQUIRE(yaml.document(0).getVariant().getTag() ==
+    REQUIRE(yaml.document(0).getTag() ==
             "tag:example.com,2024:item");
   }
 
@@ -155,10 +155,10 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<String>(yaml.document(0)["a"]));
-    REQUIRE(yaml.document(0)["a"].getVariant().getTag() ==
+    REQUIRE(yaml.document(0)["a"].getTag() ==
             "tag:example.com,2024:type");
     REQUIRE(isA<String>(yaml.document(0)["b"]));
-    REQUIRE(yaml.document(0)["b"].getVariant().getTag() == "!my-color");
+    REQUIRE(yaml.document(0)["b"].getTag() == "!my-color");
   }
 
   SECTION("YAML %TAG handle resets between documents.",
@@ -174,8 +174,8 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
                         "!m!light warm\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 2);
-    REQUIRE(yaml.document(0).getVariant().getTag() == "!my-light");
-    REQUIRE(yaml.document(1).getVariant().getTag() == "!other-light");
+    REQUIRE(yaml.document(0).getTag() == "!my-light");
+    REQUIRE(yaml.document(1).getTag() == "!other-light");
   }
 
   SECTION("YAML %TAG !! handle remaps the secondary handle prefix.",
@@ -186,7 +186,7 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
                         "!!mytype some value\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE(yaml.document(0).getVariant().getTag() ==
+    REQUIRE(yaml.document(0).getTag() ==
             "tag:custom.org,2024:mytype");
   }
 
@@ -200,7 +200,7 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE(isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() == "1 - 3");
-    REQUIRE(yaml.document(0).getVariant().getTag() ==
+    REQUIRE(yaml.document(0).getTag() ==
             "tag:example.com,2000:app/int");
   }
 }

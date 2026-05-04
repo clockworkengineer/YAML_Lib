@@ -2,21 +2,21 @@
 
 namespace YAML_Lib {
 
-struct Comment final : Variant {
+struct Comment {
   // Constructors/Destructors
-  explicit Comment(const std::string_view & comment = "")
-      : Variant(Type::comment), yamlComment(std::move(comment)) {}
+  explicit Comment(const std::string_view &comment = "")
+      : yamlComment(std::string(comment)) {}
   Comment(const Comment &other) = default;
   Comment &operator=(const Comment &other) = default;
   Comment(Comment &&other) = default;
   Comment &operator=(Comment &&other) = default;
-  ~Comment() override = default;
+  ~Comment() = default;
   // Return reference to comment
   [[nodiscard]] std::string_view value() const { return yamlComment; }
   // Return string representation of value
-  [[nodiscard]]  std::string toString() const override {
-    return "# " + yamlComment;
-  }
+  [[nodiscard]] std::string toString() const { return "# " + yamlComment; }
+  // Convert variant to a key
+  [[nodiscard]] std::string toKey() const { return ""; }
 
 private:
   std::string yamlComment;
