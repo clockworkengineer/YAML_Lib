@@ -1,14 +1,31 @@
 #pragma once
 
+#include <cstdint>
+
 namespace YAML_Lib {
 // =======
 // Boolean
 // =======
 struct Boolean {
+  // Compile-time table of all twelve valid boolean literal spellings.
+  // Indices 0-5 are true-forms; 6-11 are false-forms.
+  // Must match the insertion order of isTrue / isFalse below.
+  static constexpr const char *kForms[12] = {
+      "True", "On",    "Yes",   "true",  "yes",  "on",
+      "False","Off",   "No",    "false", "no",   "off"};
+
   // Constructors/Destructors
   Boolean() = default;
   Boolean(const bool boolean, const std::string_view &value)
-      : yNodeBoolean(boolean), booleanString(std::string(value)) {}
+      : yNodeBoolean(boolean) {
+    for (uint8_t i = 0; i < 12; ++i) {
+      if (value == kForms[i]) {
+        originalForm = i;
+        return;
+      }
+    }
+    originalForm = boolean ? 3u : 9u; // fallback: "true" / "false"
+  }
   Boolean(const Boolean &other) = default;
   Boolean &operator=(const Boolean &other) = default;
   Boolean(Boolean &&other) = default;
@@ -17,8 +34,8 @@ struct Boolean {
   // Return reference boolean value
   [[nodiscard]] bool &value() { return yNodeBoolean; }
   [[nodiscard]] const bool &value() const { return yNodeBoolean; }
-  // Return string representation of value
-  [[nodiscard]] std::string toString() const { return booleanString; }
+  // Return string representation of value (original parsed form)
+  [[nodiscard]] std::string toString() const { return kForms[originalForm]; }
   // Convert variant to a key
   [[nodiscard]] std::string toKey() const {
     return yNodeBoolean ? "true" : "false";
@@ -32,6 +49,6 @@ struct Boolean {
 
 private:
   bool yNodeBoolean{};
-  std::string booleanString;
+  uint8_t originalForm{3}; // default index → "true"
 };
 } // namespace YAML_Lib
