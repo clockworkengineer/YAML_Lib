@@ -1,5 +1,7 @@
 #pragma once
 
+#include <charconv>
+
 namespace YAML_Lib {
 
 struct Number {
@@ -73,44 +75,38 @@ template <typename T> Number::Number(T value) {
 // Convert string to specific numeric type (returns true on success)
 template <typename T>
 bool Number::stringToNumber(const std::string_view &number) {
-  {
-    try {
-      std::size_t end = 0;
-      int integerConversionBase = kStringConversionBase;
-      T value;
-      if constexpr (std::is_same_v<T, int> || std::is_same_v<T, long> ||
-                    std::is_same_v<T, long long>) {
-        if (number.starts_with("0x") || number.starts_with("0X")) {
-          integerConversionBase = 16;
-        }
-        // NOTE: YAML 1.2 defines octal as "0o<digits>" only; C-style "0NNN"
-        // leading-zero octal is NOT valid in YAML 1.2 and must not be
-        // treated as base 8 here. The parser converts "0o<digits>" to its
-        // decimal string value before constructing Number, so base 10 is
-        // always correct at this point.
-      }
-      if constexpr (std::is_same_v<T, int>) {
-        value = std::stoi(number.data(), &end, integerConversionBase);
-      } else if constexpr (std::is_same_v<T, long>) {
-        value = std::stol(number.data(), &end, integerConversionBase);
-      } else if constexpr (std::is_same_v<T, long long>) {
-        value = std::stoll(number.data(), &end, integerConversionBase);
-      } else if constexpr (std::is_same_v<T, float>) {
-        value = std::stof(number.data(), &end);
-      } else if constexpr (std::is_same_v<T, double>) {
-        value = std::stod(number.data(), &end);
-      } else if constexpr (std::is_same_v<T, long double>) {
-        value = std::stold(number.data(), &end);
-      }
-      if (end != number.size()) {
-        return false;
-      }
-      *this = Number(value);
-    } catch ([[maybe_unused]] const std::exception &ex) {
-      return false;
-    }
-    return true;
+  T value{};
+  // std::from_chars does not accept a leading '+'; strip it if present.
+  std::string_view sv = number;
+  if (!sv.empty() && sv[0] == '+') {
+    sv.remove_prefix(1);
   }
+  const char *begin = sv.data();
+  const char *end   = sv.data() + sv.size();
+  std::from_chars_result result;
+  if constexpr (std::is_same_v<T, int> || std::is_same_v<T, long> ||
+                std::is_same_v<T, long long>) {
+    // NOTE: YAML 1.2 defines octal as "0o<digits>" only; C-style "0NNN"
+    // leading-zero octal is NOT valid in YAML 1.2 and must not be treated as
+    // base 8 here. The parser converts "0o<digits>" to its decimal string
+    // value before constructing Number, so base 10 is always correct unless
+    // the token carries an explicit 0x/0X hex prefix.
+    if (sv.size() > 2 &&
+        sv[0] == '0' && (sv[1] == 'x' || sv[1] == 'X')) {
+      // from_chars does not consume the "0x" prefix; skip it manually.
+      result = std::from_chars(begin + 2, end, value, 16);
+    } else {
+      result = std::from_chars(begin, end, value, 10);
+    }
+  } else {
+    // Floating-point: from_chars (GCC 11+ / Clang 12+ / MSVC 16.4+).
+    result = std::from_chars(begin, end, value);
+  }
+  if (result.ec != std::errc{} || result.ptr != end) {
+    return false;
+  }
+  *this = Number(value);
+  return true;
 }
 // Number to string
 template <typename T>
