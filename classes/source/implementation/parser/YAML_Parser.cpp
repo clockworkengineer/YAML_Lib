@@ -44,7 +44,6 @@ Node Default_Parser::parseDocument(ISource &source,
 /// <param name="source">Source stream.</param>
 /// <returns>Array of YAML documents.</returns>
 std::vector<Node> Default_Parser::parse(ISource &source) {
-  validateInputCharacters(source);
   std::vector<Node> yNodeTree;
   arrayIndentLevel = 0;
   inlineArrayDepth = 0;

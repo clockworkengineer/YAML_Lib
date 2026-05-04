@@ -42,6 +42,14 @@ public:
     return EOF;
   }
   void next() override {
+    const auto uc = static_cast<unsigned char>(current());
+    if (kForbiddenChar[uc]) {
+      char buf[5];
+      std::snprintf(buf, sizeof(buf), "%04X", static_cast<unsigned>(uc));
+      throw SyntaxError(getPosition(),
+                        std::string("Disallowed control character U+") + buf +
+                        " in YAML stream.");
+    }
     if (current() == kLineFeed) {
       lineNo++;
       column = 1;

@@ -120,7 +120,6 @@ private:
   // YAML parser
   static bool endsWith(const std::string_view &str,
                        const std::string_view &substr);
-  static void validateInputCharacters(ISource &source);
   static void rightTrim(std::string &str);
   static void moveToNext(ISource &source, const Delimiters &delimiters);
   static void skipLine(ISource &source);
