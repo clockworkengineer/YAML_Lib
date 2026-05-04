@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 namespace YAML_Lib {
 
 // Dictionary entry
@@ -38,18 +40,15 @@ struct Dictionary {
   Dictionary(Dictionary &&other) = default;
   Dictionary &operator=(Dictionary &&other) = default;
   ~Dictionary() = default;
-  // Add Entry to Dictionary
+  // Add Entry to Dictionary; also registers the key in the O(1) lookup index
   template <typename T> void add(T &&entry) {
+    const std::string key{entry.getKey()};
+    yNodeDictionaryIndex[key] = yNodeDictionary.size();
     yNodeDictionary.emplace_back(std::forward<T>(entry));
   }
-  // Return true if a dictionary contains a given key
-  [[nodiscard]] bool contains(const std::string_view &key) const {
-    try {
-      [[maybe_unused]] auto _ = findKey(yNodeDictionary, key);
-    } catch ([[maybe_unused]] const Node::Error &e) {
-      return false;
-    }
-    return true;
+  // Return true if a dictionary contains a given key (O(1), no exception)
+  [[nodiscard]] bool contains(const std::string_view &key) const noexcept {
+    return yNodeDictionaryIndex.count(std::string(key)) != 0;
   }
   // Return number of entries in a dictionary
   [[nodiscard]] int size() const {
@@ -57,10 +56,10 @@ struct Dictionary {
   }
   // Return dictionary entry for a given key
   Node &operator[](const std::string_view &key) {
-    return findKey(yNodeDictionary, key)->getNode();
+    return findKey(key)->getNode();
   }
   const Node &operator[](const std::string_view &key) const {
-    return findKey(yNodeDictionary, key)->getNode();
+    return findKey(key)->getNode();
   }
   // Return reference to base of dictionary entries
   Entries &value() { return yNodeDictionary; }
@@ -70,36 +69,30 @@ struct Dictionary {
   [[nodiscard]] std::string toString() const { return ""; }
 
 private:
-  // Search for a given entry given a key and dictionary list
-  [[nodiscard]] static Entries::iterator findKey(Entries &dictionary,
-                                                 const std::string_view &key);
-  [[nodiscard]] static Entries::const_iterator
-  findKey(const Entries &dictionary, const std::string_view &key);
+  // Search for a given entry by key using the O(1) hash-map index
+  [[nodiscard]] Entries::iterator findKey(const std::string_view &key);
+  [[nodiscard]] Entries::const_iterator findKey(const std::string_view &key) const;
 
-  // Dictionary entries list
+  // Dictionary entries list (preserves insertion order for stringify)
   Entries yNodeDictionary;
+  // Hash-map index: key → position in yNodeDictionary (O(1) lookup)
+  std::unordered_map<std::string, std::size_t> yNodeDictionaryIndex;
 };
 
 inline Dictionary::Entries::iterator
-Dictionary::findKey(Entries &dictionary, const std::string_view &key) {
-  const auto it =
-      std::ranges::find_if(dictionary, [&key](Entry &entry) -> bool {
-        return entry.getKey() == key;
-      });
-  if (it == dictionary.end()) {
+Dictionary::findKey(const std::string_view &key) {
+  const auto indexIt = yNodeDictionaryIndex.find(std::string(key));
+  if (indexIt == yNodeDictionaryIndex.end()) {
     throw Node::Error("Invalid key used to access dictionary.");
   }
-  return it;
+  return yNodeDictionary.begin() + static_cast<std::ptrdiff_t>(indexIt->second);
 }
 inline Dictionary::Entries::const_iterator
-Dictionary::findKey(const Entries &dictionary, const std::string_view &key) {
-  const auto it =
-      std::ranges::find_if(dictionary, [&key](const Entry &entry) -> bool {
-        return entry.getKey() == key;
-      });
-  if (it == dictionary.end()) {
+Dictionary::findKey(const std::string_view &key) const {
+  const auto indexIt = yNodeDictionaryIndex.find(std::string(key));
+  if (indexIt == yNodeDictionaryIndex.end()) {
     throw Node::Error("Invalid key used to access dictionary.");
   }
-  return it;
+  return yNodeDictionary.cbegin() + static_cast<std::ptrdiff_t>(indexIt->second);
 }
 } // namespace YAML_Lib

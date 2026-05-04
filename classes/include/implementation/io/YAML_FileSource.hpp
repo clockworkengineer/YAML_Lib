@@ -4,11 +4,29 @@ namespace YAML_Lib {
 
 class FileSource final : public ISource {
 public:
-  explicit FileSource(const std::string_view &filename) : filename(filename) {
-    source.open(filename.data(), std::ios_base::binary);
+  explicit FileSource(const std::string_view &filename) {
+    std::ifstream source(filename.data(), std::ios_base::binary | std::ios_base::ate);
     if (!source.is_open()) {
       throw Error("File input stream failed to open or does not exist.");
     }
+    const auto size = static_cast<std::streamsize>(source.tellg());
+    source.seekg(0, std::ios_base::beg);
+    buffer.resize(static_cast<std::size_t>(size));
+    source.read(buffer.data(), size);
+    // Normalise CR/LF and bare CR → LF so index arithmetic needs no special cases
+    std::string normalised;
+    normalised.reserve(buffer.size());
+    for (std::size_t i = 0; i < buffer.size(); ++i) {
+      if (buffer[i] == kCarriageReturn) {
+        normalised += kLineFeed;
+        if (i + 1 < buffer.size() && buffer[i + 1] == kLineFeed) {
+          ++i; // skip the LF of a CRLF pair
+        }
+      } else {
+        normalised += buffer[i];
+      }
+    }
+    buffer = std::move(normalised);
   }
   FileSource() = delete;
   FileSource(const FileSource &other) = delete;
@@ -17,7 +35,12 @@ public:
   FileSource &operator=(FileSource &&other) = delete;
   ~FileSource() override = default;
 
-  char current() const override { return static_cast<char>(source.peek()); }
+  [[nodiscard]] char current() const override {
+    if (more()) {
+      return buffer[bufferPosition];
+    }
+    return EOF;
+  }
   void next() override {
     if (current() == kLineFeed) {
       lineNo++;
@@ -28,34 +51,18 @@ public:
     if (!more()) {
       throw Error("Tried to read past end of file.");
     }
-    source.get();
-    if (current() == kCarriageReturn) {
-      if (more()) {
-        source.get();
-        if (current() != kLineFeed) {
-          source.unget();
-        }
-      }
-    }
-    bufferPosition = source.tellg();
+    bufferPosition++;
   }
-  bool more() const override { return source.peek() != EOF; }
+  [[nodiscard]] bool more() const override {
+    return bufferPosition < buffer.size();
+  }
   void reset() override {
+    bufferPosition = 0;
     lineNo = 1;
     column = 1;
-    source.clear();
-    source.seekg(0, std::ios_base::beg);
   }
-  std::size_t position() override {
-    if (more()) {
-      bufferPosition = source.tellg();
-    } else {
-      bufferPosition = std::filesystem::file_size(filename);
-    }
-    return bufferPosition;
-  }
+  [[nodiscard]] std::size_t position() override { return bufferPosition; }
   void save() override {
-    bufferPosition = source.tellg();
     contexts.push_back(Context(lineNo, column, bufferPosition));
   }
   void restore() override {
@@ -63,29 +70,22 @@ public:
     contexts.pop_back();
     lineNo = context.lineNo;
     column = context.column;
-    if (source.eof()) {
-      source.clear();
-    }
-    source.seekg(context.bufferPosition, std::ios_base::beg);
-    bufferPosition = source.tellg();
+    bufferPosition = context.bufferPosition;
   }
   void discardSave() override {
     contexts.pop_back();
   }
-  std::string getFileName() { return filename; }
-  void close() { source.close(); }
+
 protected:
   void backup(const unsigned long length) override {
     if (column - length < 1) {
       throw Error("Backup past start column.");
     }
-    source.clear();
-    source.seekg(-static_cast<long>(length), std::ios_base::cur);
+    bufferPosition -= length;
     column -= length;
   }
 
 private:
-  mutable std::ifstream source;
-  std::string filename;
+  std::string buffer;
 };
 } // namespace YAML_Lib
