@@ -13,8 +13,8 @@ struct String {
   String(String &&other) = default;
   String &operator=(String &&other) = default;
   ~String() = default;
-  // Return reference to string
-  [[nodiscard]] std::string_view value() { return yNodeString; }
+  // Return a string_view into the stored string; const-only since string_view
+  // does not allow mutation of the underlying data.
   [[nodiscard]] std::string_view value() const { return yNodeString; }
   // Return string representation of value
   [[nodiscard]] std::string toString() const { return yNodeString; }

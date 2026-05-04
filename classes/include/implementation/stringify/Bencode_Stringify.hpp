@@ -58,7 +58,7 @@ private:
         "i" + std::to_string(NRef<Number>(yNode).value<long long>()) + "e");
   }
   static void stringifyString(const Node &yNode, IDestination &destination) {
-    const auto yamlString = NRef<String>(yNode).value();
+    const std::string_view yamlString = NRef<String>(yNode).value();
     destination.add(std::to_string(static_cast<int>(yamlString.length())) +
                     ":" + std::string(yamlString));
   }

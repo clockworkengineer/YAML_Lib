@@ -61,7 +61,7 @@ private:
     destination.add(NRef<Number>(yNode).toString());
   }
   static void stringifyString(const Node &yNode, IDestination &destination) {
-    const auto yamlString = NRef<String>(yNode).value();
+    const std::string_view yamlString = NRef<String>(yNode).value();
     destination.add("\"" + jsonTranslator->to(yamlString) + "\"");
   }
   static void stringifyBoolean(const Node &yNode, IDestination &destination) {
