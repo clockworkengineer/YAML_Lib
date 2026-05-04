@@ -286,7 +286,7 @@ void Default_Parser::checkForEnd(ISource &source, const char end) {
 Node Default_Parser::parseFromBuffer(const std::string &text,
                                      const Delimiters &delimiters,
                                      const unsigned long indentation) {
-  BufferSource src{text};
+  BufferSource src{text}; // string_view into text — no copy; text outlives src
   return parseDocument(src, delimiters, indentation);
 }
 /// <summary>
