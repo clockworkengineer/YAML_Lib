@@ -39,7 +39,9 @@ Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
   return tryParseToken(source, delimiters, indentation,
                        [](std::string numeric) -> Node {
     // YAML 1.2 special float literals (case-insensitive).
-    {
+    // Only tokens starting with '.', '+', or '-' can be .inf/+.inf/-.inf/.nan.
+    if (!numeric.empty() &&
+        (numeric[0] == '.' || numeric[0] == '+' || numeric[0] == '-')) {
       std::string lower = numeric;
       std::transform(
           lower.begin(), lower.end(), lower.begin(),
