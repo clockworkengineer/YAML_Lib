@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bitset>
+
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
 
@@ -8,7 +10,28 @@ namespace YAML_Lib {
 class Default_Parser final : public IParser {
 
 public:
-  using Delimiters = std::set<char>;
+  class Delimiters {
+  public:
+    Delimiters() = default;
+    Delimiters(std::initializer_list<char> chars) { insert(chars); }
+    Delimiters(const Delimiters &other) = default;
+    Delimiters &operator=(const Delimiters &other) = default;
+
+    bool empty() const noexcept { return none(); }
+    bool contains(const char ch) const noexcept {
+      return bitmask_.test(static_cast<unsigned char>(ch));
+    }
+    void insert(std::initializer_list<char> chars) {
+      for (const char ch : chars) {
+        bitmask_.set(static_cast<unsigned char>(ch));
+      }
+    }
+
+  private:
+    bool none() const noexcept { return bitmask_.none(); }
+
+    std::bitset<256> bitmask_;
+  };
   enum class BlockChomping : uint8_t { clip = 0, strip, keep };
   explicit Default_Parser(std::unique_ptr<ITranslator> translator) {
     yamlTranslator = std::move(translator);
@@ -75,8 +98,7 @@ private:
   // otherwise the guard restores the source to where it was.
   template <typename Predicate>
   static Node tryParseToken(ISource &source, const Delimiters &delimiters,
-                            unsigned long indentation,
-                            Predicate &&pred) {
+                            unsigned long indentation, Predicate &&pred) {
     const unsigned long tokenIndent = source.getPosition().second;
     SourceGuard guard(source);
     std::string token{extractToNext(source, delimiters)};
