@@ -50,12 +50,14 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
   inlineDictionaryDepth = 0;
   blockFlowValueIndent = 0;
   yamlAliasMap.clear();
+  yamlAliasMap.reserve(16);
   yamlTagPrefixes.clear();
   activeAliasExpansions.clear();
   yamlDirectiveMinor = 2;
   yamlDirectiveSeen = false;
   const auto resetDocumentState = [&]() {
     yamlAliasMap.clear();
+    yamlAliasMap.reserve(16);
     activeAliasExpansions.clear();
     yamlTagPrefixes.clear();
     yamlDirectiveMinor = 2;
