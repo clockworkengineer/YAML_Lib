@@ -88,23 +88,62 @@ template <typename T> const T &NRef(const Dictionary::Entry &yNodeEntry) {
 // identical for both operations; only the generic template differs.
 namespace detail {
 enum class TextMode { ToString, ToKey };
+
+template <typename T>
+inline std::string pointerContainerToKey(const std::unique_ptr<T> &p) {
+  if constexpr (std::is_same_v<T, Document>) {
+    return "";
+  } else {
+    return p->toKey();
+  }
+}
+
 template <TextMode Mode>
 struct NodeTextVisitor {
   std::string operator()(const std::monostate &) const { return ""; }
-  std::string operator()(const std::unique_ptr<Array> &p) const {
-    return p->toKey();
-  }
-  std::string operator()(const std::unique_ptr<Dictionary> &p) const {
-    return p->toKey();
-  }
-  std::string operator()(const std::unique_ptr<Document> &) const {
-    return "";
+  template <typename T>
+  std::string operator()(const std::unique_ptr<T> &p) const {
+    return pointerContainerToKey(p);
   }
   template <typename T> std::string operator()(const T &v) const {
     if constexpr (Mode == TextMode::ToString) return v.toString();
     else                                      return v.toKey();
   }
 };
+
+template <typename ElementAccessor>
+inline std::string sequenceToKey(const char leftBracket,
+                                 const char rightBracket,
+                                 const std::size_t count,
+                                 ElementAccessor accessor) {
+  std::string result;
+  result += leftBracket;
+  if (count > 0) {
+    std::size_t commaCount = count - 1;
+    for (std::size_t i = 0; i < count; ++i) {
+      result += accessor(i);
+      if (commaCount-- > 0) {
+        result += ", ";
+      }
+    }
+  }
+  result += rightBracket;
+  return result;
+}
+
+template <typename EntryAccessor>
+inline std::string dictionaryToKey(const std::size_t count,
+                                   EntryAccessor accessor) {
+  std::string result{kLeftCurlyBrace};
+  for (std::size_t i = 0; i < count; ++i) {
+    result += accessor(i);
+    if (i + 1 < count) {
+      result += ", ";
+    }
+  }
+  result += kRightCurlyBrace;
+  return result;
+}
 } // namespace detail
 
 inline std::string Node::toString() const {
@@ -116,19 +155,10 @@ inline std::string Node::toKey() const {
 
 // Array::toKey() — build "[a, b, c]" key string
 inline std::string Array::toKey() const {
-  std::string result{kLeftSquareBracket};
-  if (!entries_.empty()) {
-    std::size_t commaCount = entries_.size() - 1;
-    for (const auto &entryNode : entries_) {
-      // Matches old behavior: toString() dispatches to toKey() for containers
-      result += entryNode.toString();
-      if (commaCount-- > 0) {
-        result += ", ";
-      }
-    }
-  }
-  result += "]";
-  return result;
+  return detail::sequenceToKey('[', ']', entries_.size(),
+                              [this](const std::size_t index) {
+                                return this->entries_[index].toString();
+                              });
 }
 
 // SequenceBase<Derived>::resize() — grow sequence and fill new slots with Hole nodes.
@@ -145,25 +175,16 @@ inline void SequenceBase<Derived>::resize(const std::size_t index) {
 
 // Dictionary::toKey() — build "{k: v, ...}" key string
 inline std::string Dictionary::toKey() const {
-  std::string result{kLeftCurlyBrace};
-  std::size_t commaCount = yNodeDictionary.size() > 0
-                               ? yNodeDictionary.size() - 1
-                               : 0;
-  for (const auto &entryNode : yNodeDictionary) {
-    result += std::string(entryNode.getKey());
-    result += ": ";
-    // toString() dispatches to toKey() for containers, toString() for scalars
-    result += entryNode.getNode().toString();
-    if (commaCount-- > 0) {
-      result += ", ";
-    }
-  }
-  result += "}";
-  return result;
+  return detail::dictionaryToKey(yNodeDictionary.size(),
+                                 [this](const std::size_t index) {
+                                   const auto &entryNode = yNodeDictionary[index];
+                                   return std::string(entryNode.getKey()) + ": " +
+                                          entryNode.getNode().toString();
+                                 });
 }
 
 // -----------------------------------------------------------------------
-// StaticSequenceBase<N, Derived>::resize() — defined here after Node::make<Hole>()
+// StaticSequenceBase<N, Derived>::resize() — defined here after Node::make<Hole()>
 template <std::size_t N, typename Derived>
 inline void StaticSequenceBase<N, Derived>::resize(const std::size_t index) {
   if (index >= N) {
@@ -183,34 +204,20 @@ inline void StaticSequenceBase<N, Derived>::resize(const std::size_t index) {
 // StaticArray<N>::toKey() — same logic as Array::toKey()
 template <std::size_t N>
 inline std::string StaticArray<N>::toKey() const {
-  std::string result{kLeftSquareBracket};
-  if (this->count_ > 0) {
-    std::size_t commaCount = this->count_ - 1;
-    for (std::size_t i = 0; i < this->count_; ++i) {
-      result += this->entries_[i].toString();
-      if (commaCount-- > 0) {
-        result += ", ";
-      }
-    }
-  }
-  result += "]";
-  return result;
+  return detail::sequenceToKey('[', ']', this->count_,
+                              [this](const std::size_t index) {
+                                return this->entries_[index].toString();
+                              });
 }
 
 // StaticDictionary<N>::toKey() — build "{k: v, ...}" key string
 template <std::size_t N>
 inline std::string StaticDictionary<N>::toKey() const {
-  std::string result{kLeftCurlyBrace};
-  for (std::size_t i = 0; i < count_; ++i) {
-    result += keys_[i];
-    result += ": ";
-    result += values_[i].toString();
-    if (i + 1 < count_) {
-      result += ", ";
-    }
-  }
-  result += "}";
-  return result;
+  return detail::dictionaryToKey(this->count_,
+                                 [this](const std::size_t index) {
+                                   return keys_[index] + std::string(": ") +
+                                          values_[index].toString();
+                                 });
 }
 
 } // namespace YAML_Lib

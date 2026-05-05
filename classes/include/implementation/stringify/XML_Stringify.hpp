@@ -3,6 +3,7 @@
 #include "XML_Translator.hpp"
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
+#include "YAML_Stringify_Helper.hpp"
 
 namespace YAML_Lib {
 
@@ -36,36 +37,44 @@ public:
 private:
   static void stringifyNodes(const Node &yNode, IDestination &destination,
                              const long indent) {
-    if (isA<Document>(yNode)) {
-      stringifyDocument(yNode, destination, indent);
-    } else if (isA<Number>(yNode)) {
-      stringifyNumber(yNode, destination);
-    } else if (isA<String>(yNode)) {
-      stringifyString(yNode, destination);
-    } else if (isA<Boolean>(yNode)) {
-      stringifyBoolean(yNode, destination);
-    } else if (isA<Null>(yNode) || isA<Hole>(yNode)) {
-    } else if (isA<Timestamp>(yNode)) {
-      stringifyTimestamp(yNode, destination);
-    } else if (isA<Dictionary>(yNode)) {
-      stringifyDictionary(yNode, destination);
-    } else if (isA<Array>(yNode)) {
-      stringifyArray(yNode, destination);
-    } else {
-      IStringify::throwUnknownNodeType();
-    }
+    stringify_detail::dispatchStringifyNode(
+        yNode, destination, indent,
+        [](const Node &yNode, IDestination &destination, const long indent) {
+          stringifyDocument(yNode, destination, indent);
+        },
+        [](const Node &yNode, IDestination &destination) {
+          stringifyNumber(yNode, destination);
+        },
+        [](const Node &yNode, IDestination &destination) {
+          stringifyString(yNode, destination);
+        },
+        [](const Node &yNode, IDestination &destination) {
+          stringifyBoolean(yNode, destination);
+        },
+        [](const Node &yNode, IDestination &destination) {
+          stringifyNull(yNode, destination);
+        },
+        [](const Node &yNode, IDestination &destination) {
+          stringifyTimestamp(yNode, destination);
+        },
+        [](const Node &yNode, IDestination &destination) {
+          stringifyDictionary(yNode, destination);
+        },
+        [](const Node &yNode, IDestination &destination) {
+          stringifyArray(yNode, destination);
+        });
   }
   // Intentional parallel to JSON_Stringify/Bencode_Stringify: unwrap Document
   // and recurse. Default_Stringify differs (emits --- / ... markers).
   static void stringifyDocument(const Node &yNode, IDestination &destination,
                                 const long indent) {
-    stringifyNodes(NRef<Document>(yNode)[0], destination, indent);
+    stringify_detail::stringifyDocument(yNode, destination, indent, stringifyNodes);
   }
   static void stringifyTimestamp(const Node &yNode, IDestination &destination) {
     destination.add(std::string(NRef<Timestamp>(yNode).value()));
   }
   static void stringifyNumber(const Node &yNode, IDestination &destination) {
-    destination.add(std::to_string(NRef<Number>(yNode).value<long long>()));
+    destination.add(stringify_detail::integerToString(yNode));
   }
   static void stringifyString(const Node &yNode, IDestination &destination) {
     destination.add(xmlTranslator->to(NRef<String>(yNode).value()));

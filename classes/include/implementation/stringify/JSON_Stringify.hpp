@@ -2,6 +2,7 @@
 
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
+#include "YAML_Stringify_Helper.hpp"
 
 namespace YAML_Lib {
 
@@ -31,33 +32,39 @@ public:
 private:
   static void stringifyNodes(const Node &yNode, IDestination &destination,
                              [[maybe_unused]] const unsigned long indent) {
-    if (isA<Document>(yNode)) {
-      stringifyDocument(yNode, destination, 0);
-    } else if (isA<Number>(yNode)) {
-      stringifyNumber(yNode, destination);
-    } else if (isA<String>(yNode)) {
-      stringifyString(yNode, destination);
-    } else if (isA<Boolean>(yNode)) {
-      stringifyBoolean(yNode, destination);
-    } else if (isA<Null>(yNode)) {
-      stringifyNull(yNode, destination);
-    } else if (isA<Hole>(yNode)) {
-    } else if (isA<Timestamp>(yNode)) {
-      stringifyTimestamp(yNode, destination);
-    } else if (isA<Dictionary>(yNode)) {
-      stringifyDictionary(yNode, destination);
-    } else if (isA<Array>(yNode)) {
-      stringifyAray(yNode, destination);
-    } else {
-      IStringify::throwUnknownNodeType();
-    }
+    stringify_detail::dispatchStringifyNode(
+        yNode, destination, indent,
+        [](const Node &yNode, IDestination &destination, const long indent) {
+          stringifyDocument(yNode, destination, indent);
+        },
+        [](const Node &yNode, IDestination &destination) {
+          stringifyNumber(yNode, destination);
+        },
+        [](const Node &yNode, IDestination &destination) {
+          stringifyString(yNode, destination);
+        },
+        [](const Node &yNode, IDestination &destination) {
+          stringifyBoolean(yNode, destination);
+        },
+        [](const Node &yNode, IDestination &destination) {
+          stringifyNull(yNode, destination);
+        },
+        [](const Node &yNode, IDestination &destination) {
+          stringifyTimestamp(yNode, destination);
+        },
+        [](const Node &yNode, IDestination &destination) {
+          stringifyDictionary(yNode, destination);
+        },
+        [](const Node &yNode, IDestination &destination) {
+          stringifyAray(yNode, destination);
+        });
   }
 
   // Intentional parallel to XML_Stringify/Bencode_Stringify: unwrap Document
   // and recurse. Default_Stringify differs (emits --- / ... markers).
   static void stringifyDocument(const Node &yNode, IDestination &destination,
                                 const long indent) {
-    stringifyNodes(NRef<Document>(yNode)[0], destination, indent);
+    stringify_detail::stringifyDocument(yNode, destination, indent, stringifyNodes);
   }
   static void stringifyNumber(const Node &yNode, IDestination &destination) {
     destination.add(NRef<Number>(yNode).toString());
@@ -67,11 +74,9 @@ private:
     destination.add("\"" + jsonTranslator->to(yamlString) + "\"");
   }
   static void stringifyBoolean(const Node &yNode, IDestination &destination) {
-    if (NRef<Boolean>(yNode).value()) {
-      destination.add("true");
-    } else {
-      destination.add("false");
-    }
+    stringify_detail::addBooleanLiteral(destination,
+                                        NRef<Boolean>(yNode).value(),
+                                        "true", "false");
   }
   static void stringifyNull([[maybe_unused]] const Node &yNode,
                             IDestination &destination) {
@@ -84,28 +89,23 @@ private:
   }
   static void stringifyDictionary(const Node &yNode,
                                   IDestination &destination) {
-    auto comma = NRef<Dictionary>(yNode).value().size() - 1;
-    destination.add('{');
-    for (auto &entry : NRef<Dictionary>(yNode).value()) {
-      destination.add('"' + jsonTranslator->to(entry.getKey()) + '"');
-      destination.add(":");
-      stringifyNodes(entry.getNode(), destination, 0);
-      if (comma-- > 0) {
-        destination.add(",");
-      }
-    }
-    destination.add("}");
+    const auto &entries = NRef<Dictionary>(yNode).value();
+    stringify_detail::addDelimited(
+        destination, '{', '}', entries.size(), ",",
+        [&](const std::size_t index) {
+          const auto &entry = entries[index];
+          destination.add('"' + jsonTranslator->to(entry.getKey()) + '"');
+          destination.add(":");
+          stringifyNodes(entry.getNode(), destination, 0);
+        });
   }
   static void stringifyAray(const Node &yNode, IDestination &destination) {
-    auto comma = NRef<Array>(yNode).value().size() - 1;
-    destination.add('[');
-    for (auto &entry : NRef<Array>(yNode).value()) {
-      stringifyNodes(entry, destination, 0);
-      if (comma-- > 0) {
-        destination.add(",");
-      }
-    }
-    destination.add("]");
+    const auto &entries = NRef<Array>(yNode).value();
+    stringify_detail::addDelimited(
+        destination, '[', ']', entries.size(), ",",
+        [&](const std::size_t index) {
+          stringifyNodes(entries[index], destination, 0);
+        });
   }
 
   inline static std::unique_ptr<ITranslator> jsonTranslator;
