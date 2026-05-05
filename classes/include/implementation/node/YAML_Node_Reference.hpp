@@ -17,38 +17,29 @@ template <typename T> bool isA(const Node &yNode) {
 // =========================
 // Node reference converter
 // =========================
+
+// nodeName<T>() — compile-time article+noun for each node type.
+// Returns the full "a string" / "an array" phrase so that checkNode<T>()
+// can produce the same error text as the previous per-branch chain.
+template <typename T>
+consteval std::string_view nodeName() noexcept {
+  if constexpr (std::is_same_v<T, String>)          return "a string";
+  else if constexpr (std::is_same_v<T, Number>)     return "a number";
+  else if constexpr (std::is_same_v<T, Array>)      return "an array";
+  else if constexpr (std::is_same_v<T, Dictionary>) return "an dictionary";
+  else if constexpr (std::is_same_v<T, Boolean>)    return "a boolean";
+  else if constexpr (std::is_same_v<T, Null>)       return "a null";
+  else if constexpr (std::is_same_v<T, Hole>)       return "a hole";
+  else if constexpr (std::is_same_v<T, Comment>)    return "a comment";
+  else if constexpr (std::is_same_v<T, Document>)   return "a document";
+  else if constexpr (std::is_same_v<T, Timestamp>)  return "a timestamp";
+  else                                               return "unknown";
+}
+
 template <typename T> void checkNode(const Node &yNode) {
-  if constexpr (std::is_same_v<T, String>) {
-    if (!isA<T>(yNode))
-      YAML_THROW(Node::Error, "Node not a string.");
-  } else if constexpr (std::is_same_v<T, Number>) {
-    if (!isA<T>(yNode))
-      YAML_THROW(Node::Error, "Node not a number.");
-  } else if constexpr (std::is_same_v<T, Array>) {
-    if (!isA<T>(yNode))
-      YAML_THROW(Node::Error, "Node not an array.");
-  } else if constexpr (std::is_same_v<T, Dictionary>) {
-    if (!isA<T>(yNode))
-      YAML_THROW(Node::Error, "Node not an dictionary.");
-  } else if constexpr (std::is_same_v<T, Boolean>) {
-    if (!isA<T>(yNode))
-      YAML_THROW(Node::Error, "Node not a boolean.");
-  } else if constexpr (std::is_same_v<T, Null>) {
-    if (!isA<T>(yNode))
-      YAML_THROW(Node::Error, "Node not a null.");
-  } else if constexpr (std::is_same_v<T, Hole>) {
-    if (!isA<T>(yNode))
-      YAML_THROW(Node::Error, "Node not a hole.");
-  } else if constexpr (std::is_same_v<T, Comment>) {
-    if (!isA<T>(yNode))
-      YAML_THROW(Node::Error, "Node not a comment.");
-  } else if constexpr (std::is_same_v<T, Document>) {
-    if (!isA<T>(yNode))
-      YAML_THROW(Node::Error, "Node not a document.");
-  } else if constexpr (std::is_same_v<T, Timestamp>) {
-    if (!isA<T>(yNode))
-      YAML_THROW(Node::Error, "Node not a timestamp.");
-  }
+  if (!isA<T>(yNode))
+    YAML_THROW(Node::Error,
+               std::string("Node not ").append(nodeName<T>()).append("."));
 }
 
 template <typename T> T &NRef(Node &yNode) {
