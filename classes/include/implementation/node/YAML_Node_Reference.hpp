@@ -83,9 +83,13 @@ template <typename T> const T &NRef(const Dictionary::Entry &yNodeEntry) {
 // Post-definitions requiring all variant types complete
 // ======================================================
 
-// Helper: visit a NodeVariant and call toString()/toKey() on the active type.
+// Helper: visit a NodeVariant and call toString() or toKey() on the active type.
+// The four concrete overloads (monostate, Array, Dictionary, Document) are
+// identical for both operations; only the generic template differs.
 namespace detail {
-struct ToStringVisitor {
+enum class TextMode { ToString, ToKey };
+template <TextMode Mode>
+struct NodeTextVisitor {
   std::string operator()(const std::monostate &) const { return ""; }
   std::string operator()(const std::unique_ptr<Array> &p) const {
     return p->toKey();
@@ -97,31 +101,17 @@ struct ToStringVisitor {
     return "";
   }
   template <typename T> std::string operator()(const T &v) const {
-    return v.toString();
-  }
-};
-struct ToKeyVisitor {
-  std::string operator()(const std::monostate &) const { return ""; }
-  std::string operator()(const std::unique_ptr<Array> &p) const {
-    return p->toKey();
-  }
-  std::string operator()(const std::unique_ptr<Dictionary> &p) const {
-    return p->toKey();
-  }
-  std::string operator()(const std::unique_ptr<Document> &) const {
-    return "";
-  }
-  template <typename T> std::string operator()(const T &v) const {
-    return v.toKey();
+    if constexpr (Mode == TextMode::ToString) return v.toString();
+    else                                      return v.toKey();
   }
 };
 } // namespace detail
 
 inline std::string Node::toString() const {
-  return std::visit(detail::ToStringVisitor{}, yNodeVariant);
+  return std::visit(detail::NodeTextVisitor<detail::TextMode::ToString>{}, yNodeVariant);
 }
 inline std::string Node::toKey() const {
-  return std::visit(detail::ToKeyVisitor{}, yNodeVariant);
+  return std::visit(detail::NodeTextVisitor<detail::TextMode::ToKey>{}, yNodeVariant);
 }
 
 // Array::toKey() — build "[a, b, c]" key string
