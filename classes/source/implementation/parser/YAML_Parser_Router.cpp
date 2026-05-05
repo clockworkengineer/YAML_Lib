@@ -112,7 +112,7 @@ bool Default_Parser::isArray(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a boolean value has been found.</returns>
-bool Default_Parser::isBoolean(const ISource &source) {
+bool Default_Parser::isBoolean(ISource &source) {
   const auto ch = source.current();
   if (strictBooleans || ctx_.yamlDirectiveMinor >= 2) {
     // YAML 1.2 strict: only 'true' and 'false'
@@ -127,7 +127,7 @@ bool Default_Parser::isBoolean(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, then a quoted string has been found.</returns>
-bool Default_Parser::isQuotedString(const ISource &source) {
+bool Default_Parser::isQuotedString(ISource &source) {
   const auto ch = source.current();
   return ch == kApostrophe || ch == kDoubleQuote;
 }
@@ -136,7 +136,7 @@ bool Default_Parser::isQuotedString(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, then a number has been found.</returns>
-bool Default_Parser::isNumber(const ISource &source) {
+bool Default_Parser::isNumber(ISource &source) {
   const auto ch = source.current();
   // Include '.' to catch YAML 1.2 special floats: .inf, .nan
   return (ch >= '0' && ch <= '9') || ch == '-' || ch == '+' || ch == '.';
@@ -146,7 +146,7 @@ bool Default_Parser::isNumber(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a null (none) value has been found.</returns>
-bool Default_Parser::isNone(const ISource &source) {
+bool Default_Parser::isNone(ISource &source) {
   const auto second = source.current();
   return second == 'n' || second == '~';
 }
@@ -155,7 +155,7 @@ bool Default_Parser::isNone(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a founded block string has been found.</returns>
-bool Default_Parser::isFoldedBlockString(const ISource &source) {
+bool Default_Parser::isFoldedBlockString(ISource &source) {
   return source.current() == '>';
 }
 /// <summary>
@@ -163,7 +163,7 @@ bool Default_Parser::isFoldedBlockString(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a piped block string has been found.</returns>
-bool Default_Parser::isPipedBlockString(const ISource &source) {
+bool Default_Parser::isPipedBlockString(ISource &source) {
   return source.current() == '|';
 }
 /// <summary>
@@ -171,7 +171,7 @@ bool Default_Parser::isPipedBlockString(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a comment has been found.</returns>
-bool Default_Parser::isComment(const ISource &source) {
+bool Default_Parser::isComment(ISource &source) {
   return source.current() == '#';
 }
 /// <summary>
@@ -179,7 +179,7 @@ bool Default_Parser::isComment(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an anchor has been found.</returns>
-bool Default_Parser::isAnchor(const ISource &source) {
+bool Default_Parser::isAnchor(ISource &source) {
   return source.current() == '&';
 }
 /// <summary>
@@ -187,7 +187,7 @@ bool Default_Parser::isAnchor(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an alias has been found.</returns>
-bool Default_Parser::isAlias(const ISource &source) {
+bool Default_Parser::isAlias(ISource &source) {
   return source.current() == '*';
 }
 /// <summary>
@@ -195,7 +195,7 @@ bool Default_Parser::isAlias(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an inline array has been found.</returns>
-bool Default_Parser::isInlineArray(const ISource &source) {
+bool Default_Parser::isInlineArray(ISource &source) {
   return source.current() == kLeftSquareBracket;
 }
 /// <summary>
@@ -203,7 +203,7 @@ bool Default_Parser::isInlineArray(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an inline dictionary has been found.</returns>
-bool Default_Parser::isInlineDictionary(const ISource &source) {
+bool Default_Parser::isInlineDictionary(ISource &source) {
   return source.current() == kLeftCurlyBrace;
 }
 /// <summary>
@@ -212,7 +212,7 @@ bool Default_Parser::isInlineDictionary(const ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an inline array or dictionary has been found.</returns>
-bool Default_Parser::isInlineCollection(const ISource &source) {
+bool Default_Parser::isInlineCollection(ISource &source) {
   return isInlineDictionary(source) || isInlineArray(source);
 }
 /// <summary>

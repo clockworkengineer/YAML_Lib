@@ -17,7 +17,7 @@ namespace YAML_Lib {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a tag has been found.</returns>
-bool Default_Parser::isTagged(const ISource &source) {
+bool Default_Parser::isTagged(ISource &source) {
   return source.current() == '!';
 }
 

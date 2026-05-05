@@ -28,8 +28,8 @@ Node Default_Parser::parseDocument(ISource &source,
   }
   for (std::size_t i = 0; i < parsers_.size(); ++i) {
     const auto &[fst, snd] = parsers_[i];
-    if (fst(source)) {
-      if (Node yNode = snd(source, delimiters, indentation); !yNode.isEmpty()) {
+    if ((this->*fst)(source)) {
+      if (Node yNode = (this->*snd)(source, delimiters, indentation); !yNode.isEmpty()) {
         moveToNextIndent(source);
         return yNode;
       }

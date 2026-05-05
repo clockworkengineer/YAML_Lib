@@ -52,45 +52,7 @@ public:
   };
   enum class BlockChomping : uint8_t { clip = 0, strip, keep };
   explicit Default_Parser(std::unique_ptr<ITranslator> translator)
-      : yamlTranslator_(std::move(translator)) {
-    // Build routing table with lambdas that capture `this`, so each
-    // Default_Parser instance dispatches into its own non-static methods and
-    // its own ParseContext — enabling safe concurrent use across instances.
-    parsers_ = {{
-        {[this](ISource &s) { return isArray(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseArray(s, d, i); }},
-        {[this](ISource &s) { return isDictionary(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseDictionary(s, d, i); }},
-        {[this](ISource &s) { return isInlineDictionary(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseInlineDictionary(s, d, i); }},
-        {[this](ISource &s) { return isInlineArray(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseInlineArray(s, d, i); }},
-        {[this](ISource &s) { return isBoolean(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseBoolean(s, d, i); }},
-        {[this](ISource &s) { return isQuotedString(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseQuotedFlowString(s, d, i); }},
-        {[this](ISource &s) { return isTimestamp(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseTimestamp(s, d, i); }},
-        {[this](ISource &s) { return isNumber(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseNumber(s, d, i); }},
-        {[this](ISource &s) { return isNone(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseNone(s, d, i); }},
-        {[this](ISource &s) { return isFoldedBlockString(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseFoldedBlockString(s, d, i); }},
-        {[this](ISource &s) { return isPipedBlockString(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseLiteralBlockString(s, d, i); }},
-        {[this](ISource &s) { return isAnchor(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseAnchor(s, d, i); }},
-        {[this](ISource &s) { return isAlias(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseAlias(s, d, i); }},
-        {[this](ISource &s) { return isOverride(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseOverride(s, d, i); }},
-        {[this](ISource &s) { return isTagged(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parseTagged(s, d, i); }},
-        {[this](ISource &s) { return isDefault(s); },
-         [this](ISource &s, const Delimiters &d, unsigned long i) { return parsePlainFlowString(s, d, i); }},
-    }};
-  }
+      : yamlTranslator_(std::move(translator)) {}
   Default_Parser(const Default_Parser &other) = delete;
   Default_Parser &operator=(const Default_Parser &other) = delete;
   Default_Parser(Default_Parser &&other) = delete;
@@ -218,18 +180,18 @@ private:
   bool isOverride(ISource &source);
   bool isKey(ISource &source);
   bool isArray(ISource &source);
-  bool isBoolean(const ISource &source);
-  bool isQuotedString(const ISource &source);
-  bool isNumber(const ISource &source);
-  bool isNone(const ISource &source);
-  bool isFoldedBlockString(const ISource &source);
-  bool isPipedBlockString(const ISource &source);
-  bool isComment(const ISource &source);
-  bool isAnchor(const ISource &source);
-  bool isAlias(const ISource &source);
-  bool isInlineArray(const ISource &source);
-  bool isInlineDictionary(const ISource &source);
-  bool isInlineCollection(const ISource &source);
+  bool isBoolean(ISource &source);
+  bool isQuotedString(ISource &source);
+  bool isNumber(ISource &source);
+  bool isNone(ISource &source);
+  bool isFoldedBlockString(ISource &source);
+  bool isPipedBlockString(ISource &source);
+  bool isComment(ISource &source);
+  bool isAnchor(ISource &source);
+  bool isAlias(ISource &source);
+  bool isInlineArray(ISource &source);
+  bool isInlineDictionary(ISource &source);
+  bool isInlineCollection(ISource &source);
   bool isMapping(ISource &source);
   bool isDictionary(ISource &source);
   bool isDefault(ISource &source);
@@ -242,7 +204,7 @@ private:
   void convertOctalToDecimal(std::string &numeric,
                                     const std::string &digits);
   bool isDirective(ISource &source);
-  bool isTagged(const ISource &source);
+  bool isTagged(ISource &source);
   bool isTimestamp(ISource &source);
   void appendCharacterToString(ISource &source, std::string &yamlString,
                                       bool escapeAware = false,
@@ -311,13 +273,32 @@ private:
   [[nodiscard]] bool isInsideFlowContext() noexcept;
   Node parseTagged(ISource &source, const Delimiters &delimiters,
                           unsigned long indentation);
-  // YAML parser routing table — per-instance (not static) so that each
-  // Default_Parser owns its own routing table with lambdas bound to `this`.
-  using IsAFunc = std::function<bool(ISource &)>;
-  using ParseFunc =
-      std::function<Node(ISource &, const Delimiters &, unsigned long)>;
+  // YAML parser routing table — static constexpr so the 16-entry dispatch
+  // table lives in .rodata (ROM on Harvard MCUs) with no heap allocation and
+  // no std::function type-erasure overhead.  Member function pointers are
+  // used so each call dispatches through `this` into the per-instance
+  // ParseContext without any lambda capture.
+  using IsAFunc   = bool (Default_Parser::*)(ISource &);
+  using ParseFunc = Node (Default_Parser::*)(ISource &, const Delimiters &, unsigned long);
   using ParserEntry = std::pair<IsAFunc, ParseFunc>;
-  std::array<ParserEntry, 16> parsers_{};
+  inline static constexpr std::array<ParserEntry, 16> parsers_{{
+      {&Default_Parser::isArray,            &Default_Parser::parseArray},
+      {&Default_Parser::isDictionary,       &Default_Parser::parseDictionary},
+      {&Default_Parser::isInlineDictionary, &Default_Parser::parseInlineDictionary},
+      {&Default_Parser::isInlineArray,      &Default_Parser::parseInlineArray},
+      {&Default_Parser::isBoolean,          &Default_Parser::parseBoolean},
+      {&Default_Parser::isQuotedString,     &Default_Parser::parseQuotedFlowString},
+      {&Default_Parser::isTimestamp,        &Default_Parser::parseTimestamp},
+      {&Default_Parser::isNumber,           &Default_Parser::parseNumber},
+      {&Default_Parser::isNone,             &Default_Parser::parseNone},
+      {&Default_Parser::isFoldedBlockString,&Default_Parser::parseFoldedBlockString},
+      {&Default_Parser::isPipedBlockString, &Default_Parser::parseLiteralBlockString},
+      {&Default_Parser::isAnchor,           &Default_Parser::parseAnchor},
+      {&Default_Parser::isAlias,            &Default_Parser::parseAlias},
+      {&Default_Parser::isOverride,         &Default_Parser::parseOverride},
+      {&Default_Parser::isTagged,           &Default_Parser::parseTagged},
+      {&Default_Parser::isDefault,          &Default_Parser::parsePlainFlowString},
+  }};
   // Per-parse mutable state (replaces the former inline static members).
   ParseContext ctx_;
   // Translator (per-instance, not shared across Default_Parser instances).
