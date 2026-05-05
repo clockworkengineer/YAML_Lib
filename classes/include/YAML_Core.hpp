@@ -37,6 +37,8 @@
 #include "YAML_Config.hpp"
 #include "YAML_Sources.hpp"
 #include "YAML_Destinations.hpp"
+// 7b. E9: Schema validation (depends on isA/NRef/operator[] defined above)
+#include "YAML_Schema.hpp"
 // 8. Converter
 #include "YAML_Converter.hpp"
 // 9. Header-only implementations (depend on all of the above)
