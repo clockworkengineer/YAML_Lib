@@ -40,7 +40,8 @@ Node Default_Parser::mergeOverrides(Node &overrideRoot) {
     if (isA<Dictionary>(overrideValue)) {
       // Single-alias merge: <<: *alias
       applyOuter(NRef<Dictionary>(overrideValue));
-      overrideRoot = std::move(overrideValue);
+      Node mergedBase = std::move(overrideValue);
+      overrideRoot = std::move(mergedBase);
     } else if (isA<Array>(overrideValue)) {
       // Multi-alias merge: <<: [*a, *b, ...]
       // Earlier entries in the sequence have higher priority (first wins).

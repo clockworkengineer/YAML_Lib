@@ -18,19 +18,17 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
   SECTION("Check that FileSource position() works correctly.",
           "[YAML][ISource][File][Position]") {
     auto source{FileSource(prefixTestDataPath(kSingleYAMLFile))};
+    const std::string normalized{
+        YAML::fromFile(prefixTestDataPath(kSingleYAMLFile))};
     while (source.more() && !source.match("deer")) {
       source.next();
     }
-#ifdef _WIN32
-    REQUIRE(source.position() == 18);
-#else
-    REQUIRE(source.position() == 17);
-#endif
+    REQUIRE(source.position() ==
+            normalized.find("deer") + std::string("deer").size());
     while (source.more()) {
       source.next();
     }
-    REQUIRE(source.position() ==
-            std::filesystem::file_size(prefixTestDataPath(kSingleYAMLFile)));
+    REQUIRE(source.position() == normalized.size());
   }
   SECTION("Create FileSource and that it is positioned on the correct first "
           "character.",
@@ -53,12 +51,13 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
           "bytes moved.",
           "[YAML][ISource][File][More]") {
     FileSource source{prefixTestDataPath(kSingleYAMLFile)};
+    const std::string normalized{
+        YAML::fromFile(prefixTestDataPath(kSingleYAMLFile))};
     while (source.more()) {
       source.next();
     }
-    REQUIRE(source.position() ==
-            std::filesystem::file_size(prefixTestDataPath(kSingleYAMLFile))); // eof
-    REQUIRE(source.current() == static_cast<char>(EOF));              // eof
+    REQUIRE(source.position() == normalized.size()); // eof
+    REQUIRE(source.current() == static_cast<char>(EOF)); // eof
   }
   SECTION("Create FileSource, move past last character, reset and then check "
           "back at the beginning.",
@@ -75,22 +74,17 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
           "moves on past it in stream.",
           "[YAML][ISource][File][Match]") {
     FileSource source{prefixTestDataPath(kSingleYAMLFile)};
+    const std::string normalized{
+        YAML::fromFile(prefixTestDataPath(kSingleYAMLFile))};
+    const auto dPos = normalized.find('d');
     while (source.more() && source.current() != 'd') {
       source.next();
     }
-#ifdef _WIN32
-    REQUIRE(source.position() == 6);
+    REQUIRE(source.position() == dPos);
     REQUIRE_FALSE(source.match("dow")); // Not there
-    REQUIRE(source.position() == 6);
+    REQUIRE(source.position() == dPos);
     REQUIRE_FALSE(!source.match("doe")); // Match
-    REQUIRE(source.position() == 9);     // new positio
-#else
-    REQUIRE(source.position() == 5);
-    REQUIRE_FALSE(source.match("dow")); // Not there
-    REQUIRE(source.position() == 5);
-    REQUIRE_FALSE(!source.match("doe")); // Match
-    REQUIRE(source.position() == 8);     // new position
-#endif
+    REQUIRE(source.position() == dPos + std::string("doe").size());
   }
   SECTION("Create FileSource and then try to read off the end.",
           "[YAML][ISource][File][Exception]") {
@@ -105,19 +99,16 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
   SECTION("Check that FileSource finds sav/restore working.",
           "[YAML][ISource][File][Match]") {
     FileSource source{prefixTestDataPath(kSingleYAMLFile)};
+    const std::string normalized{
+        YAML::fromFile(prefixTestDataPath(kSingleYAMLFile))};
+    const auto dPos = normalized.find('d');
     while (source.more() && source.current() != 'd') {
       source.next();
     }
     source.save();
-#ifdef _WIN32
-    REQUIRE(source.position() == 6);
+    REQUIRE(source.position() == dPos);
     source.restore();
-    REQUIRE(source.position() == 6);
-#else
-    REQUIRE(source.position() == 5);
-    source.restore();
-    REQUIRE(source.position() == 5);
-#endif
+    REQUIRE(source.position() == dPos);
   }
   SECTION("Check that FileSource works with line array that has newlines.",
           "[YAML][ISource][File][Match]") {
