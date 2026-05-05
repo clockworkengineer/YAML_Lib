@@ -66,12 +66,32 @@ bool Default_Parser::isTimestamp(ISource &source) {
 Node Default_Parser::parseTimestamp(
     ISource &source, const Delimiters &delimiters,
     [[maybe_unused]] unsigned long indentation) {
+#ifdef YAML_LIB_TIMESTAMP_PARSE
   return tryParseToken(source, delimiters, indentation,
                        [this](const std::string &tok) -> Node {
     if (looksLikeIso8601Date(tok))
       return Node::make<Timestamp>(tok);
     return {};
   });
+#else
+  // OFF mode: inline the token extraction so the string can be moved
+  // directly into Timestamp's owned storage — one fewer heap allocation
+  // compared with the copy that tryParseToken's const-ref predicate would
+  // force.
+  const unsigned long tokenIndent = source.getPosition().second;
+  SourceGuard guard(source);
+  std::string token{extractToNext(source, delimiters)};
+  rightTrim(token);
+  if (source.more() && source.current() == kLineFeed &&
+      hasPlainScalarContinuation(source, tokenIndent)) {
+    return {};
+  }
+  if (!looksLikeIso8601Date(token)) {
+    return {};
+  }
+  guard.release();
+  return Node::make<Timestamp>(std::move(token));
+#endif
 }
 
 } // namespace YAML_Lib

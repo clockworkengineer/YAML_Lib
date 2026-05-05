@@ -136,4 +136,42 @@ TEST_CASE("Check YAML parsing of timestamps.", "[YAML][Parse][Timestamp]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(isA<Timestamp>(yaml.document(0)));
   }
+
+  // ---- toTm() / toTimeT() conversion (YAML_LIB_TIMESTAMP_PARSE=ON only) ----
+
+#ifdef YAML_LIB_TIMESTAMP_PARSE
+  SECTION("toTm() returns correct broken-down time for date-only timestamp.",
+          "[YAML][Parse][Timestamp][toTm]") {
+    BufferSource source{"---\n2024-03-15\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Timestamp>(yaml.document(0)));
+    const std::tm t = NRef<Timestamp>(yaml.document(0)).toTm();
+    REQUIRE(t.tm_year == 2024 - 1900);
+    REQUIRE(t.tm_mon  == 3 - 1);   // 0-based
+    REQUIRE(t.tm_mday == 15);
+  }
+
+  SECTION("toTm() returns correct time fields for datetime timestamp.",
+          "[YAML][Parse][Timestamp][toTm]") {
+    BufferSource source{"---\n2001-07-08T17:08:28Z\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Timestamp>(yaml.document(0)));
+    const std::tm t = NRef<Timestamp>(yaml.document(0)).toTm();
+    REQUIRE(t.tm_year == 2001 - 1900);
+    REQUIRE(t.tm_mon  == 7 - 1);
+    REQUIRE(t.tm_mday == 8);
+    REQUIRE(t.tm_hour == 17);
+    REQUIRE(t.tm_min  == 8);
+    REQUIRE(t.tm_sec  == 28);
+  }
+
+  SECTION("toTimeT() returns a positive value for a valid timestamp.",
+          "[YAML][Parse][Timestamp][toTimeT]") {
+    BufferSource source{"---\n2024-01-01\n"};
+    REQUIRE_NOTHROW(yaml.parse(source));
+    REQUIRE(isA<Timestamp>(yaml.document(0)));
+    const std::time_t t = NRef<Timestamp>(yaml.document(0)).toTimeT();
+    REQUIRE(t > 0);
+  }
+#endif // YAML_LIB_TIMESTAMP_PARSE
 }

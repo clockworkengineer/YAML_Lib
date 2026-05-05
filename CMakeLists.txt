@@ -26,6 +26,9 @@ option(YAML_LIB_NO_EXCEPTIONS "Disable C++ exceptions; use error panic handler" 
 # E6: disable file I/O (fstream) for bare-metal / no-filesystem targets
 option(YAML_LIB_FILE_IO "Include file I/O support (fromFile/toFile/getFileFormat)" ON)
 
+# E8: ISO 8601 Timestamp → time_t / struct tm conversion accessors
+option(YAML_LIB_TIMESTAMP_PARSE "Include ISO 8601 Timestamp to time_t/tm conversion" ON)
+
 set(YAML_LIBRARY_NAME ${PROJECT_NAME})
 
 # Sources
@@ -116,6 +119,10 @@ if(YAML_LIB_FILE_IO)
   target_sources(${YAML_LIBRARY_NAME} PRIVATE
     classes/source/implementation/file/YAML_File.cpp)
   target_compile_definitions(${YAML_LIBRARY_NAME} PUBLIC YAML_LIB_FILE_IO)
+endif()
+
+if(YAML_LIB_TIMESTAMP_PARSE)
+  target_compile_definitions(${YAML_LIBRARY_NAME} PUBLIC YAML_LIB_TIMESTAMP_PARSE)
 endif()
 
 if(BUILD_YAML_TESTS)
