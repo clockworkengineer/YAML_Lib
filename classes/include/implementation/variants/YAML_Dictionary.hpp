@@ -7,16 +7,9 @@ namespace YAML_Lib {
 
 // Dictionary entry
 struct DictionaryEntry {
-  DictionaryEntry(const std::string_view &key, Node &yNode, char quote = kNull)
+  DictionaryEntry(const std::string_view &key, Node yNode, char quote = kNull)
       : yNodeKey(key), yNodeKeyQuote(quote), yNode(std::move(yNode)) {}
-  DictionaryEntry(const std::string_view &key, Node &&yNode,
-                  char quote = kNull)
-      : yNodeKey(key), yNodeKeyQuote(quote), yNode(std::move(yNode)) {}
-  DictionaryEntry(Node &keyNode, Node &yNode)
-      : yNodeKey(std::get<String>(keyNode.getVariant()).toString()),
-        yNodeKeyQuote(std::get<String>(keyNode.getVariant()).getQuote()),
-        yNode(std::move(yNode)) {}
-  DictionaryEntry(Node &keyNode, Node &&yNode)
+  DictionaryEntry(Node &keyNode, Node yNode)
       : yNodeKey(std::get<String>(keyNode.getVariant()).toString()),
         yNodeKeyQuote(std::get<String>(keyNode.getVariant()).getQuote()),
         yNode(std::move(yNode)) {}

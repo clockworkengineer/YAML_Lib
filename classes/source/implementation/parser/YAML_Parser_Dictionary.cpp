@@ -604,7 +604,7 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
     dictionaryNode = parseDocument(source, delimiters, indentation);
     ctx_.blockFlowValueIndent = previousBlockFlowValueIndent;
   }
-  return {keyNode, dictionaryNode};
+  return {keyNode, std::move(dictionaryNode)};
 }
 /// <summary>
 /// Parse inline dictionary key/value pair on source stream.
@@ -634,10 +634,7 @@ Default_Parser::parseInlineKeyValue(ISource &source,
       source.current() != kRightCurlyBrace) {
     dictionaryNode = parseDocument(source, delimiters, indentation);
   }
-  if (isNullStringNode(dictionaryNode)) {
-    dictionaryNode = Node::make<Null>();
-  }
-  return {keyNode, dictionaryNode};
+  return {keyNode, std::move(dictionaryNode)};
 }
 /// <summary>
 /// Parse a dictionary on source stream.

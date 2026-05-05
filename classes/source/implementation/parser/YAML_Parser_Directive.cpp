@@ -54,7 +54,7 @@ Node Default_Parser::mergeOverrides(Node &overrideRoot) {
         for (auto &entry : NRef<Dictionary>(element).value()) {
           const std::string key{entry.getKey()};
           if (!mergedDict.contains(key)) {
-            mergedDict.add(DictionaryEntry(key, entry.getNode()));
+            mergedDict.add(DictionaryEntry(key, std::move(entry.getNode())));
           }
         }
       }
