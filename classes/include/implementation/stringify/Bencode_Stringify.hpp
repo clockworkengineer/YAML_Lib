@@ -57,10 +57,12 @@ private:
     destination.add(
         "i" + std::to_string(NRef<Number>(yNode).value<long long>()) + "e");
   }
+  static void addBencodeString(IDestination &destination,
+                               const std::string_view sv) {
+    destination.add(std::to_string(sv.length()) + ":" + std::string(sv));
+  }
   static void stringifyString(const Node &yNode, IDestination &destination) {
-    const std::string_view yamlString = NRef<String>(yNode).value();
-    destination.add(std::to_string(static_cast<int>(yamlString.length())) +
-                    ":" + std::string(yamlString));
+    addBencodeString(destination, NRef<String>(yNode).value());
   }
   static void stringifyBoolean(const Node &yNode, IDestination &destination) {
     if (NRef<Boolean>(yNode).value()) {
@@ -74,17 +76,13 @@ private:
     destination.add("4:null");
   }
   static void stringifyTimestamp(const Node &yNode, IDestination &destination) {
-    const auto ts = NRef<Timestamp>(yNode).value();
-    destination.add(std::to_string(static_cast<int>(ts.length())) + ":" +
-                    std::string(ts));
+    addBencodeString(destination, NRef<Timestamp>(yNode).value());
   }
   static void stringifyDictionary(const Node &yNode,
                                   IDestination &destination) {
     destination.add('d');
     for (auto &entry : NRef<Dictionary>(yNode).value()) {
-      const auto key = entry.getKey();
-      destination.add(std::to_string(static_cast<int>(key.length())) + ":" +
-                      std::string(key));
+      addBencodeString(destination, entry.getKey());
       stringifyNodes(entry.getNode(), destination, 0);
     }
     destination.add("e");
