@@ -3,6 +3,19 @@
 namespace YAML_Lib {
 
 // ---------------------------------------------------------------
+// Macro: define a simple prefixed Error struct in one line.
+// Usage: YAML_MAKE_ERROR(Error, "ISource Error")
+// Produces: struct Error final : std::runtime_error { ... }
+// Not used for YAML::Error / YAML::SyntaxError which have extra
+// constructors (with position pair).
+// ---------------------------------------------------------------
+#define YAML_MAKE_ERROR(StructName, Prefix)                                    \
+  struct StructName final : std::runtime_error {                               \
+    explicit StructName(const std::string_view &message)                       \
+        : std::runtime_error(std::string(Prefix ": ").append(message)) {}      \
+  }
+
+// ---------------------------------------------------------------
 // YAML error types (unchanged for backward compatibility)
 // ---------------------------------------------------------------
 struct Error final : std::runtime_error {

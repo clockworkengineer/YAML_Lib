@@ -17,10 +17,7 @@ public:
   // =============
   // IParser Error
   // =============
-    struct Error final : std::runtime_error {
-        explicit Error(const std::string_view &message)
-            : std::runtime_error(std::string("IParser Error: ").append(message)) {}
-    };
+  YAML_MAKE_ERROR(Error, "IParser Error");
   // ========================
   // Constructors/destructors
   // ========================

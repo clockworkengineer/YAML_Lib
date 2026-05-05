@@ -18,10 +18,7 @@ using NodeVariant = std::variant<
 
 struct Node {
   // Node Error
-  struct Error final : std::runtime_error {
-    explicit Error(const std::string_view &message)
-        : std::runtime_error(std::string("Node Error: ").append(message)) {}
-  };
+  YAML_MAKE_ERROR(Error, "Node Error");
   // Constructors/Destructors
   Node() = default;
   template <typename T> explicit Node(T value);

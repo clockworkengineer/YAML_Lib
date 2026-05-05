@@ -3,11 +3,12 @@
 // ==========
 // YAML Core
 // ==========
-// 1. Interface definitions (IStringify, IParser, ITranslator, etc.)
-#include "YAML_Interfaces.hpp"
-// 2. Fundamental base types
+// 1. Fundamental error types and macros (needed by all interface headers)
 #include "YAML_Error.hpp"
 #include "YAML_Arena.hpp"
+// 2. Interface definitions (IStringify, IParser, ITranslator, etc.)
+//    Must come after YAML_Error.hpp so YAML_MAKE_ERROR is visible.
+#include "YAML_Interfaces.hpp"
 // (YAML_Variant.hpp previously held the Variant base class; now removed.)
 // 3. Scalar variant types (depend only on YAML.hpp constants — no Node/container deps)
 #include "YAML_Boolean.hpp"
