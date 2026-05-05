@@ -41,6 +41,10 @@ public:
   // Traverse YAML tree
   void traverse(IAction &action);
   void traverse(IAction &action) const;
+#ifdef YAML_LIB_SAX_API
+  // Emit SAX events for every document in the tree
+  void traverseEvents(IYAMLEvents &handler) const;
+#endif // YAML_LIB_SAX_API
   // Search for YAML object entry with a given key
   Node &operator[](const std::string_view &key);
   const Node &operator[](const std::string_view &key) const;

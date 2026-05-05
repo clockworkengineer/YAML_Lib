@@ -112,6 +112,16 @@ void YAML::traverse(IAction &action) { implementation->traverse(action); }
 void YAML::traverse(IAction &action) const {
   std::as_const(*implementation).traverse(action);
 }
+#ifdef YAML_LIB_SAX_API
+/// <summary>
+/// Walk the parsed tree and fire IYAMLEvents callbacks for every node,
+/// in document order.  onDocumentStart/End bracket each document.
+/// </summary>
+/// <param name="handler">Caller-supplied SAX event handler.</param>
+void YAML::traverseEvents(IYAMLEvents &handler) const {
+  std::as_const(*implementation).traverseEvents(handler);
+}
+#endif // YAML_LIB_SAX_API
 /// <summary>
 /// Return object entry for the passed in keys.
 /// </summary>

@@ -29,6 +29,9 @@ option(YAML_LIB_FILE_IO "Include file I/O support (fromFile/toFile/getFileFormat
 # E8: ISO 8601 Timestamp → time_t / struct tm conversion accessors
 option(YAML_LIB_TIMESTAMP_PARSE "Include ISO 8601 Timestamp to time_t/tm conversion" ON)
 
+# E10: SAX-style (streaming) event-based parse API
+option(YAML_LIB_SAX_API "Include SAX-style IYAMLEvents / traverseEvents() API" ON)
+
 set(YAML_LIBRARY_NAME ${PROJECT_NAME})
 
 # Sources
@@ -123,6 +126,10 @@ endif()
 
 if(YAML_LIB_TIMESTAMP_PARSE)
   target_compile_definitions(${YAML_LIBRARY_NAME} PUBLIC YAML_LIB_TIMESTAMP_PARSE)
+endif()
+
+if(YAML_LIB_SAX_API)
+  target_compile_definitions(${YAML_LIBRARY_NAME} PUBLIC YAML_LIB_SAX_API)
 endif()
 
 if(BUILD_YAML_TESTS)

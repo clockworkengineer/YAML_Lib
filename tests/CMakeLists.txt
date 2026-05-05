@@ -70,7 +70,8 @@ set(TEST_SOURCES
   source/node/YAML_Lib_Tests_Node_Indexing.cpp
   source/node/YAML_Lib_Tests_Node_Reference.cpp
   source/misc/YAML_Lib_Tests_Helper.cpp
-  source/misc/YAML_Lib_Tests_Schema.cpp)
+  source/misc/YAML_Lib_Tests_Schema.cpp
+  source/misc/YAML_Lib_Tests_SAX.cpp)
 
 add_executable(${TEST_EXECUTABLE} ${TEST_SOURCES})
 target_include_directories(${TEST_EXECUTABLE} PRIVATE

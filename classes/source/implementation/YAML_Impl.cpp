@@ -77,6 +77,19 @@ void YAML_Impl::traverse(IAction &action) const {
   traverseNodes(yamlTree[0][0], action);
 }
 
+#ifdef YAML_LIB_SAX_API
+void YAML_Impl::traverseEvents(IYAMLEvents &handler) const {
+  if (yamlTree.empty()) {
+    YAML_THROW(Error, "No YAML to traverse.");
+  }
+  for (const auto &docNode : yamlTree) {
+    handler.onDocumentStart();
+    emitEvents(docNode[0], handler);
+    handler.onDocumentEnd();
+  }
+}
+#endif // YAML_LIB_SAX_API
+
 Node &YAML_Impl::operator[](const std::string_view &key) {
   try {
     if (getNumberOfDocuments() == 0) {
