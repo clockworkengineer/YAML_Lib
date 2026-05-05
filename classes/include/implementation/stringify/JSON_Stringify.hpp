@@ -49,7 +49,7 @@ private:
     } else if (isA<Array>(yNode)) {
       stringifyAray(yNode, destination);
     } else {
-      YAML_THROW(Error, "Unknown Node type encountered during stringification.");
+      IStringify::throwUnknownNodeType();
     }
   }
 

@@ -146,7 +146,7 @@ private:
     } else if (isA<Document>(yNode)) {
       stringifyDocument(yNode, destination, indent);
     } else {
-      YAML_THROW(Error, "Unknown Node type encountered during stringification.");
+      IStringify::throwUnknownNodeType();
     }
   }
   void stringifyNumber(const Node &yNode, IDestination &destination,

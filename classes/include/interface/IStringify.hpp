@@ -34,6 +34,11 @@ public:
     [[nodiscard]] virtual long getIndent() const { return 0; }
     virtual void setIndent([[maybe_unused]] long indent)  {}
 
+  // Single source of truth for the "unknown node" error used by all stringifiers.
+  [[noreturn]] static void throwUnknownNodeType() {
+    throw IStringify::Error{"Unknown Node type encountered during stringification."};
+  }
+
 };
 // Make custom stringify to pass to JSON constructor: Pointer is tidied up internally.
 template <typename T> IStringify *makeStringify() {

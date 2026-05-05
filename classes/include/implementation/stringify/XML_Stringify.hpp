@@ -52,7 +52,7 @@ private:
     } else if (isA<Array>(yNode)) {
       stringifyArray(yNode, destination);
     } else {
-      YAML_THROW(Error, "Unknown Node type encountered during stringification.");
+      IStringify::throwUnknownNodeType();
     }
   }
   // Intentional parallel to JSON_Stringify/Bencode_Stringify: unwrap Document
