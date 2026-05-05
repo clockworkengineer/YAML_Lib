@@ -55,6 +55,8 @@ private:
       YAML_THROW(Error, "Unknown Node type encountered during stringification.");
     }
   }
+  // Intentional parallel to JSON_Stringify/Bencode_Stringify: unwrap Document
+  // and recurse. Default_Stringify differs (emits --- / ... markers).
   static void stringifyDocument(const Node &yNode, IDestination &destination,
                                 const long indent) {
     stringifyNodes(NRef<Document>(yNode)[0], destination, indent);
