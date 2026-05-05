@@ -51,24 +51,6 @@ public:
     }
   }
 
-  void add(const std::string_view &bytes) override {
-    for (const char ch : bytes) {
-      add(ch);
-    }
-  }
-
-  void add(const std::string &bytes) override {
-    for (const char ch : bytes) {
-      add(ch);
-    }
-  }
-
-  void add(const char *bytes) override {
-    while (*bytes) {
-      add(*bytes++);
-    }
-  }
-
   void clear() override {
     pos_ = 0;
     overflow_ = false;

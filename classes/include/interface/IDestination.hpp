@@ -18,16 +18,23 @@ public:
   // Constructors/destructors
   // ========================
   virtual ~IDestination() = default;
-  // ========================
-  // Add bytes to destination
-  // ========================
-  virtual void add(const std::string &bytes) = 0;
-  virtual void add(const char* bytes) = 0;
-  virtual void add(const std::string_view &bytes) = 0;
   // ============================
   // Add character to destination
   // ============================
   virtual void add(char ch) = 0;
+  // ========================
+  // Add bytes to destination
+  // (default: delegates to add(char); batch destinations may override)
+  // ========================
+  virtual void add(const std::string_view &bytes) {
+    for (const char ch : bytes) add(ch);
+  }
+  virtual void add(const std::string &bytes) {
+    for (const char ch : bytes) add(ch);
+  }
+  virtual void add(const char *bytes) {
+    while (*bytes) add(*bytes++);
+  }
   // ============================
   // Clear the current destination
   // ===========================

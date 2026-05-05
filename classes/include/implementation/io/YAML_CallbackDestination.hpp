@@ -46,24 +46,6 @@ public:
     last_ = ch;
   }
 
-  void add(const std::string_view &bytes) override {
-    for (const char ch : bytes) {
-      add(ch);
-    }
-  }
-
-  void add(const std::string &bytes) override {
-    for (const char ch : bytes) {
-      add(ch);
-    }
-  }
-
-  void add(const char *bytes) override {
-    while (*bytes) {
-      add(*bytes++);
-    }
-  }
-
   /// No-op: a streaming destination has no persistent buffer to clear.
   void clear() override {
     last_ = kNull;
