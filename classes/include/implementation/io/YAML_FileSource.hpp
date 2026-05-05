@@ -2,7 +2,7 @@
 
 namespace YAML_Lib {
 
-class FileSource final : public ISource {
+class FileSource final : public BufferedSourceBase {
 public:
   explicit FileSource(const std::string_view &filename) {
     std::ifstream source(filename.data(), std::ios_base::binary | std::ios_base::ate);
@@ -41,55 +41,13 @@ public:
     }
     return EOF;
   }
-  void next() override {
-    const auto uc = static_cast<unsigned char>(current());
-    if (kForbiddenChar[uc]) {
-      char buf[5];
-      std::snprintf(buf, sizeof(buf), "%04X", static_cast<unsigned>(uc));
-      YAML_THROW_POS(*this, std::string("Disallowed control character U+") + buf +
-                        " in YAML stream.");
-    }
-    if (current() == kLineFeed) {
-      lineNo++;
-      column = 1;
-    } else {
-      column++;
-    }
-    if (!more()) {
-      YAML_THROW(Error, "Tried to read past end of file.");
-    }
-    bufferPosition++;
-  }
   [[nodiscard]] bool more() const override {
     return bufferPosition < buffer.size();
   }
-  void reset() override {
-    bufferPosition = 0;
-    lineNo = 1;
-    column = 1;
-  }
-  [[nodiscard]] std::size_t position() override { return bufferPosition; }
-  void save() override {
-    contexts.push_back(Context(lineNo, column, bufferPosition));
-  }
-  void restore() override {
-    const Context context{contexts.back()};
-    contexts.pop_back();
-    lineNo = context.lineNo;
-    column = context.column;
-    bufferPosition = context.bufferPosition;
-  }
-  void discardSave() override {
-    contexts.pop_back();
-  }
 
 protected:
-  void backup(const unsigned long length) override {
-    if (column - length < 1) {
-      YAML_THROW(Error, "Backup past start column.");
-    }
-    bufferPosition -= length;
-    column -= length;
+  [[nodiscard]] const char *endOfInputMessage() const noexcept override {
+    return "Tried to read past end of file.";
   }
 
 private:

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "YAML_BufferedSourceBase.hpp"
 #include "YAML_BufferSource.hpp"
 #ifdef YAML_LIB_FILE_IO
 #include "YAML_FileSource.hpp"

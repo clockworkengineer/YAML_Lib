@@ -24,7 +24,7 @@ namespace YAML_Lib {
 ///   SpanSource src{kConfigYaml, sizeof(kConfigYaml) - 1};
 ///   yaml.parse(src);
 /// @endcode
-class SpanSource final : public ISource {
+class SpanSource final : public BufferedSourceBase {
 public:
   /// Construct from a raw pointer and byte count.
   /// The pointer may be ROM; it is never written.
@@ -48,59 +48,11 @@ public:
     }
     return static_cast<char>(EOF);
   }
-
-  void next() override {
-    const auto uc = static_cast<unsigned char>(current());
-    if (kForbiddenChar[uc]) {
-      char buf[5];
-      std::snprintf(buf, sizeof(buf), "%04X", static_cast<unsigned>(uc));
-      YAML_THROW_POS(*this,
-                     std::string("Disallowed control character U+") + buf +
-                         " in YAML stream.");
-    }
-    if (current() == kLineFeed) {
-      lineNo++;
-      column = 1;
-    } else {
-      column++;
-    }
-    if (!more()) {
-      YAML_THROW(Error, "Tried to read past end of span.");
-    }
-    bufferPosition++;
-  }
-
   [[nodiscard]] bool more() const override { return bufferPosition < len_; }
 
-  void reset() override {
-    bufferPosition = 0;
-    lineNo = 1;
-    column = 1;
-  }
-
-  [[nodiscard]] std::size_t position() override { return bufferPosition; }
-
-  void save() override {
-    contexts.push_back(Context(lineNo, column, bufferPosition));
-  }
-
-  void restore() override {
-    const Context ctx{contexts.back()};
-    contexts.pop_back();
-    lineNo = ctx.lineNo;
-    column = ctx.column;
-    bufferPosition = ctx.bufferPosition;
-  }
-
-  void discardSave() override { contexts.pop_back(); }
-
 protected:
-  void backup(const unsigned long length) override {
-    if (static_cast<long>(column) - static_cast<long>(length) < 1) {
-      YAML_THROW(Error, "Backup past start column.");
-    }
-    bufferPosition -= length;
-    column -= length;
+  [[nodiscard]] const char *endOfInputMessage() const noexcept override {
+    return "Tried to read past end of span.";
   }
 
 private:
