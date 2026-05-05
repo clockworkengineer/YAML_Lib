@@ -24,6 +24,10 @@
 #include "YAML_Array.hpp"       // struct Array : SequenceBase<Array>
 #include "YAML_Dictionary.hpp"  // struct Dictionary, DictionaryEntry (uses Node, String)
 #include "YAML_Document.hpp"    // struct Document : SequenceBase<Document>
+// 5b. Static-capacity container alternatives (E4 — Profile B/C embedded)
+#include "YAML_StaticSequence.hpp"    // StaticSequenceBase<N, Derived> — array-backed CRTP base
+#include "YAML_StaticArray.hpp"       // StaticArray<N>, StaticDocument<N>
+#include "YAML_StaticDictionary.hpp"  // StaticDictionary<N> — linear-scan, no unordered_map
 // 6. Node method implementations (depend on all variant types above)
 #include "YAML_Node_Reference.hpp" // isA<T>/NRef<T>; also defines Node::toString/toKey,
                                    // Array::toKey/resize, Dictionary::toKey, Document::resize

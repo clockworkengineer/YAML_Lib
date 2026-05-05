@@ -181,4 +181,55 @@ inline std::string Dictionary::toKey() const {
   return result;
 }
 
+// -----------------------------------------------------------------------
+// StaticSequenceBase<N, Derived>::resize() — defined here after Node::make<Hole>()
+template <std::size_t N, typename Derived>
+inline void StaticSequenceBase<N, Derived>::resize(const std::size_t index) {
+  if (index >= N) {
+    YAML_THROW(Node::Error, "Static sequence capacity exceeded during resize.");
+  }
+  const std::size_t newSize = index + 1;
+  if (newSize > this->count_) {
+    this->count_ = newSize;
+  }
+  for (std::size_t i = 0; i < this->count_; ++i) {
+    if (this->entries_[i].isEmpty()) {
+      this->entries_[i] = Node::make<Hole>();
+    }
+  }
+}
+
+// StaticArray<N>::toKey() — same logic as Array::toKey()
+template <std::size_t N>
+inline std::string StaticArray<N>::toKey() const {
+  std::string result{kLeftSquareBracket};
+  if (this->count_ > 0) {
+    std::size_t commaCount = this->count_ - 1;
+    for (std::size_t i = 0; i < this->count_; ++i) {
+      result += this->entries_[i].toString();
+      if (commaCount-- > 0) {
+        result += ", ";
+      }
+    }
+  }
+  result += "]";
+  return result;
+}
+
+// StaticDictionary<N>::toKey() — build "{k: v, ...}" key string
+template <std::size_t N>
+inline std::string StaticDictionary<N>::toKey() const {
+  std::string result{kLeftCurlyBrace};
+  for (std::size_t i = 0; i < count_; ++i) {
+    result += keys_[i];
+    result += ": ";
+    result += values_[i].toString();
+    if (i + 1 < count_) {
+      result += ", ";
+    }
+  }
+  result += "}";
+  return result;
+}
+
 } // namespace YAML_Lib
