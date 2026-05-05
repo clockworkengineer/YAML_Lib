@@ -26,8 +26,8 @@ Node Default_Parser::parseDocument(ISource &source,
   if (isInsideFlowContext() && isDocumentBoundary(source)) {
     YAML_THROW_POS(source, "Document marker not permitted inside flow collection.");
   }
-  for (std::size_t i = 0; i < parsers.size(); ++i) {
-    const auto &[fst, snd] = parsers[i];
+  for (std::size_t i = 0; i < parsers_.size(); ++i) {
+    const auto &[fst, snd] = parsers_[i];
     if (fst(source)) {
       if (Node yNode = snd(source, delimiters, indentation); !yNode.isEmpty()) {
         moveToNextIndent(source);
@@ -44,23 +44,23 @@ Node Default_Parser::parseDocument(ISource &source,
 /// <returns>Array of YAML documents.</returns>
 std::vector<Node> Default_Parser::parse(ISource &source) {
   std::vector<Node> yNodeTree;
-  arrayIndentLevel = 0;
-  inlineArrayDepth = 0;
-  inlineDictionaryDepth = 0;
-  blockFlowValueIndent = 0;
-  yamlAliasMap.clear();
-  yamlAliasMap.reserve(16);
-  yamlTagPrefixes.clear();
-  activeAliasExpansions.clear();
-  yamlDirectiveMinor = 2;
-  yamlDirectiveSeen = false;
+  ctx_.arrayIndentLevel = 0;
+  ctx_.inlineArrayDepth = 0;
+  ctx_.inlineDictionaryDepth = 0;
+  ctx_.blockFlowValueIndent = 0;
+  ctx_.yamlAliasMap.clear();
+  ctx_.yamlAliasMap.reserve(16);
+  ctx_.yamlTagPrefixes.clear();
+  ctx_.activeAliasExpansions.clear();
+  ctx_.yamlDirectiveMinor = 2;
+  ctx_.yamlDirectiveSeen = false;
   const auto resetDocumentState = [&]() {
-    yamlAliasMap.clear();
-    yamlAliasMap.reserve(16);
-    activeAliasExpansions.clear();
-    yamlTagPrefixes.clear();
-    yamlDirectiveMinor = 2;
-    yamlDirectiveSeen = false;
+    ctx_.yamlAliasMap.clear();
+    ctx_.yamlAliasMap.reserve(16);
+    ctx_.activeAliasExpansions.clear();
+    ctx_.yamlTagPrefixes.clear();
+    ctx_.yamlDirectiveMinor = 2;
+    ctx_.yamlDirectiveSeen = false;
   };
   for (bool inDocument = false, pendingDirectives = false; source.more();) {
     // Directives (%YAML or %TAG) — only valid before a document starts
@@ -187,11 +187,11 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
       YAML_THROW_POS(source, "%YAML directive: unsupported major version " +
                             std::to_string(major) + ".");
     }
-    if (yamlDirectiveSeen) {
+    if (ctx_.yamlDirectiveSeen) {
       YAML_THROW_POS(source, "%YAML directive appears more than once for the same document.");
     }
-    yamlDirectiveSeen = true;
-    yamlDirectiveMinor = minor;
+    ctx_.yamlDirectiveSeen = true;
+    ctx_.yamlDirectiveMinor = minor;
     source.ignoreWS();
     if (source.more() && source.current() != kLineFeed &&
         source.current() != '#') {
@@ -219,7 +219,7 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
     std::string handle{extractToNext(source, {' '})};
     source.ignoreWS();
     std::string prefix{extractToNext(source, {kLineFeed, ' '})};
-    yamlTagPrefixes[handle] = prefix;
+    ctx_.yamlTagPrefixes[handle] = prefix;
   } else {
     // Unknown directive — YAML spec says warn and ignore
   }

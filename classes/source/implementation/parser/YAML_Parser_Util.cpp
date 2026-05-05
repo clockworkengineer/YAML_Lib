@@ -379,17 +379,17 @@ Default_Parser::withExtras(const Delimiters &base,
 /// </summary>
 /// <returns>Appropriate Delimiters set for the current parser depth.</returns>
 Default_Parser::Delimiters Default_Parser::keyStopDelimiters() {
-  return inlineDictionaryDepth > 0
+  return ctx_.inlineDictionaryDepth > 0
              ? Delimiters{kColon, kComma, kRightCurlyBrace, kLineFeed}
              : Delimiters{kColon, kLineFeed};
 }
 /// <summary>
 /// Is the parser currently inside at least one flow collection ([] or {})?
 /// </summary>
-/// <returns>True when inlineArrayDepth or inlineDictionaryDepth is
+/// <returns>True when ctx_.inlineArrayDepth or ctx_.inlineDictionaryDepth is
 /// non-zero.</returns>
 bool Default_Parser::isInsideFlowContext() noexcept {
-  return inlineArrayDepth > 0 || inlineDictionaryDepth > 0;
+  return ctx_.inlineArrayDepth > 0 || ctx_.inlineDictionaryDepth > 0;
 }
 
 } // namespace YAML_Lib

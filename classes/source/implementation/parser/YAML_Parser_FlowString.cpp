@@ -287,7 +287,7 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
     }
     source.next(); // consume closing quote
     closedQuote = true;
-    yamlString = yamlTranslator->from(yamlString);
+    yamlString = yamlTranslator_->from(yamlString);
   } else {
     bool isKeyContext = false;
     // Heuristic: If the next non-whitespace after the quoted string is ':', assume key context.

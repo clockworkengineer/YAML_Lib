@@ -8,7 +8,7 @@ namespace YAML_Lib {
 class Default_Stringify final : public IStringify {
 public:
   explicit Default_Stringify(std::unique_ptr<ITranslator> translator) {
-    yamlTranslator = std::move(translator);
+    yamlTranslator_ = std::move(translator);
   }
   Default_Stringify(const Default_Stringify &other) = delete;
   Default_Stringify &operator=(const Default_Stringify &other) = delete;
@@ -28,7 +28,7 @@ public:
     stringifyNodes(yNode, destination, indent);
   }
   // Indentation increment
-  static void setIndentation(const unsigned long indentation) {
+  void setIndentation(const unsigned long indentation) const {
     yamlIndentation = indentation;
   }
 
@@ -36,7 +36,7 @@ private:
   /// Convert an internally-stored full tag URI back to the short YAML form
   /// suitable for output: "tag:yaml.org,2002:str" -> "!!str",
   /// "!mytag" -> "!mytag", arbitrary URIs -> "!<uri>".
-  static std::string tagToEmitForm(const std::string_view tag) {
+  std::string tagToEmitForm(const std::string_view tag) const {
     if (tag.empty())
       return {};
     static constexpr std::string_view yamlOrgPrefix{"tag:yaml.org,2002:"};
@@ -49,7 +49,7 @@ private:
     // Fully-resolved non-yaml.org URI from a named handle expansion
     return "!<" + std::string(tag) + ">";
   }
-  static std::string escapeSingleQuoted(const std::string_view value) {
+  std::string escapeSingleQuoted(const std::string_view value) const {
     std::string escaped;
     escaped.reserve(value.size());
     for (const char ch : value) {
@@ -81,8 +81,8 @@ private:
     }
     return parts;
   }
-  static std::string_view calculateIndent(IDestination &destination,
-                                          const unsigned long indent) {
+  std::string_view calculateIndent(IDestination &destination,
+                                          const unsigned long indent) const {
     if (destination.last() == kLineFeed) {
       // Grow cache only when needed; reuse existing allocation otherwise.
       static std::string indentBuf;
@@ -93,8 +93,8 @@ private:
     }
     return {};
   }
-  static void stringifyAnyBlockStyle(IDestination &destination,
-                                     const Node &yNode) {
+  void stringifyAnyBlockStyle(IDestination &destination,
+                                     const Node &yNode) const {
     if (isA<String>(yNode)) {
       if (const auto quote = NRef<String>(yNode).getQuote();
           quote == '>' || quote == '|') {
@@ -108,8 +108,8 @@ private:
       }
     }
   }
-  static void stringifyNodes(const Node &yNode, IDestination &destination,
-                             const unsigned long indent) {
+  void stringifyNodes(const Node &yNode, IDestination &destination,
+                             const unsigned long indent) const {
     // YAML 1.2 §6.8.1: emit explicit tag before the scalar value.
     // Block-string tags are handled in stringifyAnyBlockStyle (before the
     // block marker). Collection/structural node tags are not emitted here.
@@ -149,17 +149,17 @@ private:
       YAML_THROW(Error, "Unknown Node type encountered during stringification.");
     }
   }
-  static void stringifyNumber(const Node &yNode, IDestination &destination,
-                              [[maybe_unused]] const unsigned long indent) {
+  void stringifyNumber(const Node &yNode, IDestination &destination,
+                              [[maybe_unused]] const unsigned long indent) const {
     destination.add(NRef<Number>(yNode).toString());
   }
-  static void stringifyString(const Node &yNode, IDestination &destination,
-                              const unsigned long indent) {
+  void stringifyString(const Node &yNode, IDestination &destination,
+                              const unsigned long indent) const {
     if (const char quote = NRef<String>(yNode).getQuote();
         quote == kApostrophe || quote == kDoubleQuote) {
       std::string yamlString{NRef<String>(yNode).toString()};
       if (quote == kDoubleQuote) {
-        yamlString = yamlTranslator->to(yamlString);
+        yamlString = yamlTranslator_->to(yamlString);
       } else {
         yamlString = escapeSingleQuoted(yamlString);
       }
@@ -172,29 +172,29 @@ private:
       }
     }
   }
-  static void stringifyComment(const Node &yNode, IDestination &destination,
-                               [[maybe_unused]] const unsigned long indent) {
+  void stringifyComment(const Node &yNode, IDestination &destination,
+                               [[maybe_unused]] const unsigned long indent) const {
     destination.add("#" + std::string(NRef<Comment>(yNode).value()) +
                     kLineFeed);
   }
-  static void stringifyBoolean(const Node &yNode, IDestination &destination,
-                               [[maybe_unused]] const unsigned long indent) {
+  void stringifyBoolean(const Node &yNode, IDestination &destination,
+                               [[maybe_unused]] const unsigned long indent) const {
     destination.add(NRef<Boolean>(yNode).toString());
   }
-  static void stringifyNull(const Node &yNode, IDestination &destination,
-                            [[maybe_unused]] const unsigned long indent) {
+  void stringifyNull(const Node &yNode, IDestination &destination,
+                            [[maybe_unused]] const unsigned long indent) const {
     destination.add(NRef<Null>(yNode).toString());
   }
-  static void stringifyHole(const Node &yNode, IDestination &destination,
-                            [[maybe_unused]] const unsigned long indent) {
+  void stringifyHole(const Node &yNode, IDestination &destination,
+                            [[maybe_unused]] const unsigned long indent) const {
     destination.add(NRef<Hole>(yNode).toString());
   }
-  static void stringifyTimestamp(const Node &yNode, IDestination &destination,
-                                 [[maybe_unused]] const unsigned long indent) {
+  void stringifyTimestamp(const Node &yNode, IDestination &destination,
+                                 [[maybe_unused]] const unsigned long indent) const {
     destination.add(NRef<Timestamp>(yNode).toString());
   }
-  static void stringifyDictionary(const Node &yNode, IDestination &destination,
-                                  const unsigned long indent) {
+  void stringifyDictionary(const Node &yNode, IDestination &destination,
+                                  const unsigned long indent) const {
     for (const auto &entryNode : NRef<Dictionary>(yNode).value()) {
       destination.add(calculateIndent(destination, indent));
       if (const char quote = entryNode.getKeyQuote();
@@ -222,8 +222,8 @@ private:
       }
     }
   }
-  static void stringifyArray(const Node &yNode, IDestination &destination,
-                             const unsigned long indent) {
+  void stringifyArray(const Node &yNode, IDestination &destination,
+                             const unsigned long indent) const {
     for (const auto &entryNode : NRef<Array>(yNode).value()) {
       destination.add(calculateIndent(destination, indent));
       destination.add("- ");
@@ -234,8 +234,8 @@ private:
       }
     }
   }
-  static void stringifyDocument(const Node &yNode, IDestination &destination,
-                                [[maybe_unused]] const unsigned long indent) {
+  void stringifyDocument(const Node &yNode, IDestination &destination,
+                                [[maybe_unused]] const unsigned long indent) const {
     destination.add("---");
     if (!NRef<Document>(yNode).value().empty()) {
       stringifyAnyBlockStyle(destination, NRef<Document>(yNode)[0]);
@@ -254,8 +254,8 @@ private:
   }
   // Current indentation level
   inline static unsigned long yamlIndentation{2};
-  // Translator
-  inline static std::unique_ptr<ITranslator> yamlTranslator;
+  // Translator (per-instance)
+  std::unique_ptr<ITranslator> yamlTranslator_;
 };
 
 } // namespace YAML_Lib

@@ -56,9 +56,9 @@ private:
   // Traverse YAML tree
   template <typename T> static void traverseNodes(T &yNode, IAction &action);
   // Pointer to YAML parser interface
-  inline static std::unique_ptr<IParser> yamlParser;
+  std::unique_ptr<IParser> yamlParser;
   // Pointer to YAML stringify interface
-  inline static std::unique_ptr<IStringify> yamlStringify;
+  std::unique_ptr<IStringify> yamlStringify;
   // YAML tree
   std::vector<Node> yamlTree;
 };

@@ -74,10 +74,10 @@ Node Default_Parser::mergeOverrides(Node &overrideRoot) {
 /// <returns>Reference to the stored unparsed alias value.</returns>
 const std::string &Default_Parser::resolveAlias(const std::string &name,
                                                 ISource &source) {
-  if (!yamlAliasMap.count(name)) {
+  if (!ctx_.yamlAliasMap.count(name)) {
     YAML_THROW_POS(source, "Undefined alias '" + name + "'.");
   }
-  return yamlAliasMap[name];
+  return ctx_.yamlAliasMap[name];
 }
 
 /// <summary>/// Parse a comment on source stream.
@@ -170,7 +170,7 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
     }
   }
   if (unparsed.empty()) {
-    yamlAliasMap[name] = unparsed;
+    ctx_.yamlAliasMap[name] = unparsed;
     return Node::make<Null>();
   }
   // YAML 1.2 §3.2.3: a node may have at most one anchor property.
@@ -206,7 +206,7 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
       }
     }
   }
-  yamlAliasMap[name] = unparsed;
+  ctx_.yamlAliasMap[name] = unparsed;
   return parseFromBuffer(unparsed, delimiters, indentation);
 }
 /// <summary>
@@ -232,18 +232,21 @@ Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
   if (source.more() && source.current() == kLineFeed) {
     source.next();
   }
-  if (activeAliasExpansions.count(name)) {
+  if (ctx_.activeAliasExpansions.count(name)) {
     YAML_THROW_POS(source, "Recursive anchor detected: '" + name + "'.");
   }
   const std::string &unparsed = resolveAlias(name, source);
   if (unparsed.empty()) {
     return Node::make<Null>();
   }
-  activeAliasExpansions.insert(name);
+  ctx_.activeAliasExpansions.insert(name);
+  auto &activeExps = ctx_.activeAliasExpansions;
   struct AliasGuard {
+    std::set<std::string> &set_;
     const std::string &name_;
-    ~AliasGuard() { Default_Parser::activeAliasExpansions.erase(name_); }
-  } aliasGuard{name};
+    AliasGuard(std::set<std::string> &s, const std::string &n) : set_(s), name_(n) {}
+    ~AliasGuard() { set_.erase(name_); }
+  } aliasGuard{activeExps, name};
   return parseFromBuffer(unparsed, delimiters, indentation);
 }
 /// <summary>

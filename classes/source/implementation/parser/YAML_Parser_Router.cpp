@@ -34,7 +34,7 @@ bool Default_Parser::isKey(ISource &source) {
         (key.front() == kDoubleQuote || key.front() == kApostrophe ||
          key.front() == kLeftSquareBracket || key.front() == kLeftCurlyBrace ||
          key.front() == '&' || key.front() == '!');
-    if (inlineDictionaryDepth == 0 && !key.empty() &&
+    if (ctx_.inlineDictionaryDepth == 0 && !key.empty() &&
         (key.front() == kDoubleQuote || key.front() == kApostrophe) &&
         key.find('\n') != std::string::npos) {
       YAML_THROW_POS(source, "Implicit quoted keys must be on a single line.");
@@ -57,7 +57,7 @@ bool Default_Parser::isKey(ISource &source) {
     // A tab followed by a space is a valid s-white separation sequence
     // (e.g. 6BCT: "foo:" + TAB + " bar").
     bool validTabSeparator = false;
-    if (inlineDictionaryDepth == 0 && source.more() &&
+    if (ctx_.inlineDictionaryDepth == 0 && source.more() &&
         source.current() == '\t') {
       SourceGuard tabGuard(source);
       while (source.more() && source.current() == '\t') {
@@ -114,7 +114,7 @@ bool Default_Parser::isArray(ISource &source) {
 /// <returns>If true, a boolean value has been found.</returns>
 bool Default_Parser::isBoolean(const ISource &source) {
   const auto ch = source.current();
-  if (strictBooleans || yamlDirectiveMinor >= 2) {
+  if (strictBooleans || ctx_.yamlDirectiveMinor >= 2) {
     // YAML 1.2 strict: only 'true' and 'false'
     return ch == 't' || ch == 'f';
   }
@@ -262,7 +262,7 @@ bool Default_Parser::isDictionary(ISource &source) {
                                kRightCurlyBrace};
     const std::string aliasName = extractToNext(source, aliasStop);
     if (!aliasName.empty() && aliasName.back() == kColon &&
-        yamlAliasMap.count(aliasName)) {
+        ctx_.yamlAliasMap.count(aliasName)) {
       return false;
     }
   }

@@ -32,7 +32,7 @@ Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters,
   const unsigned long arrayIndent = source.getPosition().second;
   auto arrayNode = Node::make<Array>();
   {
-    DepthGuard depthGuard(arrayIndentLevel);
+    DepthGuard depthGuard(ctx_.arrayIndentLevel);
     while (isArray(source) && arrayIndent == source.getPosition().second) {
       source.next(); // consume '-'
       // YAML 1.2 §6.1: block indentation must use spaces, not tabs.
@@ -64,8 +64,8 @@ Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters,
       NRef<Array>(arrayNode).add(std::move(yNode));
       moveToNextIndent(source);
     }
-  } // arrayIndentLevel decremented here (even on exception)
-  if (isArray(source) && arrayIndentLevel == 0 &&
+  } // ctx_.arrayIndentLevel decremented here (even on exception)
+  if (isArray(source) && ctx_.arrayIndentLevel == 0 &&
       arrayIndent > source.getPosition().second) {
     YAML_THROW_POS(source, "Invalid indentation for array element.");
   }
@@ -86,15 +86,15 @@ Node Default_Parser::parseInlineArray(
   auto arrayNode = Node::make<Array>();
   auto &yamlArray = NRef<Array>(arrayNode);
   {
-    DepthGuard depthGuard(inlineArrayDepth);
+    DepthGuard depthGuard(ctx_.inlineArrayDepth);
     do {
       source.next();
       // Patch: Disallow comment immediately after comma in flow sequence (YAML 1.2)
       if (source.current() == '#') {
         YAML_THROW_POS(source, "Comment must be separated from comma by whitespace in flow sequence.");
       }
-      if (inlineArrayDepth == 1 && source.more() &&
-          source.current() == kLineFeed && blockFlowValueIndent > 0) {
+      if (ctx_.inlineArrayDepth == 1 && source.more() &&
+          source.current() == kLineFeed && ctx_.blockFlowValueIndent > 0) {
         SourceGuard guard(source);
         source.next();
         while (source.more() && source.current() == kLineFeed) {
@@ -106,7 +106,7 @@ Node Default_Parser::parseInlineArray(
           source.next();
         }
         if (source.more() && source.current() != kRightSquareBracket &&
-            continuationIndent <= blockFlowValueIndent) {
+            continuationIndent <= ctx_.blockFlowValueIndent) {
           YAML_THROW_POS(source, "Flow sequence continuation must be indented "
                             "beyond its parent block context.");
         }
@@ -126,9 +126,9 @@ Node Default_Parser::parseInlineArray(
         yamlArray.value().pop_back();
       }
     } while (source.current() == kComma);
-  } // inlineArrayDepth decremented here
+  } // ctx_.inlineArrayDepth decremented here
   checkForEnd(source, kRightSquareBracket);
-  checkAtFlowClose(source, delimiters, inlineArrayDepth);
+  checkAtFlowClose(source, delimiters, ctx_.inlineArrayDepth);
   return arrayNode;
 }
 } // namespace YAML_Lib

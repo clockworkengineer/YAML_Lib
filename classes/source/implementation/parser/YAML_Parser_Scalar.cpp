@@ -37,7 +37,7 @@ void Default_Parser::convertOctalToDecimal(std::string &numeric,
 Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
                                  [[maybe_unused]] unsigned long indentation) {
   return tryParseToken(source, delimiters, indentation,
-                       [](std::string numeric) -> Node {
+                       [this](std::string numeric) -> Node {
     // YAML 1.2 special float literals (case-insensitive).
     // Only tokens starting with '.', '+', or '-' can be .inf/+.inf/-.inf/.nan.
     if (!numeric.empty() &&
@@ -61,7 +61,7 @@ Node Default_Parser::parseNumber(ISource &source, const Delimiters &delimiters,
         (numeric[1] == 'o' || numeric[1] == 'O')) {
       const std::string octalDigits = numeric.substr(2);
       convertOctalToDecimal(numeric, octalDigits);
-    } else if (yamlDirectiveMinor == 1 && numeric.size() >= 2 &&
+    } else if (ctx_.yamlDirectiveMinor == 1 && numeric.size() >= 2 &&
                numeric[0] == '0' &&
                std::all_of(
                    numeric.begin() + 1, numeric.end(),
@@ -109,7 +109,7 @@ Node Default_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
   static const std::set<std::string_view> strict12False{"false"};
   return tryParseToken(source, delimiters, indentation,
                        [&](const std::string &tok) -> Node {
-    const bool strictMode = strictBooleans || yamlDirectiveMinor >= 2;
+    const bool strictMode = strictBooleans || ctx_.yamlDirectiveMinor >= 2;
     const auto &trueSet = strictMode ? strict12True : Boolean::isTrue;
     const auto &falseSet = strictMode ? strict12False : Boolean::isFalse;
     if (trueSet.contains(tok))

@@ -111,13 +111,13 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   } else if (tagHandle == "!!") {
     // Expand using registered prefix or default yaml.org
     const std::string defaultPrefix{"tag:yaml.org,2002:"};
-    auto it = yamlTagPrefixes.find("!!");
+    auto it = ctx_.yamlTagPrefixes.find("!!");
     fullTag =
-        (it != yamlTagPrefixes.end() ? it->second : defaultPrefix) + tagSuffix;
+        (it != ctx_.yamlTagPrefixes.end() ? it->second : defaultPrefix) + tagSuffix;
   } else {
     // Named handle (e.g. !ns!suffix) or local tag (e.g. !suffix)
-    auto it = yamlTagPrefixes.find(tagHandle);
-    if (it != yamlTagPrefixes.end()) {
+    auto it = ctx_.yamlTagPrefixes.find(tagHandle);
+    if (it != ctx_.yamlTagPrefixes.end()) {
       fullTag = it->second + tagSuffix;
     } else if (tagHandle == "!") {
       fullTag = "!" + tagSuffix;
@@ -171,13 +171,30 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     } else if (tagSuffix == "int" || tagSuffix == "float" ||
                tagSuffix == "bool" || tagSuffix == "null") {
       // Dispatch table for the four core type-coercion tags.
-      using CoerceFunc = Node (*)(ISource &, const Delimiters &, unsigned long);
-      static const std::unordered_map<std::string,
-                                      std::pair<CoerceFunc, const char *>>
-          coercions{{"int", {parseNumber, "!!int"}},
-                    {"float", {parseNumber, "!!float"}},
-                    {"bool", {parseBoolean, "!!bool"}},
-                    {"null", {parseNone, "!!null"}}};
+      using CoerceFunc =
+          std::function<Node(ISource &, const Delimiters &, unsigned long)>;
+      const std::unordered_map<std::string, std::pair<CoerceFunc, const char *>>
+          coercions{
+              {"int",
+               {[this](ISource &s, const Delimiters &d, unsigned long i) {
+                  return parseNumber(s, d, i);
+                },
+                "!!int"}},
+              {"float",
+               {[this](ISource &s, const Delimiters &d, unsigned long i) {
+                  return parseNumber(s, d, i);
+                },
+                "!!float"}},
+              {"bool",
+               {[this](ISource &s, const Delimiters &d, unsigned long i) {
+                  return parseBoolean(s, d, i);
+                },
+                "!!bool"}},
+              {"null",
+               {[this](ISource &s, const Delimiters &d, unsigned long i) {
+                  return parseNone(s, d, i);
+                },
+                "!!null"}}};
       const auto &[fn, tagName] = coercions.at(tagSuffix);
       const bool needsNodeParse = valueRequiresNodeParse();
       if (isEmptyScalar && tagSuffix == "null") {

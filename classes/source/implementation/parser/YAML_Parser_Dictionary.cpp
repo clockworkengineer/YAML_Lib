@@ -141,7 +141,7 @@ std::string Default_Parser::extractMapping(ISource &source) {
   // Explicit mapping key with node content on following lines, e.g.:
   // ?\n- a\n- b\n:\n- c\n- d
   // Capture lines up to a ':' at the same column as the '?' indicator.
-  if (inlineDictionaryDepth == 0 && source.current() == kLineFeed) {
+  if (ctx_.inlineDictionaryDepth == 0 && source.current() == kLineFeed) {
     source.next(); // first line of key node content (or ':' line)
     std::string multilineKey;
     while (source.more()) {
@@ -333,7 +333,7 @@ std::string Default_Parser::extractMapping(ISource &source) {
 /// <returns>YAML for key value.</returns>
 std::string Default_Parser::extractKey(ISource &source,
                                        unsigned long *quoteIndent) {
-  const auto extractPlainKeyTail = [&source]() {
+  const auto extractPlainKeyTail = [this, &source]() {
     const Delimiters plainKeyDelimiters = keyStopDelimiters();
     const Delimiters delimitersWithComment = withExtras(plainKeyDelimiters, {'#'});
     std::string keyTail;
@@ -475,9 +475,9 @@ std::string Default_Parser::extractKey(ISource &source,
   // Plain scalar key: ':' is only a value separator when followed by
   // space/newline/EOF. Otherwise (e.g. ":foo") the colon is part of the key
   // text.
-  // In block context (inlineDictionaryDepth == 0) '}' and ',' are ordinary
+  // In block context (ctx_.inlineDictionaryDepth == 0) '}' and ',' are ordinary
   // characters and must not terminate key extraction.  They are only special
-  // inside flow collections (inlineDictionaryDepth > 0).
+  // inside flow collections (ctx_.inlineDictionaryDepth > 0).
   return extractPlainKeyTail();
 }
 /// <summary>
@@ -551,7 +551,7 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
     source.next(); // consume ':'
     if (source.more() && source.current() == kSpace) {
       source.next(); // consume optional space after ':'
-    } else if (inlineDictionaryDepth == 0 && source.more() &&
+    } else if (ctx_.inlineDictionaryDepth == 0 && source.more() &&
                source.current() == '\t') {
       SourceGuard tabGuard(source);
       while (source.more() && source.current() == '\t') {
@@ -569,9 +569,9 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
       }
     }
   } else if (isKey(source) && !isMapping(source) && !isAlias(source) &&
-             (inlineDictionaryDepth > 0 ||
+             (ctx_.inlineDictionaryDepth > 0 ||
               source.getPosition().second > keyIndent)) {
-    // Only throw when inside a flow collection (inlineDictionaryDepth > 0)
+    // Only throw when inside a flow collection (ctx_.inlineDictionaryDepth > 0)
     // or when an unexpected key appears deeper than keyIndent, indicating a
     // compact-nested / same-line key where a simple value was expected.
     // At block level with the next key at the same column, the explicit key
@@ -585,7 +585,7 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
   // on the same line as the mapping key (implicit block mapping form where
   // the ':' was already consumed inline), it is a syntax error
   // (e.g. "key: - a" is invalid).
-  if (inlineDictionaryDepth == 0 && isArray(source) &&
+  if (ctx_.inlineDictionaryDepth == 0 && isArray(source) &&
       source.getPosition().first == keyLine) {
     YAML_THROW_POS(source, "Block sequence indicator '-' cannot appear inline on the same line "
         "as a mapping key value (YAML 1.2 \xc2\xa7"
@@ -594,15 +594,15 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
   Node dictionaryNode = Node::make<Null>();
   if (source.more() && (source.getPosition().second > keyIndent ||
                         isInlineCollection(source) || isArray(source))) {
-    const bool sameLineBlockFlowValue = inlineDictionaryDepth == 0 &&
+    const bool sameLineBlockFlowValue = ctx_.inlineDictionaryDepth == 0 &&
                                         isInlineCollection(source) &&
                                         source.getPosition().first == keyLine;
-    const auto previousBlockFlowValueIndent = blockFlowValueIndent;
+    const auto previousBlockFlowValueIndent = ctx_.blockFlowValueIndent;
     if (sameLineBlockFlowValue) {
-      blockFlowValueIndent = keyIndent;
+      ctx_.blockFlowValueIndent = keyIndent;
     }
     dictionaryNode = parseDocument(source, delimiters, indentation);
-    blockFlowValueIndent = previousBlockFlowValueIndent;
+    ctx_.blockFlowValueIndent = previousBlockFlowValueIndent;
   }
   return {keyNode, dictionaryNode};
 }
@@ -688,7 +688,7 @@ Node Default_Parser::parseInlineDictionary(
       withExtras(delimiters, {kComma, kRightCurlyBrace});
   Node dictionaryNode = Node::make<Dictionary>();
   {
-    DepthGuard depthGuard(inlineDictionaryDepth);
+    DepthGuard depthGuard(ctx_.inlineDictionaryDepth);
     do {
       // Save the line number of the '{' or ',' so we can detect if the next
       // key/value entry starts on a new line (multi-line flow mapping).
@@ -717,12 +717,12 @@ Node Default_Parser::parseInlineDictionary(
                            source);
       }
     } while (source.current() == kComma);
-  } // inlineDictionaryDepth decremented here
+  } // ctx_.inlineDictionaryDepth decremented here
   checkForEnd(source, kRightCurlyBrace);
   if (source.current() == kColon) {
     YAML_THROW_POS(source, "Inline dictionary used as key is meant to be on one line.");
   }
-  checkAtFlowClose(source, delimiters, inlineDictionaryDepth);
+  checkAtFlowClose(source, delimiters, ctx_.inlineDictionaryDepth);
   return dictionaryNode;
 }
 
