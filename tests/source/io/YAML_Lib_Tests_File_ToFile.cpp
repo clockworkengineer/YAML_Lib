@@ -1,5 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
 
+#ifdef YAML_LIB_FILE_IO
 TEST_CASE("Checks for toFile() api.", "[YAML][ToFile]") {
   SECTION("Check that toFile() works with UTF8.", "[YAML][ToFile][UTF8]") {
     std::string testFileName{generateRandomFileName()};
@@ -85,3 +86,4 @@ TEST_CASE("Checks for toFile() api.", "[YAML][ToFile]") {
   //                         Order Mark) specified.");
   // }
 }
+#endif // YAML_LIB_FILE_IO

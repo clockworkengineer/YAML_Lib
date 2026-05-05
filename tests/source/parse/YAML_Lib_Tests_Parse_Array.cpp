@@ -100,6 +100,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
   }
   SECTION("Parse Array from file and verify.",
           "[YAML][Parse][Examples][File]") {
+#ifdef YAML_LIB_FILE_IO
     BufferSource yamlSource{
         YAML::fromFile(prefixTestDataPath("testfile003.yaml"))};
     REQUIRE_NOTHROW(yaml.parse(yamlSource));
@@ -112,6 +113,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(NRef<Array>(yaml.document(1)).size() == 2);
     REQUIRE(NRef<String>(yaml.document(1)[0]).value() == "Chicago Cubs");
     REQUIRE(NRef<String>(yaml.document(1)[1]).value() == "St Louis Cardinals");
+#endif // YAML_LIB_FILE_IO
   }
   SECTION("YAML parse flat array of integers and verify.",
           "[YAML][Parse][Array]") {

@@ -1,5 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
 
+#ifdef YAML_LIB_FILE_IO
 TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
   const YAML yaml;
   SECTION("Create FileSource.", "[YAML][ISource][File][Construct]") {
@@ -136,3 +137,4 @@ TEST_CASE("Check ISource (File) interface.", "[YAML][ISource][File]") {
     REQUIRE(source.position() == 1);
   }
 }
+#endif // YAML_LIB_FILE_IO

@@ -5,6 +5,7 @@ TEST_CASE("Check YAML parsing of a list of example YAML files.",
           "[YAML][Parse][Examples]") {
   YAML yaml;
   TEST_FILE_LIST(testFile);
+#ifdef YAML_LIB_FILE_IO
   SECTION("Parse from buffer.", "[YAML][Parse][Examples][Buffer]") {
     BufferSource yamlSource{YAML::fromFile(prefixTestDataPath(testFile))};
     REQUIRE_NOTHROW(yaml.parse(yamlSource));
@@ -22,4 +23,5 @@ TEST_CASE("Check YAML parsing of a list of example YAML files.",
     BufferSource source{destination.toString()};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
+#endif // YAML_LIB_FILE_IO
 }

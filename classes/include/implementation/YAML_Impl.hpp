@@ -47,11 +47,13 @@ public:
   // Get YAML array element at index
   Node &operator[](std::size_t index);
   const Node &operator[](std::size_t index) const;
-  // Read/Write YAML from a file
+  // Read/Write YAML from a file (only when YAML_LIB_FILE_IO is enabled)
+#ifdef YAML_LIB_FILE_IO
   static std::string fromFile(const std::string_view &fileName);
   static void toFile(const std::string_view &fileName, const std::string_view &yamlString, YAML::Format format);
   // Get YAML file format
   static YAML::Format getFileFormat(const std::string_view &fileName);
+#endif // YAML_LIB_FILE_IO
 
 private:
   // Traverse YAML tree

@@ -1,5 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
 
+#ifdef YAML_LIB_FILE_IO
 TEST_CASE("Checks for getFileFormat() api.", "[YAML][GetFileFormat]")
 {
     SECTION("Check that getFileFormat() works with UTF8.", "[YAML][GetFileFormat][UTF8]")
@@ -27,3 +28,4 @@ TEST_CASE("Checks for getFileFormat() api.", "[YAML][GetFileFormat]")
     //     REQUIRE(YAML::getFileFormat(prefixPath("testfile026.yaml")) == YAML::Format::utf32LE);
     // }
 }
+#endif // YAML_LIB_FILE_IO

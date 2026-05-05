@@ -1,5 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
 
+#ifdef YAML_LIB_FILE_IO
 TEST_CASE("Check IDestination (File) interface.",
           "[YAML][IDestination][File]") {
   SECTION("Create FileDestination.", "[YAML][IDestination][File][Construct]") {
@@ -85,3 +86,4 @@ TEST_CASE("Check IDestination (File) interface.",
     std::filesystem::remove(testFileName);
   }
 }
+#endif // YAML_LIB_FILE_IO

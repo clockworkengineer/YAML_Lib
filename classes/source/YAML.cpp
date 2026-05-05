@@ -138,6 +138,7 @@ const Node &YAML::operator[](const std::size_t index) const {
 /// </summary>
 /// <param name="yamlFileName">YAML file name</param>
 /// <returns>YAML string.</returns>
+#ifdef YAML_LIB_FILE_IO
 std::string YAML::fromFile(const std::string_view &yamlFileName) {
   return YAML_Impl::fromFile(yamlFileName);
 }
@@ -160,6 +161,7 @@ void YAML::toFile(const std::string_view &fileName,
 YAML::Format YAML::getFileFormat(const std::string_view &fileName) {
   return YAML_Impl::getFileFormat(fileName);
 }
+#endif // YAML_LIB_FILE_IO
 /// <summary>
 /// Enable or disable strict YAML 1.2 boolean parsing.
 /// When strict, only 'true' and 'false' are recognised as booleans;

@@ -1,5 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
 
+#ifdef YAML_LIB_FILE_IO
 TEST_CASE("Checks for fromFile() api.", "[YAML][FromFile]") {
   SECTION("Check that fromFile() works with UTF8.", "[YAML][FromFile][UTF8]") {
     std::string testFile{prefixTestDataPath("testfile033.yaml")};
@@ -75,3 +76,4 @@ TEST_CASE("Checks for fromFile() api.", "[YAML][FromFile]") {
   //         format (Byte Order Mark) encountered.");
   // }
 }
+#endif // YAML_LIB_FILE_IO

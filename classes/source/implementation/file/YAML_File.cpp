@@ -13,6 +13,8 @@
 
 #include "YAML_Impl.hpp"
 
+#ifdef YAML_LIB_FILE_IO
+
 namespace YAML_Lib {
 
 /// <summary>
@@ -169,3 +171,5 @@ void YAML_Impl::toFile(const std::string_view &fileName, const std::string_view 
     yamlFile.close();
 }
 }// namespace YAML_Lib
+
+#endif // YAML_LIB_FILE_IO

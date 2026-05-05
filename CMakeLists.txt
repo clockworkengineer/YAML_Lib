@@ -23,6 +23,9 @@ option(BUILD_YAML_TESTS "Build YAML_Lib unit tests" ON)
 # E1: disable C++ exceptions (enables YAML_THROW / panic-handler path)
 option(YAML_LIB_NO_EXCEPTIONS "Disable C++ exceptions; use error panic handler" OFF)
 
+# E6: disable file I/O (fstream) for bare-metal / no-filesystem targets
+option(YAML_LIB_FILE_IO "Include file I/O support (fromFile/toFile/getFileFormat)" ON)
+
 set(YAML_LIBRARY_NAME ${PROJECT_NAME})
 
 # Sources
@@ -30,7 +33,6 @@ set(YAML_SOURCES
   classes/source/YAML.cpp
   classes/source/implementation/YAML_Error.cpp
   classes/source/implementation/YAML_Impl.cpp
-  classes/source/implementation/file/YAML_File.cpp
   classes/source/implementation/parser/YAML_Parser.cpp
   classes/source/implementation/parser/YAML_Parser_Array.cpp
   classes/source/implementation/parser/YAML_Parser_BlockString.cpp
@@ -108,6 +110,12 @@ target_precompile_headers(${YAML_LIBRARY_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR
 if(YAML_LIB_NO_EXCEPTIONS)
   target_compile_definitions(${YAML_LIBRARY_NAME} PUBLIC YAML_LIB_NO_EXCEPTIONS)
   target_compile_options(${YAML_LIBRARY_NAME} PUBLIC -fno-exceptions)
+endif()
+
+if(YAML_LIB_FILE_IO)
+  target_sources(${YAML_LIBRARY_NAME} PRIVATE
+    classes/source/implementation/file/YAML_File.cpp)
+  target_compile_definitions(${YAML_LIBRARY_NAME} PUBLIC YAML_LIB_FILE_IO)
 endif()
 
 if(BUILD_YAML_TESTS)

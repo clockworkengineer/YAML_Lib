@@ -144,6 +144,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
   }
   SECTION("Parse Dictionary from file and verify.",
           "[YAML][Parse][Examples][File]") {
+#ifdef YAML_LIB_FILE_IO
     BufferSource yamlSource{
         YAML::fromFile(prefixTestDataPath("testfile001.yaml"))};
     REQUIRE_NOTHROW(yaml.parse(yamlSource));
@@ -186,6 +187,7 @@ TEST_CASE("Check YAML Parsing of Dictionary's.", "[YAML][Parse][Dictionary]") {
     REQUIRE(NRef<String>(
                 yaml.document(0)["xmas-fifth-day"]["partridges"]["location"])
                 .value() == "a pear tree");
+#endif // YAML_LIB_FILE_IO
   }
 
   SECTION("YAML parse flat dictionary of integers and verify.",
