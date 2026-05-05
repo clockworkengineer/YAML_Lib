@@ -54,7 +54,7 @@ public:
     destination.open(filename.c_str(),
                      std::ios_base::binary | std::ios_base::trunc);
     if (!destination.is_open()) {
-      throw Error("File output stream failed to open or could not be created.");
+      YAML_THROW(Error, "File output stream failed to open or could not be created.");
     }
     fileSize = 0;
     lastChar = 0;

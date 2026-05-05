@@ -24,8 +24,7 @@ Node Default_Parser::parseDocument(ISource &source,
   // Document markers (--- / ...) are not permitted as values inside a flow
   // collection.  Encountering one here means the input is malformed.
   if (isInsideFlowContext() && isDocumentBoundary(source)) {
-    throw SyntaxError(source.getPosition(),
-                      "Document marker not permitted inside flow collection.");
+    YAML_THROW_POS(source, "Document marker not permitted inside flow collection.");
   }
   for (std::size_t i = 0; i < parsers.size(); ++i) {
     const auto &[fst, snd] = parsers[i];
@@ -36,7 +35,7 @@ Node Default_Parser::parseDocument(ISource &source,
       }
     }
   }
-  throw SyntaxError(source.getPosition(), "Invalid YAML encountered.");
+  YAML_THROW_POS(source, "Invalid YAML encountered.");
 }
 /// <summary>
 /// Parse YAML documents on source stream.
@@ -83,8 +82,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       if (source.more() && source.current() != kLineFeed &&
           !isComment(source) &&
           (isKey(source) || isMapping(source) || isArray(source))) {
-        throw SyntaxError(source.getPosition(),
-                          "Block collection cannot start on the same line as "
+        YAML_THROW_POS(source, "Block collection cannot start on the same line as "
                           "document start.");
       }
       if (!source.more() || source.current() == kLineFeed ||
@@ -94,8 +92,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       // End of a document
     } else if (isDocumentEnd(source)) {
       if (!inDocument && pendingDirectives) {
-        throw SyntaxError(source.getPosition(),
-                          "Directive must be followed by a document.");
+        YAML_THROW_POS(source, "Directive must be followed by a document.");
       }
       // Consume "..." then validate what follows on the same line.
       // Per the YAML spec, "..." is a document-end suffix, not an indicator
@@ -110,8 +107,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
         source.ignoreWS();
         if (source.more() && source.current() != kLineFeed &&
             !isComment(source)) {
-          throw SyntaxError(source.getPosition(),
-                            "Invalid content after document-end marker '...'.");
+          YAML_THROW_POS(source, "Invalid content after document-end marker '...'.");
         }
       }
       skipLine(source);
@@ -141,12 +137,11 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
         NRef<Document>(yNodeTree.back())
             .add(parseDocument(source, {kLineFeed, '#'}, 0));
       } else {
-        throw SyntaxError(source.getPosition(), "Invalid YAML encountered.");
+        YAML_THROW_POS(source, "Invalid YAML encountered.");
       }
     }
     if (!source.more() && pendingDirectives) {
-      throw SyntaxError(source.getPosition(),
-                        "Directive must be followed by a document.");
+      YAML_THROW_POS(source, "Directive must be followed by a document.");
     }
   }
 
@@ -159,8 +154,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
 /// <param name="inDocument">True if a document has already started.</param>
 void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
   if (inDocument) {
-    throw SyntaxError(source.getPosition(),
-                      "Directives must appear before document start.");
+    YAML_THROW_POS(source, "Directives must appear before document start.");
   }
   source.next(); // consume '%'
   // Extract the full directive name so we don't mistake "%YAMLL" for "%YAML"
@@ -173,8 +167,7 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
     std::string version{extractToNext(source, {kLineFeed, ' '})};
     const auto dot = version.find('.');
     if (dot == std::string::npos) {
-      throw SyntaxError(source.getPosition(),
-                        "%YAML directive missing version number.");
+      YAML_THROW_POS(source, "%YAML directive missing version number.");
     }
     // Validate: version must be all-digit . all-digit (no stray chars like '#')
     const std::string majorStr = version.substr(0, dot);
@@ -185,21 +178,17 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
       });
     };
     if (!isAllDigits(majorStr) || !isAllDigits(minorStr)) {
-      throw SyntaxError(source.getPosition(),
-                        "%YAML directive has invalid version number '" +
+      YAML_THROW_POS(source, "%YAML directive has invalid version number '" +
                             version + "'.");
     }
     const int major = std::stoi(majorStr);
     const int minor = std::stoi(minorStr);
     if (major != 1) {
-      throw SyntaxError(source.getPosition(),
-                        "%YAML directive: unsupported major version " +
+      YAML_THROW_POS(source, "%YAML directive: unsupported major version " +
                             std::to_string(major) + ".");
     }
     if (yamlDirectiveSeen) {
-      throw SyntaxError(
-          source.getPosition(),
-          "%YAML directive appears more than once for the same document.");
+      YAML_THROW_POS(source, "%YAML directive appears more than once for the same document.");
     }
     yamlDirectiveSeen = true;
     yamlDirectiveMinor = minor;
@@ -211,23 +200,17 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
       const std::string trailing{extractToNext(source, {kLineFeed, ' '})};
       const auto dot2 = trailing.find('.');
       if (dot2 == std::string::npos) {
-        throw SyntaxError(
-            source.getPosition(),
-            "%YAML directive has unexpected content after version.");
+        YAML_THROW_POS(source, "%YAML directive has unexpected content after version.");
       }
       const std::string majorSuffix = trailing.substr(0, dot2);
       const std::string minorSuffix = trailing.substr(dot2 + 1);
       if (!isAllDigits(majorSuffix) || !isAllDigits(minorSuffix)) {
-        throw SyntaxError(
-            source.getPosition(),
-            "%YAML directive has unexpected content after version.");
+        YAML_THROW_POS(source, "%YAML directive has unexpected content after version.");
       }
       source.ignoreWS();
       if (source.more() && source.current() != kLineFeed &&
           source.current() != '#') {
-        throw SyntaxError(
-            source.getPosition(),
-            "%YAML directive has unexpected content after version.");
+        YAML_THROW_POS(source, "%YAML directive has unexpected content after version.");
       }
     }
   } else if (directiveName == "TAG") {

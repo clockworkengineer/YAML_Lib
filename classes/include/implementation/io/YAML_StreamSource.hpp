@@ -19,7 +19,7 @@ class StreamSource final : public ISource {
 public:
   explicit StreamSource(std::istream &stream) : stream(stream) {
     if (!stream.good()) {
-      throw Error("Stream is not in a good state.");
+      YAML_THROW(Error, "Stream is not in a good state.");
     }
   }
   StreamSource() = delete;
@@ -41,7 +41,7 @@ public:
       column++;
     }
     if (!more()) {
-      throw Error("Tried to read past end of stream.");
+      YAML_THROW(Error, "Tried to read past end of stream.");
     }
     stream.get();
     // Capture the stream position BEFORE current() (peek()) can set eofbit.
@@ -103,7 +103,7 @@ public:
 protected:
   void backup(const unsigned long length) override {
     if (column - length < 1) {
-      throw Error("Backup past start column.");
+      YAML_THROW(Error, "Backup past start column.");
     }
     stream.clear();
     stream.seekg(-static_cast<long>(length), std::ios_base::cur);

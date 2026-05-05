@@ -7,7 +7,7 @@ public:
   explicit FileSource(const std::string_view &filename) {
     std::ifstream source(filename.data(), std::ios_base::binary | std::ios_base::ate);
     if (!source.is_open()) {
-      throw Error("File input stream failed to open or does not exist.");
+      YAML_THROW(Error, "File input stream failed to open or does not exist.");
     }
     const auto size = static_cast<std::streamsize>(source.tellg());
     source.seekg(0, std::ios_base::beg);
@@ -46,8 +46,7 @@ public:
     if (kForbiddenChar[uc]) {
       char buf[5];
       std::snprintf(buf, sizeof(buf), "%04X", static_cast<unsigned>(uc));
-      throw SyntaxError(getPosition(),
-                        std::string("Disallowed control character U+") + buf +
+      YAML_THROW_POS(*this, std::string("Disallowed control character U+") + buf +
                         " in YAML stream.");
     }
     if (current() == kLineFeed) {
@@ -57,7 +56,7 @@ public:
       column++;
     }
     if (!more()) {
-      throw Error("Tried to read past end of file.");
+      YAML_THROW(Error, "Tried to read past end of file.");
     }
     bufferPosition++;
   }
@@ -87,7 +86,7 @@ public:
 protected:
   void backup(const unsigned long length) override {
     if (column - length < 1) {
-      throw Error("Backup past start column.");
+      YAML_THROW(Error, "Backup past start column.");
     }
     bufferPosition -= length;
     column -= length;

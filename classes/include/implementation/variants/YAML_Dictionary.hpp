@@ -83,7 +83,7 @@ inline Dictionary::Entries::iterator
 Dictionary::findKey(const std::string_view &key) {
   const auto indexIt = yNodeDictionaryIndex.find(std::string(key));
   if (indexIt == yNodeDictionaryIndex.end()) {
-    throw Node::Error("Invalid key used to access dictionary.");
+    YAML_THROW(Node::Error, "Invalid key used to access dictionary.");
   }
   return yNodeDictionary.begin() + static_cast<std::ptrdiff_t>(indexIt->second);
 }
@@ -91,7 +91,7 @@ inline Dictionary::Entries::const_iterator
 Dictionary::findKey(const std::string_view &key) const {
   const auto indexIt = yNodeDictionaryIndex.find(std::string(key));
   if (indexIt == yNodeDictionaryIndex.end()) {
-    throw Node::Error("Invalid key used to access dictionary.");
+    YAML_THROW(Node::Error, "Invalid key used to access dictionary.");
   }
   return yNodeDictionary.cbegin() + static_cast<std::ptrdiff_t>(indexIt->second);
 }

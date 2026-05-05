@@ -53,12 +53,12 @@ void decodeUTF32(std::string_view::const_iterator &current,
         utf16Buffer += static_cast<char16_t>(0xD800 + (code >> 10));
         utf16Buffer += static_cast<char16_t>(0xDC00 + (code & 0x3FF));
       } else {
-        throw Default_Translator::Error("Unicode code point out of range.");
+        YAML_THROW(Default_Translator::Error, "Unicode code point out of range.");
       }
       return;
     }
   }
-  throw Default_Translator::Error("Syntax error detected.");
+  YAML_THROW(Default_Translator::Error, "Syntax error detected.");
 }
 
 /// <summary>
@@ -83,7 +83,7 @@ char16_t decodeUTF16(std::string_view::const_iterator &current,
       return utf16value;
     }
   }
-  throw Default_Translator::Error("Syntax error detected.");
+  YAML_THROW(Default_Translator::Error, "Syntax error detected.");
 }
 /// <summary>
 /// Convert "\x00" escape sequences in a string to their correct sequence
@@ -106,7 +106,7 @@ char16_t decodeUTF8(std::string_view::const_iterator &current,
       return utf16value;
     }
   }
-  throw Default_Translator::Error("Syntax error detected.");
+  YAML_THROW(Default_Translator::Error, "Syntax error detected.");
 }
 
 /// <summary>
@@ -243,14 +243,14 @@ Default_Translator::from(const std::string_view &escapedString) const {
       // Invalid escaped character — only the sequences listed in YAML 1.2
       // §7.3.1 are valid; anything else (e.g. \. or \%) must be rejected.
       else {
-        throw Error("Invalid escaped character.");
+        YAML_THROW(Error, "Invalid escaped character.");
       }
     } else {
-      throw Error("Premature and of character escape sequence.");
+      YAML_THROW(Error, "Premature and of character escape sequence.");
     }
   }
   if (unpairedSurrogatesInBuffer(utf16Buffer)) {
-    throw Error("Unpaired surrogate found.");
+    YAML_THROW(Error, "Unpaired surrogate found.");
   }
   return toUtf8(utf16Buffer);
 }

@@ -48,9 +48,7 @@ Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters,
         source.next();
       }
       if (tabInSeparator && source.more() && isArray(source)) {
-        throw SyntaxError(
-            source.getPosition(),
-            "Tab used as block sequence entry separator followed by another "
+        YAML_THROW_POS(source, "Tab used as block sequence entry separator followed by another "
             "block structure indicator; block indentation must use spaces, "
             "not tabs (YAML 1.2 \u00a76.1).");
       }
@@ -69,8 +67,7 @@ Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters,
   } // arrayIndentLevel decremented here (even on exception)
   if (isArray(source) && arrayIndentLevel == 0 &&
       arrayIndent > source.getPosition().second) {
-    throw SyntaxError(source.getPosition(),
-                      "Invalid indentation for array element.");
+    YAML_THROW_POS(source, "Invalid indentation for array element.");
   }
   return arrayNode;
 }
@@ -94,7 +91,7 @@ Node Default_Parser::parseInlineArray(
       source.next();
       // Patch: Disallow comment immediately after comma in flow sequence (YAML 1.2)
       if (source.current() == '#') {
-        throw SyntaxError(source.getPosition(), "Comment must be separated from comma by whitespace in flow sequence.");
+        YAML_THROW_POS(source, "Comment must be separated from comma by whitespace in flow sequence.");
       }
       if (inlineArrayDepth == 1 && source.more() &&
           source.current() == kLineFeed && blockFlowValueIndent > 0) {
@@ -110,8 +107,7 @@ Node Default_Parser::parseInlineArray(
         }
         if (source.more() && source.current() != kRightSquareBracket &&
             continuationIndent <= blockFlowValueIndent) {
-          throw SyntaxError(source.getPosition(),
-                            "Flow sequence continuation must be indented "
+          YAML_THROW_POS(source, "Flow sequence continuation must be indented "
                             "beyond its parent block context.");
         }
       }
@@ -120,13 +116,12 @@ Node Default_Parser::parseInlineArray(
       if (!yamlArray.value().empty()) {
         const auto &element = yamlArray.value().back();
         if (isA<String>(element) && NRef<String>(element).value() == "-" && NRef<String>(element).getQuote() == kNull) {
-          throw SyntaxError(source.getPosition(), "Bare '-' is not a valid plain scalar in flow context.");
+          YAML_THROW_POS(source, "Bare '-' is not a valid plain scalar in flow context.");
         }
       }
       if (auto &element = yamlArray.value().back(); isNullStringNode(element)) {
         if (source.current() != kRightSquareBracket) {
-          throw SyntaxError(source.getPosition(),
-                            "Unexpected ',' in in-line array.");
+          YAML_THROW_POS(source, "Unexpected ',' in in-line array.");
         }
         yamlArray.value().pop_back();
       }

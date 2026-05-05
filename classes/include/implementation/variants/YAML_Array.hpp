@@ -9,11 +9,11 @@ struct Array final : SequenceBase<Array> {
   // Override operator[] to produce the expected "array" error message.
   Node &operator[](const std::size_t index) {
     if (index < entries_.size()) { return entries_[index]; }
-    throw Node::Error("Invalid index used to access array.");
+    YAML_THROW(Node::Error, "Invalid index used to access array.");
   }
   const Node &operator[](const std::size_t index) const {
     if (index < entries_.size()) { return entries_[index]; }
-    throw Node::Error("Invalid index used to access array.");
+    YAML_THROW(Node::Error, "Invalid index used to access array.");
   }
 };
 

@@ -32,8 +32,7 @@ public:
     if (kForbiddenChar[uc]) {
       char buf[5];
       std::snprintf(buf, sizeof(buf), "%04X", static_cast<unsigned>(uc));
-      throw SyntaxError(getPosition(),
-                        std::string("Disallowed control character U+") + buf +
+      YAML_THROW_POS(*this, std::string("Disallowed control character U+") + buf +
                         " in YAML stream.");
     }
     if (current() == kLineFeed) {
@@ -43,7 +42,7 @@ public:
       column++;
     }
     if (!more()) {
-      throw Error("Tried to read past and of buffer.");
+      YAML_THROW(Error, "Tried to read past and of buffer.");
     }
     bufferPosition++;
   }
@@ -73,7 +72,7 @@ public:
 protected:
   void backup(const unsigned long length) override {
     if (column - length < 1) {
-      throw Error("Backup past start column.");
+      YAML_THROW(Error, "Backup past start column.");
     }
     bufferPosition -= length;
     column -= length;

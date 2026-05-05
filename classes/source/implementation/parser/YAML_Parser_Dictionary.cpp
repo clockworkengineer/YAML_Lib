@@ -28,8 +28,7 @@ void Default_Parser::addUniqueDictEntry(Node &dictionaryNode,
           std::move(entry.getNode());
       return;
     }
-    throw SyntaxError(source.getPosition(),
-                      "Dictionary already contains key '" +
+    YAML_THROW_POS(source, "Dictionary already contains key '" +
                           std::string(entry.getKey()) + "'.");
   }
   NRef<Dictionary>(dictionaryNode).add(std::move(entry));
@@ -49,8 +48,7 @@ void Default_Parser::addInlineDictEntry(Dictionary &dict, DictionaryEntry entry,
       !keyStr.empty() && (keyStr.front() == kLeftSquareBracket ||
                           keyStr.front() == kLeftCurlyBrace);
   if (dict.contains(keyStr) && !isComplexKey) {
-    throw SyntaxError(source.getPosition(),
-                      "Dictionary already contains key '" + keyStr + "'.");
+    YAML_THROW_POS(source, "Dictionary already contains key '" + keyStr + "'.");
   } else if (dict.contains(keyStr)) {
     dict[keyStr] = std::move(entry.getNode());
   } else {
@@ -525,8 +523,7 @@ Node Default_Parser::parseKey(ISource &source) {
   }
   rightTrim(key);
   if (!isValidKey(key)) {
-    throw SyntaxError(source.getPosition(),
-                      "Invalid key '" + key + "' specified.");
+    YAML_THROW_POS(source, "Invalid key '" + key + "' specified.");
   }
   if (isInsideFlowContext()) {
     return convertYAMLToStringNode(key, 0);
@@ -566,9 +563,7 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
           tabGuard.release();
         }
       } else {
-        throw SyntaxError(
-            source.getPosition(),
-            "Tab used as block value-separator after ':'; block indentation "
+        YAML_THROW_POS(source, "Tab used as block value-separator after ':'; block indentation "
             "must use spaces, not tabs (YAML 1.2 \xc2\xa7"
             "6.1).");
       }
@@ -582,8 +577,7 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
     // At block level with the next key at the same column, the explicit key
     // simply has a null value and the sibling entry follows immediately
     // (e.g. "? b\n&anchor c: 3" — ZWK4).
-    throw SyntaxError(source.getPosition(),
-                      "Only an inline/compact dictionary is allowed.");
+    YAML_THROW_POS(source, "Only an inline/compact dictionary is allowed.");
   }
   moveToNextIndent(source);
   // YAML 1.2 §8.2.1: a block sequence indicator '-' must start on its own
@@ -593,9 +587,7 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
   // (e.g. "key: - a" is invalid).
   if (inlineDictionaryDepth == 0 && isArray(source) &&
       source.getPosition().first == keyLine) {
-    throw SyntaxError(
-        source.getPosition(),
-        "Block sequence indicator '-' cannot appear inline on the same line "
+    YAML_THROW_POS(source, "Block sequence indicator '-' cannot appear inline on the same line "
         "as a mapping key value (YAML 1.2 \xc2\xa7"
         "8.2.1).");
   }
@@ -672,15 +664,13 @@ Node Default_Parser::parseDictionary(
       break;
     } else {
       if (dictionaryIndent == source.getPosition().second) {
-        throw SyntaxError(source.getPosition(),
-                          "Missing key/value pair from indentation level.");
+        YAML_THROW_POS(source, "Missing key/value pair from indentation level.");
       }
     }
     moveToNextIndent(source);
   }
   if (isKey(source) && dictionaryIndent < source.getPosition().second) {
-    throw SyntaxError(source.getPosition(),
-                      "Mapping key has the incorrect indentation.");
+    YAML_THROW_POS(source, "Mapping key has the incorrect indentation.");
   }
   return mergeOverrides(dictionaryNode);
 }
@@ -706,8 +696,7 @@ Node Default_Parser::parseInlineDictionary(
       source.next();
       moveToNextIndent(source);
       if (source.current() == kComma) {
-        throw SyntaxError(source.getPosition(),
-                          "Unexpected ',' in in-line dictionary.");
+        YAML_THROW_POS(source, "Unexpected ',' in in-line dictionary.");
       }
       if (source.current() != kRightCurlyBrace) {
         // YAML 1.2 §7.4.2 / c-flow-mapping: when flow-mapping content starts
@@ -718,9 +707,7 @@ Node Default_Parser::parseInlineDictionary(
         // positions restart at column 1 for re-parsed sub-strings.
         const bool crossedNewline = source.getPosition().first > openLine;
         if (crossedNewline && source.getPosition().second <= indentation) {
-          throw SyntaxError(
-              source.getPosition(),
-              "Flow mapping content must be more indented than the surrounding "
+          YAML_THROW_POS(source, "Flow mapping content must be more indented than the surrounding "
               "block context (indentation level " +
                   std::to_string(indentation) + ").");
         }
@@ -733,9 +720,7 @@ Node Default_Parser::parseInlineDictionary(
   } // inlineDictionaryDepth decremented here
   checkForEnd(source, kRightCurlyBrace);
   if (source.current() == kColon) {
-    throw SyntaxError(
-        source.getPosition(),
-        "Inline dictionary used as key is meant to be on one line.");
+    YAML_THROW_POS(source, "Inline dictionary used as key is meant to be on one line.");
   }
   checkAtFlowClose(source, delimiters, inlineDictionaryDepth);
   return dictionaryNode;

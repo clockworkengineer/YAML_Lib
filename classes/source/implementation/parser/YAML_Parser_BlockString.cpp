@@ -30,8 +30,7 @@ Default_Parser::parseBlockChomping(ISource &source) {
     const auto ch = source.current();
     if (ch == '0') {
       // YAML 1.2 §8.1.1: indentation indicator must be 1-9; 0 is invalid.
-      throw SyntaxError(source.getPosition(),
-                        "Block scalar indentation indicator must be 1-9; "
+      YAML_THROW_POS(source, "Block scalar indentation indicator must be 1-9; "
                         "0 is not allowed.");
     }
     if (ch >= '1' && ch <= '9' && explicitIndent == 0) {
@@ -107,12 +106,10 @@ std::string Default_Parser::parseBlockString(ISource &source,
   // header line. Plain text (e.g. "> first") is invalid.
   if (source.more() && source.current() != kLineFeed) {
     if (source.current() == '#') {
-      throw SyntaxError(source.getPosition(),
-                        "Block scalar comment must be preceded by whitespace.");
+      YAML_THROW_POS(source, "Block scalar comment must be preceded by whitespace.");
     }
     if (source.current() != kSpace && source.current() != '\t') {
-      throw SyntaxError(source.getPosition(),
-                        "Invalid text after block scalar indicator.");
+      YAML_THROW_POS(source, "Invalid text after block scalar indicator.");
     }
     while (source.more() &&
            (source.current() == kSpace || source.current() == '\t')) {
@@ -122,8 +119,7 @@ std::string Default_Parser::parseBlockString(ISource &source,
       if (source.current() == '#') {
         moveToNext(source, {kLineFeed});
       } else {
-        throw SyntaxError(source.getPosition(),
-                          "Invalid text after block scalar indicator.");
+        YAML_THROW_POS(source, "Invalid text after block scalar indicator.");
       }
     }
   }
@@ -131,8 +127,7 @@ std::string Default_Parser::parseBlockString(ISource &source,
   // preceded by at least one whitespace character.  '># comment' (no space)
   // is a syntax error.
   if (source.more() && isComment(source)) {
-    throw SyntaxError(source.getPosition(),
-                      "Block scalar comment must be preceded by whitespace.");
+    YAML_THROW_POS(source, "Block scalar comment must be preceded by whitespace.");
   }
   moveToNext(source, delimiters);
   // Advance to first content, tracking blank-line leading spaces for W9L4.
@@ -153,16 +148,14 @@ std::string Default_Parser::parseBlockString(ISource &source,
   // when parent indent is 1) because the space establishes proper indentation.
   if (explicitIndent == 0 && source.more() && source.current() == '\t' &&
       source.getPosition().second <= indentation) {
-    throw SyntaxError(source.getPosition(),
-                      "Tab character used as block scalar indentation; "
+    YAML_THROW_POS(source, "Tab character used as block scalar indentation; "
                       "block scalar content must be more indented than its "
                       "parent context with spaces (not tabs).");
   }
   // YAML 1.2 §8.1.1: blank lines before block content may not have more
   // leading spaces than the block indentation level (test case W9L4).
   if (source.more() && maxBlankLeadingSpaces >= blockIndent) {
-    throw SyntaxError(source.getPosition(),
-                      "Block scalar blank line has more leading spaces than "
+    YAML_THROW_POS(source, "Block scalar blank line has more leading spaces than "
                       "block indentation level.");
   }
   std::string yamlString{};

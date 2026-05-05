@@ -172,6 +172,6 @@ template <typename T> T Number::getAs() const {
   if (const auto pValue = std::get_if<long double>(&yNodeNumber)) {
     return convertTo<T>(*pValue);
   }
-  throw std::runtime_error("Could not convert unknown type.");
+  YAML_THROW(std::runtime_error, "Could not convert unknown type.");
 }
 } // namespace YAML_Lib

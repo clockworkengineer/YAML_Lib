@@ -33,13 +33,13 @@ struct SequenceBase {
     if (index < entries_.size()) {
       return entries_[index];
     }
-    throw Node::Error("Invalid index used to access document.");
+    YAML_THROW(Node::Error, "Invalid index used to access document.");
   }
   const Node &operator[](const std::size_t index) const {
     if (index < entries_.size()) {
       return entries_[index];
     }
-    throw Node::Error("Invalid index used to access document.");
+    YAML_THROW(Node::Error, "Invalid index used to access document.");
   }
 
   // Defined in YAML_Node_Reference.hpp after Node::make<Hole>() is available.

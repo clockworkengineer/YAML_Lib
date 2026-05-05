@@ -45,7 +45,7 @@ private:
     } else if (isA<Array>(yNode)) {
       stringifyAray(yNode, destination);
     } else {
-      throw Error("Unknown Node type encountered during stringification.");
+      YAML_THROW(Error, "Unknown Node type encountered during stringification.");
     }
   }
   static void stringifyDocument(const Node &yNode, IDestination &destination,

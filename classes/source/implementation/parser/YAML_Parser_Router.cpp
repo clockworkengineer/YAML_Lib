@@ -37,19 +37,14 @@ bool Default_Parser::isKey(ISource &source) {
     if (inlineDictionaryDepth == 0 && !key.empty() &&
         (key.front() == kDoubleQuote || key.front() == kApostrophe) &&
         key.find('\n') != std::string::npos) {
-      throw SyntaxError(source.getPosition(),
-                        "Implicit quoted keys must be on a single line.");
+      YAML_THROW_POS(source, "Implicit quoted keys must be on a single line.");
     }
     if (key[0] == kLeftCurlyBrace || key[0] == kLeftSquareBracket) {
       if (key.find('\n') != std::string::npos) {
         if (key[0] == kLeftCurlyBrace) {
-          throw SyntaxError(
-              source.getPosition(),
-              "Inline dictionary used as key is meant to be on one line.");
+          YAML_THROW_POS(source, "Inline dictionary used as key is meant to be on one line.");
         }
-        throw SyntaxError(
-            source.getPosition(),
-            "Inline array used as key is meant to be on one line.");
+        YAML_THROW_POS(source, "Inline array used as key is meant to be on one line.");
       }
     }
     if (source.more()) {
@@ -76,9 +71,7 @@ bool Default_Parser::isKey(ISource &source) {
           tabGuard.release(); // space follows — consume the tab(s)
         }
       } else {
-        throw SyntaxError(
-            source.getPosition(),
-            "Tab used as block value-separator after ':'; block indentation "
+        YAML_THROW_POS(source, "Tab used as block value-separator after ':'; block indentation "
             "must use spaces, not tabs (YAML 1.2 \xc2\xa7"
             "6.1).");
       }
@@ -240,9 +233,7 @@ bool Default_Parser::isMapping(ISource &source) {
   // YAML 1.2 §6.1: block indentation must use spaces, not tabs.
   // A tab immediately after '?' uses a tab as the block-structure separator.
   if (source.more() && source.current() == '\t') {
-    throw SyntaxError(
-        source.getPosition(),
-        "Tab used as block structure separator after '?' explicit mapping key "
+    YAML_THROW_POS(source, "Tab used as block structure separator after '?' explicit mapping key "
         "indicator; block indentation must use spaces, not tabs "
         "(YAML 1.2 \xc2\xa7"
         "6.1).");

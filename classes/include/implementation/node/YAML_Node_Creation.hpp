@@ -48,7 +48,7 @@ static Node typeToNode(const YAML::InitializerListTypes &type) {
   if (const auto pValue = std::get_if<Node>(&type)) {
     return std::move(*const_cast<Node *>(pValue));
   }
-  throw Node::Error("Node for unsupported type could not be created.");
+  YAML_THROW(Node::Error, "Node for unsupported type could not be created.");
 }
 // Construct Node Array from the initializer list
 inline Node::Node(const YAML::ArrayInitializer &array) {

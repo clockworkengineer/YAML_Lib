@@ -27,13 +27,13 @@ public:
   // Get the document
   [[nodiscard]] Node &document(const unsigned long index) {
     if (index >= yamlTree.size()) {
-      throw Error("Document does not exist.");
+      YAML_THROW(Error, "Document does not exist.");
     }
     return yamlTree[index][0];
   }
   [[nodiscard]] const Node &document(const unsigned long index) const {
     if (index >= yamlTree.size()) {
-      throw Error("Document does not exist.");
+      YAML_THROW(Error, "Document does not exist.");
     }
     return yamlTree[index][0];
   }
@@ -91,7 +91,7 @@ void YAML_Impl::traverseNodes(T &yNode, IAction &action) {
       traverseNodes(entry, action);
     }
   } else if (!isA<Hole>(yNode)) {
-    throw Error("Unknown Node type encountered during tree traversal.");
+    YAML_THROW(Error, "Unknown Node type encountered during tree traversal.");
   }
 }
 } // namespace YAML_Lib

@@ -45,13 +45,13 @@ void YAML_Impl::stringify(IDestination &destination) const {
 
 void YAML_Impl::traverse(IAction &action) {
   if (yamlTree.empty()) {
-    throw Error("No YAML to traverse.");
+    YAML_THROW(Error, "No YAML to traverse.");
   }
   traverseNodes(yamlTree[0][0], action);
 }
 void YAML_Impl::traverse(IAction &action) const {
   if (yamlTree.empty()) {
-    throw Error("No YAML to traverse.");
+    YAML_THROW(Error, "No YAML to traverse.");
   }
   traverseNodes(yamlTree[0][0], action);
 }

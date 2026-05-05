@@ -42,7 +42,7 @@ void writeYAMLString(std::ofstream &yamlFile, const std::u16string &yamlString, 
             yamlFile.put(static_cast<char>(ch >> 8));
         }
     } else {
-        throw Error("Unsupported YAML file format (Byte Order Mark) specified in call to writeYAMLString().");
+        YAML_THROW(Error, "Unsupported YAML file format (Byte Order Mark) specified in call to writeYAMLString().");
     }
 }
 
@@ -77,7 +77,7 @@ std::u16string readYAMLString(std::ifstream &yamlFile, const YAML::Format format
             utf16String.push_back(ch16);
         }
     } else {
-        throw Error("Unsupported YAML file format (Byte Order Mark) specified in call to readYAMLString().");
+        YAML_THROW(Error, "Unsupported YAML file format (Byte Order Mark) specified in call to readYAMLString().");
     }
     return utf16String;
 }
@@ -130,7 +130,7 @@ std::string YAML_Impl::fromFile(const std::string_view &fileName)
         translated = toUtf8(readYAMLString(yamlFile, format));
         break;
     default:
-        throw Error("Unsupported YAML file format (Byte Order Mark) encountered.");
+        YAML_THROW(Error, "Unsupported YAML file format (Byte Order Mark) encountered.");
     }
     yamlFile.close();
     // Translate CRLF -> LF
@@ -164,7 +164,7 @@ void YAML_Impl::toFile(const std::string_view &fileName, const std::string_view 
         writeYAMLString(yamlFile, toUtf16(yamlString), format);
         break;
     default:
-        throw Error("Unsupported YAML file format (Byte Order Mark) specified.");
+        YAML_THROW(Error, "Unsupported YAML file format (Byte Order Mark) specified.");
     }
     yamlFile.close();
 }

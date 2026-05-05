@@ -48,7 +48,7 @@ Node Default_Parser::mergeOverrides(Node &overrideRoot) {
       auto &mergedDict = NRef<Dictionary>(mergedBase);
       for (auto &element : NRef<Array>(overrideValue).value()) {
         if (!isA<Dictionary>(element)) {
-          throw SyntaxError(
+          YAML_THROW(SyntaxError, 
               "Merge key '<<' sequence must contain only mappings.");
         }
         for (auto &entry : NRef<Dictionary>(element).value()) {
@@ -75,7 +75,7 @@ Node Default_Parser::mergeOverrides(Node &overrideRoot) {
 const std::string &Default_Parser::resolveAlias(const std::string &name,
                                                 ISource &source) {
   if (!yamlAliasMap.count(name)) {
-    throw SyntaxError(source.getPosition(), "Undefined alias '" + name + "'.");
+    YAML_THROW_POS(source, "Undefined alias '" + name + "'.");
   }
   return yamlAliasMap[name];
 }
@@ -185,13 +185,11 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
           firstContent + 1 < unparsed.size() &&
           (unparsed[firstContent + 1] == ' ' ||
            unparsed[firstContent + 1] == '\t')) {
-        throw SyntaxError(source.getPosition(),
-                          "Anchor may not precede a block sequence entry on "
+        YAML_THROW_POS(source, "Anchor may not precede a block sequence entry on "
                           "the same line.");
       }
       if (inlineValue && unparsed[firstContent] == '*') {
-        throw SyntaxError(source.getPosition(),
-                          "Alias nodes may not have anchor properties.");
+        YAML_THROW_POS(source, "Alias nodes may not have anchor properties.");
       }
       if (unparsed[firstContent] == '&') {
         // Create a temporary buffer to probe which parser would match.
@@ -201,9 +199,7 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
         // node.
         BufferSource tmpSrc{unparsed};
         if (!isDictionary(tmpSrc) && !isArray(tmpSrc)) {
-          throw SyntaxError(
-              source.getPosition(),
-              "A node may have at most one anchor property; two anchors found "
+          YAML_THROW_POS(source, "A node may have at most one anchor property; two anchors found "
               "on the same node (YAML 1.2 \xc2\xa7"
               "3.2.3).");
         }
@@ -237,8 +233,7 @@ Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
     source.next();
   }
   if (activeAliasExpansions.count(name)) {
-    throw SyntaxError(source.getPosition(),
-                      "Recursive anchor detected: '" + name + "'.");
+    YAML_THROW_POS(source, "Recursive anchor detected: '" + name + "'.");
   }
   const std::string &unparsed = resolveAlias(name, source);
   if (unparsed.empty()) {
@@ -264,7 +259,7 @@ Node Default_Parser::parseOverride(ISource &source,
   [[maybe_unused]] const bool consumed = source.match("<<:");
   source.ignoreWS();
   if (source.current() != '*') {
-    throw SyntaxError(source.getPosition(), "Missing '*' from alias.");
+    YAML_THROW_POS(source, "Missing '*' from alias.");
   }
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};

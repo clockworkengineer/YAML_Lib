@@ -19,12 +19,15 @@ configure_file(YAML_Config.h.in YAML_Config.hpp)
 
 option(BUILD_YAML_EXAMPLES "Build YAML_Lib example programs" ON)
 option(BUILD_YAML_TESTS "Build YAML_Lib unit tests" ON)
+# E1: disable C++ exceptions (enables YAML_THROW / panic-handler path)
+option(YAML_LIB_NO_EXCEPTIONS "Disable C++ exceptions; use error panic handler" OFF)
 
 set(YAML_LIBRARY_NAME ${PROJECT_NAME})
 
 # Sources
 set(YAML_SOURCES
   classes/source/YAML.cpp
+  classes/source/implementation/YAML_Error.cpp
   classes/source/implementation/YAML_Impl.cpp
   classes/source/implementation/file/YAML_File.cpp
   classes/source/implementation/parser/YAML_Parser.cpp
@@ -100,6 +103,11 @@ target_include_directories(${YAML_LIBRARY_NAME}
 )
 
 target_precompile_headers(${YAML_LIBRARY_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/stdafx.h)
+
+if(YAML_LIB_NO_EXCEPTIONS)
+  target_compile_definitions(${YAML_LIBRARY_NAME} PUBLIC YAML_LIB_NO_EXCEPTIONS)
+  target_compile_options(${YAML_LIBRARY_NAME} PUBLIC -fno-exceptions)
+endif()
 
 if(BUILD_YAML_TESTS)
   add_subdirectory(tests)

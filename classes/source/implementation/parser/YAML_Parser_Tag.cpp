@@ -39,7 +39,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   std::string tagSuffix;
 
   if (!source.more()) {
-    throw SyntaxError(source.getPosition(), "Incomplete tag.");
+    YAML_THROW_POS(source, "Incomplete tag.");
   }
 
   if (source.current() == '<') {
@@ -48,7 +48,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     source.next();
     tagHandle = extractToNext(source, {'>'});
     if (!source.more() || source.current() != '>') {
-      throw SyntaxError(source.getPosition(), "Unclosed verbatim tag '<'.");
+      YAML_THROW_POS(source, "Unclosed verbatim tag '<'.");
     }
     source.next(); // consume '>'
   } else if (source.current() == '!') {
@@ -101,8 +101,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   static constexpr std::string_view kInvalidTagChars{",[]{}"};
   if (!tagSuffix.empty() &&
       tagSuffix.find_first_of(kInvalidTagChars) != std::string::npos) {
-    throw SyntaxError(source.getPosition(),
-                      "Invalid character in tag suffix '" + tagSuffix + "'.");
+    YAML_THROW_POS(source, "Invalid character in tag suffix '" + tagSuffix + "'.");
   }
 
   // Build full tag name
@@ -123,8 +122,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     } else if (tagHandle == "!") {
       fullTag = "!" + tagSuffix;
     } else {
-      throw SyntaxError(source.getPosition(),
-                        "Undefined tag handle '" + tagHandle + "'.");
+      YAML_THROW_POS(source, "Undefined tag handle '" + tagHandle + "'.");
     }
   }
 
@@ -206,8 +204,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
         }
       }
       if (result.isEmpty()) {
-        throw SyntaxError(source.getPosition(),
-                          std::string("Value cannot be parsed as ") + tagName +
+        YAML_THROW_POS(source, std::string("Value cannot be parsed as ") + tagName +
                               ".");
       }
     } else if (passthroughTags.count(tagSuffix)) {

@@ -27,7 +27,7 @@ inline Node &Node::operator[](const std::size_t index) {
     if (isA<Document>(*this)) {
       return NRef<Document>(*this)[index];
     }
-    throw Error("Not a document or array variant.");
+    YAML_THROW(Error, "Not a document or array variant.");
   } catch ([[maybe_unused]] const Error &error) {
     NRef<Array>(*this).resize(index);
     if (isA<Array>(*this)) {
@@ -38,7 +38,7 @@ inline Node &Node::operator[](const std::size_t index) {
       NRef<Document>(*this).resize(index);
       return NRef<Document>(*this)[index];
     }
-    throw Error("Not a document or array variant.");
+    YAML_THROW(Error, "Not a document or array variant.");
   }
 }
 inline const Node &Node::operator[](const std::size_t index) const {
@@ -48,7 +48,7 @@ inline const Node &Node::operator[](const std::size_t index) const {
   if (isA<Document>(*this)) {
     return NRef<Document>(*this)[index];
   }
-  throw Error("Not an array or document to index.");
+  YAML_THROW(Error, "Not an array or document to index.");
 }
 
 } // namespace YAML_Lib

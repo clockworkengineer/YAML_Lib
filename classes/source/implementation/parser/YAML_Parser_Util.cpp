@@ -113,9 +113,7 @@ void Default_Parser::moveToNextIndent(ISource &source) {
                               firstNonWsOnLine == kRightCurlyBrace ||
                               firstNonWsOnLine == kComma;
         if (!blankLine && !flowLine) {
-          throw SyntaxError(
-              source.getPosition(),
-              "Tab character not allowed in YAML block indentation.");
+          YAML_THROW_POS(source, "Tab character not allowed in YAML block indentation.");
         }
         // Blank/flow line — fall through; source.next() below consumes the tab.
       } else if (source.current() == kSpace) {
@@ -173,8 +171,7 @@ std::string Default_Parser::extractString(ISource &source, const char quote,
     source.next();
   }
   if (!foundClosing) {
-    throw SyntaxError(source.getPosition(),
-                      "Unterminated quoted string: missing closing quote");
+    YAML_THROW_POS(source, "Unterminated quoted string: missing closing quote");
   }
   extracted += quote;
   if (source.more()) {
@@ -271,8 +268,7 @@ std::string Default_Parser::extractInLine(ISource &source, const char start,
 /// <param name="end">End character.</param>
 void Default_Parser::checkForEnd(ISource &source, const char end) {
   if (source.current() != end) {
-    throw SyntaxError(source.getPosition(),
-                      std::string("Missing closing ") + end + ".");
+    YAML_THROW_POS(source, std::string("Missing closing ") + end + ".");
   }
   source.next();
 }
@@ -335,7 +331,7 @@ void Default_Parser::upsertDictEntry(Dictionary &dict, const std::string &key,
 void Default_Parser::checkFlowDelimiter(ISource &source,
                                         const Delimiters &delimiters) {
   if (source.more() && !delimiters.contains(source.current())) {
-    throw SyntaxError("Unexpected flow sequence token '" +
+    YAML_THROW(SyntaxError, "Unexpected flow sequence token '" +
                       std::string(1, source.current()) + "'.");
   }
 }
@@ -356,9 +352,7 @@ void Default_Parser::checkAtFlowClose(ISource &source,
     source.next();
   }
   if (source.more() && source.current() == '#' && !separatedFromClose) {
-    throw SyntaxError(
-        source.getPosition(),
-        "Comment after flow collection close requires separation whitespace.");
+    YAML_THROW_POS(source, "Comment after flow collection close requires separation whitespace.");
   }
   if (depth == 0) {
     checkFlowDelimiter(source, delimiters);
