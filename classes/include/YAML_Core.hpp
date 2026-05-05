@@ -7,6 +7,7 @@
 #include "YAML_Interfaces.hpp"
 // 2. Fundamental base types
 #include "YAML_Error.hpp"
+#include "YAML_Arena.hpp"
 // (YAML_Variant.hpp previously held the Variant base class; now removed.)
 // 3. Scalar variant types (depend only on YAML.hpp constants — no Node/container deps)
 #include "YAML_Boolean.hpp"

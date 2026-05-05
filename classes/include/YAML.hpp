@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory_resource>
+
 namespace YAML_Lib {
 
 // =========================
@@ -58,6 +60,9 @@ public:
   };
   // Pass any user defined parser/stringifier here
   explicit YAML(IStringify *stringify = nullptr, IParser *parser = nullptr);
+  // Pass a PMR memory resource; all node allocations during parse() use it.
+  // The resource MUST outlive this YAML object.
+  explicit YAML(std::pmr::memory_resource *mr);
   // Pass in default YAML to parse
   explicit YAML(const std::string_view &yamlString);
   // Construct an array

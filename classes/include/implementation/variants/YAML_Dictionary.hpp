@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory_resource>
 #include <unordered_map>
 
 namespace YAML_Lib {
@@ -32,7 +33,7 @@ private:
 
 struct Dictionary {
   using Entry = DictionaryEntry;
-  using Entries = std::vector<Entry>;
+  using Entries = std::pmr::vector<Entry>;
   // Constructors/Destructors
   explicit Dictionary() = default;
   Dictionary(const Dictionary &other) = delete;
@@ -76,7 +77,7 @@ private:
   // Dictionary entries list (preserves insertion order for stringify)
   Entries yNodeDictionary;
   // Hash-map index: key → position in yNodeDictionary (O(1) lookup)
-  std::unordered_map<std::string, std::size_t> yNodeDictionaryIndex;
+  std::pmr::unordered_map<std::string, std::size_t> yNodeDictionaryIndex;
 };
 
 inline Dictionary::Entries::iterator

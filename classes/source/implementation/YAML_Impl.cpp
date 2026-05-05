@@ -11,7 +11,9 @@
 
 namespace YAML_Lib {
 
-YAML_Impl::YAML_Impl(IStringify *stringify, IParser *parser) {
+YAML_Impl::YAML_Impl(IStringify *stringify, IParser *parser,
+                     std::pmr::memory_resource *mr)
+    : memoryResource{mr} {
   // auto yamlTranslator = std::make_unique<><Default_Translator>();
   if (parser == nullptr) {
     yamlParser = std::make_unique<Default_Parser>( std::make_unique<Default_Translator>());
@@ -32,7 +34,26 @@ std::string YAML_Impl::version() {
   return versionString.str();
 }
 
-void YAML_Impl::parse(ISource &source) { yamlTree = yamlParser->parse(source); }
+void YAML_Impl::parse(ISource &source) {
+  // RAII guard: if the caller supplied a PMR resource, install it as the PMR
+  // default for the duration of parse so that all std::pmr::* containers
+  // created during parse (Array/Document entries, Dictionary entries/index)
+  // draw from that resource. The previous default is restored on scope exit.
+  // NOTE: this modifies the process-wide PMR default; single-threaded use only.
+  struct ResourceScope {
+    std::pmr::memory_resource *prev_;
+    const bool active_;
+    explicit ResourceScope(std::pmr::memory_resource *mr)
+        : prev_{mr ? std::pmr::get_default_resource() : nullptr},
+          active_{mr != nullptr} {
+      if (active_) std::pmr::set_default_resource(mr);
+    }
+    ~ResourceScope() {
+      if (active_) std::pmr::set_default_resource(prev_);
+    }
+  } scope{memoryResource};
+  yamlTree = yamlParser->parse(source);
+}
 
 void YAML_Impl::stringify(IDestination &destination) const {
   // Pre-reserve a heuristic capacity to reduce reallocations during stringify.

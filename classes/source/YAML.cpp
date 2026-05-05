@@ -21,6 +21,14 @@ YAML::YAML([[maybe_unused]] IStringify *stringify,
            [[maybe_unused]] IParser *parser)
     : implementation(std::make_unique<YAML_Impl>(stringify, parser)) {}
 /// <summary>
+/// YAML constructor with a PMR memory resource.  All node allocations during
+/// parse() draw from the supplied resource.  The resource MUST outlive this
+/// YAML object.
+/// </summary>
+/// <param name="mr">PMR memory resource (e.g. MonotonicArena::resource()).</param>
+YAML::YAML(std::pmr::memory_resource *mr)
+    : implementation(std::make_unique<YAML_Impl>(nullptr, nullptr, mr)) {}
+/// <summary>
 /// Destroy YAML object.
 /// </summary>
 YAML::~YAML() = default;

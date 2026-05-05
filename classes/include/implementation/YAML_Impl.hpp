@@ -8,7 +8,8 @@ namespace YAML_Lib {
 class YAML_Impl {
 public:
   // Constructors/Destructors
-  YAML_Impl(IStringify *stringify, IParser *parser);
+  YAML_Impl(IStringify *stringify, IParser *parser,
+            std::pmr::memory_resource *mr = nullptr);
   YAML_Impl(const YAML_Impl &other) = delete;
   YAML_Impl &operator=(const YAML_Impl &other) = delete;
   YAML_Impl(YAML_Impl &&other) = delete;
@@ -55,6 +56,9 @@ public:
 private:
   // Traverse YAML tree
   template <typename T> static void traverseNodes(T &yNode, IAction &action);
+  // Optional PMR resource used to back all node allocations during parse.
+  // nullptr means: use the standard new/delete allocator (default behaviour).
+  std::pmr::memory_resource *memoryResource{nullptr};
   // Pointer to YAML parser interface
   std::unique_ptr<IParser> yamlParser;
   // Pointer to YAML stringify interface

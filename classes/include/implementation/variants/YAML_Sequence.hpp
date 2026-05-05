@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory_resource>
+
 namespace YAML_Lib {
 
 // SequenceBase<Derived> — CRTP base shared by Array and Document.
@@ -14,7 +16,7 @@ namespace YAML_Lib {
 template <typename Derived>
 struct SequenceBase {
   using Entry   = Node;
-  using Entries = std::vector<Entry>;
+  using Entries = std::pmr::vector<Entry>;
 
   SequenceBase() = default;
   SequenceBase(const SequenceBase &) = delete;
