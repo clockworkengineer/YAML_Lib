@@ -17,7 +17,7 @@ endif()
 
 configure_file(YAML_Config.h.in YAML_Config.hpp)
 
-option(BUILD_YAML_EXAMPLES "Build YAML_Lib example programs" ON)
+option(BUILD_YAML_EXAMPLES "Build YAML_Lib example programs" OFF)
 option(BUILD_YAML_TESTS "Build YAML_Lib unit tests" ON)
 
 # E1: disable C++ exceptions (enables YAML_THROW / panic-handler path)
