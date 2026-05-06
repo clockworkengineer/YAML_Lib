@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-project(YAML_Lib_Examples VERSION 1.1.0 DESCRIPTION "YAML_Lib example programs")
+project(YAML_Lib_Examples VERSION 1.2.0 DESCRIPTION "YAML_Lib example programs")
 
 # Examples that require file I/O support
 set(FILE_IO_EXAMPLES

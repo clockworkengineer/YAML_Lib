@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-project(YAML_Lib_Unit_Tests VERSION 1.1.0 DESCRIPTION "YAML C++ Library Catch Unit Tests" LANGUAGES CXX)
+project(YAML_Lib_Unit_Tests VERSION 1.2.0 DESCRIPTION "YAML C++ Library Catch Unit Tests" LANGUAGES CXX)
 
 # Get Catch2 from repository
 include(FetchContent)
