@@ -38,10 +38,10 @@ struct Node {
     return std::holds_alternative<std::monostate>(yNodeVariant);
   }
   // Indexing operators
-  Node &operator[](const std::string_view &key);
-  const Node &operator[](const std::string_view &key) const;
-  Node &operator[](std::size_t index);
-  const Node &operator[](std::size_t index) const;
+  [[nodiscard]] Node &operator[](const std::string_view &key);
+  [[nodiscard]] const Node &operator[](const std::string_view &key) const;
+  [[nodiscard]] Node &operator[](std::size_t index);
+  [[nodiscard]] const Node &operator[](std::size_t index) const;
   // Get reference to Node variant
   NodeVariant &getVariant() { return yNodeVariant; }
   [[nodiscard]] const NodeVariant &getVariant() const { return yNodeVariant; }

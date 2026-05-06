@@ -62,7 +62,7 @@ using PanicHandler = void (*)(std::string_view message,
 void setErrorHandler(PanicHandler handler) noexcept;
 
 /// Return the currently registered panic handler (nullptr = default).
-PanicHandler getErrorHandler() noexcept;
+[[nodiscard]] PanicHandler getErrorHandler() noexcept;
 
 #ifdef YAML_LIB_NO_EXCEPTIONS
 /// Internal: invoke the panic handler (or default stderr + abort).

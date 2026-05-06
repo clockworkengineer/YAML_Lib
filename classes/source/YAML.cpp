@@ -31,7 +31,7 @@ YAML::YAML(std::pmr::memory_resource *mr)
 /// <summary>
 /// Destroy YAML object.
 /// </summary>
-YAML::~YAML() = default;
+YAML::~YAML() noexcept = default;
 /// <summary>
 /// YAML constructor. Pass a YAML string to be initially parsed.
 /// </summary>

@@ -77,7 +77,7 @@ public:
   YAML(YAML &&other) = delete;
   YAML &operator=(YAML &&other) = delete;
   // Provide own destructor
-  ~YAML();
+  ~YAML() noexcept;
   // Get YAML library version
   [[nodiscard]] static std::string version();
   // Get YAML library version
@@ -99,11 +99,11 @@ public:
   void traverseEvents(IYAMLEvents &handler) const;
 #endif // YAML_LIB_SAX_API
   // Search for YAML object entry with a given key
-  Node &operator[](const std::string_view &key);
-  const Node &operator[](const std::string_view &key) const;
+  [[nodiscard]] Node &operator[](const std::string_view &key);
+  [[nodiscard]] const Node &operator[](const std::string_view &key) const;
   // Get YAML array entry at index
-  Node &operator[](std::size_t index);
-  const Node &operator[](std::size_t index) const;
+  [[nodiscard]] Node &operator[](std::size_t index);
+  [[nodiscard]] const Node &operator[](std::size_t index) const;
   // Read/write YAML file (only when YAML_LIB_FILE_IO is enabled)
 #ifdef YAML_LIB_FILE_IO
   static std::string fromFile(const std::string_view &yamlFileName);
