@@ -14,16 +14,31 @@ namespace YAML_Lib {
 YAML_Impl::YAML_Impl(IStringify *stringify, IParser *parser,
                      std::pmr::memory_resource *mr)
     : memoryResource{mr} {
-  // auto yamlTranslator = std::make_unique<><Default_Translator>();
   if (parser == nullptr) {
-    yamlParser = std::make_unique<Default_Parser>( std::make_unique<Default_Translator>());
+    yamlParser = std::make_unique<Default_Parser>(std::make_unique<Default_Translator>());
   } else {
     yamlParser.reset(parser);
   }
   if (stringify == nullptr) {
-    yamlStringify = std::make_unique<Default_Stringify>( std::make_unique<Default_Translator>());
+    yamlStringify = std::make_unique<Default_Stringify>(std::make_unique<Default_Translator>());
   } else {
     yamlStringify.reset(stringify);
+  }
+}
+
+YAML_Impl::YAML_Impl(const Options &options)
+    : memoryResource{options.memoryResource} {
+  Default_Parser::setStrictBooleans(options.strictBooleans);
+
+  if (options.parser == nullptr) {
+    yamlParser = std::make_unique<Default_Parser>(std::make_unique<Default_Translator>());
+  } else {
+    yamlParser.reset(options.parser);
+  }
+  if (options.stringify == nullptr) {
+    yamlStringify = std::make_unique<Default_Stringify>(std::make_unique<Default_Translator>());
+  } else {
+    yamlStringify.reset(options.stringify);
   }
 }
 
@@ -91,35 +106,54 @@ void YAML_Impl::traverseEvents(IYAMLEvents &handler) const {
 #endif // YAML_LIB_SAX_API
 
 Node &YAML_Impl::operator[](const std::string_view &key) {
-  try {
-    if (getNumberOfDocuments() == 0) {
-      BufferSource source("---\n...\n");
-      parse(source);
-      NRef<Document>(yamlTree[0]).add(Node::make<Dictionary>());
-    }
-    return document(0)[key];
-  } catch ([[maybe_unused]] Node::Error &error) {
-    NRef<Dictionary>(document(0))
-        .add(Dictionary::Entry(key, Node::make<Hole>()));
-    return document(0)[key];
+  if (getNumberOfDocuments() == 0) {
+    BufferSource source("---\n...\n");
+    parse(source);
+    NRef<Document>(yamlTree[0]).add(Node::make<Dictionary>());
   }
+  Node &root = document(0);
+  if (isA<Hole>(root)) {
+    root = Node::make<Dictionary>();
+  }
+  if (isA<Dictionary>(root)) {
+    auto &dictionary = NRef<Dictionary>(root);
+    if (dictionary.contains(key)) {
+      return dictionary[key];
+    }
+    dictionary.add(Dictionary::Entry(key, Node::make<Hole>()));
+    return dictionary[key];
+  }
+  YAML_THROW(Error, "Root document is not a dictionary for key access.");
 }
 const Node &YAML_Impl::operator[](const std::string_view &key) const {
-  return document(0)[0][key];
+  return document(0)[key];
 }
 
 Node &YAML_Impl::operator[](const std::size_t index) {
-  try {
-    if (getNumberOfDocuments() == 0) {
-      BufferSource source("---\n...\n");
-      parse(source);
-      NRef<Document>(yamlTree[0]).add(Node::make<Array>());
-    }
-    return document(0)[index];
-  } catch ([[maybe_unused]] Node::Error &error) {
-    NRef<Array>(document(0)).resize(index);
-    return document(0)[index];
+  if (getNumberOfDocuments() == 0) {
+    BufferSource source("---\n...\n");
+    parse(source);
+    NRef<Document>(yamlTree[0]).add(Node::make<Array>());
   }
+  Node &root = document(0);
+  if (isA<Hole>(root)) {
+    root = Node::make<Array>();
+  }
+  if (isA<Array>(root)) {
+    auto &array = NRef<Array>(root);
+    if (index >= array.size()) {
+      array.resize(index);
+    }
+    return array[index];
+  }
+  if (isA<Document>(root)) {
+    auto &document = NRef<Document>(root);
+    if (index >= document.size()) {
+      document.resize(index);
+    }
+    return document[index];
+  }
+  YAML_THROW(Error, "Root document is not an array or document for index access.");
 }
 
 const Node & YAML_Impl::operator[](const std::size_t index) const {

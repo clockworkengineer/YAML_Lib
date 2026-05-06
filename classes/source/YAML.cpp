@@ -20,6 +20,13 @@ namespace YAML_Lib {
 YAML::YAML([[maybe_unused]] IStringify *stringify,
            [[maybe_unused]] IParser *parser)
     : implementation(std::make_unique<YAML_Impl>(stringify, parser)) {}
+
+/// <summary>
+/// Create YAML object using runtime parser/stringifier and strict-mode options.
+/// </summary>
+/// <param name="options">Runtime configuration options.</param>
+YAML::YAML(const Options &options)
+    : implementation(std::make_unique<YAML_Impl>(options)) {}
 /// <summary>
 /// YAML constructor with a PMR memory resource.  All node allocations during
 /// parse() draw from the supplied resource.  The resource MUST outlive this
@@ -179,7 +186,7 @@ YAML::Format YAML::getFileFormat(const std::string_view &fileName) {
 /// </summary>
 /// <param name="strict">True to enable strict booleans, false to restore
 /// permissive YAML 1.1 behaviour.</param>
-void YAML::setStrictBooleans(const bool strict) {
+void YAML::setStrictBooleans(const bool strict) noexcept {
   Default_Parser::setStrictBooleans(strict);
 }
 } // namespace YAML_Lib

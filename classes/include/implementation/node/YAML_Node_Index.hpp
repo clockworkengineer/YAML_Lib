@@ -7,39 +7,40 @@ namespace YAML_Lib {
 inline Node &Node::operator[](const std::string_view &key) {
   if (isA<Hole>(*this)) {
     *this = make<Dictionary>();
-    NRef<Dictionary>(*this).add(Dictionary::Entry(key, make<Hole>()));
-    return NRef<Dictionary>(*this).value().back().getNode();
   }
-  return NRef<Dictionary>(*this)[key];
+  if (isA<Dictionary>(*this)) {
+    auto &dictionary = NRef<Dictionary>(*this);
+    if (dictionary.contains(key)) {
+      return dictionary[key];
+    }
+    dictionary.add(Dictionary::Entry(key, make<Hole>()));
+    return dictionary[key];
+  }
+  YAML_THROW(Error, "Not a dictionary variant.");
 }
 inline const Node &Node::operator[](const std::string_view &key) const {
   return NRef<Dictionary>(*this)[key];
 }
 // Array
 inline Node &Node::operator[](const std::size_t index) {
-  try {
-    if (isA<Hole>(*this)) {
-      *this = make<Array>();
-    }
-    if (isA<Array>(*this)) {
-      return NRef<Array>(*this)[index];
-    }
-    if (isA<Document>(*this)) {
-      return NRef<Document>(*this)[index];
-    }
-    YAML_THROW(Error, "Not a document or array variant.");
-  } catch ([[maybe_unused]] const Error &error) {
-    NRef<Array>(*this).resize(index);
-    if (isA<Array>(*this)) {
-      NRef<Array>(*this).resize(index);
-      return NRef<Array>(*this)[index];
-    }
-    if (isA<Document>(*this)) {
-      NRef<Document>(*this).resize(index);
-      return NRef<Document>(*this)[index];
-    }
-    YAML_THROW(Error, "Not a document or array variant.");
+  if (isA<Hole>(*this)) {
+    *this = make<Array>();
   }
+  if (isA<Array>(*this)) {
+    auto &array = NRef<Array>(*this);
+    if (index >= array.size()) {
+      array.resize(index);
+    }
+    return array[index];
+  }
+  if (isA<Document>(*this)) {
+    auto &document = NRef<Document>(*this);
+    if (index >= document.size()) {
+      document.resize(index);
+    }
+    return document[index];
+  }
+  YAML_THROW(Error, "Not a document or array variant.");
 }
 inline const Node &Node::operator[](const std::size_t index) const {
   if (isA<Array>(*this)) {

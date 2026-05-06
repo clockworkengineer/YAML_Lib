@@ -10,6 +10,7 @@ public:
   // Constructors/Destructors
   YAML_Impl(IStringify *stringify, IParser *parser,
             std::pmr::memory_resource *mr = nullptr);
+  YAML_Impl(const Options &options);
   YAML_Impl(const YAML_Impl &other) = delete;
   YAML_Impl &operator=(const YAML_Impl &other) = delete;
   YAML_Impl(YAML_Impl &&other) = delete;

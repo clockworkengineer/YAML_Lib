@@ -1,6 +1,12 @@
 #pragma once
 
+#include <cstdint>
+#include <initializer_list>
+#include <memory>
 #include <memory_resource>
+#include <string>
+#include <string_view>
+#include <variant>
 
 namespace YAML_Lib {
 
@@ -17,6 +23,17 @@ struct Node;
 #ifdef YAML_LIB_SAX_API
 class IYAMLEvents;
 #endif
+
+struct Options {
+  /// Custom stringifier instance. When null, YAML_Lib selects the default.
+  IStringify *stringify{nullptr};
+  /// Custom parser instance. When null, YAML_Lib selects the default.
+  IParser *parser{nullptr};
+  /// Optional PMR resource used for all parse allocations.
+  std::pmr::memory_resource *memoryResource{nullptr};
+  /// Enable strict YAML 1.2 boolean parsing when true.
+  bool strictBooleans{false};
+};
 
 // ========================
 // YAML character constants
@@ -63,6 +80,7 @@ public:
   };
   // Pass any user defined parser/stringifier here
   explicit YAML(IStringify *stringify = nullptr, IParser *parser = nullptr);
+  explicit YAML(const Options &options);
   // Pass a PMR memory resource; all node allocations during parse() use it.
   // The resource MUST outlive this YAML object.
   explicit YAML(std::pmr::memory_resource *mr);
@@ -114,7 +132,7 @@ public:
   static Format getFileFormat(const std::string_view &fileName);
 #endif // YAML_LIB_FILE_IO
   // Enable/disable strict YAML 1.2 boolean parsing (only true/false valid)
-  static void setStrictBooleans(bool strict);
+  static void setStrictBooleans(bool strict) noexcept;
 
 private:
   // YAML implementation

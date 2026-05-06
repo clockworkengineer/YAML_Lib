@@ -51,6 +51,45 @@ add_subdirectory(YAML_Lib)
 target_link_libraries(your_target PRIVATE YAML_Lib)
 ```
 
+### Build options
+
+CMake options supported by YAML_Lib:
+
+- `YAML_LIB_NO_EXCEPTIONS=ON` — disable C++ exceptions and use the panic handler path.
+- `YAML_LIB_FILE_IO=ON` — enable file I/O support for `FileSource`, `FileDestination`, `YAML::fromFile()`, `YAML::toFile()`, and `YAML::getFileFormat()`.
+- `YAML_LIB_SAX_API=ON` — enable SAX-style event parsing via `IYAMLEvents` and `YAML::traverseEvents()`.
+- `YAML_LIB_TIMESTAMP_PARSE=ON` — enable timestamp parsing helpers for ISO 8601 date/time values.
+
+Example:
+
+```sh
+cmake -S . -B build -DYAML_LIB_NO_EXCEPTIONS=OFF -DYAML_LIB_FILE_IO=ON -DYAML_LIB_SAX_API=ON
+cmake --build build
+```
+
+See `docs/public_api.md` for the installed public header set.
+
+### Runtime configuration with `YAML::Options`
+
+`YAML::Options` lets you configure parser/stringifier choice, memory resource usage, and strict boolean parsing at runtime:
+
+```cpp
+#include "YAML.hpp"
+#include "YAML_Core.hpp"
+using namespace YAML_Lib;
+
+YAML::Options options;
+options.strictBooleans = true;
+options.memoryResource = std::pmr::get_default_resource();
+
+YAML yaml(options);
+yaml.parse(BufferSource{"---\nvalue: yes\n"});
+
+const auto &doc = yaml.document(0);
+// strict booleans preserves 'yes' as a string rather than a boolean
+std::string value = NRef<String>(doc["value"]).value();
+```
+
 ## Quick Start
 
 ### Parse YAML from a string

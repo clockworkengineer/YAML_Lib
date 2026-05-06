@@ -47,6 +47,46 @@ Include the two main headers:
 using namespace YAML_Lib;
 ```
 
+### Build-time feature options
+
+YAML_Lib exposes configurable build-time features through CMake options.
+
+- `YAML_LIB_NO_EXCEPTIONS` — disable C++ exceptions and use the error panic handler.
+- `YAML_LIB_FILE_IO` — enable file I/O support for `FileSource`, `FileDestination`, `YAML::fromFile()`, `YAML::toFile()`, and `YAML::getFileFormat()`.
+- `YAML_LIB_SAX_API` — enable SAX-style event processing with `IYAMLEvents` and `YAML::traverseEvents()`.
+- `YAML_LIB_TIMESTAMP_PARSE` — enable timestamp parsing helpers and `Timestamp` node support.
+
+Example:
+
+```sh
+cmake -S . -B build -DYAML_LIB_FILE_IO=OFF -DYAML_LIB_NO_EXCEPTIONS=ON
+cmake --build build
+```
+
+See `docs/public_api.md` for the installed public header set.
+
+### Runtime configuration with `YAML::Options`
+
+`YAML::Options` provides runtime control over parser/stringifier selection, memory resource usage, and strict boolean parsing.
+
+```cpp
+#include "YAML.hpp"
+#include "YAML_Core.hpp"
+using namespace YAML_Lib;
+
+YAML::Options options;
+options.strictBooleans = true;
+options.memoryResource = std::pmr::get_default_resource();
+
+YAML yaml(options);
+yaml.parse(BufferSource{"---\nvalue: yes\n"});
+
+const auto &doc = yaml.document(0);
+if (isA<String>(doc["value"])) {
+    std::string value = NRef<String>(doc["value"]).value();
+}
+```
+
 ---
 
 ## Parsing YAML
