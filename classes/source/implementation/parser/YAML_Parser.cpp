@@ -20,6 +20,7 @@ namespace YAML_Lib {
 Node Default_Parser::parseDocument(ISource &source,
                                    const Delimiters &delimiters,
                                    const unsigned long indentation) {
+  DepthGuard depthGuard(parseDepth, maxParseDepth);
   moveToNextIndent(source);
   // Document markers (--- / ...) are not permitted as values inside a flow
   // collection.  Encountering one here means the input is malformed.
@@ -62,6 +63,8 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
     ctx_.yamlDirectiveMinor = 2;
     ctx_.yamlDirectiveSeen = false;
   };
+  aliasExpansionCount = 0;
+  parseDepth = 0;
   for (bool inDocument = false, pendingDirectives = false; source.more();) {
     // Directives (%YAML or %TAG) — only valid before a document starts
     if (isDirective(source)) {
@@ -74,6 +77,9 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       }
       inDocument = true;
       pendingDirectives = false;
+      if (maxDocuments != 0 && yNodeTree.size() + 1 > maxDocuments) {
+        YAML_THROW_POS(source, "YAML document count exceeds configured limit.");
+      }
       yNodeTree.push_back(Node::make<Document>());
       source.next();
       source.next();

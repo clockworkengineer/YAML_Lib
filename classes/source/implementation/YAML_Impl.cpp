@@ -31,7 +31,8 @@ YAML_Impl::YAML_Impl(const Options &options)
   Default_Parser::setStrictBooleans(options.strictBooleans);
 
   if (options.parser == nullptr) {
-    yamlParser = std::make_unique<Default_Parser>(std::make_unique<Default_Translator>());
+    yamlParser = std::make_unique<Default_Parser>(
+        std::make_unique<Default_Translator>(), options);
   } else {
     yamlParser.reset(options.parser);
   }

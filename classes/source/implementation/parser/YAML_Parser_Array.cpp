@@ -32,7 +32,7 @@ Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters,
   const unsigned long arrayIndent = source.getPosition().second;
   auto arrayNode = Node::make<Array>();
   {
-    DepthGuard depthGuard(ctx_.arrayIndentLevel);
+    DepthGuard depthGuard(ctx_.arrayIndentLevel, maxParseDepth);
     while (isArray(source) && arrayIndent == source.getPosition().second) {
       source.next(); // consume '-'
       // YAML 1.2 §6.1: block indentation must use spaces, not tabs.
@@ -86,7 +86,7 @@ Node Default_Parser::parseInlineArray(
   auto arrayNode = Node::make<Array>();
   auto &yamlArray = NRef<Array>(arrayNode);
   {
-    DepthGuard depthGuard(ctx_.inlineArrayDepth);
+    DepthGuard depthGuard(ctx_.inlineArrayDepth, maxParseDepth);
     do {
       source.next();
       // Patch: Disallow comment immediately after comma in flow sequence (YAML 1.2)

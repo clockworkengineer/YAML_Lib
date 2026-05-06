@@ -14,6 +14,43 @@ TEST_CASE("YAML::Options enables strict boolean parsing", "[YAML][Options][Parse
   ::YAML_Lib::YAML::setStrictBooleans(false);
 }
 
+TEST_CASE("YAML::Options enforces maxDocuments during parsing", "[YAML][Options][Parse]") {
+  ::YAML_Lib::Options options;
+  options.maxDocuments = 1;
+
+  ::YAML_Lib::YAML yaml(options);
+  ::YAML_Lib::BufferSource src{"---\nfoo: 1\n---\nbar: 2\n"};
+
+  REQUIRE_THROWS_AS(yaml.parse(src), ::YAML_Lib::SyntaxError);
+}
+
+TEST_CASE("YAML::Options enforces maxAliasExpansions during parsing", "[YAML][Options][Parse]") {
+  ::YAML_Lib::Options options;
+  options.maxAliasExpansions = 2;
+
+  ::YAML_Lib::YAML yaml(options);
+  ::YAML_Lib::BufferSource src{
+      "---\n"
+      "c: &a3 { foo: bar }\n"
+      "b: &a2 { foo: *a3 }\n"
+      "a: &a1 { foo: *a2 }\n"
+      "root: *a1\n"};
+
+  REQUIRE_THROWS_AS(yaml.parse(src), ::YAML_Lib::SyntaxError);
+}
+
+TEST_CASE("YAML::Options enforces maxParseDepth during parsing", "[YAML][Options][Parse]") {
+  ::YAML_Lib::Options options;
+  options.maxParseDepth = 2;
+
+  ::YAML_Lib::YAML yaml(options);
+  ::YAML_Lib::BufferSource src{
+      "---\n"
+      "deep: [ [ [ 1 ] ] ]\n"};
+
+  REQUIRE_THROWS_AS(yaml.parse(src), ::YAML_Lib::IParser::Error);
+}
+
 TEST_CASE("YAML root numeric operator[] grows array without exception", "[YAML][Options][Index]") {
   ::YAML_Lib::YAML yaml;
   yaml[2] = 42;

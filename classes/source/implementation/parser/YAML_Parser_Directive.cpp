@@ -236,6 +236,9 @@ Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
   if (ctx_.activeAliasExpansions.count(name)) {
     YAML_THROW_POS(source, "Recursive anchor detected: '" + name + "'.");
   }
+  if (maxAliasExpansions != 0 && ++aliasExpansionCount > maxAliasExpansions) {
+    YAML_THROW_POS(source, "YAML alias expansion limit exceeded.");
+  }
   const std::string &unparsed = resolveAlias(name, source);
   if (unparsed.empty()) {
     return Node::make<Null>();

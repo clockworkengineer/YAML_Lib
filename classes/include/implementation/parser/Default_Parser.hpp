@@ -52,7 +52,13 @@ public:
   };
   enum class BlockChomping : uint8_t { clip = 0, strip, keep };
   explicit Default_Parser(std::unique_ptr<ITranslator> translator)
-      : yamlTranslator_(std::move(translator)) {}
+      : Default_Parser(std::move(translator), Options()) {}
+  explicit Default_Parser(std::unique_ptr<ITranslator> translator,
+                          const Options &options)
+      : yamlTranslator_(std::move(translator)),
+        maxParseDepth(options.maxParseDepth),
+        maxAliasExpansions(options.maxAliasExpansions),
+        maxDocuments(options.maxDocuments) {}
   Default_Parser(const Default_Parser &other) = delete;
   Default_Parser &operator=(const Default_Parser &other) = delete;
   Default_Parser(Default_Parser &&other) = delete;
@@ -95,7 +101,13 @@ private:
   // decrements it on destruction (including on exception).
   class DepthGuard {
   public:
-    explicit DepthGuard(long &depth) : depth_(depth) { ++depth_; }
+    explicit DepthGuard(long &depth, unsigned long maxDepth = 0)
+        : depth_(depth) {
+      if (maxDepth != 0 && static_cast<unsigned long>(depth_) + 1 > maxDepth) {
+        YAML_THROW(Error, "YAML parse nesting depth limit exceeded.");
+      }
+      ++depth_;
+    }
     ~DepthGuard() { --depth_; }
     DepthGuard(const DepthGuard &) = delete;
     DepthGuard &operator=(const DepthGuard &) = delete;
@@ -301,8 +313,13 @@ private:
   }};
   // Per-parse mutable state (replaces the former inline static members).
   ParseContext ctx_;
+  long parseDepth{0};
+  unsigned long aliasExpansionCount{0};
   // Translator (per-instance, not shared across Default_Parser instances).
   std::unique_ptr<ITranslator> yamlTranslator_;
+  const unsigned long maxParseDepth{0};
+  const unsigned long maxAliasExpansions{0};
+  const unsigned long maxDocuments{0};
   // Strict YAML 1.2 boolean mode — process-global setting (not per-parse).
   inline static bool strictBooleans{false};
 };

@@ -33,6 +33,15 @@ struct Options {
   std::pmr::memory_resource *memoryResource{nullptr};
   /// Enable strict YAML 1.2 boolean parsing when true.
   bool strictBooleans{false};
+  /// Maximum number of separate documents to parse in one stream.
+  /// Set to 0 for no limit.
+  unsigned long maxDocuments{32};
+  /// Maximum nested parse depth for arrays/collections.
+  /// Set to 0 for no limit.
+  unsigned long maxParseDepth{128};
+  /// Maximum number of alias expansions during a single parse.
+  /// Set to 0 for no limit.
+  unsigned long maxAliasExpansions{64};
 };
 
 // ========================

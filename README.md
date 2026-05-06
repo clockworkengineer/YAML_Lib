@@ -81,6 +81,9 @@ using namespace YAML_Lib;
 YAML::Options options;
 options.strictBooleans = true;
 options.memoryResource = std::pmr::get_default_resource();
+options.maxDocuments = 4;        // limit document count for untrusted input
+options.maxParseDepth = 64;      // prevent deeply nested input from exhausting the parser
+options.maxAliasExpansions = 128; // avoid alias explosion attacks
 
 YAML yaml(options);
 yaml.parse(BufferSource{"---\nvalue: yes\n"});

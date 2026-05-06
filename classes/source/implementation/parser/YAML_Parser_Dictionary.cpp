@@ -685,7 +685,7 @@ Node Default_Parser::parseInlineDictionary(
       withExtras(delimiters, {kComma, kRightCurlyBrace});
   Node dictionaryNode = Node::make<Dictionary>();
   {
-    DepthGuard depthGuard(ctx_.inlineDictionaryDepth);
+    DepthGuard depthGuard(ctx_.inlineDictionaryDepth, maxParseDepth);
     do {
       // Save the line number of the '{' or ',' so we can detect if the next
       // key/value entry starts on a new line (multi-line flow mapping).
