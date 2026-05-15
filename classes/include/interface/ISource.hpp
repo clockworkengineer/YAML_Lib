@@ -5,54 +5,65 @@ namespace YAML_Lib {
 // =======================================================
 // Interface for reading source stream during YAML parsing
 // =======================================================
+/**
+ * @brief Interface for reading source stream during YAML parsing.
+ *
+ * Implement this interface to provide custom input sources for the parser.
+ */
 class ISource {
 public:
-  // =============
-  // ISource Error
-  // =============
+  /**
+   * @brief Exception type for source errors.
+   */
   YAML_MAKE_ERROR(Error, "ISource Error");
-  // ========================
-  // Constructors/destructors
-  // ========================
+  /**
+   * @brief Virtual destructor.
+   */
   virtual ~ISource() = default;
-  // =================
-  // Current character
-  // =================
+  /**
+   * @brief Get the current character from the source.
+   * @return Current character.
+   */
   [[nodiscard]] virtual char current() const = 0;
-  // ======================
-  // Move to next character
-  // ======================
+  /**
+   * @brief Advance to the next character in the source.
+   */
   virtual void next() = 0;
-  // =======================================
-  // Are there still more characters to read
-  // ========================================
+  /**
+   * @brief Check if there are more characters to read.
+   * @return True if more characters are available.
+   */
   [[nodiscard]] virtual bool more() const = 0;
-  // ===================================
-  // Reset to beginning of source stream
-  // ===================================
+  /**
+   * @brief Reset to the beginning of the source stream.
+   */
   virtual void reset() = 0;
-  // ===============================================
-  // Current character position within source stream
-  // ===============================================
+  /**
+   * @brief Get the current character position within the source stream.
+   * @return Byte offset position.
+   */
   [[nodiscard]] virtual std::size_t position() = 0;
-  // ===================================
-  // Is the current character whitespace
-  // ===================================
+  /**
+   * @brief Check if the current character is whitespace.
+   * @return True if whitespace.
+   */
   [[nodiscard]] bool isWS() const {
     const auto ch = current();
     return ch == ' ' || ch == '\t';
   }
-  // ==================================
-  // Ignore whitespace on source stream
-  // ==================================
+  /**
+   * @brief Ignore whitespace on the source stream.
+   */
   void ignoreWS() {
     while (more() && isWS()) {
       next();
     }
   }
-  // ===============================================================
-  // Is current string a match at the current source stream position
-  // ===============================================================
+  /**
+   * @brief Check if the current string matches the target at the current position.
+   * @param targetString String to match.
+   * @return True if matched.
+   */
   [[nodiscard]] bool match(const std::string_view &targetString) {
     long index = 0;
     while (more() && current() == targetString[index]) {

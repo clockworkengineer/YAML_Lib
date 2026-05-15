@@ -2,12 +2,19 @@
 
 #pragma once
 
+
 /**
  * @file YAML_Core.hpp
  * @brief Aggregates all core, variant, and container types for advanced YAML_Lib use.
  *
  * Include this header only if you need direct access to node types, containers, or low-level interfaces.
  * Most users should prefer YAML.hpp for the main API.
+ *
+ * This header pulls in all fundamental types, error macros, interfaces, and containers for advanced YAML manipulation.
+ *
+ * @section Usage
+ *   - Use for direct node manipulation, custom containers, or advanced type access.
+ *   - See YAML.hpp for high-level API.
  */
 
 /**

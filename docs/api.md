@@ -1,3 +1,9 @@
+---
+
+## See Also
+
+- [User Guide](guide.md)
+- [README](../README.md)
 # YAML_Lib API Reference
 
 All public symbols live in the `YAML_Lib` namespace. Include `YAML.hpp` and `YAML_Core.hpp`.

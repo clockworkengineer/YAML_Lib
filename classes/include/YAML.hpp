@@ -33,19 +33,35 @@ struct Node;        ///< YAML node type
 class IYAMLEvents;  ///< Interface for SAX event handlers
 #endif
 
+
 /**
  * @brief Options for configuring YAML_Lib parsing and stringification.
  *
  * Allows users to customize parser, stringifier, memory resource, and limits.
+ *
+ * @var IStringify* Options::stringifier
+ *   Custom stringifier (default: built-in)
+ * @var IParser* Options::parser
+ *   Custom parser (default: built-in)
+ * @var std::pmr::memory_resource* Options::memory_resource
+ *   Polymorphic memory resource for allocations
+ * @var bool Options::strict_booleans
+ *   Enable strict YAML 1.2 boolean parsing (only 'true'/'false' valid)
+ * @var unsigned long Options::max_documents
+ *   Max documents per stream (0 = unlimited)
+ * @var unsigned long Options::max_parse_depth
+ *   Max nested parse depth (0 = unlimited)
+ * @var unsigned long Options::max_alias_expansions
+ *   Max alias expansions (0 = unlimited)
  */
 struct Options {
-  IStringify *stringifier{nullptr}; ///< Custom stringifier (default: built-in)
-  IParser *parser{nullptr};         ///< Custom parser (default: built-in)
-  std::pmr::memory_resource *memory_resource{nullptr}; ///< PMR resource for allocations
-  bool strict_booleans{false};      ///< Enable strict YAML 1.2 boolean parsing
-  unsigned long max_documents{32};  ///< Max documents per stream (0 = unlimited)
-  unsigned long max_parse_depth{128}; ///< Max nested parse depth (0 = unlimited)
-  unsigned long max_alias_expansions{64}; ///< Max alias expansions (0 = unlimited)
+  IStringify *stringifier{nullptr};
+  IParser *parser{nullptr};
+  std::pmr::memory_resource *memory_resource{nullptr};
+  bool strict_booleans{false};
+  unsigned long max_documents{32};
+  unsigned long max_parse_depth{128};
+  unsigned long max_alias_expansions{64};
 };
 
 // ========================

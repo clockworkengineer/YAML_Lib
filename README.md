@@ -51,6 +51,7 @@ add_subdirectory(YAML_Lib)
 target_link_libraries(your_target PRIVATE YAML_Lib)
 ```
 
+
 ### Build options
 
 CMake options supported by YAML_Lib:
@@ -58,6 +59,44 @@ CMake options supported by YAML_Lib:
 - `YAML_LIB_NO_EXCEPTIONS=ON` — disable C++ exceptions and use the panic handler path.
 - `YAML_LIB_FILE_IO=ON` — enable file I/O support for `FileSource`, `FileDestination`, `YAML::fromFile()`, `YAML::toFile()`, and `YAML::getFileFormat()`.
 - `YAML_LIB_SAX_API=ON` — enable SAX-style event parsing via `IYAMLEvents` and `YAML::traverseEvents()`.
+
+---
+
+## Documentation
+
+- [User Guide](docs/guide.md): Full usage, advanced features, and examples
+- [API Reference](docs/api.md): All public classes, types, and methods
+
+---
+
+## Advanced Usage & Examples
+
+See the [User Guide](docs/guide.md) and [examples/source/](examples/source/) for:
+- Parsing from string, file, and stream
+- Node access and type safety
+- Modifying/building YAML
+- Stringifying to all supported destinations
+- Error handling and defensive patterns
+- Advanced features (multi-doc, tags, anchors, custom I/O, traversal, alternative formats)
+
+---
+
+## Troubleshooting
+
+**Common issues:**
+
+- *Build errors about `std::string_view`*: Ensure you are using C++20 or newer and a modern compiler (GCC 10+, Clang 15+, MSVC 2019+). If using precompiled headers, make sure `<string_view>` is included.
+- *Type errors with `NRef<T>`*: Always check node type with `isA<T>(node)` before using `NRef<T>(node)`.
+- *Parse errors*: Catch `SyntaxError` and check your YAML for syntax mistakes or unsupported features.
+- *File I/O errors*: Make sure `YAML_LIB_FILE_IO` is enabled and files exist/are accessible.
+
+For more, see the [User Guide Troubleshooting section](docs/guide.md#troubleshooting).
+
+---
+
+## Contributing & License
+
+See [CONTRIBUTING](#contributing) and [LICENSE](LICENSE).
 - `YAML_LIB_TIMESTAMP_PARSE=ON` — enable timestamp parsing helpers for ISO 8601 date/time values.
 
 Example:

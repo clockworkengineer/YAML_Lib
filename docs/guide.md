@@ -1,3 +1,22 @@
+---
+
+## Troubleshooting
+
+**Common issues:**
+
+- *Build errors about `std::string_view`*: Ensure you are using C++20 or newer and a modern compiler (GCC 10+, Clang 15+, MSVC 2019+). If using precompiled headers, make sure `<string_view>` is included.
+- *Type errors with `NRef<T>`*: Always check node type with `isA<T>(node)` before using `NRef<T>(node)`.
+- *Parse errors*: Catch `SyntaxError` and check your YAML for syntax mistakes or unsupported features.
+- *File I/O errors*: Make sure `YAML_LIB_FILE_IO` is enabled and files exist/are accessible.
+
+For more, see the [README Troubleshooting section](../README.md#troubleshooting).
+
+---
+
+## See Also
+
+- [API Reference](api.md)
+- [README](../README.md)
 # YAML_Lib User Guide
 
 ## Table of Contents
