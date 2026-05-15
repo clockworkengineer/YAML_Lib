@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.18)
 project(YAML_Lib VERSION 1.2.0 DESCRIPTION "YAML C++ Library" LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -37,6 +37,7 @@ set(YAML_LIBRARY_NAME ${PROJECT_NAME})
 # Sources
 set(YAML_SOURCES
   classes/source/YAML.cpp
+  classes/source/YAML_Utility.cpp
   classes/source/implementation/YAML_Error.cpp
   classes/source/implementation/YAML_Impl.cpp
   classes/source/implementation/parser/YAML_Parser.cpp

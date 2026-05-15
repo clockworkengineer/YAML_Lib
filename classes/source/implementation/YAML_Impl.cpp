@@ -27,8 +27,8 @@ YAML_Impl::YAML_Impl(IStringify *stringify, IParser *parser,
 }
 
 YAML_Impl::YAML_Impl(const Options &options)
-    : memoryResource{options.memoryResource} {
-  Default_Parser::setStrictBooleans(options.strictBooleans);
+    : memoryResource{options.memory_resource} {
+  Default_Parser::setStrictBooleans(options.strict_booleans);
 
   if (options.parser == nullptr) {
     yamlParser = std::make_unique<Default_Parser>(
@@ -36,10 +36,10 @@ YAML_Impl::YAML_Impl(const Options &options)
   } else {
     yamlParser.reset(options.parser);
   }
-  if (options.stringify == nullptr) {
+  if (options.stringifier == nullptr) {
     yamlStringify = std::make_unique<Default_Stringify>(std::make_unique<Default_Translator>());
   } else {
-    yamlStringify.reset(options.stringify);
+    yamlStringify.reset(options.stringifier);
   }
 }
 

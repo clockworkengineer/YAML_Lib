@@ -1,8 +1,23 @@
+
+
 #pragma once
 
-// ==========
-// YAML Core
-// ==========
+/**
+ * @file YAML_Core.hpp
+ * @brief Aggregates all core, variant, and container types for advanced YAML_Lib use.
+ *
+ * Include this header only if you need direct access to node types, containers, or low-level interfaces.
+ * Most users should prefer YAML.hpp for the main API.
+ */
+
+/**
+ * @file YAML_Core.hpp
+ * @brief Core header aggregating all fundamental types, interfaces, and containers for YAML_Lib.
+ *
+ * This header should be included to access all core YAML types, error macros, interfaces, and containers.
+ * The include order is carefully managed to ensure all dependencies are satisfied for public API use.
+ */
+
 // 1. Fundamental error types and macros (needed by all interface headers)
 #include "YAML_Error.hpp"
 #include "YAML_Arena.hpp"

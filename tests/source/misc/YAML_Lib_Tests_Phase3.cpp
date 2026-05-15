@@ -29,8 +29,8 @@ TEST_CASE("Root numeric index access grows an array without exceptions", "[YAML]
 
 TEST_CASE("YAML::Options supports strict boolean parsing and memory resources", "[YAML][Options][API]") {
   Options options;
-  options.strictBooleans = true;
-  options.memoryResource = std::pmr::get_default_resource();
+  options.strict_booleans = true;
+  options.memory_resource = std::pmr::get_default_resource();
 
   YAML yaml(options);
   yaml.parse(BufferSource{"---\nvalue: yes\n"});

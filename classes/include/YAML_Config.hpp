@@ -1,0 +1,4 @@
+#pragma once
+#define YAML_VERSION_MAJOR 1
+#define YAML_VERSION_MINOR 2
+#define YAML_VERSION_PATCH 0

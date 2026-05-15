@@ -2,7 +2,7 @@
 
 TEST_CASE("YAML::Options enables strict boolean parsing", "[YAML][Options][Parse]") {
   ::YAML_Lib::Options options;
-  options.strictBooleans = true;
+  options.strict_booleans = true;
 
   ::YAML_Lib::YAML yaml(options);
   ::YAML_Lib::BufferSource src{"---\nvalue: yes\n"};
@@ -16,7 +16,7 @@ TEST_CASE("YAML::Options enables strict boolean parsing", "[YAML][Options][Parse
 
 TEST_CASE("YAML::Options enforces maxDocuments during parsing", "[YAML][Options][Parse]") {
   ::YAML_Lib::Options options;
-  options.maxDocuments = 1;
+  options.max_documents = 1;
 
   ::YAML_Lib::YAML yaml(options);
   ::YAML_Lib::BufferSource src{"---\nfoo: 1\n---\nbar: 2\n"};
@@ -26,7 +26,7 @@ TEST_CASE("YAML::Options enforces maxDocuments during parsing", "[YAML][Options]
 
 TEST_CASE("YAML::Options enforces maxAliasExpansions during parsing", "[YAML][Options][Parse]") {
   ::YAML_Lib::Options options;
-  options.maxAliasExpansions = 2;
+  options.max_alias_expansions = 2;
 
   ::YAML_Lib::YAML yaml(options);
   ::YAML_Lib::BufferSource src{
@@ -41,7 +41,7 @@ TEST_CASE("YAML::Options enforces maxAliasExpansions during parsing", "[YAML][Op
 
 TEST_CASE("YAML::Options enforces maxParseDepth during parsing", "[YAML][Options][Parse]") {
   ::YAML_Lib::Options options;
-  options.maxParseDepth = 2;
+  options.max_parse_depth = 2;
 
   ::YAML_Lib::YAML yaml(options);
   ::YAML_Lib::BufferSource src{

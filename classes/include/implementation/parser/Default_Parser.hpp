@@ -56,9 +56,9 @@ public:
   explicit Default_Parser(std::unique_ptr<ITranslator> translator,
                           const Options &options)
       : yamlTranslator_(std::move(translator)),
-        maxParseDepth(options.maxParseDepth),
-        maxAliasExpansions(options.maxAliasExpansions),
-        maxDocuments(options.maxDocuments) {}
+        maxParseDepth(options.max_parse_depth),
+        maxAliasExpansions(options.max_alias_expansions),
+        maxDocuments(options.max_documents) {}
   Default_Parser(const Default_Parser &other) = delete;
   Default_Parser &operator=(const Default_Parser &other) = delete;
   Default_Parser(Default_Parser &&other) = delete;
