@@ -84,6 +84,14 @@ cmake --build build
 
 See `docs/public_api.md` for the installed public header set.
 
+### Platform compatibility
+
+YAML_Lib supports portable builds on Linux, macOS, and Windows.
+
+- Linux and macOS builds use the POSIX-compatible converter implementation.
+- Windows builds use a native Windows UTF converter implementation.
+- Enable `YAML_LIB_FILE_IO=OFF` for bare-metal or filesystem-constrained environments.
+
 ### Runtime configuration with `YAML::Options`
 
 `YAML::Options` provides runtime control over parser/stringifier selection, memory resource usage, and strict boolean parsing.

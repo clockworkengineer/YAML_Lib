@@ -29,6 +29,13 @@ YAML_Lib is a lightweight, header-friendly C++20 library for parsing, manipulati
 - CMake 3.18+
 - No runtime dependencies beyond the C++ standard library
 
+### Supported platforms
+- Linux with GCC 10+ or Clang 15+
+- macOS with Apple Clang 15+ / Xcode 15+
+- Windows with MSVC 2019+ / Visual Studio 2022
+
+Linux and macOS share the same POSIX-compatible converter implementation, while Windows uses a dedicated Windows converter path.
+
 ### Build
 
 ```sh
@@ -146,6 +153,8 @@ cmake --build build
 ```
 
 See `docs/public_api.md` for the installed public header set.
+
+For more details on supported compilers, platforms, and build variants, see `docs/portability.md`.
 
 ### Runtime configuration with `YAML::Options`
 

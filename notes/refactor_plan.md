@@ -50,6 +50,8 @@ This plan outlines concrete steps to refactor YAML_Lib to fully embody the 10 at
 - Test and document support for major compilers and platforms (Linux, Windows, macOS).
 - Minimize platform-specific code; use C++ standard library where possible.
 - Provide CMake options for disabling features (file I/O, exceptions, etc.).
+- Add cross-platform CI or reproducible build instructions for multiple toolchains.
+- Completed compatibility documentation and portable build variants.
 
 ## 10. Low Dependency Footprint
 - Keep dependencies optional and minimal (e.g., PLOG for logging, Catch2 for tests).

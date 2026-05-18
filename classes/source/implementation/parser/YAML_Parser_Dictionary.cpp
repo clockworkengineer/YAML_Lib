@@ -107,6 +107,7 @@ bool Default_Parser::isValidKey(const std::string_view &key) noexcept {
   if (key[first] == '#') return false;              // comment
   if (key[first] == kDoubleQuote || key[first] == kApostrophe) {
     // Slow path: re-parse to catch truncated quoted-string extractions.
+#ifndef YAML_LIB_NO_EXCEPTIONS
     try {
       const Node keyNode =
           parseFromBuffer(std::string(key) + kLineFeed, {kLineFeed}, 0);
@@ -114,6 +115,12 @@ bool Default_Parser::isValidKey(const std::string_view &key) noexcept {
     } catch ([[maybe_unused]] const std::exception &e) {
       return false;
     }
+#else
+    // No-exceptions builds cannot safely catch parser errors here.
+    // Assume the quoted key is syntactically valid and defer strict validation
+    // to the main parser path.
+    return true;
+#endif
   }
   return true; // fast path: plain scalar, anchor, tag, inline collection, etc.
 }

@@ -7,20 +7,17 @@
 //
 
 #include "YAML_Impl.hpp"
+#include <charconv>
 
 namespace YAML_Lib {
 
 void Default_Parser::convertOctalToDecimal(std::string &numeric,
                                            const std::string &digits) {
-  try {
-    std::size_t end = 0;
-    const long long val = std::stoll(digits, &end, 8);
-    if (end == digits.size()) {
-      numeric = std::to_string(val);
-    } else {
-      numeric.clear();
-    }
-  } catch (...) {
+  long long val = 0;
+  const auto result = std::from_chars(digits.data(), digits.data() + digits.size(), val, 8);
+  if (result.ec == std::errc() && result.ptr == digits.data() + digits.size()) {
+    numeric = std::to_string(val);
+  } else {
     numeric.clear();
   }
 }

@@ -48,7 +48,7 @@ public:
    * @brief Throw an error for unknown node types (used by all stringifiers).
    */
   [[noreturn]] static void throwUnknownNodeType() {
-    throw IStringify::Error{"Unknown Node type encountered during stringification."};
+    YAML_THROW(IStringify::Error, "Unknown Node type encountered during stringification.");
   }
 
 };
