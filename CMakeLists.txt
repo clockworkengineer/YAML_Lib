@@ -41,6 +41,8 @@ set(YAML_SOURCES
   classes/source/YAML_Utility.cpp
   classes/source/implementation/YAML_Error.cpp
   classes/source/implementation/YAML_Impl.cpp
+  classes/source/implementation/YAML_Impl_Stringify.cpp
+  classes/source/implementation/YAML_Impl_Access.cpp
   classes/source/implementation/parser/YAML_Parser.cpp
   classes/source/implementation/parser/YAML_Parser_Array.cpp
   classes/source/implementation/parser/YAML_Parser_BlockString.cpp

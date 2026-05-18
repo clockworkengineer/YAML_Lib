@@ -1,0 +1,11 @@
+BasedOnStyle: Google
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+ColumnLimit: 100
+AllowShortFunctionsOnASingleLine: Inline
+BreakBeforeBraces: Attach
+AllowShortBlocksOnASingleLine: false
+SortIncludes: false
+DerivePointerAlignment: false
+PointerAlignment: Left

@@ -287,10 +287,7 @@ All examples are in `examples/source/`:
 
 ## Contributing
 
-1. Fork the repository.
-2. Create a branch: `git checkout -b feature-name`
-3. Commit your changes: `git commit -m "Description of change"`
-4. Push and open a pull request.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for branch workflow, style checks, static analysis, and PR guidance.
 
 ## License
 
