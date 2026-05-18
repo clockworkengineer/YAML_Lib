@@ -1,7 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
 
 using namespace YAML_Lib;
-
 namespace {
 struct FakeSource : ISource {
   explicit FakeSource(std::string text) : buffer(std::move(text)) {}
