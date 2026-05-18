@@ -1,29 +1,31 @@
-AML_Lib_Tests.hpp"
+#include "YAML_Lib_Tests.hpp"
 
 #include <vector>
 
-TEST_CASE("Parser rejects alias expansion loops and resource attacks", "[YAML][Security][AliasLimit]") {
-  YAML::Options options;
+TEST_CASE("Parser rejects alias expansion resource attacks", "[YAML][Security][AliasLimit]") {
+  ::YAML_Lib::Options options;
   options.max_alias_expansions = 4;
   options.max_parse_depth = 64;
-  YAML yaml(options);
+  ::YAML_Lib::YAML yaml(options);
 
   const std::string maliciousYaml = R"(---
-anc0: &anc0 [*anc1]
-anc1: &anc1 [*anc2]
-anc2: &anc2 [*anc3]
-anc3: &anc3 [*anc0]
-root: *anc0
+a0: &a0 { foo: 1 }
+a1: &a1 { foo: *a0 }
+a2: &a2 { foo: *a1 }
+a3: &a3 { foo: *a2 }
+a4: &a4 { foo: *a3 }
+a5: &a5 { foo: *a4 }
+root: *a5
 )";
 
-  REQUIRE_THROWS_WITH(yaml.parse(BufferSource{maliciousYaml}), Catch::Contains("alias expansion limit"));
+  REQUIRE_THROWS_WITH(yaml.parse(BufferSource{maliciousYaml}), Catch::Matchers::ContainsSubstring("YAML alias expansion limit exceeded"));
 }
 
 TEST_CASE("Parser rejects deeply nested YAML before stack exhaustion", "[YAML][Security][DepthLimit]") {
-  YAML::Options options;
+  ::YAML_Lib::Options options;
   options.max_parse_depth = 4;
   options.max_alias_expansions = 64;
-  YAML yaml(options);
+  ::YAML_Lib::YAML yaml(options);
 
   std::string deepYaml = "---\n";
   for (int depth = 0; depth < 12; ++depth) {
@@ -31,14 +33,14 @@ TEST_CASE("Parser rejects deeply nested YAML before stack exhaustion", "[YAML][S
   }
   deepYaml += std::string(12 * 2, ' ') + "value: nested\n";
 
-  REQUIRE_THROWS_WITH(yaml.parse(BufferSource{deepYaml}), Catch::Contains("nesting depth limit"));
+  REQUIRE_THROWS_WITH(yaml.parse(BufferSource{deepYaml}), Catch::Matchers::ContainsSubstring("nesting depth limit"));
 }
 
 TEST_CASE("Parser handles malformed inputs robustly without crashing", "[YAML][Security][Fuzz]") {
-  YAML::Options options;
+  ::YAML_Lib::Options options;
   options.max_alias_expansions = 16;
   options.max_parse_depth = 64;
-  YAML yaml(options);
+  ::YAML_Lib::YAML yaml(options);
 
   const std::vector<std::string> fuzzCases = {
     "---\n- [*x]\n",
