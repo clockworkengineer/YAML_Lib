@@ -44,6 +44,7 @@ This plan outlines concrete steps to refactor YAML_Lib to fully embody the 10 at
 - Ensure all public APIs are covered by unit and integration tests.
 - Provide mocks/fakes for I/O and stringifiers for testing.
 - Document how to run and extend tests.
+- Completed testability coverage with dedicated fake I/O/stringifier tests and a new test guidance document.
 
 ## 9. Compatibility and Portability
 - Test and document support for major compilers and platforms (Linux, Windows, macOS).

@@ -94,6 +94,10 @@ cd YAML_Lib
 
 The Jenkins pipeline now builds both release and debug configurations, runs all tests with `ctest`, and records `Release/tests/YAML_Lib_Unit_Tests` and `Release/tests/YAML_Lib_Fuzz_Tests`.
 
+### Extending tests
+
+See `docs/testing.md` for test conventions, mock/fake implementation guidance, and instructions for adding new unit or parser resilience coverage.
+
 ---
 
 ## Documentation

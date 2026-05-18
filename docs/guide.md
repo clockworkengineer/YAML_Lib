@@ -525,6 +525,16 @@ void stringifyToStream(const YAML& yaml, std::ostream& output) {
 
 For custom sources beyond the built-in three, implement `ISource`. For custom output, implement `IDestination`. See `classes/include/interface/ISource.hpp` and `IDestination.hpp`.
 
+## Testing and extending YAML_Lib
+
+YAML_Lib includes test coverage for public APIs, custom parser/stringifier extensions, and parser security limits.
+
+- Add new test cases under `tests/source/` using Catch2 `TEST_CASE` and `SECTION`.
+- Use custom test helpers to mock `ISource`, `IDestination`, and `IStringify` behavior.
+- Keep tests focused on a single public-contract behavior and avoid external dependencies unless testing file I/O.
+
+Review `docs/testing.md` for concrete instructions and example fake implementations.
+
 ---
 
 ## Traversal with IAction
