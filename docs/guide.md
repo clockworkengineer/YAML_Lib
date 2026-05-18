@@ -274,6 +274,21 @@ yaml.stringify(StreamDestination{std::cout});
 
 ---
 
+## Performance and memory usage
+
+YAML_Lib is designed to minimize reallocations during parsing and stringify.
+- `YAML::stringify()` pre-reserves output buffer capacity based on document count.
+- `YAML::toString()` uses a direct string buffer destination for faster output assembly.
+- Parser string extraction paths reserve working storage before accumulating scalar content.
+
+Use the `YAML_Parse_File` example to measure parse and stringify latency for real YAML files.
+For large synthetic inputs, run the new `YAML_Performance_Profile` example:
+```bash
+./YAML_Performance_Profile 100000
+```
+
+---
+
 ## Working with multiple documents
 
 ```cpp

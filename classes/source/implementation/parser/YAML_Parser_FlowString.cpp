@@ -85,6 +85,7 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
   // must strip trailing whitespace from the first line BEFORE adding the
   // fold-space, so that "hello   \nworld" → "hello world" (YAML 1.2 §6.5).
   std::string yamlString{extractToNext(source, delimiters)};
+  yamlString.reserve(yamlString.size() + 64);
   // YAML 1.2 §6.8: '#' introduces a comment ONLY when preceded by whitespace.
   // If extraction stopped at '#' but the preceding character is NOT whitespace,
   // '#' is a literal — consume it and continue extracting to the next
@@ -241,6 +242,7 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
                                            const unsigned long indentation) {
   const char quote = source.append();
   std::string yamlString;
+  yamlString.reserve(128);
   bool closedQuote = false;
   if (quote == kDoubleQuote) {
     while (source.more() && source.current() != quote) {

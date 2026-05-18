@@ -217,6 +217,7 @@ std::string Default_Parser::extractTagSuffix(ISource &source) {
 std::string Default_Parser::extractToNext(ISource &source,
                                           const Delimiters &delimiters) {
   std::string extracted;
+  extracted.reserve(64);
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
       extracted += source.append();
@@ -246,6 +247,7 @@ std::string Default_Parser::extractTrimmed(ISource &source,
 std::string Default_Parser::extractInLine(ISource &source, const char start,
                                           const char end) {
   std::string extracted;
+  extracted.reserve(128);
   unsigned long depth{1};
   extracted += start;
   source.next();

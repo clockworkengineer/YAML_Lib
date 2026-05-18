@@ -3,7 +3,6 @@
 #include "YAML_Core.hpp"
 #include "implementation/io/YAML_Sources.hpp"
 #include "implementation/io/YAML_Destinations.hpp"
-#include <sstream>
 #include <fstream>
 
 namespace YAML_Lib {
@@ -20,18 +19,19 @@ std::unique_ptr<YAML> YAML::fromFileToYAML(const std::string_view &file_name) {
 #endif
 
 std::string YAML::toString() const {
-    std::ostringstream oss;
+    std::string output;
+    output.reserve(4096);
     class StringDestination : public IDestination {
     public:
-        explicit StringDestination(std::ostringstream &oss) : oss_(oss) {}
-        void add(char ch) override { oss_ << ch; }
-        void clear() override { oss_.str(""); }
-        char last() override { auto s = oss_.str(); return s.empty() ? '\0' : s.back(); }
+        explicit StringDestination(std::string &output) : output_(output) {}
+        void add(char ch) override { output_.push_back(ch); }
+        void clear() override { output_.clear(); }
+        char last() override { return output_.empty() ? '\0' : output_.back(); }
     private:
-        std::ostringstream &oss_;
-    } dest(oss);
+        std::string &output_;
+    } dest(output);
     this->stringify(dest);
-    return oss.str();
+    return output;
 }
 
 } // namespace YAML_Lib

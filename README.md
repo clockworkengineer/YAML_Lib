@@ -197,6 +197,11 @@ std::ostringstream ss;
 yaml.stringify(StreamDestination{ss});
 ```
 
+### Performance profiling
+
+Use the `YAML_Parse_File` example to measure parsing and stringify times across real YAML files.
+For larger synthetic workloads, run `YAML_Performance_Profile` to profile parse/stringify latency and output size.
+
 ### Build YAML programmatically
 
 ```cpp
