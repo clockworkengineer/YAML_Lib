@@ -106,6 +106,25 @@ if (isA<String>(doc["value"])) {
 }
 ```
 
+### Security best practices
+
+When parsing untrusted YAML, configure parser limits explicitly to prevent malicious inputs from exhausting resources.
+
+```cpp
+YAML::Options options;
+options.maxDocuments = 1;
+options.maxParseDepth = 64;
+options.maxAliasExpansions = 64;
+options.strictBooleans = true;
+```
+
+- `maxDocuments` limits how many documents are accepted in a stream.
+- `maxParseDepth` protects against deeply nested structures.
+- `maxAliasExpansions` defends against alias explosion attacks such as billion-laughs-style alias graphs.
+- `strictBooleans` avoids YAML 1.1 boolean coercion for untrusted values.
+
+If you build with `YAML_LIB_NO_EXCEPTIONS=ON`, register a custom error handler via `YAML_Lib::setErrorHandler(...)` so parse failures do not abort the process unexpectedly.
+
 ### Custom I/O and stringification
 
 YAML_Lib is designed for extensibility through public abstractions:

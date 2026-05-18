@@ -9,13 +9,31 @@ TEST_CASE("Parser rejects alias expansion resource attacks", "[YAML][Security][A
   ::YAML_Lib::YAML yaml(options);
 
   const std::string maliciousYaml = R"(---
-a0: &a0 { foo: 1 }
-a1: &a1 { foo: *a0 }
-a2: &a2 { foo: *a1 }
-a3: &a3 { foo: *a2 }
-a4: &a4 { foo: *a3 }
-a5: &a5 { foo: *a4 }
-root: *a5
+a: &a { foo: 1 }
+root: [*a, *a, *a, *a, *a]
+)";
+
+  REQUIRE_THROWS_WITH(yaml.parse(BufferSource{maliciousYaml}), Catch::Matchers::ContainsSubstring("YAML alias expansion limit exceeded"));
+}
+
+TEST_CASE("Parser rejects large alias expansion graphs", "[YAML][Security][AliasLimit]") {
+  ::YAML_Lib::Options options;
+  options.max_alias_expansions = 8;
+  options.max_parse_depth = 64;
+  ::YAML_Lib::YAML yaml(options);
+
+  const std::string maliciousYaml = R"(---
+a: &a { foo: 1 }
+root:
+  - *a
+  - *a
+  - *a
+  - *a
+  - *a
+  - *a
+  - *a
+  - *a
+  - *a
 )";
 
   REQUIRE_THROWS_WITH(yaml.parse(BufferSource{maliciousYaml}), Catch::Matchers::ContainsSubstring("YAML alias expansion limit exceeded"));
@@ -34,6 +52,22 @@ TEST_CASE("Parser rejects deeply nested YAML before stack exhaustion", "[YAML][S
   deepYaml += std::string(12 * 2, ' ') + "value: nested\n";
 
   REQUIRE_THROWS_WITH(yaml.parse(BufferSource{deepYaml}), Catch::Matchers::ContainsSubstring("nesting depth limit"));
+}
+
+TEST_CASE("Parser rejects too many documents in untrusted input", "[YAML][Security][DocumentLimit]") {
+  ::YAML_Lib::Options options;
+  options.max_documents = 1;
+  options.max_parse_depth = 64;
+  options.max_alias_expansions = 64;
+  ::YAML_Lib::YAML yaml(options);
+
+  const std::string multiDocYaml = R"(---
+value: first
+---
+value: second
+)";
+
+  REQUIRE_THROWS_WITH(yaml.parse(BufferSource{multiDocYaml}), Catch::Matchers::ContainsSubstring("document count exceeds configured limit"));
 }
 
 TEST_CASE("Parser handles malformed inputs robustly without crashing", "[YAML][Security][Fuzz]") {

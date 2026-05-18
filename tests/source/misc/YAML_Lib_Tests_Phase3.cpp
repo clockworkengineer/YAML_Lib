@@ -5,6 +5,35 @@ using namespace YAML_Lib;
 
 namespace {
 void customPanicHandler(std::string_view, unsigned long, unsigned long) noexcept {}
+
+struct CustomDestination : IDestination {
+  std::string output;
+  void add(char ch) override { output.push_back(ch); }
+  void clear() override { output.clear(); }
+  char last() override { return output.empty() ? '\0' : output.back(); }
+};
+
+struct PrefixStringify : IStringify {
+  void stringify(const Node &yNode, IDestination &destination, unsigned long) const override {
+    destination.add('[');
+    if (isA<Dictionary>(yNode)) {
+      destination.add("DICT]");
+    } else if (isA<Array>(yNode)) {
+      destination.add("ARRAY]");
+    } else {
+      destination.add("NODE]");
+    }
+  }
+};
+
+struct ConstantParser : IParser {
+  std::vector<Node> parse(ISource &source) override {
+    (void)source;
+    std::vector<Node> documents;
+    documents.emplace_back(Node{{{"custom", "parser"}}});
+    return documents;
+  }
+};
 } // namespace
 
 TEST_CASE("Missing root dictionary key creates an entry safely", "[YAML][API][Index]") {
@@ -37,6 +66,19 @@ TEST_CASE("YAML::Options supports strict boolean parsing and memory resources", 
 
   REQUIRE(isA<String>(yaml.document(0)["value"]));
   REQUIRE(NRef<String>(yaml.document(0)["value"]).value() == "yes");
+}
+
+TEST_CASE("YAML::Options supports custom parser and stringifier implementations", "[YAML][Options][Customize]") {
+  Options options;
+  options.parser = new ConstantParser();
+  options.stringifier = makeStringify<PrefixStringify>();
+
+  YAML yaml(options);
+  yaml.parse(BufferSource{"---\nignored: yes\n"});
+
+  CustomDestination destination;
+  yaml.stringify(destination);
+  REQUIRE(destination.output == "[DICT]");
 }
 
 TEST_CASE("Error handler registration is preserved for no-exceptions builds", "[YAML][NoExceptions]") {

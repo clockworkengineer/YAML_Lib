@@ -1,5 +1,4 @@
-//
-// Program: YAML_Custom_IO
+//// Program: YAML_Custom_IO
 //
 // Description: Demonstrates how to extend YAML_Lib with a custom parser,
 // custom stringifier, and custom output destination using the public interfaces.

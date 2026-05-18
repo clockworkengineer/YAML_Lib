@@ -61,6 +61,26 @@ CMake options supported by YAML_Lib:
 - `YAML_LIB_SAX_API=ON` — enable SAX-style event parsing via `IYAMLEvents` and `YAML::traverseEvents()`.
 - `BUILD_YAML_PARSER_FUZZ_TESTS=ON` — build the parser fuzz harness target `YAML_Lib_Fuzz_Tests`.
 
+### Security best practices
+
+For untrusted YAML input, configure parser limits with `YAML::Options`:
+
+```cpp
+YAML::Options options;
+options.maxDocuments = 1;
+options.maxParseDepth = 64;
+options.maxAliasExpansions = 64;
+options.strictBooleans = true;
+```
+
+These settings help protect against:
+
+- excessive documents in a single stream
+- deeply nested content that can exhaust parser stack depth
+- alias expansion attacks such as alias loops and exponential alias graphs
+
+If you build with `YAML_LIB_NO_EXCEPTIONS=ON`, register a custom panic handler via `YAML_Lib::setErrorHandler(...)` to avoid aborting the process directly.
+
 ### Run tests
 
 The repository includes unit tests and a parser resilience harness.
@@ -137,7 +157,7 @@ options.strictBooleans = true;
 options.memoryResource = std::pmr::get_default_resource();
 options.maxDocuments = 4;        // limit document count for untrusted input
 options.maxParseDepth = 64;      // prevent deeply nested input from exhausting the parser
-options.maxAliasExpansions = 128; // avoid alias explosion attacks
+options.maxAliasExpansions = 128; // avoid alias explosion attacks and billion-laughs-style alias graphs
 
 YAML yaml(options);
 yaml.parse(BufferSource{"---\nvalue: yes\n"});
