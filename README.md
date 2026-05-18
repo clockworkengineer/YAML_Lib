@@ -59,6 +59,20 @@ CMake options supported by YAML_Lib:
 - `YAML_LIB_NO_EXCEPTIONS=ON` — disable C++ exceptions and use the panic handler path.
 - `YAML_LIB_FILE_IO=ON` — enable file I/O support for `FileSource`, `FileDestination`, `YAML::fromFile()`, `YAML::toFile()`, and `YAML::getFileFormat()`.
 - `YAML_LIB_SAX_API=ON` — enable SAX-style event parsing via `IYAMLEvents` and `YAML::traverseEvents()`.
+- `BUILD_YAML_PARSER_FUZZ_TESTS=ON` — build the parser fuzz harness target `YAML_Lib_Fuzz_Tests`.
+
+### Run tests
+
+The repository includes unit tests and a parser resilience harness.
+
+```sh
+git clone <repo-url> YAML_Lib
+cd YAML_Lib
+./scripts/Linux-Build.sh
+./scripts/Linux-Run-Tests.sh
+```
+
+The Jenkins pipeline now builds both release and debug configurations, runs all tests with `ctest`, and records `Release/tests/YAML_Lib_Unit_Tests` and `Release/tests/YAML_Lib_Fuzz_Tests`.
 
 ---
 

@@ -17,6 +17,8 @@ FetchContent_MakeAvailable(Catch2)
 # Enable unit tests
 enable_testing()
 
+option(BUILD_YAML_PARSER_FUZZ_TESTS "Build parser fuzz harness tests" ON)
+
 set(TEST_EXECUTABLE ${YAML_LIBRARY_NAME}_Unit_Tests)
 
 set(TEST_SOURCES
@@ -99,6 +101,30 @@ target_compile_definitions(${TEST_EXECUTABLE} PRIVATE
 )
 
 add_test(NAME ${TEST_EXECUTABLE} COMMAND ${TEST_EXECUTABLE})
+
+if(BUILD_YAML_PARSER_FUZZ_TESTS)
+  set(FUZZ_TEST_EXECUTABLE ${YAML_LIBRARY_NAME}_Fuzz_Tests)
+  add_executable(${FUZZ_TEST_EXECUTABLE} source/misc/YAML_Lib_Tests_Fuzz.cpp)
+  target_include_directories(${FUZZ_TEST_EXECUTABLE} PRIVATE
+    ${CMAKE_SOURCE_DIR}/classes/include
+    ${CMAKE_SOURCE_DIR}/classes/include/implementation
+    ${CMAKE_SOURCE_DIR}/classes/include/interface
+    ${CMAKE_SOURCE_DIR}/classes/include/implementation/common
+    ${CMAKE_SOURCE_DIR}/classes/include/implementation/converter
+    ${CMAKE_SOURCE_DIR}/classes/include/implementation/io
+    ${CMAKE_SOURCE_DIR}/classes/include/implementation/parser
+    ${CMAKE_SOURCE_DIR}/classes/include/implementation/variants
+    ${CMAKE_SOURCE_DIR}/classes/include/implementation/node
+    ${CMAKE_SOURCE_DIR}/classes/include/implementation/stringify
+    ${CMAKE_SOURCE_DIR}/classes/include/implementation/translator
+    ${CMAKE_SOURCE_DIR}/classes/include/implementation
+    ${CMAKE_BINARY_DIR}
+    ${CMAKE_SOURCE_DIR}/tests/include
+  )
+  target_link_libraries(${FUZZ_TEST_EXECUTABLE} ${YAML_LIBRARY_NAME} Catch2::Catch2WithMain)
+  target_precompile_headers(${FUZZ_TEST_EXECUTABLE} REUSE_FROM YAML_Lib)
+  add_test(NAME ${FUZZ_TEST_EXECUTABLE} COMMAND ${FUZZ_TEST_EXECUTABLE})
+endif()
 
 add_custom_command(
   TARGET ${TEST_EXECUTABLE} POST_BUILD

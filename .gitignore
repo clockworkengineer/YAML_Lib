@@ -1,6 +1,8 @@
 /examples/_build/
 /_build/
 /build/
+/Debug/
+/Release/
 /dist/
 /nbproject/private/
 /CMakeFiles/
