@@ -92,6 +92,7 @@ See the [User Guide](docs/guide.md) and [examples/source/](examples/source/) for
 - Stringifying to all supported destinations
 - Error handling and defensive patterns
 - Advanced features (multi-doc, tags, anchors, custom I/O, traversal, alternative formats)
+- Custom parser/stringifier extensions via `YAML::Options`
 
 ---
 
@@ -144,6 +145,46 @@ yaml.parse(BufferSource{"---\nvalue: yes\n"});
 const auto &doc = yaml.document(0);
 // strict booleans preserves 'yes' as a string rather than a boolean
 std::string value = NRef<String>(doc["value"]).value();
+```
+
+### Custom I/O and stringification
+
+YAML_Lib supports custom I/O and formatting through the public interfaces:
+
+- `ISource` for custom parsing inputs
+- `IDestination` for custom stringification outputs
+- `IStringify` for custom serialization formats
+- `IParser` for custom parsing logic
+
+Use `YAML::Options` to install custom components at runtime:
+
+```cpp
+struct CustomDestination : IDestination {
+  std::string output;
+  void add(char ch) override { output.push_back(ch); }
+  void clear() override { output.clear(); }
+  char last() override { return output.empty() ? '\0' : output.back(); }
+};
+
+struct PrefixStringify : IStringify {
+  void stringify(const Node &yNode, IDestination &destination, unsigned long) const override {
+    destination.add('[');
+    if (isA<Dictionary>(yNode)) {
+      destination.add("DICT]");
+    } else {
+      destination.add("NODE]");
+    }
+  }
+};
+
+YAML::Options options;
+options.stringifier = makeStringify<PrefixStringify>();
+YAML yaml(options);
+yaml.parse(BufferSource{"---\nkey: value\n"});
+
+CustomDestination dest;
+yaml.stringify(dest);
+std::cout << dest.output; // [DICT]
 ```
 
 ## Quick Start

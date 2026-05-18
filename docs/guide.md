@@ -106,6 +106,48 @@ if (isA<String>(doc["value"])) {
 }
 ```
 
+### Custom I/O and stringification
+
+YAML_Lib is designed for extensibility through public abstractions:
+
+- `ISource` for custom input streams
+- `IDestination` for custom output sinks
+- `IStringify` for custom serialization formats
+- `IParser` for custom parsing logic
+
+Custom components are installed through `YAML::Options`:
+
+```cpp
+struct CustomDestination : IDestination {
+  std::string output;
+  void add(char ch) override { output.push_back(ch); }
+  void clear() override { output.clear(); }
+  char last() override { return output.empty() ? '\0' : output.back(); }
+};
+
+struct PrefixStringify : IStringify {
+  void stringify(const Node &yNode, IDestination &destination, unsigned long) const override {
+    destination.add('[');
+    if (isA<Dictionary>(yNode)) {
+      destination.add("DICT]");
+    } else {
+      destination.add("NODE]");
+    }
+  }
+};
+
+YAML::Options options;
+options.stringifier = makeStringify<PrefixStringify>();
+YAML yaml(options);
+yaml.parse(BufferSource{"---\nname: Alice\n"});
+
+CustomDestination dest;
+yaml.stringify(dest);
+std::cout << dest.output; // [DICT]
+```
+
+For custom parsers, assign an `IParser*` to `options.parser` and the library will use it instead of the built-in parser.
+
 ---
 
 ## Parsing YAML
@@ -514,6 +556,7 @@ All programs are in `examples/source/`. Build them with the main CMake build.
 | `YAML_Parse_File.cpp` | Batch parse with timing measurements |
 | `YAML_Create_At_Runtime.cpp` | Build YAML in code; initializer lists |
 | `YAML_Nested_Structure_Demo.cpp` | Deep nesting, traversal |
+| `YAML_Custom_IO.cpp` | Custom parser/stringifier integration |
 | `YAML_Files_To_JSON.cpp` | Reformat YAML as JSON |
 | `YAML_Files_To_XML.cpp` | Reformat YAML as XML |
 | `YAML_Files_To_Bencode.cpp` | Reformat YAML as Bencode |
