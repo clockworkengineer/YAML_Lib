@@ -84,6 +84,12 @@ cmake --build build
 
 See `docs/public_api.md` for the installed public header set.
 
+### Dependency footprint
+
+`YAML_Lib` does not depend on third-party runtime libraries beyond the C++ standard library. Optional dependencies are used only for tests and examples, and can be disabled with CMake build options.
+
+See `docs/dependencies.md` for full dependency and license details.
+
 ### Platform compatibility
 
 YAML_Lib supports portable builds on Linux, macOS, and Windows.

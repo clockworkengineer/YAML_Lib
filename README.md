@@ -67,6 +67,17 @@ CMake options supported by YAML_Lib:
 - `YAML_LIB_FILE_IO=ON` — enable file I/O support for `FileSource`, `FileDestination`, `YAML::fromFile()`, `YAML::toFile()`, and `YAML::getFileFormat()`.
 - `YAML_LIB_SAX_API=ON` — enable SAX-style event parsing via `IYAMLEvents` and `YAML::traverseEvents()`.
 - `BUILD_YAML_PARSER_FUZZ_TESTS=ON` — build the parser fuzz harness target `YAML_Lib_Fuzz_Tests`.
+- `BUILD_YAML_EXAMPLES=ON` — build the sample example applications.
+- `BUILD_YAML_TESTS=ON` — build the unit tests using Catch2.
+
+### Dependency footprint
+
+`YAML_Lib` has no external runtime dependencies beyond the C++ standard library. Optional dependencies are:
+
+- Catch2 (BSL-1.0) for tests
+- PLOG (MIT) for example logging
+
+See `docs/dependencies.md` for a complete dependency list and license summary.
 
 ### Security best practices
 

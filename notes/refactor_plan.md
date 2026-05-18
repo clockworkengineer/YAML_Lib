@@ -57,6 +57,7 @@ This plan outlines concrete steps to refactor YAML_Lib to fully embody the 10 at
 - Keep dependencies optional and minimal (e.g., PLOG for logging, Catch2 for tests).
 - Document all dependencies and their licenses.
 - Provide a header-only build option if feasible.
+- Completed a dependency audit, added documentation, and documented optional build dependencies.
 
 ---
 
