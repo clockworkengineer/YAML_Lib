@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory_resource>
+
 namespace YAML_Lib {
 
 // Forward declarations for container types (stored via unique_ptr in NodeVariant)
@@ -47,7 +49,7 @@ struct Node {
   [[nodiscard]] const NodeVariant &getVariant() const { return yNodeVariant; }
   // Tag access (was on Variant base class; now lives here)
   [[nodiscard]] std::string_view getTag() const { return yamlTag; }
-  void setTag(const std::string_view &tag) { yamlTag = std::string(tag); }
+  void setTag(const std::string_view &tag) { yamlTag = tag; }
   // String conversion helpers (bodies defined in YAML_Node_Reference.hpp)
   [[nodiscard]] std::string toString() const;
   [[nodiscard]] std::string toKey() const;
@@ -65,6 +67,6 @@ struct Node {
 
 private:
   NodeVariant yNodeVariant;
-  std::string yamlTag;
+  std::pmr::string yamlTag;
 };
 } // namespace YAML_Lib

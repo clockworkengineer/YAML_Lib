@@ -101,9 +101,10 @@ private:
         // Emit tag (if any) before the block scalar marker
         const auto tag = tagToEmitForm(yNode.getTag());
         if (!tag.empty()) {
-          destination.add(tag + " ");
+          destination.add(tag);
+          destination.add(' ');
         }
-        destination.add(std::string(1, quote));
+        destination.add(quote);
         destination.add(kLineFeed);
       }
     }
@@ -121,7 +122,8 @@ private:
       if (!isBlockString) {
         const auto tag = tagToEmitForm(yNode.getTag());
         if (!tag.empty()) {
-          destination.add(tag + " ");
+          destination.add(tag);
+          destination.add(' ');
         }
       }
     }
@@ -155,18 +157,20 @@ private:
   }
   void stringifyString(const Node &yNode, IDestination &destination,
                               const unsigned long indent) const {
-    if (const char quote = NRef<String>(yNode).getQuote();
-        quote == kApostrophe || quote == kDoubleQuote) {
-      std::string yamlString{NRef<String>(yNode).toString()};
+    const auto value = NRef<String>(yNode).value();
+    const char quote = NRef<String>(yNode).getQuote();
+    if (quote == kApostrophe || quote == kDoubleQuote) {
+      std::string yamlString{value};
       if (quote == kDoubleQuote) {
         yamlString = yamlTranslator_->to(yamlString);
       } else {
         yamlString = escapeSingleQuoted(yamlString);
       }
-      destination.add(quote + yamlString + quote);
+      destination.add(quote);
+      destination.add(yamlString);
+      destination.add(quote);
     } else {
-      const std::string strValue = NRef<String>(yNode).toString();
-      for (const auto &line : splitString(strValue, kLineFeed)) {
+      for (const auto &line : splitString(value, kLineFeed)) {
         destination.add(calculateIndent(destination, indent));
         destination.add(line);
       }
@@ -174,8 +178,9 @@ private:
   }
   void stringifyComment(const Node &yNode, IDestination &destination,
                                [[maybe_unused]] const unsigned long indent) const {
-    destination.add("#" + std::string(NRef<Comment>(yNode).value()) +
-                    kLineFeed);
+    destination.add('#');
+    destination.add(NRef<Comment>(yNode).value());
+    destination.add(kLineFeed);
   }
   void stringifyBoolean(const Node &yNode, IDestination &destination,
                                [[maybe_unused]] const unsigned long indent) const {
@@ -199,13 +204,15 @@ private:
       destination.add(calculateIndent(destination, indent));
       if (const char quote = entryNode.getKeyQuote();
           quote == kApostrophe || quote == kDoubleQuote) {
-        std::string keyString{std::string(entryNode.getKey())};
+        std::string keyString{entryNode.getKey()};
         if (quote == kApostrophe) {
           keyString = escapeSingleQuoted(keyString);
         }
-        destination.add(quote + keyString + quote);
+        destination.add(quote);
+        destination.add(keyString);
+        destination.add(quote);
       } else {
-        destination.add(std::string(entryNode.getKey()));
+        destination.add(entryNode.getKey());
       }
       destination.add(": ");
       stringifyAnyBlockStyle(destination, entryNode.getNode());

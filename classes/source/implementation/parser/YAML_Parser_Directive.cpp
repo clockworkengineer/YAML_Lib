@@ -75,10 +75,11 @@ Node Default_Parser::mergeOverrides(Node &overrideRoot) {
 /// <returns>Reference to the stored unparsed alias value.</returns>
 const std::string &Default_Parser::resolveAlias(const std::string &name,
                                                 ISource &source) {
-  if (!ctx_.yamlAliasMap.count(name)) {
+  const auto aliasIt = ctx_.yamlAliasMap.find(name);
+  if (aliasIt == ctx_.yamlAliasMap.end()) {
     YAML_THROW_POS(source, "Undefined alias '" + name + "'.");
   }
-  return ctx_.yamlAliasMap[name];
+  return aliasIt->second;
 }
 
 /// <summary>/// Parse a comment on source stream.
@@ -246,9 +247,9 @@ Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
   ctx_.activeAliasExpansions.insert(name);
   auto &activeExps = ctx_.activeAliasExpansions;
   struct AliasGuard {
-    std::set<std::string> &set_;
+    ParseContext::AliasSet &set_;
     const std::string &name_;
-    AliasGuard(std::set<std::string> &s, const std::string &n) : set_(s), name_(n) {}
+    AliasGuard(ParseContext::AliasSet &s, const std::string &n) : set_(s), name_(n) {}
     ~AliasGuard() { set_.erase(name_); }
   } aliasGuard{activeExps, name};
   return parseFromBuffer(unparsed, delimiters, indentation);

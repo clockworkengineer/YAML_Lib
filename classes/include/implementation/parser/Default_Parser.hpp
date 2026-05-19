@@ -14,15 +14,21 @@ namespace YAML_Lib {
 // concurrent parses do not corrupt each other's state.
 // -----------------------------------------------------------------------
 struct ParseContext {
-  std::unordered_map<std::string, std::string> yamlAliasMap;
-  std::set<std::string>                        activeAliasExpansions;
+  using AliasMap = std::pmr::unordered_map<std::string, std::string,
+                                          std::hash<std::string_view>,
+                                          std::equal_to<>>;
+  using AliasSet = std::pmr::set<std::string>;
+  using TagPrefixMap = std::pmr::map<std::string, std::string>;
+
+  AliasMap yamlAliasMap;
+  AliasSet activeAliasExpansions;
   long          arrayIndentLevel{0};
   long          inlineArrayDepth{0};
   long          inlineDictionaryDepth{0};
   unsigned long blockFlowValueIndent{0};
   int           yamlDirectiveMinor{2};
   bool          yamlDirectiveSeen{false};
-  std::map<std::string, std::string> yamlTagPrefixes;
+  TagPrefixMap yamlTagPrefixes;
 };
 
 class Default_Parser final : public IParser {

@@ -26,6 +26,33 @@ struct PrefixStringify : IStringify {
   }
 };
 
+struct CountingResource : std::pmr::memory_resource {
+  std::pmr::memory_resource *const upstream;
+  std::size_t allocations{0};
+  std::size_t bytes{0};
+
+  explicit CountingResource(std::pmr::memory_resource *upstreamResource =
+                                std::pmr::get_default_resource())
+      : upstream(upstreamResource) {}
+
+private:
+  void *do_allocate(std::size_t bytesRequested,
+                     std::size_t alignment) override {
+    ++allocations;
+    bytes += bytesRequested;
+    return upstream->allocate(bytesRequested, alignment);
+  }
+
+  void do_deallocate(void *p, std::size_t bytesRequested,
+                     std::size_t alignment) override {
+    upstream->deallocate(p, bytesRequested, alignment);
+  }
+
+  bool do_is_equal(const std::pmr::memory_resource &other) const noexcept override {
+    return this == &other;
+  }
+};
+
 struct ConstantParser : IParser {
   std::vector<Node> parse(ISource &source) override {
     (void)source;
@@ -66,6 +93,19 @@ TEST_CASE("YAML::Options supports strict boolean parsing and memory resources", 
 
   REQUIRE(isA<String>(yaml.document(0)["value"]));
   REQUIRE(NRef<String>(yaml.document(0)["value"]).value() == "yes");
+}
+
+TEST_CASE("YAML parse uses configured PMR allocations", "[YAML][Performance][PMR]") {
+  CountingResource countResource;
+  Options options;
+  options.memory_resource = &countResource;
+
+  YAML yaml(options);
+  yaml.parse(BufferSource{"---\nvalue: test\n"});
+
+  REQUIRE(countResource.allocations > 0);
+  REQUIRE(isA<String>(yaml.document(0)["value"]));
+  REQUIRE(NRef<String>(yaml.document(0)["value"]).value() == "test");
 }
 
 TEST_CASE("YAML::Options supports custom parser and stringifier implementations", "[YAML][Options][Customize]") {

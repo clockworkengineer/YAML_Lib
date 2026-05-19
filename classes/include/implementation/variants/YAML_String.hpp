@@ -17,14 +17,14 @@ struct String {
   // does not allow mutation of the underlying data.
   [[nodiscard]] std::string_view value() const { return yNodeString; }
   // Return string representation of value
-  [[nodiscard]] std::string toString() const { return yNodeString; }
+  [[nodiscard]] std::string toString() const { return std::string(yNodeString); }
   // Convert variant to a key
-  [[nodiscard]] std::string toKey() const { return yNodeString; }
+  [[nodiscard]] std::string toKey() const { return std::string(yNodeString); }
   // Return string type/quote of value
   [[nodiscard]] char getQuote() const { return quote; }
 
 private:
-  std::string yNodeString;
+  std::pmr::string yNodeString;
   char quote{};
 };
 } // namespace YAML_Lib

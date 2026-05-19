@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory_resource>
 #ifdef YAML_LIB_TIMESTAMP_PARSE
 #include <ctime>
 #endif
@@ -30,9 +31,9 @@ struct Timestamp {
   // Return reference to raw timestamp string
   [[nodiscard]] std::string_view value() const { return rawValue; }
   // Return string representation
-  [[nodiscard]] std::string toString() const { return rawValue; }
+  [[nodiscard]] std::string toString() const { return std::string(rawValue); }
   // Convert variant to a key
-  [[nodiscard]] std::string toKey() const { return rawValue; }
+  [[nodiscard]] std::string toKey() const { return std::string(rawValue); }
 
 #ifdef YAML_LIB_TIMESTAMP_PARSE
   // -----------------------------------------------------------------------
@@ -77,6 +78,6 @@ private:
     return val;
   }
 #endif
-  std::string rawValue;
+  std::pmr::string rawValue;
 };
 } // namespace YAML_Lib

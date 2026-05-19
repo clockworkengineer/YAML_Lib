@@ -49,17 +49,17 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
   ctx_.inlineArrayDepth = 0;
   ctx_.inlineDictionaryDepth = 0;
   ctx_.blockFlowValueIndent = 0;
-  ctx_.yamlAliasMap.clear();
+  ctx_.yamlAliasMap = decltype(ctx_.yamlAliasMap){};
   ctx_.yamlAliasMap.reserve(16);
-  ctx_.yamlTagPrefixes.clear();
-  ctx_.activeAliasExpansions.clear();
+  ctx_.yamlTagPrefixes = decltype(ctx_.yamlTagPrefixes){};
+  ctx_.activeAliasExpansions = decltype(ctx_.activeAliasExpansions){};
   ctx_.yamlDirectiveMinor = 2;
   ctx_.yamlDirectiveSeen = false;
   const auto resetDocumentState = [&]() {
-    ctx_.yamlAliasMap.clear();
+    ctx_.yamlAliasMap = decltype(ctx_.yamlAliasMap){};
     ctx_.yamlAliasMap.reserve(16);
-    ctx_.activeAliasExpansions.clear();
-    ctx_.yamlTagPrefixes.clear();
+    ctx_.activeAliasExpansions = decltype(ctx_.activeAliasExpansions){};
+    ctx_.yamlTagPrefixes = decltype(ctx_.yamlTagPrefixes){};
     ctx_.yamlDirectiveMinor = 2;
     ctx_.yamlDirectiveSeen = false;
   };
