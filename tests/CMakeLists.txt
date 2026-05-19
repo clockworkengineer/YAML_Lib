@@ -75,6 +75,7 @@ set(TEST_SOURCES
   source/misc/YAML_Lib_Tests_Schema.cpp
   source/misc/YAML_Lib_Tests_Options.cpp
   source/misc/YAML_Lib_Tests_Phase3.cpp
+  source/misc/YAML_Lib_Tests_HighTestability.cpp
   source/misc/YAML_Lib_Tests_SAX.cpp)
 
 add_executable(${TEST_EXECUTABLE} ${TEST_SOURCES})
@@ -101,6 +102,7 @@ target_compile_definitions(${TEST_EXECUTABLE} PRIVATE
 )
 
 add_test(NAME ${TEST_EXECUTABLE} COMMAND ${TEST_EXECUTABLE})
+set_tests_properties(${TEST_EXECUTABLE} PROPERTIES LABELS "unit;testability;api")
 
 if(BUILD_YAML_PARSER_FUZZ_TESTS)
   set(FUZZ_TEST_EXECUTABLE ${YAML_LIBRARY_NAME}_Fuzz_Tests)
@@ -124,6 +126,7 @@ if(BUILD_YAML_PARSER_FUZZ_TESTS)
   target_link_libraries(${FUZZ_TEST_EXECUTABLE} ${YAML_LIBRARY_NAME} Catch2::Catch2WithMain)
   target_precompile_headers(${FUZZ_TEST_EXECUTABLE} REUSE_FROM YAML_Lib)
   add_test(NAME ${FUZZ_TEST_EXECUTABLE} COMMAND ${FUZZ_TEST_EXECUTABLE})
+  set_tests_properties(${FUZZ_TEST_EXECUTABLE} PROPERTIES LABELS "fuzz;security")
 endif()
 
 add_custom_command(

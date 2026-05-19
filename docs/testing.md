@@ -64,6 +64,37 @@ YAML_Lib was designed for testability. You can implement `ISource`, `IDestinatio
 
 A concrete test example is available in `tests/source/misc/YAML_Lib_Tests_Testability.cpp`.
 
+## Attribute 8 — High Testability
+
+This library tracks testability through focused, attribute-driven test coverage.
+
+- Use consistent Catch2 tags to group related cases: `[YAML][Options][Validation]`, `[YAML][Testability]`, `[YAML][API][Integration]`, `[YAML][Security]`.
+- Add new tests under `tests/source/misc/` or domain-specific folders when covering API quality, runtime options, or custom adapters.
+- The `YAML_Lib_Unit_Tests` executable is now labeled for CTest as `unit`, `testability`, and `api`.
+- The fuzz harness executable is labeled `fuzz` and `security`.
+
+Run the unit test suite with CTest labels:
+
+```sh
+ctest --test-dir build -L unit --output-on-failure
+```
+
+Run security-focused fuzz/resilience tests if enabled:
+
+```sh
+ctest --test-dir build -L fuzz --output-on-failure
+```
+
+For example-based integration coverage, enable example builds and run a small example program after build:
+
+```sh
+cmake -S . -B build -DBUILD_YAML_EXAMPLES=ON
+cmake --build build
+./build/examples/YAML_Simple_Read_Write
+```
+
+This helps keep example programs as lightweight integration checks for the public API.
+
 ## Best practices
 
 - Keep tests small and focused on one behavior.
