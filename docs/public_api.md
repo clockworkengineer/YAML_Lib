@@ -61,4 +61,9 @@ These headers are part of the public include chain and are installed because the
 #include "YAML_Core.hpp"
 ```
 
+- Convenience parsing/stringification helpers are available in `YAML.hpp`:
+  - `YAML::load(...)`
+  - `YAML::loadFile(...)`
+  - `YAML::dump()`
+
 - Users should avoid including private implementation headers not listed here.

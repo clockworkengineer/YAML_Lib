@@ -20,6 +20,20 @@ YAML_Lib is built with CMake 3.18+ and targets C++20.
 - `YAML_LIB_TIMESTAMP_PARSE` — enable `Timestamp` conversion helpers.
 - `BUILD_YAML_PARSER_FUZZ_TESTS` — build the parser fuzz harness.
 
+### Safe defaults for untrusted YAML
+
+When parsing untrusted input, configure parser limits and strict boolean handling:
+
+```cpp
+YAML::Options options;
+options.maxDocuments = 1;
+options.maxParseDepth = 64;
+options.maxAliasExpansions = 64;
+options.strictBooleans = true;
+```
+
+These values help protect against document flooding, deeply nested structures, and alias-expansion attacks.
+
 ## Platform-specific implementation notes
 
 - Linux and macOS builds share the POSIX UTF converter implementation located under `classes/source/implementation/converter/linux/`.

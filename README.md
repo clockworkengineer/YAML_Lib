@@ -367,6 +367,8 @@ All examples are in `examples/source/`:
 
 - [API Reference](docs/api.md)
 - [User Guide](docs/guide.md)
+- [Public API](docs/public_api.md)
+- [Attribute-driven refactor notes](docs/attribute-driven-refactor.md)
 - [Feature Plan](docs/PARSER_FEATURES_AND_PLAN.md)
 - [YAML 1.2.2 Specification](https://yaml.org/spec/1.2.2/)
 

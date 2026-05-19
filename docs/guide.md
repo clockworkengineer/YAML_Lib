@@ -139,6 +139,20 @@ options.strictBooleans = true;
 
 If you build with `YAML_LIB_NO_EXCEPTIONS=ON`, register a custom error handler via `YAML_Lib::setErrorHandler(...)` so parse failures do not abort the process unexpectedly.
 
+```cpp
+YAML_Lib::setErrorHandler([](std::string_view message, unsigned long line, unsigned long column) {
+  std::cerr << "YAML parse failure at " << line << ":" << column << ": " << message << '\n';
+  // Recover or shut down gracefully.
+});
+
+YAML yaml;
+try {
+  yaml.parse(BufferSource{"---\ninvalid: ["});
+} catch (const std::exception &ex) {
+  std::cerr << "Exception: " << ex.what() << '\n';
+}
+```
+
 ### Custom I/O and stringification
 
 YAML_Lib is designed for extensibility through public abstractions:
@@ -180,6 +194,23 @@ std::cout << dest.output; // [DICT]
 ```
 
 For custom parsers, assign an `IParser*` to `options.parser` and the library will use it instead of the built-in parser.
+
+```cpp
+struct CustomParser : IParser {
+  std::vector<Node> parse(ISource &source) override {
+    // Example: minimal parser wrapper that reads all input and returns a single empty document.
+    while (source.more()) {
+      source.next();
+    }
+    return {Node(Dictionary{})};
+  }
+};
+
+YAML::Options options;
+options.parser = new CustomParser();
+YAML yaml(options);
+// Remember: the custom parser object must outlive the YAML instance.
+```
 
 ---
 
