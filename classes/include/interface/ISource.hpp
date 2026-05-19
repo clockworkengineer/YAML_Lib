@@ -9,6 +9,9 @@ namespace YAML_Lib {
  * @brief Interface for reading source stream during YAML parsing.
  *
  * Implement this interface to provide custom input sources for the parser.
+ *
+ * @note The source object must outlive any call to YAML::parse() that uses it.
+ *       YAML_Lib does not take ownership of the source.
  */
 class ISource {
 public:

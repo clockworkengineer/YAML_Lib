@@ -64,14 +64,7 @@ set(YAML_SOURCES
 set(YAML_PUBLIC_HEADERS
   classes/include/YAML.hpp
   classes/include/YAML_Core.hpp
-  classes/include/interface/IAction.hpp
-  classes/include/interface/ISource.hpp
-  classes/include/interface/IDestination.hpp
-  classes/include/interface/IParser.hpp
-  classes/include/interface/IStringify.hpp
-  classes/include/interface/ITranslator.hpp
   classes/include/interface/YAML_Interfaces.hpp
-  classes/include/implementation/common/YAML_Error.hpp
   classes/include/implementation/io/YAML_Sources.hpp
   classes/include/implementation/io/YAML_Destinations.hpp
   classes/include/implementation/stringify/Default_Stringify.hpp
@@ -82,19 +75,6 @@ set(YAML_PUBLIC_HEADERS
   classes/include/implementation/converter/YAML_Converter.hpp
   classes/include/implementation/translator/XML_Translator.hpp
   classes/include/implementation/translator/Default_Translator.hpp
-  classes/include/implementation/variants/YAML_Hole.hpp
-  classes/include/implementation/variants/YAML_Array.hpp
-  classes/include/implementation/variants/YAML_Boolean.hpp
-  classes/include/implementation/variants/YAML_Comment.hpp
-  classes/include/implementation/variants/YAML_Document.hpp
-  classes/include/implementation/variants/YAML_Null.hpp
-  classes/include/implementation/variants/YAML_Number.hpp
-  classes/include/implementation/variants/YAML_Dictionary.hpp
-  classes/include/implementation/variants/YAML_String.hpp
-  classes/include/implementation/node/YAML_Node.hpp
-  classes/include/implementation/node/YAML_Node_Creation.hpp
-  classes/include/implementation/node/YAML_Node_Index.hpp
-  classes/include/implementation/node/YAML_Node_Reference.hpp
   ${CMAKE_CURRENT_BINARY_DIR}/YAML_Config.hpp
 )
 
@@ -102,19 +82,18 @@ add_library(${YAML_LIBRARY_NAME} STATIC ${YAML_SOURCES})
 target_include_directories(${YAML_LIBRARY_NAME}
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/classes/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include>
+  PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/classes/include/implementation>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/classes/include/interface>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/classes/include/implementation/common>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/classes/include/implementation/converter>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/classes/include/implementation/io>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/classes/include/implementation/parser>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/classes/include/implementation/variants>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/classes/include/implementation/node>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/classes/include/implementation/stringify>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/classes/include/implementation/translator>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/classes/include/implementation>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/classes/include/implementation/variants>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/classes/include/implementation/node>
 )
 
 target_precompile_headers(${YAML_LIBRARY_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/stdafx.h)
@@ -153,6 +132,7 @@ install(TARGETS ${YAML_LIBRARY_NAME}
   RUNTIME DESTINATION bin
 )
 install(FILES ${YAML_PUBLIC_HEADERS} DESTINATION include)
+install(DIRECTORY classes/include/implementation DESTINATION include/implementation FILES_MATCHING PATTERN "*.hpp")
 install(EXPORT YAML_LibTargets
   FILE YAML_LibTargets.cmake
   NAMESPACE YAML_Lib::

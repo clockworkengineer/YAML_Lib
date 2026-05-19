@@ -40,11 +40,14 @@ class IYAMLEvents;  ///< Interface for SAX event handlers
  * Allows users to customize parser, stringifier, memory resource, and limits.
  *
  * @var IStringify* Options::stringifier
- *   Custom stringifier (default: built-in)
+ *   Custom stringifier (default: built-in). The stringifier object must outlive
+ *   any YAML instance constructed with it.
  * @var IParser* Options::parser
- *   Custom parser (default: built-in)
+ *   Custom parser (default: built-in). The parser object must outlive any YAML
+ *   instance constructed with it.
  * @var std::pmr::memory_resource* Options::memory_resource
- *   Polymorphic memory resource for allocations
+ *   Polymorphic memory resource for allocations. The memory resource must outlive
+ *   the YAML object that uses it.
  * @var bool Options::strict_booleans
  *   Enable strict YAML 1.2 boolean parsing (only 'true'/'false' valid)
  * @var unsigned long Options::max_documents
@@ -94,6 +97,7 @@ constexpr auto kEndDocument{"..."};
  * and stringify back to YAML or other formats. Supports multiple documents per stream.
  */
 class YAML {
+public:
   /**
    * @brief Parse YAML from a string and return a YAML object.
    * @param yaml_string YAML text to parse
@@ -115,6 +119,33 @@ class YAML {
    * @return YAML string
    */
   std::string toString() const;
+
+  /**
+   * @brief Parse YAML from a string and return a YAML object.
+   * @param yaml_string YAML text to parse
+   * @return YAML object
+   */
+  static std::unique_ptr<YAML> load(const std::string_view &yaml_string) {
+    return fromString(yaml_string);
+  }
+
+#ifdef YAML_LIB_FILE_IO
+  /**
+   * @brief Parse YAML from a file and return a YAML object.
+   * @param file_name Path to YAML file
+   * @return YAML object
+   */
+  static std::unique_ptr<YAML> loadFile(const std::string_view &file_name) {
+    return fromFileToYAML(file_name);
+  }
+#endif
+
+  /**
+   * @brief Stringify the node tree to a string (YAML format).
+   * @return YAML string
+   */
+  std::string dump() const { return toString(); }
+
 public:
   /**
    * @brief Variant types allowed in YAML initializer lists.

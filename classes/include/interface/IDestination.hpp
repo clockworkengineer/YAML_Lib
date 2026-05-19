@@ -9,6 +9,9 @@ namespace YAML_Lib {
  * @brief Interface for writing destination stream during YAML stringification.
  *
  * Implement this interface to provide custom output destinations for the stringifier.
+ *
+ * @note The destination object must outlive any call to YAML::stringify() that
+ *       uses it. YAML_Lib does not take ownership of the destination.
  */
 class IDestination {
 public:
