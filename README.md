@@ -36,6 +36,10 @@ YAML_Lib is a lightweight, header-friendly C++20 library for parsing, manipulati
 
 Linux and macOS share the same POSIX-compatible converter implementation, while Windows uses a dedicated Windows converter path.
 
+This project is built with strict warnings on supported platforms:
+- Linux/macOS: `-Wall -Werror -pedantic`
+- Windows/MSVC: `/W4`
+
 ### Build
 
 ```sh

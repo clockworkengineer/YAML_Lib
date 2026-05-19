@@ -76,6 +76,7 @@ set(TEST_SOURCES
   source/misc/YAML_Lib_Tests_Options.cpp
   source/misc/YAML_Lib_Tests_Phase3.cpp
   source/misc/YAML_Lib_Tests_HighTestability.cpp
+  source/misc/YAML_Lib_Tests_HeaderCompile.cpp
   source/misc/YAML_Lib_Tests_SAX.cpp)
 
 add_executable(${TEST_EXECUTABLE} ${TEST_SOURCES})
@@ -103,6 +104,28 @@ target_compile_definitions(${TEST_EXECUTABLE} PRIVATE
 
 add_test(NAME ${TEST_EXECUTABLE} COMMAND ${TEST_EXECUTABLE})
 set_tests_properties(${TEST_EXECUTABLE} PROPERTIES LABELS "unit;testability;api")
+
+set(HEADER_COMPILE_TEST_EXECUTABLE ${YAML_LIBRARY_NAME}_Header_Compile_Tests)
+add_executable(${HEADER_COMPILE_TEST_EXECUTABLE} source/misc/YAML_Lib_Tests_HeaderCompile.cpp)
+target_include_directories(${HEADER_COMPILE_TEST_EXECUTABLE} PRIVATE
+  ${CMAKE_SOURCE_DIR}/classes/include
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation
+  ${CMAKE_SOURCE_DIR}/classes/include/interface
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/common
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/converter
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/io
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/parser
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/variants
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/node
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/stringify
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation/translator
+  ${CMAKE_SOURCE_DIR}/classes/include/implementation
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/tests/include
+)
+target_precompile_headers(${HEADER_COMPILE_TEST_EXECUTABLE} REUSE_FROM YAML_Lib)
+add_test(NAME ${HEADER_COMPILE_TEST_EXECUTABLE} COMMAND ${HEADER_COMPILE_TEST_EXECUTABLE})
+set_tests_properties(${HEADER_COMPILE_TEST_EXECUTABLE} PROPERTIES LABELS "unit;portability")
 
 if(BUILD_YAML_PARSER_FUZZ_TESTS)
   set(FUZZ_TEST_EXECUTABLE ${YAML_LIBRARY_NAME}_Fuzz_Tests)

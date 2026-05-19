@@ -34,7 +34,16 @@ These values help protect against document flooding, deeply nested structures, a
 
 - Linux and macOS builds share the POSIX UTF converter implementation located under `classes/source/implementation/converter/linux/`.
 - Windows builds use the Windows-specific converter implementation under `classes/source/implementation/converter/windows/`.
+- `YAML.hpp` and `YAML_Core.hpp` are the stable public headers for portable integration; platform-specific internals remain isolated behind implementation directories.
 - `YAML_LIB_FILE_IO=OFF` is useful for embedded or bare-metal environments where filesystem APIs are unavailable.
+
+## Public header validation
+
+A regression target compiles the stable public header set under strict flags to ensure portability and cleaner public API surface.
+
+```sh
+ctest --test-dir build -R "YAML_Lib_Header_Compile_Tests" --output-on-failure
+```
 
 ## Cross-platform build examples
 
