@@ -71,6 +71,13 @@ A concrete test example is available in `tests/source/misc/YAML_Lib_Tests_Testab
 - Avoid depending on external files unless testing file I/O explicitly.
 - Use fake sources/destinations for parser or stringifier contract testing.
 
+## Code style and maintainability
+
+- Keep public API headers lean and stable; internal implementation headers should remain hidden unless explicitly exposed by `YAML_Core.hpp`, `YAML.hpp`, or the public interface.
+- Prefer one responsibility per source file, especially in parser and stringify implementation modules.
+- Document all public interfaces with clear lifetime and ownership semantics for callers.
+- Use consistent doxygen-style comments for stable public contracts, and keep implementation details in `classes/source/implementation`.
+
 ## Running a single test case
 
 Use CTest with a regex filter:

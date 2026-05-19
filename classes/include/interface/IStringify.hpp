@@ -15,6 +15,9 @@ struct Node;
  * @brief Interface for YAML stringifier implementations.
  *
  * Implement this interface to provide custom YAML stringification logic.
+ *
+ * @note The destination object must outlive the call to `stringify()`.
+ * @note Implementations should use indentation consistently for nested data.
  */
 class IStringify {
 public:

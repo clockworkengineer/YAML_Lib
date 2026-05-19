@@ -12,6 +12,8 @@ namespace YAML_Lib {
  *
  * @note The destination object must outlive any call to YAML::stringify() that
  *       uses it. YAML_Lib does not take ownership of the destination.
+ * @note Custom destinations should preserve the order of added bytes and may
+ *       optimize `reserve()` for buffer-backed outputs.
  */
 class IDestination {
 public:

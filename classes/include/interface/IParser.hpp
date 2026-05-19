@@ -16,6 +16,9 @@ struct Node;
  * @brief Interface for YAML parser implementations.
  *
  * Implement this interface to provide custom YAML parsing logic.
+ *
+ * @note The source object must outlive the call to `parse()`.
+ * @note Implementations should return documents in the same order they appear in the input.
  */
 class IParser {
 public:

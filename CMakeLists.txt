@@ -65,16 +65,6 @@ set(YAML_PUBLIC_HEADERS
   classes/include/YAML.hpp
   classes/include/YAML_Core.hpp
   classes/include/interface/YAML_Interfaces.hpp
-  classes/include/implementation/io/YAML_Sources.hpp
-  classes/include/implementation/io/YAML_Destinations.hpp
-  classes/include/implementation/stringify/Default_Stringify.hpp
-  classes/include/implementation/stringify/Bencode_Stringify.hpp
-  classes/include/implementation/stringify/JSON_Stringify.hpp
-  classes/include/implementation/stringify/XML_Stringify.hpp
-  classes/include/implementation/parser/Default_Parser.hpp
-  classes/include/implementation/converter/YAML_Converter.hpp
-  classes/include/implementation/translator/XML_Translator.hpp
-  classes/include/implementation/translator/Default_Translator.hpp
   ${CMAKE_CURRENT_BINARY_DIR}/YAML_Config.hpp
 )
 
@@ -132,7 +122,62 @@ install(TARGETS ${YAML_LIBRARY_NAME}
   RUNTIME DESTINATION bin
 )
 install(FILES ${YAML_PUBLIC_HEADERS} DESTINATION include)
-install(DIRECTORY classes/include/implementation DESTINATION include/implementation FILES_MATCHING PATTERN "*.hpp")
+install(DIRECTORY classes/include/implementation/common
+  DESTINATION include/implementation/common
+  FILES_MATCHING PATTERN "YAML_Error.hpp"
+  PATTERN "YAML_Arena.hpp"
+  PATTERN "YAML_Schema.hpp"
+  PATTERN "YAML_SAX.hpp"
+)
+install(DIRECTORY classes/include/implementation/variants
+  DESTINATION include/implementation/variants
+  FILES_MATCHING PATTERN "YAML_Boolean.hpp"
+  PATTERN "YAML_Comment.hpp"
+  PATTERN "YAML_Hole.hpp"
+  PATTERN "YAML_Null.hpp"
+  PATTERN "YAML_Number.hpp"
+  PATTERN "YAML_String.hpp"
+  PATTERN "YAML_Timestamp.hpp"
+  PATTERN "YAML_Sequence.hpp"
+  PATTERN "YAML_Array.hpp"
+  PATTERN "YAML_Dictionary.hpp"
+  PATTERN "YAML_Document.hpp"
+  PATTERN "YAML_StaticSequence.hpp"
+  PATTERN "YAML_StaticArray.hpp"
+  PATTERN "YAML_StaticDictionary.hpp"
+)
+install(DIRECTORY classes/include/implementation/node
+  DESTINATION include/implementation/node
+  FILES_MATCHING PATTERN "YAML_Node.hpp"
+  PATTERN "YAML_Node_Reference.hpp"
+  PATTERN "YAML_Node_Creation.hpp"
+  PATTERN "YAML_Node_Index.hpp"
+)
+install(DIRECTORY classes/include/implementation/io
+  DESTINATION include/implementation/io
+  FILES_MATCHING PATTERN "YAML_Sources.hpp"
+  PATTERN "YAML_Destinations.hpp"
+)
+install(DIRECTORY classes/include/implementation/converter
+  DESTINATION include/implementation/converter
+  FILES_MATCHING PATTERN "YAML_Converter.hpp"
+)
+install(DIRECTORY classes/include/implementation/parser
+  DESTINATION include/implementation/parser
+  FILES_MATCHING PATTERN "Default_Parser.hpp"
+)
+install(DIRECTORY classes/include/implementation/stringify
+  DESTINATION include/implementation/stringify
+  FILES_MATCHING PATTERN "Default_Stringify.hpp"
+  PATTERN "Bencode_Stringify.hpp"
+  PATTERN "JSON_Stringify.hpp"
+  PATTERN "XML_Stringify.hpp"
+)
+install(DIRECTORY classes/include/implementation/translator
+  DESTINATION include/implementation/translator
+  FILES_MATCHING PATTERN "Default_Translator.hpp"
+  PATTERN "XML_Translator.hpp"
+)
 install(EXPORT YAML_LibTargets
   FILE YAML_LibTargets.cmake
   NAMESPACE YAML_Lib::

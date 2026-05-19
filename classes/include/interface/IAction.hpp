@@ -15,6 +15,10 @@ struct Node;
  * @brief Interface for action events during YAML tree traversal.
  *
  * Implement this interface to visit every node and type during tree traversal.
+ *
+ * @note Action implementations should be reentrant and may be invoked for each
+ *       node in the current YAML tree. Mutable actions should apply changes
+ *       carefully because traversal may continue after modification.
  */
 class IAction {
 public:

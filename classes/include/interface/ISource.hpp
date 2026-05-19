@@ -12,6 +12,8 @@ namespace YAML_Lib {
  *
  * @note The source object must outlive any call to YAML::parse() that uses it.
  *       YAML_Lib does not take ownership of the source.
+ * @note Custom sources should preserve the current position semantics defined
+ *       by the interface and support save/restore for parser lookahead.
  */
 class ISource {
 public:

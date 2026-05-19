@@ -5,6 +5,12 @@ namespace YAML_Lib {
 // ====================================================
 // Interface for translation to/from escaped characters
 // ====================================================
+/**
+ * @brief Interface for character translation used by stringifiers.
+ *
+ * Implementations convert between escaped YAML forms and raw UTF-8 strings.
+ * @note Translator implementations must be thread-safe if shared across YAML objects.
+ */
 class ITranslator {
 public:
   // =================
