@@ -25,13 +25,13 @@ option(BUILD_YAML_PARSER_FUZZ_TESTS "Build parser fuzz harness tests" ON)
 option(YAML_LIB_NO_EXCEPTIONS "Disable C++ exceptions; use error panic handler" OFF)
 
 # E6: disable file I/O (fstream) for bare-metal / no-filesystem targets
-option(YAML_LIB_FILE_IO "Include file I/O support (fromFile/toFile/getFileFormat)" ON)
+option(YAML_LIB_FILE_IO "Include file I/O support (fromFile/toFile/getFileFormat)" OFF)
 
 # E8: ISO 8601 Timestamp → time_t / struct tm conversion accessors
-option(YAML_LIB_TIMESTAMP_PARSE "Include ISO 8601 Timestamp to time_t/tm conversion" ON)
+option(YAML_LIB_TIMESTAMP_PARSE "Include ISO 8601 Timestamp to time_t/tm conversion" OFF)
 
 # E10: SAX-style (streaming) event-based parse API
-option(YAML_LIB_SAX_API "Include SAX-style IYAMLEvents / traverseEvents() API" ON)
+option(YAML_LIB_SAX_API "Include SAX-style IYAMLEvents / traverseEvents() API" OFF)
 
 enable_testing()
 

@@ -34,6 +34,8 @@ YAML_Lib exposes several feature toggles to keep the dependency footprint small 
 - `YAML_LIB_SAX_API` — enable streaming event parsing via `IYAMLEvents` and `YAML::traverseEvents()`.
 - `YAML_LIB_TIMESTAMP_PARSE` — enable ISO 8601 timestamp parsing helpers.
 
+These options are build-time feature flags only. Disabling them removes the corresponding functionality from the compiled library and keeps the runtime dependency footprint minimal.
+
 To build the smallest possible library footprint, disable optional features and optional targets:
 
 ```sh
@@ -41,7 +43,8 @@ cmake -S . -B build_minimal \
   -DBUILD_YAML_EXAMPLES=OFF \
   -DBUILD_YAML_TESTS=OFF \
   -DYAML_LIB_FILE_IO=OFF \
-  -DYAML_LIB_SAX_API=OFF
+  -DYAML_LIB_SAX_API=OFF \
+  -DYAML_LIB_TIMESTAMP_PARSE=OFF
 cmake --build build_minimal
 ```
 

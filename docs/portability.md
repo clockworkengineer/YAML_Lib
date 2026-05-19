@@ -20,6 +20,8 @@ YAML_Lib is built with CMake 3.18+ and targets C++20.
 - `YAML_LIB_TIMESTAMP_PARSE` — enable `Timestamp` conversion helpers.
 - `BUILD_YAML_PARSER_FUZZ_TESTS` — build the parser fuzz harness.
 
+These flags are build-time only. The library's core runtime remains dependent only on the C++ standard library when optional features are disabled.
+
 ### Safe defaults for untrusted YAML
 
 When parsing untrusted input, configure parser limits and strict boolean handling:
@@ -50,15 +52,27 @@ ctest --test-dir build -R "YAML_Lib_Header_Compile_Tests" --output-on-failure
 Linux/macOS:
 
 ```sh
-cmake -S . -B build -DYAML_LIB_FILE_IO=ON -DYAML_LIB_SAX_API=ON
+cmake -S . -B build
 cmake --build build
 ```
 
 Windows:
 
 ```sh
-cmake -S . -B build -G "Visual Studio 17 2022" -DYAML_LIB_FILE_IO=ON -DYAML_LIB_SAX_API=ON
+cmake -S . -B build -G "Visual Studio 17 2022"
 cmake --build build --config Release
+```
+
+Minimal footprint build:
+
+```sh
+cmake -S . -B build_minimal \
+  -DBUILD_YAML_EXAMPLES=OFF \
+  -DBUILD_YAML_TESTS=OFF \
+  -DYAML_LIB_FILE_IO=OFF \
+  -DYAML_LIB_SAX_API=OFF \
+  -DYAML_LIB_TIMESTAMP_PARSE=OFF
+cmake --build build_minimal
 ```
 
 ## Testing on different configurations

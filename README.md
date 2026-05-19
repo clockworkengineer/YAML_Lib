@@ -70,9 +70,12 @@ CMake options supported by YAML_Lib:
 - `YAML_LIB_NO_EXCEPTIONS=ON` — disable C++ exceptions and use the panic handler path.
 - `YAML_LIB_FILE_IO=ON` — enable file I/O support for `FileSource`, `FileDestination`, `YAML::fromFile()`, `YAML::toFile()`, and `YAML::getFileFormat()`.
 - `YAML_LIB_SAX_API=ON` — enable SAX-style event parsing via `IYAMLEvents` and `YAML::traverseEvents()`.
+- `YAML_LIB_TIMESTAMP_PARSE=ON` — enable timestamp parsing helpers for `Timestamp` nodes.
 - `BUILD_YAML_PARSER_FUZZ_TESTS=ON` — build the parser fuzz harness target `YAML_Lib_Fuzz_Tests`.
 - `BUILD_YAML_EXAMPLES=ON` — build the sample example applications.
 - `BUILD_YAML_TESTS=ON` — build the unit tests using Catch2.
+
+The runtime library itself has no external dependencies beyond the C++ standard library. Optional code paths for file I/O, SAX parsing, and timestamp conversion are all controlled by build-time feature flags and are not required for basic usage.
 
 ### Dependency footprint
 
