@@ -51,6 +51,32 @@ TEST_CASE("YAML::Options enforces maxParseDepth during parsing", "[YAML][Options
   REQUIRE_THROWS_AS(yaml.parse(src), ::YAML_Lib::IParser::Error);
 }
 
+#ifndef YAML_LIB_NO_EXCEPTIONS
+TEST_CASE("YAML::tryParse returns false for malformed YAML", "[YAML][Options][Parse][TryParse]") {
+  ::YAML_Lib::YAML yaml;
+  ::YAML_Lib::BufferSource src{"---\nfoo: [\n"};
+  std::string errorMessage;
+
+  REQUIRE_FALSE(yaml.tryParse(src, errorMessage));
+  REQUIRE(!errorMessage.empty());
+}
+
+TEST_CASE("YAML::tryStringify returns false when destination fails", "[YAML][Options][Stringify][TryStringify]") {
+  struct FailingDestination : ::YAML_Lib::IDestination {
+    void add(char) override { throw std::runtime_error("destination failed"); }
+    void clear() override {}
+    char last() override { return '\0'; }
+  } dest;
+
+  ::YAML_Lib::YAML yaml;
+  yaml["name"] = "Alice";
+  std::string errorMessage;
+
+  REQUIRE_FALSE(yaml.tryStringify(dest, errorMessage));
+  REQUIRE(errorMessage.find("destination failed") != std::string::npos);
+}
+#endif
+
 TEST_CASE("YAML root numeric operator[] grows array without exception", "[YAML][Options][Index]") {
   ::YAML_Lib::YAML yaml;
   yaml[2] = 42;

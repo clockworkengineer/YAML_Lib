@@ -28,6 +28,7 @@ YAML_Impl::YAML_Impl(IStringify *stringify, IParser *parser,
 
 YAML_Impl::YAML_Impl(const Options &options)
     : memoryResource{options.memory_resource} {
+  options.validate();
   Default_Parser::setStrictBooleans(options.strict_booleans);
 
   if (options.parser == nullptr) {

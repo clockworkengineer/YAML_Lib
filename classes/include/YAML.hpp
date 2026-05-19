@@ -65,6 +65,14 @@ struct Options {
   unsigned long max_documents{32};
   unsigned long max_parse_depth{128};
   unsigned long max_alias_expansions{64};
+
+  /**
+   * @brief Validate the configured options.
+   *
+   * Throws `std::invalid_argument` if any field is malformed or outside the
+   * accepted runtime semantics.
+   */
+  void validate() const;
 };
 
 // ========================
@@ -240,6 +248,10 @@ public:
    */
   void parse(ISource &source) const;
   void parse(ISource &&source) const;
+#ifndef YAML_LIB_NO_EXCEPTIONS
+  bool tryParse(ISource &source, std::string &errorMessage);
+  bool tryParse(ISource &&source, std::string &errorMessage);
+#endif
 
   /**
    * @brief Stringify the node tree to a destination (no whitespace formatting).
@@ -247,6 +259,10 @@ public:
    */
   void stringify(IDestination &destination) const;
   void stringify(IDestination &&destination) const;
+#ifndef YAML_LIB_NO_EXCEPTIONS
+  bool tryStringify(IDestination &destination, std::string &errorMessage) const;
+  bool tryStringify(IDestination &&destination, std::string &errorMessage) const;
+#endif
 
   /**
    * @brief Get a mutable reference to the document at the given index.

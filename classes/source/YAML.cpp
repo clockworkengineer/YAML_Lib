@@ -9,6 +9,7 @@
 //
 
 #include "YAML_Impl.hpp"
+#include <stdexcept>
 
 namespace YAML_Lib {
 
@@ -45,6 +46,22 @@ YAML::~YAML() noexcept = default;
 /// <param name="yamlString">YAML string.</param>
 YAML::YAML(const std::string_view &yamlString) : YAML() {
   parse(BufferSource{yamlString});
+}
+
+void Options::validate() const {
+  static constexpr unsigned long kMaxSafeDocuments = 1000000UL;
+  static constexpr unsigned long kMaxSafeParseDepth = 65536UL;
+  static constexpr unsigned long kMaxSafeAliasExpansions = 1000000UL;
+
+  if (max_documents > kMaxSafeDocuments) {
+    throw std::invalid_argument("YAML::Options::max_documents exceeds safe limit.");
+  }
+  if (max_parse_depth > kMaxSafeParseDepth) {
+    throw std::invalid_argument("YAML::Options::max_parse_depth exceeds safe limit.");
+  }
+  if (max_alias_expansions > kMaxSafeAliasExpansions) {
+    throw std::invalid_argument("YAML::Options::max_alias_expansions exceeds safe limit.");
+  }
 }
 /// <summary>
 /// YAML constructor (array).
@@ -87,6 +104,20 @@ unsigned long YAML::getNumberOfDocuments() const {
 /// <param name="source"></param>
 void YAML::parse(ISource &source) const { implementation->parse(source); }
 void YAML::parse(ISource &&source) const { implementation->parse(source); }
+#ifndef YAML_LIB_NO_EXCEPTIONS
+bool YAML::tryParse(ISource &source, std::string &errorMessage) {
+  try {
+    parse(source);
+    return true;
+  } catch (const std::exception &ex) {
+    errorMessage = ex.what();
+    return false;
+  }
+}
+bool YAML::tryParse(ISource &&source, std::string &errorMessage) {
+  return tryParse(source, errorMessage);
+}
+#endif
 /// <summary>
 /// Stringify Node tree to destination stream (file/buffer/network).
 /// </summary>
@@ -97,6 +128,20 @@ void YAML::stringify(IDestination &destination) const {
 void YAML::stringify(IDestination &&destination) const {
   implementation->stringify(destination);
 }
+#ifndef YAML_LIB_NO_EXCEPTIONS
+bool YAML::tryStringify(IDestination &destination, std::string &errorMessage) const {
+  try {
+    stringify(destination);
+    return true;
+  } catch (const std::exception &ex) {
+    errorMessage = ex.what();
+    return false;
+  }
+}
+bool YAML::tryStringify(IDestination &&destination, std::string &errorMessage) const {
+  return tryStringify(destination, errorMessage);
+}
+#endif
 /// <summary>
 /// Return Node of the index document within YAML tree.
 /// </summary>

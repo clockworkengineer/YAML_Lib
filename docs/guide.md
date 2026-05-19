@@ -241,6 +241,29 @@ std::string text = YAML::fromFile("config.yaml");
 yaml.parse(BufferSource{text});
 ```
 
+### Robust parse and stringify wrappers
+
+When exceptions are enabled, use `YAML::tryParse()` and `YAML::tryStringify()` to capture errors without throwing.
+
+```cpp
+std::string errorMessage;
+if (!yaml.tryParse(BufferSource{"---\nvalue: [\n"}, errorMessage)) {
+  std::cerr << "Parse failed: " << errorMessage << '\n';
+}
+
+struct CaptureDestination : IDestination {
+  std::string output;
+  void add(char ch) override { output.push_back(ch); }
+  void clear() override { output.clear(); }
+  char last() override { return output.empty() ? '\0' : output.back(); }
+};
+
+CaptureDestination dest;
+if (!yaml.tryStringify(dest, errorMessage)) {
+  std::cerr << "Stringify failed: " << errorMessage << '\n';
+}
+```
+
 ---
 
 ## Accessing nodes
