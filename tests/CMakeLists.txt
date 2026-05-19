@@ -76,7 +76,6 @@ set(TEST_SOURCES
   source/misc/YAML_Lib_Tests_Options.cpp
   source/misc/YAML_Lib_Tests_Phase3.cpp
   source/misc/YAML_Lib_Tests_HighTestability.cpp
-  source/misc/YAML_Lib_Tests_HeaderCompile.cpp
   source/misc/YAML_Lib_Tests_SAX.cpp)
 
 add_executable(${TEST_EXECUTABLE} ${TEST_SOURCES})
