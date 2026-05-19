@@ -17,6 +17,7 @@ This document lists the stable public headers that are installed and intended fo
 - `IStringify.hpp`
 - `ITranslator.hpp`
 - `YAML_Interfaces.hpp`
+- `YAML_SAX.hpp` (when built with `YAML_LIB_SAX_API=ON`)
 
 ## Public implementation headers used by the API
 
@@ -33,6 +34,7 @@ These headers are part of the public include chain and are installed because the
 - `YAML_Converter.hpp`
 - `XML_Translator.hpp`
 - `Default_Translator.hpp`
+- `YAML_SAX.hpp` (when `YAML_LIB_SAX_API` is enabled)
 
 ## Public node and variant headers
 

@@ -33,6 +33,7 @@ For more, see the [README Troubleshooting section](../README.md#troubleshooting)
 - [Error handling](#error-handling)
 - [Custom I/O — StreamSource and StreamDestination](#custom-io--streamsource-and-streamdestination)
 - [Traversal with IAction](#traversal-with-iaction)
+- [SAX Event Traversal](#sax-event-traversal)
 - [Alternative output formats](#alternative-output-formats)
 - [Examples](#examples)
 
@@ -211,6 +212,62 @@ options.parser = new CustomParser();
 YAML yaml(options);
 // Remember: the custom parser object must outlive the YAML instance.
 ```
+
+### Custom input sources
+
+You can also extend YAML_Lib with a custom `ISource` implementation if you need to parse from a non-standard stream, network buffer, or chunked input source.
+
+```cpp
+struct CustomSource : ISource {
+  explicit CustomSource(std::string text) : buffer(std::move(text)) {}
+
+  char current() const override { return buffer[pos]; }
+  void next() override {
+    if (!more()) throw ISource::Error("CustomSource: read past end");
+    if (buffer[pos] == '\n') {
+      lineNo++;
+      column = 1;
+    } else {
+      column++;
+    }
+    pos++;
+  }
+  bool more() const override { return pos < buffer.size(); }
+  void reset() override { pos = 0; lineNo = 1; column = 1; }
+  std::size_t position() override { return pos; }
+  void save() override { contexts.emplace_back(lineNo, column, pos); }
+  void restore() override {
+    if (contexts.empty()) throw ISource::Error("CustomSource::restore() without save");
+    const auto c = contexts.back(); contexts.pop_back();
+    lineNo = c.lineNo; column = c.column; pos = c.bufferPosition;
+  }
+  void discardSave() override {
+    if (contexts.empty()) throw ISource::Error("CustomSource::discardSave() without save");
+    contexts.pop_back();
+  }
+
+private:
+  void backup(unsigned long length) override {
+    if (length > pos) throw ISource::Error("CustomSource::backup() beyond start");
+    pos -= length;
+    // recompute line/column from the beginning for simplicity
+    lineNo = 1; column = 1;
+    for (std::size_t i = 0; i < pos; ++i) {
+      if (buffer[i] == '\n') {
+        lineNo++; column = 1;
+      } else {
+        column++;
+      }
+    }
+  }
+
+  std::string buffer;
+  std::size_t pos{};
+  std::vector<Context> contexts;
+};
+```
+
+Custom input sources integration is useful when you need to parse from non-seekable or in-memory data without copying into a `BufferSource` first.
 
 ---
 
@@ -604,6 +661,28 @@ YAML_Lib includes test coverage for public APIs, custom parser/stringifier exten
 Review `docs/testing.md` for concrete instructions and example fake implementations.
 
 ---
+
+## SAX Event Traversal
+
+YAML_Lib also supports SAX-style event callbacks when `YAML_LIB_SAX_API` is enabled. Implement `IYAMLEvents` to receive tree traversal events and use `YAML::traverseEvents()` to walk a parsed document without manually recursing over nodes.
+
+```cpp
+struct PrintEvents : IYAMLEvents {
+  void onDocumentStart() override { std::cout << "document start\n"; }
+  void onKey(std::string_view key) override { std::cout << "key: " << key << "\n"; }
+  void onScalar(NodeType type, std::string_view value) override {
+    std::cout << "scalar: " << value << " (" << static_cast<int>(type) << ")\n";
+  }
+  void onDocumentEnd() override { std::cout << "document end\n"; }
+};
+
+YAML yaml;
+yaml.parse(BufferSource{"---\nname: Alice\n"});
+PrintEvents events;
+yaml.traverseEvents(events);
+```
+
+`IYAMLEvents` is optional and only available when the library is built with `YAML_LIB_SAX_API=ON`.
 
 ## Traversal with IAction
 
