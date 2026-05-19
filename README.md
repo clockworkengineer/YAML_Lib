@@ -81,14 +81,10 @@ See `docs/dependencies.md` for a complete dependency list and license summary.
 
 ### Security best practices
 
-For untrusted YAML input, configure parser limits with `YAML::Options`:
+For untrusted YAML input, configure parser limits with `Options`:
 
 ```cpp
-YAML::Options options;
-options.maxDocuments = 1;
-options.maxParseDepth = 64;
-options.maxAliasExpansions = 64;
-options.strictBooleans = true;
+YAML_Lib::Options options = YAML_Lib::Options::secureOptions();
 ```
 
 These settings help protect against:
@@ -134,7 +130,7 @@ See the [User Guide](docs/guide.md) and [examples/source/](examples/source/) for
 - Stringifying to all supported destinations
 - Error handling and defensive patterns
 - Advanced features (multi-doc, tags, anchors, custom I/O, traversal, alternative formats)
-- Custom parser/stringifier extensions via `YAML::Options`
+- Custom parser/stringifier extensions via `Options`
 
 ---
 
@@ -167,21 +163,20 @@ See `docs/public_api.md` for the installed public header set.
 
 For more details on supported compilers, platforms, and build variants, see `docs/portability.md`.
 
-### Runtime configuration with `YAML::Options`
+### Runtime configuration with `Options`
 
-`YAML::Options` lets you configure parser/stringifier choice, memory resource usage, and strict boolean parsing at runtime:
+`Options` lets you configure parser/stringifier choice, memory resource usage, and strict boolean parsing at runtime:
 
 ```cpp
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
 using namespace YAML_Lib;
 
-YAML::Options options;
-options.strictBooleans = true;
-options.memoryResource = std::pmr::get_default_resource();
-options.maxDocuments = 4;        // limit document count for untrusted input
-options.maxParseDepth = 64;      // prevent deeply nested input from exhausting the parser
-options.maxAliasExpansions = 128; // avoid alias explosion attacks and billion-laughs-style alias graphs
+Options options = Options::secureOptions();
+options.memory_resource = std::pmr::get_default_resource();
+options.max_documents = 4;        // limit document count for untrusted input
+options.max_parse_depth = 64;      // prevent deeply nested input from exhausting the parser
+options.max_alias_expansions = 128; // avoid alias explosion attacks and billion-laughs-style alias graphs
 
 YAML yaml(options);
 yaml.parse(BufferSource{"---\nvalue: yes\n"});
@@ -200,7 +195,7 @@ YAML_Lib supports custom I/O and formatting through the public interfaces:
 - `IStringify` for custom serialization formats
 - `IParser` for custom parsing logic
 
-Use `YAML::Options` to install custom components at runtime:
+Use `Options` to install custom components at runtime:
 
 ```cpp
 struct CustomDestination : IDestination {
@@ -221,7 +216,7 @@ struct PrefixStringify : IStringify {
   }
 };
 
-YAML::Options options;
+Options options;
 options.stringifier = makeStringify<PrefixStringify>();
 YAML yaml(options);
 yaml.parse(BufferSource{"---\nkey: value\n"});

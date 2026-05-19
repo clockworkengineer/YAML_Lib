@@ -1,4 +1,5 @@
 #include "YAML_Lib_Tests.hpp"
+#include <filesystem>
 
 #ifdef YAML_LIB_FILE_IO
 TEST_CASE("Checks for toFile() api.", "[YAML][ToFile]") {
@@ -64,6 +65,11 @@ TEST_CASE("Checks for toFile() api.", "[YAML][ToFile]") {
     YAML::toFile(testFileName, expected, YAML::Format::utf16LE);
     REQUIRE(YAML::fromFile(testFileName) == expected);
     std::filesystem::remove(testFileName);
+  }
+  SECTION("Check that toFile() rejects invalid output paths.", "[YAML][ToFile][Error]") {
+    const auto invalidPath = std::filesystem::temp_directory_path() / "does_not_exist_dir" / "yaml_lib_invalid_output.yaml";
+    REQUIRE_FALSE(std::filesystem::exists(invalidPath.parent_path()));
+    REQUIRE_THROWS_AS(YAML::toFile(invalidPath.string(), "---\nkey: value\n"), YAML_Lib::Error);
   }
   // SECTION("Check that toFile() works with UTF32BE.",
   // "[YAML][ToFile][UTF32BE]")

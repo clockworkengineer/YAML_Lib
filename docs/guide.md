@@ -99,18 +99,17 @@ YAML_Lib supports portable builds on Linux, macOS, and Windows.
 - Windows builds use a native Windows UTF converter implementation.
 - Enable `YAML_LIB_FILE_IO=OFF` for bare-metal or filesystem-constrained environments.
 
-### Runtime configuration with `YAML::Options`
+### Runtime configuration with `Options`
 
-`YAML::Options` provides runtime control over parser/stringifier selection, memory resource usage, and strict boolean parsing.
+`Options` provides runtime control over parser/stringifier selection, memory resource usage, and strict boolean parsing.
 
 ```cpp
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
 using namespace YAML_Lib;
 
-YAML::Options options;
-options.strictBooleans = true;
-options.memoryResource = std::pmr::get_default_resource();
+Options options = Options::secureOptions();
+options.memory_resource = std::pmr::get_default_resource();
 
 YAML yaml(options);
 yaml.parse(BufferSource{"---\nvalue: yes\n"});
@@ -126,17 +125,13 @@ if (isA<String>(doc["value"])) {
 When parsing untrusted YAML, configure parser limits explicitly to prevent malicious inputs from exhausting resources.
 
 ```cpp
-YAML::Options options;
-options.maxDocuments = 1;
-options.maxParseDepth = 64;
-options.maxAliasExpansions = 64;
-options.strictBooleans = true;
+Options options = Options::secureOptions();
 ```
 
-- `maxDocuments` limits how many documents are accepted in a stream.
-- `maxParseDepth` protects against deeply nested structures.
-- `maxAliasExpansions` defends against alias explosion attacks such as billion-laughs-style alias graphs.
-- `strictBooleans` avoids YAML 1.1 boolean coercion for untrusted values.
+- `max_documents` limits how many documents are accepted in a stream.
+- `max_parse_depth` protects against deeply nested structures.
+- `max_alias_expansions` defends against alias explosion attacks such as billion-laughs-style alias graphs.
+- `strict_booleans` avoids YAML 1.1 boolean coercion for untrusted values.
 
 If you build with `YAML_LIB_NO_EXCEPTIONS=ON`, register a custom error handler via `YAML_Lib::setErrorHandler(...)` so parse failures do not abort the process unexpectedly.
 
@@ -163,7 +158,7 @@ YAML_Lib is designed for extensibility through public abstractions:
 - `IStringify` for custom serialization formats
 - `IParser` for custom parsing logic
 
-Custom components are installed through `YAML::Options`:
+Custom components are installed through `Options`:
 
 ```cpp
 struct CustomDestination : IDestination {
@@ -184,7 +179,7 @@ struct PrefixStringify : IStringify {
   }
 };
 
-YAML::Options options;
+Options options;
 options.stringifier = makeStringify<PrefixStringify>();
 YAML yaml(options);
 yaml.parse(BufferSource{"---\nname: Alice\n"});
@@ -207,7 +202,7 @@ struct CustomParser : IParser {
   }
 };
 
-YAML::Options options;
+Options options;
 options.parser = new CustomParser();
 YAML yaml(options);
 // Remember: the custom parser object must outlive the YAML instance.

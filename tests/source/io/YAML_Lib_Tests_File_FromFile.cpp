@@ -1,4 +1,5 @@
 #include "YAML_Lib_Tests.hpp"
+#include <filesystem>
 
 #ifdef YAML_LIB_FILE_IO
 TEST_CASE("Checks for fromFile() api.", "[YAML][FromFile]") {
@@ -56,6 +57,11 @@ TEST_CASE("Checks for fromFile() api.", "[YAML][FromFile]") {
         "MYSQL_ROOT_PASSWORD: somewordpress\n    MYSQL_DATABASE: wordpress\n   "
         " MYSQL_USER: wordpress\n    MYSQL_PASSWORD: wordpress\n"};
     REQUIRE(YAML::fromFile(testFile) == expected);
+  }
+  SECTION("Check that fromFile() rejects missing or unreadable files.", "[YAML][FromFile][Error]") {
+    const auto missingFile = std::filesystem::temp_directory_path() / "yaml_lib_missing_file_that_should_not_exist.yaml";
+    REQUIRE(!std::filesystem::exists(missingFile));
+    REQUIRE_THROWS_AS(YAML::fromFile(missingFile.string()), YAML_Lib::Error);
   }
   // SECTION("Check that fromFile() works with UTF32BE.",
   // "[YAML][FromFile][UTF32BE]")

@@ -1,5 +1,14 @@
 #include "YAML_Lib_Tests.hpp"
 
+TEST_CASE("YAML::Options::secureOptions returns recommended safe defaults", "[YAML][Options][Security]") {
+  ::YAML_Lib::Options secure = ::YAML_Lib::Options::secureOptions();
+
+  REQUIRE(secure.strict_booleans);
+  REQUIRE(secure.max_documents == 1);
+  REQUIRE(secure.max_parse_depth == 64);
+  REQUIRE(secure.max_alias_expansions == 64);
+}
+
 TEST_CASE("YAML::Options enables strict boolean parsing", "[YAML][Options][Parse]") {
   ::YAML_Lib::Options options;
   options.strict_booleans = true;
@@ -35,6 +44,20 @@ TEST_CASE("YAML::Options enforces maxAliasExpansions during parsing", "[YAML][Op
       "b: &a2 { foo: *a3 }\n"
       "a: &a1 { foo: *a2 }\n"
       "root: *a1\n"};
+
+  REQUIRE_THROWS_AS(yaml.parse(src), ::YAML_Lib::SyntaxError);
+}
+
+TEST_CASE("YAML::Options enforces alias expansion limits for merge keys", "[YAML][Options][Parse][AliasLimit]") {
+  ::YAML_Lib::Options options;
+  options.max_alias_expansions = 2;
+
+  ::YAML_Lib::YAML yaml(options);
+  ::YAML_Lib::BufferSource src{
+      "---\n"
+      "a: &a1 { foo: *a2 }\n"
+      "b: &a2 { foo: *a1 }\n"
+      "root: <<: *a1\n"};
 
   REQUIRE_THROWS_AS(yaml.parse(src), ::YAML_Lib::SyntaxError);
 }

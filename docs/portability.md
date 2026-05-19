@@ -25,11 +25,7 @@ YAML_Lib is built with CMake 3.18+ and targets C++20.
 When parsing untrusted input, configure parser limits and strict boolean handling:
 
 ```cpp
-YAML::Options options;
-options.maxDocuments = 1;
-options.maxParseDepth = 64;
-options.maxAliasExpansions = 64;
-options.strictBooleans = true;
+YAML_Lib::Options options = YAML_Lib::Options::secureOptions();
 ```
 
 These values help protect against document flooding, deeply nested structures, and alias-expansion attacks.

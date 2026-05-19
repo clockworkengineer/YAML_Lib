@@ -67,6 +67,22 @@ struct Options {
   unsigned long max_alias_expansions{64};
 
   /**
+   * @brief Return recommended runtime settings for untrusted YAML input.
+   *
+   * These settings are conservative and protect against document flooding,
+   * deeply nested structures, alias-expansion attacks, and YAML 1.1 boolean
+   * coercion.
+   */
+  static Options secureOptions() {
+    Options secure;
+    secure.strict_booleans = true;
+    secure.max_documents = 1;
+    secure.max_parse_depth = 64;
+    secure.max_alias_expansions = 64;
+    return secure;
+  }
+
+  /**
    * @brief Validate the configured options.
    *
    * Throws `std::invalid_argument` if any field is malformed or outside the

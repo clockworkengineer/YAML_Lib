@@ -11,7 +11,7 @@ This document explains how `YAML_Lib` implements the library attributes from `no
 ### 1. Intuitive API Design
 - Public headers are intentionally limited to a stable export set in `docs/public_api.md`.
 - Convenience helpers such as `YAML::load(...)`, `YAML::loadFile(...)`, and `YAML::dump()` are exposed from `YAML.hpp`.
-- `YAML::Options` lifetime requirements and custom interface ownership rules are documented in `YAML.hpp`, `ISource.hpp`, and `IDestination.hpp`.
+- `Options` lifetime requirements and custom interface ownership rules are documented in `YAML.hpp`, `ISource.hpp`, and `IDestination.hpp`.
 
 ### 2. Comprehensive Documentation
 - `docs/public_api.md` documents the installed public header set and explicit public API surface.
@@ -20,11 +20,11 @@ This document explains how `YAML_Lib` implements the library attributes from `no
 - This document itself is the attribute-driven implementation reference.
 
 ### 3. High Reliability
-- Parser limits, strict booleans, and secure `YAML::Options` usage are documented in `docs/guide.md`.
+- Parser limits, strict booleans, and secure `Options` usage are documented in `docs/guide.md`.
 - `docs/portability.md` highlights safe defaults and no-exceptions build guidance.
 
 ### 4. Performance and Efficiency
-- The library already exposes `std::pmr::memory_resource` customization via `YAML::Options`.
+- The library already exposes `std::pmr::memory_resource` customization via `Options`.
 - Performance and memory usage considerations are discussed in `docs/guide.md` under the performance section.
 
 ### 5. Maintainability
@@ -33,7 +33,7 @@ This document explains how `YAML_Lib` implements the library attributes from `no
 
 ### 6. Flexibility and Customization
 - `docs/guide.md` shows how to implement custom `IStringify`, `ISource`, `IDestination`, and `IParser` components.
-- `YAML::Options` allows runtime customization of parser, stringifier, and memory resource.
+- `Options` allows runtime customization of parser, stringifier, and memory resource.
 
 ### 7. Strong Security
 - Safe default parser limits are documented in `docs/guide.md` and `docs/portability.md`.

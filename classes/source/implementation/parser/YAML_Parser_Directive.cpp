@@ -272,7 +272,25 @@ Node Default_Parser::parseOverride(ISource &source,
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.next();
+  if (ctx_.activeAliasExpansions.count(name)) {
+    YAML_THROW_POS(source, "Recursive anchor detected: '" + name + "'.");
+  }
+  if (maxAliasExpansions != 0 && ++aliasExpansionCount > maxAliasExpansions) {
+    YAML_THROW_POS(source, "YAML alias expansion limit exceeded.");
+  }
   const std::string &unparsed = resolveAlias(name, source);
+  if (unparsed.empty()) {
+    return Node::make<Null>();
+  }
+  ctx_.activeAliasExpansions.insert(name);
+  auto &activeExps = ctx_.activeAliasExpansions;
+  struct AliasGuard {
+    ParseContext::AliasSet &set_;
+    const std::string &name_;
+    AliasGuard(ParseContext::AliasSet &s, const std::string &n)
+        : set_(s), name_(n) {}
+    ~AliasGuard() { set_.erase(name_); }
+  } aliasGuard{activeExps, name};
   return parseFromBuffer(unparsed, delimiters, indentation);
 }
 

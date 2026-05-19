@@ -90,19 +90,45 @@ std::u16string readYAMLString(std::ifstream &yamlFile, const YAML::Format format
 /// </summary>
 /// <param name="fileName">YAML file name</param>
 /// <returns>YAML file format.</returns>
+namespace {
+
+void validateInputFile(const std::ifstream &file,
+                       const std::string_view &fileName) {
+  if (!file) {
+    YAML_THROW(Error, "Failed to open YAML file '" + std::string(fileName) + "'.");
+  }
+}
+
+void validateOutputFile(const std::ofstream &file,
+                        const std::string_view &fileName) {
+  if (!file) {
+    YAML_THROW(Error, "Failed to open YAML output file '" + std::string(fileName) + "'.");
+  }
+}
+
+} // namespace
+
 YAML::Format YAML_Impl::getFileFormat(const std::string_view &fileName)
 {
     std::ifstream yamlFile{ fileName.data(), std::ios_base::binary };
-    uint32_t byteOrderMark = static_cast<unsigned char>(yamlFile.get()) << 24;
-    byteOrderMark |= static_cast<unsigned char>(yamlFile.get()) << 16;
-    byteOrderMark |= static_cast<unsigned char>(yamlFile.get()) << 8;
-    byteOrderMark |= static_cast<unsigned char>(yamlFile.get());
+    validateInputFile(yamlFile, fileName);
+
+    char bomBuffer[4] = {};
+    yamlFile.read(bomBuffer, sizeof(bomBuffer));
+    if (!yamlFile && !yamlFile.eof()) {
+      YAML_THROW(Error, "Failed to read YAML file '" + std::string(fileName) + "'.");
+    }
+
+    const uint32_t byteOrderMark = (static_cast<unsigned char>(bomBuffer[0]) << 24) |
+                                   (static_cast<unsigned char>(bomBuffer[1]) << 16) |
+                                   (static_cast<unsigned char>(bomBuffer[2]) << 8) |
+                                   (static_cast<unsigned char>(bomBuffer[3]));
+    yamlFile.close();
     if (byteOrderMark == 0x0000FEFF) { return YAML::Format::utf32BE; }
     if (byteOrderMark == 0xFFFE0000) { return YAML::Format::utf32LE; }
     if ((byteOrderMark & 0xFFFFFF00) == 0xEFBBBF00) { return YAML::Format::utf8BOM; }
     if ((byteOrderMark & 0xFFFF0000) == 0xFEFF0000) { return YAML::Format::utf16BE; }
     if ((byteOrderMark & 0xFFFF0000) == 0xFFFE0000) { return YAML::Format::utf16LE; }
-    yamlFile.close();
     return YAML::Format::utf8;
 }
 
@@ -120,10 +146,14 @@ std::string YAML_Impl::fromFile(const std::string_view &fileName)
     const YAML::Format format = getFileFormat(fileName);
     // Read in YAML
     std::ifstream yamlFile{ fileName.data(), std::ios_base::binary };
+    validateInputFile(yamlFile, fileName);
     std::string translated;
     switch (format) {
     case YAML::Format::utf8BOM:
-        yamlFile.seekg(3);// Move past byte order mark
+        yamlFile.seekg(3); // Move past byte order mark
+        if (!yamlFile) {
+          YAML_THROW(Error, "Failed to read YAML file '" + std::string(fileName) + "'.");
+        }
     case YAML::Format::utf8:
         translated = readYAMLString(yamlFile);
         break;
@@ -154,6 +184,7 @@ std::string YAML_Impl::fromFile(const std::string_view &fileName)
 void YAML_Impl::toFile(const std::string_view &fileName, const std::string_view &yamlString, const YAML::Format format)
 {
     std::ofstream yamlFile{ fileName.data(), std::ios::binary };
+    validateOutputFile(yamlFile, fileName);
     switch (format) {
     case YAML::Format::utf8BOM:
         yamlFile << static_cast<unsigned char>(0xEF) << static_cast<unsigned char>(0xBB)
@@ -167,6 +198,9 @@ void YAML_Impl::toFile(const std::string_view &fileName, const std::string_view 
         break;
     default:
         YAML_THROW(Error, "Unsupported YAML file format (Byte Order Mark) specified.");
+    }
+    if (!yamlFile) {
+      YAML_THROW(Error, "Failed to write YAML file '" + std::string(fileName) + "'.");
     }
     yamlFile.close();
 }
