@@ -33,6 +33,8 @@ option(YAML_LIB_TIMESTAMP_PARSE "Include ISO 8601 Timestamp to time_t/tm convers
 # E10: SAX-style (streaming) event-based parse API
 option(YAML_LIB_SAX_API "Include SAX-style IYAMLEvents / traverseEvents() API" ON)
 
+enable_testing()
+
 set(YAML_LIBRARY_NAME ${PROJECT_NAME})
 
 # Sources
