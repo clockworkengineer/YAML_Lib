@@ -119,6 +119,9 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       skipLine(source);
       moveToNextIndent(source);
       if (!inDocument) {
+        if (maxDocuments != 0 && yNodeTree.size() + 1 > maxDocuments) {
+          YAML_THROW_POS(source, "YAML document count exceeds configured limit.");
+        }
         yNodeTree.push_back(Node::make<Document>());
       }
       inDocument = false;
@@ -135,6 +138,9 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       // Parse document contents
     } else {
       if (!inDocument) {
+        if (maxDocuments != 0 && yNodeTree.size() + 1 > maxDocuments) {
+          YAML_THROW_POS(source, "YAML document count exceeds configured limit.");
+        }
         yNodeTree.push_back(Node::make<Document>());
         pendingDirectives = false;
       }

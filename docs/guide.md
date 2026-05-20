@@ -142,7 +142,7 @@ When parsing untrusted YAML, configure parser limits explicitly to prevent malic
 Options options = Options::secureOptions();
 ```
 
-- `max_documents` limits how many documents are accepted in a stream.
+- `max_documents` limits how many documents are accepted in a stream. This includes both explicit documents started with `---` and the implicit initial document when no leading document marker is present.
 - `max_parse_depth` protects against deeply nested structures.
 - `max_alias_expansions` defends against alias explosion attacks such as billion-laughs-style alias graphs.
 - `strict_booleans` avoids YAML 1.1 boolean coercion for untrusted values.

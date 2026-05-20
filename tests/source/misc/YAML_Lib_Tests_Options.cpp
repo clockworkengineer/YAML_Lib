@@ -33,6 +33,16 @@ TEST_CASE("YAML::Options enforces maxDocuments during parsing", "[YAML][Options]
   REQUIRE_THROWS_AS(yaml.parse(src), ::YAML_Lib::SyntaxError);
 }
 
+TEST_CASE("YAML::Options enforces maxDocuments during implicit parsing", "[YAML][Options][Parse]") {
+  ::YAML_Lib::Options options;
+  options.max_documents = 1;
+
+  ::YAML_Lib::YAML yaml(options);
+  ::YAML_Lib::BufferSource src{"foo: 1\n---\nbar: 2\n"};
+
+  REQUIRE_THROWS_AS(yaml.parse(src), ::YAML_Lib::SyntaxError);
+}
+
 TEST_CASE("YAML::Options enforces maxAliasExpansions during parsing", "[YAML][Options][Parse]") {
   ::YAML_Lib::Options options;
   options.max_alias_expansions = 2;
