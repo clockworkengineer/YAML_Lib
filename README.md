@@ -22,6 +22,24 @@ YAML_Lib is a lightweight, header-friendly C++20 library for parsing, manipulati
 - **Traversal** — visitor pattern via `IAction` for tree-wide operations
 - **Exception-based error reporting** — `SyntaxError` on malformed input; `Node::Error` on type violations
 
+## Library Attributes
+YAML_Lib is built around a small set of practical library attributes:
+
+- **Intuitive API design** with easy-to-use static helpers, optional runtime customization, and stable public headers.
+- **Comprehensive documentation** through `docs/guide.md`, `docs/api.md`, and `docs/public_api.md`.
+- **High reliability** with explicit parser limits, secure `Options`, and strong error-handling guidance.
+- **Performance and efficiency** via `std::pmr::memory_resource` support and lightweight core data structures.
+- **Maintainability** through clean header boundaries, modular implementation, and documented extension points.
+- **Flexibility** via `ISource`, `IDestination`, `IStringify`, and `IParser` customization.
+- **Strong security** by recommending `Options::secureOptions()` for untrusted YAML and by isolating optional features behind CMake flags.
+- **High testability** with focused unit tests, header compile tests, and sample example applications.
+- **Compatibility and portability** across Linux, macOS, and Windows with optional file-I/O and SAX features.
+- **Low dependency footprint** — the runtime depends only on the C++ standard library.
+
+See `docs/guide.md` for usage examples and `docs/public_api.md` for stable public headers.
+
+The library also provides convenient file helpers such as `YAML::loadFile()` for parsing a file directly and `YAML::dump()` for producing YAML text from a parsed tree.
+
 ## Getting Started
 
 ### Requirements

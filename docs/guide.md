@@ -22,6 +22,7 @@ For more, see the [README Troubleshooting section](../README.md#troubleshooting)
 ## Table of Contents
 - [Introduction](#introduction)
 - [Installation](#installation)
+- [Library design principles](#library-design-principles)
 - [Parsing YAML](#parsing-yaml)
 - [Accessing nodes](#accessing-nodes)
 - [Modifying and building YAML](#modifying-and-building-yaml)
@@ -66,6 +67,19 @@ Include the two main headers:
 #include "YAML_Core.hpp"
 using namespace YAML_Lib;
 ```
+
+## Library design principles
+
+YAML_Lib is designed to be a practical, attribute-driven C++ library. It focuses on:
+
+- **Intuitive API design** — simple top-level helpers like `YAML::load()` and `YAML::dump()` for common workloads.
+- **Comprehensive documentation** — examples, API reference, and public header guidance across `docs/`.
+- **Reliability and security** — conservative defaults via `Options::secureOptions()` and documented no-exceptions behavior.
+- **Portability** — optional feature flags for file I/O, SAX, and timestamps so the library adapts to embedded or cross-platform builds.
+- **Flexibility** — public extension points for custom sources, destinations, stringifiers, and parsers.
+- **Low dependency footprint** — runtime is standard-library-only.
+
+Use this guide for practical usage, and `docs/public_api.md` to understand the stable public include surface.
 
 ### Build-time feature options
 
@@ -278,6 +292,16 @@ yaml.parse(BufferSource{"---\nname: Alice\nage: 30\n"});
 ```cpp
 yaml.parse(FileSource{"config.yaml"});
 ```
+
+### Convenience: parse a file directly into YAML
+```cpp
+std::unique_ptr<YAML> yaml = YAML::loadFile("config.yaml");
+if (yaml && yaml->getNumberOfDocuments() > 0) {
+    std::cout << yaml->dump();
+}
+```
+
+> Note: `YAML::fromFile()` reads raw file contents into a string; `YAML::loadFile()` parses the file into a `YAML` object.
 
 ### From any std::istream
 ```cpp
