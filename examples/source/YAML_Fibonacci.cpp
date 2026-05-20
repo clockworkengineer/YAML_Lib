@@ -6,10 +6,11 @@
 // sequence to the array stored in fibonacci.yaml; if the file does
 // not exist then create the initial sequence of [0,1,2].
 //
-// Dependencies: C++20, PLOG, YAML_Lib.
+// Dependencies: C++20, YAML_Lib.
 //
 
 #include "YAML_Utility.hpp"
+#include <iostream>
 
 namespace yml = YAML_Lib;
 
@@ -51,15 +52,14 @@ void nextFibonacci() {
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
   try {
     // Initialise logging.
-    init(plog::debug, "YAML_Fibonacci.log");
-    PLOG_INFO << "YAML_Fibonacci started ...";
+        std::cout << "YAML_Fibonacci started ...";
     // Log version
-    PLOG_INFO << YAML_Lib::YAML::version();
+    std::cout << YAML_Lib::YAML::version();
     // Update current sequence
     nextFibonacci();
   } catch (std::exception &ex) {
-    PLOG_ERROR << "Error: " << ex.what();
+    std::cerr << "Error: " << ex.what();
   }
-  PLOG_INFO << "YAML_Fibonacci exited.";
+  std::cout << "YAML_Fibonacci exited.";
   exit(EXIT_SUCCESS);
 }

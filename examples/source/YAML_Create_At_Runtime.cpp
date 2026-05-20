@@ -4,10 +4,11 @@
 // Description: Create YAML programmatically at runtime using a combination
 // of the YAML class, indexing/key operators plus the use of initializer lists.
 //
-// Dependencies: C++20, PLOG, YAML_Lib.
+// Dependencies: C++20, YAML_Lib.
 //
 
 #include "YAML_Utility.hpp"
+#include <iostream>
 
 namespace yl = YAML_Lib;
 namespace fs = std::filesystem;
@@ -15,10 +16,9 @@ namespace fs = std::filesystem;
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
   try {
     // Initialise logging.
-    init(plog::debug, "YAML_Create_At_Runtime.log");
-    PLOG_INFO << "YAML_Create_At_Runtime started ...";
+        std::cout << "YAML_Create_At_Runtime started ...";
     // Log version
-    PLOG_INFO << YAML_Lib::YAML::version();
+    std::cout << YAML_Lib::YAML::version();
     // create an empty structure (null)
     yl::YAML yaml;
     // add a number that is stored as double (note the implicit conversion of
@@ -41,7 +41,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
                        {"array", yl::Node{23.22, 33, 55, 99.99}}};
     yl::BufferDestination destination;
     yaml.stringify(destination);
-    PLOG_INFO << destination.toString();
+    std::cout << destination.toString();
     destination.clear();
     // create YAML using an initializer list and nesting array/objects using
     // Node{}.
@@ -55,10 +55,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
         {"object", yl::Node{{"currency", "USD"},
                              {"value", yl::Node{23.22, 33, 55, 99.99}}}}};
     yaml2.stringify(destination);
-    PLOG_INFO << destination.toString();
+    std::cout << destination.toString();
   } catch (std::exception &ex) {
-    PLOG_ERROR << "Error: " << ex.what();
+    std::cerr << "Error: " << ex.what();
   }
-  PLOG_INFO << "YAML_Create_At_Runtime exited.";
+  std::cout << "YAML_Create_At_Runtime exited.";
   exit(EXIT_SUCCESS);
 }

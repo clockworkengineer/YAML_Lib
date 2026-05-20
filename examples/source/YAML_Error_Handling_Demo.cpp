@@ -5,10 +5,11 @@
 // YAML_Lib: catching SyntaxError for parse failures, guarding against missing
 // keys or wrong types, and validating YAML structure before use.
 //
-// Dependencies: C++20, PLOG, YAML_Lib.
+// Dependencies: C++20, YAML_Lib.
 //
 
 #include "YAML_Utility.hpp"
+#include <iostream>
 
 namespace yl = YAML_Lib;
 
@@ -17,16 +18,16 @@ namespace yl = YAML_Lib;
 // ---------------------------------------------------------------------------
 static void tryParse(const std::string &label, const std::string &yamlText) {
   yl::YAML yaml;
-  PLOG_INFO << "--- Trying: " << label;
+  std::cout << "--- Trying: " << label;
   try {
     yl::BufferSource source{yamlText};
     yaml.parse(source);
-    PLOG_INFO << "  OK: parsed " << yaml.getNumberOfDocuments()
+    std::cout << "  OK: parsed " << yaml.getNumberOfDocuments()
               << " document(s).";
   } catch (const yl::SyntaxError &ex) {
-    PLOG_WARNING << "  SyntaxError: " << ex.what();
+    std::cerr << "  SyntaxError: " << ex.what();
   } catch (const std::exception &ex) {
-    PLOG_ERROR << "  Unexpected error: " << ex.what();
+    std::cerr << "  Unexpected error: " << ex.what();
   }
 }
 
@@ -44,13 +45,13 @@ static void safeKeyAccess() {
 
   // Safe: check before accessing
   if (yl::NRef<yl::Dictionary>(doc).contains("username")) {
-    PLOG_INFO << "  username = "
+    std::cout << "  username = "
               << yl::NRef<yl::String>(doc["username"]).value();
   }
 
   // The key 'email' is not present — contains() prevents a crash
   if (!yl::NRef<yl::Dictionary>(doc).contains("email")) {
-    PLOG_WARNING << "  'email' key not found — skipping.";
+    std::cerr << "  'email' key not found — skipping.";
   }
 }
 
@@ -69,18 +70,18 @@ static void safeTypeAccess() {
 
   // Safely read a Number
   if (yl::isA<yl::Number>(doc["count"])) {
-    PLOG_INFO << "  count = "
+    std::cout << "  count = "
               << yl::NRef<yl::Number>(doc["count"]).value<int>();
   }
 
   // Safely read a String
   if (yl::isA<yl::String>(doc["name"])) {
-    PLOG_INFO << "  name = " << yl::NRef<yl::String>(doc["name"]).value();
+    std::cout << "  name = " << yl::NRef<yl::String>(doc["name"]).value();
   }
 
   // Safely read a Boolean
   if (yl::isA<yl::Boolean>(doc["active"])) {
-    PLOG_INFO << "  active = "
+    std::cout << "  active = "
               << (yl::NRef<yl::Boolean>(doc["active"]).value() ? "yes" : "no");
   }
 }
@@ -89,7 +90,7 @@ static void safeTypeAccess() {
 // Helper: demonstrate handling unsupported YAML version directive.
 // ---------------------------------------------------------------------------
 static void badYAMLVersion() {
-  PLOG_INFO << "--- Unsupported %YAML major version:";
+  std::cout << "--- Unsupported %YAML major version:";
   tryParse("YAML 2.0 document", "%YAML 2.0\n---\nvalue: 42\n");
 }
 
@@ -97,7 +98,7 @@ static void badYAMLVersion() {
 // Helper: demonstrate error from undefined alias.
 // ---------------------------------------------------------------------------
 static void undefinedAlias() {
-  PLOG_INFO << "--- Undefined alias reference:";
+  std::cout << "--- Undefined alias reference:";
   tryParse("*missing_anchor", "---\nkey: *missing_anchor\n");
 }
 
@@ -105,7 +106,7 @@ static void undefinedAlias() {
 // Helper: demonstrate error from duplicate key.
 // ---------------------------------------------------------------------------
 static void duplicateKey() {
-  PLOG_INFO << "--- Duplicate dictionary key:";
+  std::cout << "--- Duplicate dictionary key:";
   tryParse("duplicate key block", "---\nfoo: 1\nbar: 2\nfoo: 3\n");
 }
 
@@ -113,30 +114,29 @@ static void duplicateKey() {
 // Helper: demonstrate error from tab indentation.
 // ---------------------------------------------------------------------------
 static void tabIndentation() {
-  PLOG_INFO << "--- Tab used in block indentation:";
+  std::cout << "--- Tab used in block indentation:";
   tryParse("tab indent", "---\nparent:\n\tchild: value\n");
 }
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
   try {
-    init(plog::debug, "YAML_Error_Handling_Demo.log");
-    PLOG_INFO << "YAML_Error_Handling_Demo started ...";
-    PLOG_INFO << yl::YAML::version();
+        std::cout << "YAML_Error_Handling_Demo started ...";
+    std::cout << yl::YAML::version();
 
     // 1. Safe parse with error reporting
-    PLOG_INFO << "=== Parse error demonstrations ===";
+    std::cout << "=== Parse error demonstrations ===";
     badYAMLVersion();
     undefinedAlias();
     duplicateKey();
     tabIndentation();
 
     // 2. Valid parse: safe key and type guards
-    PLOG_INFO << "=== Safe access demonstrations ===";
+    std::cout << "=== Safe access demonstrations ===";
     safeKeyAccess();
     safeTypeAccess();
 
     // 3. Validate against expected structure
-    PLOG_INFO << "=== Structure validation ===";
+    std::cout << "=== Structure validation ===";
     {
       yl::YAML yaml;
       yl::BufferSource source{"---\n"
@@ -155,12 +155,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
         throw std::runtime_error("'server' must be a mapping.");
       }
       const int port = yl::NRef<yl::Number>(doc["server"]["port"]).value<int>();
-      PLOG_INFO << "  Server port validated: " << port;
+      std::cout << "  Server port validated: " << port;
     }
 
   } catch (const std::exception &ex) {
-    PLOG_ERROR << "Fatal error: " << ex.what();
+    std::cerr << "Fatal error: " << ex.what();
   }
-  PLOG_INFO << "YAML_Error_Handling_Demo exited.";
+  std::cout << "YAML_Error_Handling_Demo exited.";
   exit(EXIT_SUCCESS);
 }
