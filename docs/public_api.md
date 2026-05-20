@@ -65,7 +65,9 @@ These headers are part of the public include chain and are installed because the
 
 - Convenience parsing/stringification helpers are available in `YAML.hpp`:
   - `YAML::load(...)`
-  - `YAML::loadFile(...)`
+  - `YAML::loadFile(...)` (preferred file-to-YAML helper when `YAML_LIB_FILE_IO=ON`)
   - `YAML::dump()`
+
+- Note: `YAML::fromFile(...)` reads the raw YAML file contents into a string, while `YAML::loadFile(...)` parses the file into a `YAML` object.
 
 - Users should avoid including private implementation headers not listed here.

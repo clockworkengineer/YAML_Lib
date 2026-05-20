@@ -27,45 +27,96 @@ public:
   // Constructors
   explicit YAML(IStringify* stringify = nullptr, IParser* parser = nullptr);
   explicit YAML(const std::string_view& yamlString);  // parse immediately
+  explicit YAML(const Options& options);
+  explicit YAML(std::pmr::memory_resource* memory_resource);
   YAML(const ArrayInitializer& array);
   YAML(const DictionaryInitializer& dictionary);
 
   // Library version string
-  static std::string version();
+  [[nodiscard]] static std::string version();
 
-  // Number of documents parsed from the last parse() call
-  unsigned long getNumberOfDocuments() const;
+  // Convenience parse helpers
+  [[nodiscard]] static std::unique_ptr<YAML> fromString(const std::string_view& yamlString);
+#ifdef YAML_LIB_FILE_IO
+  [[nodiscard]] static std::unique_ptr<YAML> fromFileToYAML(const std::string_view& fileName);
+  [[nodiscard]] static std::unique_ptr<YAML> loadFile(const std::string_view& fileName);
+#endif
+  [[nodiscard]] static std::unique_ptr<YAML> load(const std::string_view& yamlString);
 
-  // Parse YAML from a source
+  // Parse and stringify
   void parse(ISource& source) const;
   void parse(ISource&& source) const;
+#ifndef YAML_LIB_NO_EXCEPTIONS
+  [[nodiscard]] bool tryParse(ISource& source, std::string& errorMessage);
+  [[nodiscard]] bool tryParse(ISource&& source, std::string& errorMessage);
+#endif
 
-  // Stringify the node tree to a destination
+  [[nodiscard]] std::string toString() const;
+  [[nodiscard]] std::string dump() const;
   void stringify(IDestination& destination) const;
   void stringify(IDestination&& destination) const;
+#ifndef YAML_LIB_NO_EXCEPTIONS
+  [[nodiscard]] bool tryStringify(IDestination& destination, std::string& errorMessage) const;
+  [[nodiscard]] bool tryStringify(IDestination&& destination, std::string& errorMessage) const;
+#endif
+
+  // Number of documents parsed
+  [[nodiscard]] unsigned long getNumberOfDocuments() const;
 
   // Access document by zero-based index
-  Node& document(unsigned long index);
-  const Node& document(unsigned long index) const;
+  [[nodiscard]] Node& document(unsigned long index);
+  [[nodiscard]] const Node& document(unsigned long index) const;
 
   // Traverse the entire tree
   void traverse(IAction& action);
   void traverse(IAction& action) const;
 
-  // Index into the first document by key or position
-  Node& operator[](const std::string_view& key);
-  Node& operator[](std::size_t index);
+#ifdef YAML_LIB_SAX_API
+  void traverseEvents(IYAMLEvents& handler) const;
+#endif
 
-  // Static file helpers
-  static std::string fromFile(const std::string_view& fileName);
+  // Index into the first document by key or position
+  [[nodiscard]] Node& operator[](const std::string_view& key);
+  [[nodiscard]] const Node& operator[](const std::string_view& key) const;
+  [[nodiscard]] Node& operator[](std::size_t index);
+  [[nodiscard]] const Node& operator[](std::size_t index) const;
+
+#ifdef YAML_LIB_FILE_IO
+  [[nodiscard]] static std::string fromFile(const std::string_view& fileName);
   static void toFile(const std::string_view& fileName,
                      const std::string_view& yamlString,
                      Format format = Format::utf8);
   static Format getFileFormat(const std::string_view& fileName);
+#endif
+
+  static void setStrictBooleans(bool strict) noexcept;
+
+  // Notes
+  // - `fromFile()` reads raw file contents into a string.
+  // - `loadFile()` parses the file contents into a YAML object.
 
   enum class Format : uint8_t { utf8, utf8BOM, utf16BE, utf16LE, utf32BE, utf32LE };
 };
 ```
+
+## Options
+
+```cpp
+struct Options {
+  IStringify* stringifier;
+  IParser* parser;
+  std::pmr::memory_resource* memory_resource;
+  bool strict_booleans;
+  unsigned long max_documents;
+  unsigned long max_parse_depth;
+  unsigned long max_alias_expansions;
+
+  [[nodiscard]] static Options secureOptions();
+  void validate() const;
+};
+```
+
+`Options::secureOptions()` returns a conservative runtime configuration for untrusted input.
 
 ### Initializer list types
 

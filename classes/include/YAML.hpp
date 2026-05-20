@@ -73,7 +73,7 @@ struct Options {
    * deeply nested structures, alias-expansion attacks, and YAML 1.1 boolean
    * coercion.
    */
-  static Options secureOptions() {
+  [[nodiscard]] static Options secureOptions() {
     Options secure;
     secure.strict_booleans = true;
     secure.max_documents = 1;
@@ -127,7 +127,7 @@ public:
    * @param yaml_string YAML text to parse
    * @return YAML object
    */
-  static std::unique_ptr<YAML> fromString(const std::string_view &yaml_string);
+  [[nodiscard]] static std::unique_ptr<YAML> fromString(const std::string_view &yaml_string);
 
 #ifdef YAML_LIB_FILE_IO
   /**
@@ -135,21 +135,21 @@ public:
    * @param file_name Path to YAML file
    * @return YAML object
    */
-  static std::unique_ptr<YAML> fromFileToYAML(const std::string_view &file_name);
+  [[nodiscard]] static std::unique_ptr<YAML> fromFileToYAML(const std::string_view &file_name);
 #endif
 
   /**
    * @brief Stringify the node tree to a string (YAML format).
    * @return YAML string
    */
-  std::string toString() const;
+  [[nodiscard]] std::string toString() const;
 
   /**
    * @brief Parse YAML from a string and return a YAML object.
    * @param yaml_string YAML text to parse
    * @return YAML object
    */
-  static std::unique_ptr<YAML> load(const std::string_view &yaml_string) {
+  [[nodiscard]] [[nodiscard]] static std::unique_ptr<YAML> load(const std::string_view &yaml_string) {
     return fromString(yaml_string);
   }
 
@@ -159,7 +159,7 @@ public:
    * @param file_name Path to YAML file
    * @return YAML object
    */
-  static std::unique_ptr<YAML> loadFile(const std::string_view &file_name) {
+  [[nodiscard]] static std::unique_ptr<YAML> loadFile(const std::string_view &file_name) {
     return fromFileToYAML(file_name);
   }
 #endif
@@ -168,7 +168,7 @@ public:
    * @brief Stringify the node tree to a string (YAML format).
    * @return YAML string
    */
-  std::string dump() const { return toString(); }
+  [[nodiscard]] std::string dump() const { return toString(); }
 
 public:
   /**
@@ -265,8 +265,8 @@ public:
   void parse(ISource &source) const;
   void parse(ISource &&source) const;
 #ifndef YAML_LIB_NO_EXCEPTIONS
-  bool tryParse(ISource &source, std::string &errorMessage);
-  bool tryParse(ISource &&source, std::string &errorMessage);
+  [[nodiscard]] bool tryParse(ISource &source, std::string &errorMessage);
+  [[nodiscard]] bool tryParse(ISource &&source, std::string &errorMessage);
 #endif
 
   /**
@@ -276,8 +276,8 @@ public:
   void stringify(IDestination &destination) const;
   void stringify(IDestination &&destination) const;
 #ifndef YAML_LIB_NO_EXCEPTIONS
-  bool tryStringify(IDestination &destination, std::string &errorMessage) const;
-  bool tryStringify(IDestination &&destination, std::string &errorMessage) const;
+  [[nodiscard]] bool tryStringify(IDestination &destination, std::string &errorMessage) const;
+  [[nodiscard]] bool tryStringify(IDestination &&destination, std::string &errorMessage) const;
 #endif
 
   /**
@@ -331,7 +331,7 @@ public:
    * @param yamlFileName Path to YAML file
    * @return File contents as string
    */
-  static std::string fromFile(const std::string_view &yamlFileName);
+  [[nodiscard]] static std::string fromFile(const std::string_view &yamlFileName);
 
   /**
    * @brief Write a YAML string to a file.
