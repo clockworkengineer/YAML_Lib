@@ -75,6 +75,7 @@ set(TEST_SOURCES
   source/misc/YAML_Lib_Tests_Schema.cpp
   source/misc/YAML_Lib_Tests_Options.cpp
   source/misc/YAML_Lib_Tests_Phase3.cpp
+  source/misc/YAML_Lib_Tests_PublicAPI.cpp
   source/misc/YAML_Lib_Tests_HighTestability.cpp
   source/misc/YAML_Lib_Tests_SAX.cpp)
 
