@@ -17,6 +17,18 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
+3. Validate hardened build configurations:
+
+```sh
+cmake -S . -B build_no_file_io -DYAML_LIB_FILE_IO=OFF
+cmake --build build_no_file_io --target YAML_Lib
+
+cmake -S . -B build_no_exceptions -DYAML_LIB_NO_EXCEPTIONS=ON
+cmake --build build_no_exceptions --target YAML_Lib
+```
+
+4. Refer to `docs/attribute-checklist.md` for a Phase 7 audit summary of library attributes.
+
 3. To build and run fuzz tests:
 
 ```sh

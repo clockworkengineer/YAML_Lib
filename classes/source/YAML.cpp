@@ -54,13 +54,16 @@ void Options::validate() const {
   static constexpr unsigned long kMaxSafeAliasExpansions = 1000000UL;
 
   if (max_documents > kMaxSafeDocuments) {
-    throw std::invalid_argument("YAML::Options::max_documents exceeds safe limit.");
+    YAML_THROW(std::invalid_argument,
+               "YAML::Options::max_documents exceeds safe limit.");
   }
   if (max_parse_depth > kMaxSafeParseDepth) {
-    throw std::invalid_argument("YAML::Options::max_parse_depth exceeds safe limit.");
+    YAML_THROW(std::invalid_argument,
+               "YAML::Options::max_parse_depth exceeds safe limit.");
   }
   if (max_alias_expansions > kMaxSafeAliasExpansions) {
-    throw std::invalid_argument("YAML::Options::max_alias_expansions exceeds safe limit.");
+    YAML_THROW(std::invalid_argument,
+               "YAML::Options::max_alias_expansions exceeds safe limit.");
   }
 }
 /// <summary>
