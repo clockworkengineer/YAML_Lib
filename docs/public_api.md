@@ -71,3 +71,9 @@ These headers are part of the public include chain and are installed because the
 - Note: `YAML::fromFile(...)` reads the raw YAML file contents into a string, while `YAML::loadFile(...)` parses the file into a `YAML` object.
 
 - Users should avoid including private implementation headers not listed here.
+
+## Public implementation boundary
+
+The headers under `classes/include/implementation/*` are only part of the public API if they are explicitly documented in this file or exposed through `YAML.hpp` / `YAML_Core.hpp`.
+
+Direct inclusion of internal headers that are not listed here is unsupported and may change without notice.

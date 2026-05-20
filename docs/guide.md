@@ -78,6 +78,7 @@ YAML_Lib is designed to be a practical, attribute-driven C++ library. It focuses
 - **Portability** — optional feature flags for file I/O, SAX, and timestamps so the library adapts to embedded or cross-platform builds.
 - **Flexibility** — public extension points for custom sources, destinations, stringifiers, and parsers.
 - **Low dependency footprint** — runtime is standard-library-only.
+- **Modularity** — public headers are kept stable and supported, while implementation details remain in `classes/source/implementation` and `classes/include/implementation`.
 
 Use this guide for practical usage, and `docs/public_api.md` to understand the stable public include surface.
 
