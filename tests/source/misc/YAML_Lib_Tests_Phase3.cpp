@@ -1,4 +1,5 @@
 #include "YAML_Lib_Tests.hpp"
+#include "implementation/common/YAML_Arena.hpp"
 #include <cstdio>
 
 using namespace YAML_Lib;
@@ -106,6 +107,15 @@ TEST_CASE("YAML parse uses configured PMR allocations", "[YAML][Performance][PMR
   REQUIRE(countResource.allocations > 0);
   REQUIRE(isA<String>(yaml.document(0)["value"]));
   REQUIRE(NRef<String>(yaml.document(0)["value"]).value() == "test");
+}
+
+TEST_CASE("YAML constructor accepts a PMR memory resource", "[YAML][Performance][PMR]") {
+  MonotonicArena<16384> arena;
+  YAML yaml(arena.resource());
+  yaml.parse(BufferSource{"---\nvalue: pmr\n"});
+
+  REQUIRE(isA<String>(yaml.document(0)["value"]));
+  REQUIRE(NRef<String>(yaml.document(0)["value"]).value() == "pmr");
 }
 
 TEST_CASE("YAML::Options supports custom parser and stringifier implementations", "[YAML][Options][Customize]") {

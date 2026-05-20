@@ -132,6 +132,18 @@ const auto &doc = yaml.document(0);
 if (isA<String>(doc["value"])) {
     std::string value = NRef<String>(doc["value"]).value();
 }
+
+### Efficient memory allocation with MonotonicArena
+
+For repeated parse workloads or performance-critical paths, use `MonotonicArena` to allocate all parse-time data from a single stack-backed arena:
+
+```cpp
+MonotonicArena<65536> arena;
+YAML yaml(arena.resource());
+yaml.parse(BufferSource{"---\nvalue: 42\n"});
+```
+
+This avoids heap allocation overhead for `std::pmr` containers created during parse, while the arena is freed in one bulk step when it goes out of scope.
 ```
 
 ### Security best practices
@@ -146,6 +158,7 @@ Options options = Options::secureOptions();
 - `max_parse_depth` protects against deeply nested structures.
 - `max_alias_expansions` defends against alias explosion attacks such as billion-laughs-style alias graphs.
 - `strict_booleans` avoids YAML 1.1 boolean coercion for untrusted values.
+- `memory_resource` enables fast, bulk allocation from a custom PMR resource such as `MonotonicArena`.
 
 If you build with `YAML_LIB_NO_EXCEPTIONS=ON`, register a custom error handler via `YAML_Lib::setErrorHandler(...)` so parse failures do not abort the process unexpectedly.
 

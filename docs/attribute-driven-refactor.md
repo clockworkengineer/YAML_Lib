@@ -25,7 +25,7 @@ This document explains how `YAML_Lib` implements the library attributes from `no
 
 ### 4. Performance and Efficiency
 - The library already exposes `std::pmr::memory_resource` customization via `Options`.
-- Performance and memory usage considerations are discussed in `docs/guide.md` under the performance section.
+- Efficient allocation profiles are documented in `docs/guide.md`, including `MonotonicArena` usage and the `YAML_Performance_Profile` benchmark example.
 
 ### 5. Maintainability
 - Public headers and internal implementation headers are separated at the CMake install boundary.
