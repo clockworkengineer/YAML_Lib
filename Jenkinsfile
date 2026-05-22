@@ -23,5 +23,12 @@ pipeline {
                 sh './scripts/Linux-Run-Tests.sh'
             }
         }
+        stage ('Minimal Safe Build') {
+            steps {
+                sh 'echo "Building minimal safe library..."'
+                sh 'chmod +x ./scripts/Linux-Build-Minimal.sh'
+                sh './scripts/Linux-Build-Minimal.sh'
+            }
+        }
     }
 }

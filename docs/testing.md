@@ -23,6 +23,15 @@ ctest --test-dir build --output-on-failure
 cmake -S . -B build_no_file_io -DYAML_LIB_FILE_IO=OFF
 cmake --build build_no_file_io --target YAML_Lib
 
+cmake -S . -B build_minimal \
+  -DBUILD_YAML_EXAMPLES=OFF \
+  -DBUILD_YAML_TESTS=OFF \
+  -DBUILD_YAML_PARSER_FUZZ_TESTS=OFF \
+  -DYAML_LIB_FILE_IO=OFF \
+  -DYAML_LIB_SAX_API=OFF \
+  -DYAML_LIB_TIMESTAMP_PARSE=OFF
+cmake --build build_minimal --target YAML_Lib
+
 cmake -S . -B build_no_exceptions -DYAML_LIB_NO_EXCEPTIONS=ON
 cmake --build build_no_exceptions --target YAML_Lib
 ```
