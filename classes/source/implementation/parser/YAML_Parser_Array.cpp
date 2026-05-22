@@ -61,6 +61,10 @@ Node Default_Parser::parseArray(ISource &source, const Delimiters &delimiters,
           yNode = parseDocument(source, delimiters, arrayIndent);
         }
       }
+      const unsigned long nextSize = static_cast<unsigned long>(NRef<Array>(arrayNode).size()) + 1;
+      if (maxCollectionSize != 0 && nextSize > maxCollectionSize) {
+        YAML_THROW_POS(source, "YAML collection size exceeds configured limit.");
+      }
       NRef<Array>(arrayNode).add(std::move(yNode));
       moveToNextIndent(source);
     }
@@ -110,6 +114,10 @@ Node Default_Parser::parseInlineArray(
           YAML_THROW_POS(source, "Flow sequence continuation must be indented "
                             "beyond its parent block context.");
         }
+      }
+      const auto nextSize = static_cast<unsigned long>(yamlArray.value().size()) + 1;
+      if (maxCollectionSize != 0 && nextSize > maxCollectionSize) {
+        YAML_THROW_POS(source, "YAML collection size exceeds configured limit.");
       }
       yamlArray.add(parseDocument(source, inLineArrayDelimiters, indentation));
       // YAML 1.2 §7.3.3: A plain scalar consisting of only '-' is not allowed in flow context

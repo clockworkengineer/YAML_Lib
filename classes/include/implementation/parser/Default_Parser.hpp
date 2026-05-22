@@ -64,7 +64,10 @@ public:
       : yamlTranslator_(std::move(translator)),
         maxParseDepth(options.max_parse_depth),
         maxAliasExpansions(options.max_alias_expansions),
-        maxDocuments(options.max_documents) {}
+        maxDocuments(options.max_documents),
+        maxScalarLength(options.max_scalar_length),
+        maxCollectionSize(options.max_collection_size),
+        maxAliasCount(options.max_aliases) {}
   Default_Parser(const Default_Parser &other) = delete;
   Default_Parser &operator=(const Default_Parser &other) = delete;
   Default_Parser(Default_Parser &&other) = delete;
@@ -180,6 +183,8 @@ private:
   std::string extractInlineCollectionAt(ISource &source);
   std::string extractMapping(ISource &source);
   void checkForEnd(ISource &source, char end);
+  void checkScalarLength(ISource &source, std::size_t length) const;
+  void checkCollectionSize(unsigned long nextSize, ISource &source) const;
   void checkFlowDelimiter(ISource &source, const Delimiters &delimiters);
   void checkAtFlowClose(ISource &source, const Delimiters &delimiters,
                                long depth);
@@ -326,6 +331,9 @@ private:
   const unsigned long maxParseDepth{0};
   const unsigned long maxAliasExpansions{0};
   const unsigned long maxDocuments{0};
+  const unsigned long maxScalarLength{0};
+  const unsigned long maxCollectionSize{0};
+  const unsigned long maxAliasCount{0};
   // Strict YAML 1.2 boolean mode — process-global setting (not per-parse).
   inline static bool strictBooleans{false};
 };

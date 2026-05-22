@@ -21,7 +21,8 @@ namespace YAML_Lib {
 void Default_Parser::addUniqueDictEntry(Node &dictionaryNode,
                                         DictionaryEntry entry,
                                         ISource &source) {
-  if (NRef<Dictionary>(dictionaryNode).contains(entry.getKey())) {
+  const bool isDuplicateKey = NRef<Dictionary>(dictionaryNode).contains(entry.getKey());
+  if (isDuplicateKey) {
     if (entry.getKey().empty()) {
       // Empty (null) key: YAML permits duplicate null keys; last-wins.
       NRef<Dictionary>(dictionaryNode)[entry.getKey()] =
@@ -30,6 +31,11 @@ void Default_Parser::addUniqueDictEntry(Node &dictionaryNode,
     }
     YAML_THROW_POS(source, "Dictionary already contains key '" +
                           std::string(entry.getKey()) + "'.");
+  }
+  const unsigned long nextSize = static_cast<unsigned long>(
+      NRef<Dictionary>(dictionaryNode).size()) + 1;
+  if (maxCollectionSize != 0 && nextSize > maxCollectionSize) {
+    YAML_THROW_POS(source, "YAML collection size exceeds configured limit.");
   }
   NRef<Dictionary>(dictionaryNode).add(std::move(entry));
 }
@@ -52,6 +58,10 @@ void Default_Parser::addInlineDictEntry(Dictionary &dict, DictionaryEntry entry,
   } else if (dict.contains(keyStr)) {
     dict[keyStr] = std::move(entry.getNode());
   } else {
+    const unsigned long nextSize = static_cast<unsigned long>(dict.size()) + 1;
+    if (maxCollectionSize != 0 && nextSize > maxCollectionSize) {
+      YAML_THROW_POS(source, "YAML collection size exceeds configured limit.");
+    }
     dict.add(std::move(entry));
   }
 }
