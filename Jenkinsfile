@@ -23,6 +23,13 @@ pipeline {
                 sh './scripts/Linux-Run-Tests.sh'
             }
         }
+        stage ('Sanitizer Builds') {
+            steps {
+                sh 'echo "Running sanitizer builds..."'
+                sh 'chmod +x ./scripts/Linux-Build-Sanitizers.sh'
+                sh './scripts/Linux-Build-Sanitizers.sh'
+            }
+        }
         stage ('Minimal Safe Build') {
             steps {
                 sh 'echo "Building minimal safe library..."'
