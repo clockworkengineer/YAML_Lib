@@ -137,3 +137,31 @@ TEST_CASE("Parser rejects alias table size limit", "[YAML][Parse][Security][alia
 
   REQUIRE_THROWS_AS(yaml.parse(src), SyntaxError);
 }
+
+TEST_CASE("Parser rejects invalid tag suffix characters", "[YAML][Parse][Security][tag]") {
+  YAML yaml;
+  BufferSource src("---\n!foo[bar] value\n");
+
+  REQUIRE_THROWS_AS(yaml.parse(src), SyntaxError);
+}
+
+TEST_CASE("Parser rejects unclosed verbatim tag", "[YAML][Parse][Security][tag]") {
+  YAML yaml;
+  BufferSource src("---\n!<tag:yaml.org,2002:str value\n");
+
+  REQUIRE_THROWS_AS(yaml.parse(src), SyntaxError);
+}
+
+TEST_CASE("Parser rejects truncated unicode escape in double-quoted string", "[YAML][Parse][Security][escape]") {
+  YAML yaml;
+  BufferSource src("---\nvalue: \"abc\\u123\"\n");
+
+  REQUIRE_THROWS(yaml.parse(src));
+}
+
+TEST_CASE("Parser rejects malformed flow sequence", "[YAML][Parse][Security][sequence]") {
+  YAML yaml;
+  BufferSource src("---\n[1, 2, \n");
+
+  REQUIRE_THROWS_AS(yaml.parse(src), SyntaxError);
+}

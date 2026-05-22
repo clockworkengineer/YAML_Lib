@@ -1,4 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
+#include <filesystem>
+#include <fstream>
 
 #ifdef YAML_LIB_FILE_IO
 TEST_CASE("Checks for getFileFormat() api.", "[YAML][GetFileFormat]")
@@ -18,6 +20,20 @@ TEST_CASE("Checks for getFileFormat() api.", "[YAML][GetFileFormat]")
     SECTION("Check that getFileFormat() works with UTF16LE.", "[YAML][GetFileFormat][UTF16LE]")
     {
         REQUIRE(YAML::getFileFormat(prefixTestDataPath("testfile036.yaml")) == YAML::Format::utf16LE);
+    }
+    SECTION("Check that getFileFormat() rejects unsupported BOM formats.", "[YAML][GetFileFormat][BOM]")
+    {
+        const auto tempFile = std::filesystem::temp_directory_path() /
+            ("yaml_lib_unsupported_bom_" + generateRandomFileName() + ".yaml");
+        std::ofstream out(tempFile, std::ios::binary);
+        out.put(static_cast<char>(0x2B));
+        out.put(static_cast<char>(0x2F));
+        out.put(static_cast<char>(0x76));
+        out.put(static_cast<char>(0x38));
+        out << "---\nkey: value\n";
+        out.close();
+        REQUIRE_THROWS_AS(YAML::getFileFormat(tempFile.string()), YAML_Lib::Error);
+        std::filesystem::remove(tempFile);
     }
     // SECTION("Check that getFileFormat() works with UTF32BE.", "[YAML][GetFileFormat][UTF32BE]")
     // {

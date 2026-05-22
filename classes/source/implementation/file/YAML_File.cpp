@@ -64,18 +64,34 @@ std::u16string readYAMLString(std::ifstream &yamlFile, const YAML::Format format
     std::u16string utf16String;
     // Move past byte order mark
     yamlFile.seekg(2);
-    if (format == YAML::Format::utf16BE)
+    if (format == YAML::Format::utf16BE) {
         while (true) {
-            char16_t ch16 = static_cast<char>(yamlFile.get()) << 8;
-            ch16 |= static_cast<char>(yamlFile.get());
-            if (yamlFile.eof()) break;
+            const int hi = yamlFile.get();
+            const int lo = yamlFile.get();
+            if (hi == EOF && lo == EOF) {
+                break;
+            }
+            if (hi == EOF || lo == EOF) {
+                YAML_THROW(Error, "Truncated UTF-16 YAML file.");
+            }
+            const char16_t ch16 = static_cast<char16_t>(
+                (static_cast<unsigned char>(hi) << 8) |
+                static_cast<unsigned char>(lo));
             utf16String.push_back(ch16);
         }
-    else if (format == YAML::Format::utf16LE) {
+    } else if (format == YAML::Format::utf16LE) {
         while (true) {
-            char16_t ch16 = static_cast<char>(yamlFile.get());
-            ch16 |= static_cast<char>(yamlFile.get()) << 8;
-            if (yamlFile.eof()) break;
+            const int lo = yamlFile.get();
+            const int hi = yamlFile.get();
+            if (lo == EOF && hi == EOF) {
+                break;
+            }
+            if (lo == EOF || hi == EOF) {
+                YAML_THROW(Error, "Truncated UTF-16 YAML file.");
+            }
+            const char16_t ch16 = static_cast<char16_t>(
+                static_cast<unsigned char>(lo) |
+                (static_cast<unsigned char>(hi) << 8));
             utf16String.push_back(ch16);
         }
     } else {
@@ -110,13 +126,14 @@ void validateOutputFile(const std::ofstream &file,
 
 YAML::Format YAML_Impl::getFileFormat(const std::string_view &fileName)
 {
-    std::ifstream yamlFile{ fileName.data(), std::ios_base::binary };
+    const std::string fileNameStr{fileName};
+    std::ifstream yamlFile{fileNameStr, std::ios_base::binary};
     validateInputFile(yamlFile, fileName);
 
     char bomBuffer[4] = {};
     yamlFile.read(bomBuffer, sizeof(bomBuffer));
     if (!yamlFile && !yamlFile.eof()) {
-      YAML_THROW(Error, "Failed to read YAML file '" + std::string(fileName) + "'.");
+      YAML_THROW(Error, "Failed to read YAML file '" + fileNameStr + "'.");
     }
 
     const uint32_t byteOrderMark = (static_cast<unsigned char>(bomBuffer[0]) << 24) |
@@ -124,6 +141,11 @@ YAML::Format YAML_Impl::getFileFormat(const std::string_view &fileName)
                                    (static_cast<unsigned char>(bomBuffer[2]) << 8) |
                                    (static_cast<unsigned char>(bomBuffer[3]));
     yamlFile.close();
+    if (byteOrderMark == 0x2B2F7638 || byteOrderMark == 0xF7BBBF00 ||
+        byteOrderMark == 0xDD736673 || byteOrderMark == 0xFBEE2800 ||
+        byteOrderMark == 0x84319533) {
+      YAML_THROW(Error, "Unsupported YAML file format (Byte Order Mark) encountered.");
+    }
     if (byteOrderMark == 0x0000FEFF) { return YAML::Format::utf32BE; }
     if (byteOrderMark == 0xFFFE0000) { return YAML::Format::utf32LE; }
     if ((byteOrderMark & 0xFFFFFF00) == 0xEFBBBF00) { return YAML::Format::utf8BOM; }
@@ -145,7 +167,8 @@ std::string YAML_Impl::fromFile(const std::string_view &fileName)
     // Get file format
     const YAML::Format format = getFileFormat(fileName);
     // Read in YAML
-    std::ifstream yamlFile{ fileName.data(), std::ios_base::binary };
+    const std::string fileNameStr{fileName};
+    std::ifstream yamlFile{fileNameStr, std::ios_base::binary};
     validateInputFile(yamlFile, fileName);
     std::string translated;
     switch (format) {
@@ -183,7 +206,8 @@ std::string YAML_Impl::fromFile(const std::string_view &fileName)
 /// <param name="format">YAML file format</param>
 void YAML_Impl::toFile(const std::string_view &fileName, const std::string_view &yamlString, const YAML::Format format)
 {
-    std::ofstream yamlFile{ fileName.data(), std::ios::binary };
+    const std::string fileNameStr{fileName};
+    std::ofstream yamlFile{fileNameStr, std::ios::binary};
     validateOutputFile(yamlFile, fileName);
     switch (format) {
     case YAML::Format::utf8BOM:
