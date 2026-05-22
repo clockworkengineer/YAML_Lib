@@ -34,7 +34,8 @@ cmake --build build_minimal --target YAML_Lib
 
 cmake -S . -B build_no_exceptions -DYAML_LIB_NO_EXCEPTIONS=ON
 cmake --build build_no_exceptions --target YAML_Lib
-```
+
+> Note: Catch2-based unit tests cannot run under `-fno-exceptions`. The library build itself is the best no-exceptions validation, and this repository includes a small compile-only target `YAML_Lib_NoExceptions_Compile_Tests` to verify the panic handler API.```
 
 4. Refer to `docs/attribute-checklist.md` for a Phase 7 audit summary of library attributes.
 

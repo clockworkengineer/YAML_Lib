@@ -161,21 +161,19 @@ Options options = Options::secureOptions();
 - `strict_booleans` avoids YAML 1.1 boolean coercion for untrusted values.
 - `memory_resource` enables fast, bulk allocation from a custom PMR resource such as `MonotonicArena`.
 
-If you build with `YAML_LIB_NO_EXCEPTIONS=ON`, register a custom error handler via `YAML_Lib::setErrorHandler(...)` so parse failures do not abort the process unexpectedly.
+If you build with `YAML_LIB_NO_EXCEPTIONS=ON`, register a custom error handler via `YAML_Lib::setErrorHandler(...)` so parse failures can be reported before the library aborts.
 
 ```cpp
-YAML_Lib::setErrorHandler([](std::string_view message, unsigned long line, unsigned long column) {
+YAML_Lib::setErrorHandler([](std::string_view message, unsigned long line, unsigned long column) noexcept {
   std::cerr << "YAML parse failure at " << line << ":" << column << ": " << message << '\n';
-  // Recover or shut down gracefully.
+  std::exit(EXIT_FAILURE); // Handler must not return.
 });
 
-YAML yaml;
-try {
-  yaml.parse(BufferSource{"---\ninvalid: ["});
-} catch (const std::exception &ex) {
-  std::cerr << "Exception: " << ex.what() << '\n';
-}
+YAML_Lib::YAML yaml;
+yaml.parse(YAML_Lib::BufferSource{"---\ninvalid: ["});
 ```
+
+> Note: In no-exceptions builds, `YAML::tryParse()` and `YAML::tryStringify()` are unavailable. Use `setErrorHandler()` to observe errors instead of exception handling.
 
 ### Custom I/O and stringification
 

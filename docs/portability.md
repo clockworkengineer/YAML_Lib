@@ -22,6 +22,8 @@ YAML_Lib is built with CMake 3.18+ and targets C++20.
 
 These flags are build-time only. The library's core runtime remains dependent only on the C++ standard library when optional features are disabled.
 
+> A no-exceptions build disables `YAML::tryParse()` and `YAML::tryStringify()`. Register a custom panic handler with `YAML_Lib::setErrorHandler(...)` when using `YAML_LIB_NO_EXCEPTIONS=ON` so errors can be logged or handled before the library aborts.
+
 ### Safe defaults for untrusted YAML
 
 When parsing untrusted input, configure parser limits and strict boolean handling:
