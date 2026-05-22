@@ -1,5 +1,7 @@
 #pragma once
 
+#include <istream>
+
 namespace YAML_Lib {
 
 // ======================================================================

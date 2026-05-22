@@ -7,6 +7,51 @@ TEST_CASE("YAML::Options::secureOptions returns recommended safe defaults", "[YA
   REQUIRE(secure.max_documents == 1);
   REQUIRE(secure.max_parse_depth == 64);
   REQUIRE(secure.max_alias_expansions == 64);
+  REQUIRE(secure.max_aliases == 256);
+  REQUIRE(secure.max_scalar_length == 64 * 1024);
+  REQUIRE(secure.max_collection_size == 1024);
+}
+
+TEST_CASE("YAML::Options::validate rejects excessive configured scalar length", "[YAML][Options][Validate]") {
+  ::YAML_Lib::Options options;
+  options.max_scalar_length = 512UL * 1024UL * 1024UL; // above safe validated limit
+
+  auto createYaml = [&]() { return ::YAML_Lib::YAML(options); };
+  REQUIRE_THROWS_AS(createYaml(), std::invalid_argument);
+}
+
+TEST_CASE("YAML::Options enforces maxScalarLength during parsing", "[YAML][Options][Parse][Security]") {
+  ::YAML_Lib::Options options;
+  options.max_scalar_length = 2;
+
+  ::YAML_Lib::YAML yaml(options);
+  ::YAML_Lib::BufferSource src{"---\nname: \"abc\"\n"};
+
+  REQUIRE_THROWS_AS(yaml.parse(src), ::YAML_Lib::SyntaxError);
+}
+
+TEST_CASE("YAML::Options enforces maxCollectionSize during parsing", "[YAML][Options][Parse][Security]") {
+  ::YAML_Lib::Options options;
+  options.max_collection_size = 1;
+
+  ::YAML_Lib::YAML yaml(options);
+  ::YAML_Lib::BufferSource src{"---\n[1, 2]\n"};
+
+  REQUIRE_THROWS_AS(yaml.parse(src), ::YAML_Lib::SyntaxError);
+}
+
+TEST_CASE("YAML::Options enforces maxAliasCount during parsing", "[YAML][Options][Parse][Security]") {
+  ::YAML_Lib::Options options;
+  options.max_aliases = 1;
+
+  ::YAML_Lib::YAML yaml(options);
+  ::YAML_Lib::BufferSource src{
+      "---\n"
+      "a: &a1 1\n"
+      "b: &a2 2\n"
+      "root: *a1\n"};
+
+  REQUIRE_THROWS_AS(yaml.parse(src), ::YAML_Lib::SyntaxError);
 }
 
 TEST_CASE("YAML::Options enables strict boolean parsing", "[YAML][Options][Parse]") {

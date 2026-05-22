@@ -8,7 +8,6 @@
 //
 
 #include <chrono>
-#include <iostream>
 #include <string>
 #include "YAML_Utility.hpp"
 

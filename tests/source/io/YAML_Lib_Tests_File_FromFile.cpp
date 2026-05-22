@@ -63,6 +63,30 @@ TEST_CASE("Checks for fromFile() api.", "[YAML][FromFile]") {
     REQUIRE(!std::filesystem::exists(missingFile));
     REQUIRE_THROWS_AS(YAML::fromFile(missingFile.string()), YAML_Lib::Error);
   }
+  SECTION("Check that fromFile() rejects unsupported BOM files.", "[YAML][FromFile][Error][BOM]") {
+    const auto tempFile = std::filesystem::temp_directory_path() /
+        ("yaml_lib_unsupported_bom_" + generateRandomFileName() + ".yaml");
+    std::ofstream out(tempFile, std::ios::binary);
+    out.put(static_cast<char>(0x2B));
+    out.put(static_cast<char>(0x2F));
+    out.put(static_cast<char>(0x76));
+    out.put(static_cast<char>(0x38));
+    out << "---\nkey: value\n";
+    out.close();
+    REQUIRE_THROWS_AS(YAML::fromFile(tempFile.string()), YAML_Lib::Error);
+    std::filesystem::remove(tempFile);
+  }
+  SECTION("Check that fromFile() rejects truncated UTF16 input.", "[YAML][FromFile][Error][UTF16]") {
+    const auto tempFile = std::filesystem::temp_directory_path() /
+        ("yaml_lib_truncated_utf16_" + generateRandomFileName() + ".yaml");
+    std::ofstream out(tempFile, std::ios::binary);
+    out.put(static_cast<char>(0xFE));
+    out.put(static_cast<char>(0xFF));
+    out.put(static_cast<char>(0x00));
+    out.close();
+    REQUIRE_THROWS_AS(YAML::fromFile(tempFile.string()), YAML_Lib::Error);
+    std::filesystem::remove(tempFile);
+  }
   // SECTION("Check that fromFile() works with UTF32BE.",
   // "[YAML][FromFile][UTF32BE]")
   // {

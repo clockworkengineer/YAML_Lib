@@ -65,6 +65,9 @@ struct Options {
   unsigned long max_documents{32};
   unsigned long max_parse_depth{128};
   unsigned long max_alias_expansions{64};
+  unsigned long max_aliases{0};
+  unsigned long max_scalar_length{0};
+  unsigned long max_collection_size{0};
 
   /**
    * @brief Return recommended runtime settings for untrusted YAML input.
@@ -79,6 +82,9 @@ struct Options {
     secure.max_documents = 1;
     secure.max_parse_depth = 64;
     secure.max_alias_expansions = 64;
+    secure.max_aliases = 256;
+    secure.max_scalar_length = 64 * 1024;
+    secure.max_collection_size = 1024;
     return secure;
   }
 

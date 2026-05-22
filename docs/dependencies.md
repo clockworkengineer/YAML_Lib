@@ -42,6 +42,7 @@ To build the smallest possible library footprint, disable optional features and 
 cmake -S . -B build_minimal \
   -DBUILD_YAML_EXAMPLES=OFF \
   -DBUILD_YAML_TESTS=OFF \
+  -DBUILD_YAML_PARSER_FUZZ_TESTS=OFF \
   -DYAML_LIB_FILE_IO=OFF \
   -DYAML_LIB_SAX_API=OFF \
   -DYAML_LIB_TIMESTAMP_PARSE=OFF

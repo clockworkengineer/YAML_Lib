@@ -93,6 +93,21 @@ CMake options supported by YAML_Lib:
 - `BUILD_YAML_EXAMPLES=ON` — build the sample example applications.
 - `BUILD_YAML_TESTS=ON` — build the unit tests using Catch2.
 
+### Minimal safe build
+
+To keep the runtime footprint minimal and disable optional feature code paths, build only the core library:
+
+```sh
+cmake -S . -B build_minimal \
+  -DBUILD_YAML_EXAMPLES=OFF \
+  -DBUILD_YAML_TESTS=OFF \
+  -DBUILD_YAML_PARSER_FUZZ_TESTS=OFF \
+  -DYAML_LIB_FILE_IO=OFF \
+  -DYAML_LIB_SAX_API=OFF \
+  -DYAML_LIB_TIMESTAMP_PARSE=OFF
+cmake --build build_minimal
+```
+
 The runtime library itself has no external dependencies beyond the C++ standard library. Optional code paths for file I/O, SAX parsing, and timestamp conversion are all controlled by build-time feature flags and are not required for basic usage.
 
 ### Dependency footprint

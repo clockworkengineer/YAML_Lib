@@ -84,7 +84,12 @@ TEST_CASE("Parser handles malformed inputs robustly without crashing", "[YAML][S
     "a: &a [\"LOL\"]\nb: [*a,*a]\nc: [*b,*b]\n",
     "a: &a \"value\"\nb: *a\nc: *b\n",
     "---\n- foo\n- bar\n- baz\n  - qux\n",
-    "a: |\n  unclosed block string"
+    "a: |\n  unclosed block string",
+    "---\n- &rec [*rec]\n",
+    "a: !!str 0xZZ\n",
+    "\xEF" "\xBB" "\xBF" "foo: bar\n",
+    "a: [1, 2, 3\n  - 4\n",
+    "a: \"unterminated quote\n"
   };
 
   for (const auto &input : fuzzCases) {

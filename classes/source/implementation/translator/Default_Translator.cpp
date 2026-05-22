@@ -36,7 +36,7 @@ static const std::vector<std::pair<const char, const char>> escapeSequences{
 void decodeUTF32(std::string_view::const_iterator &current,
                  const ptrdiff_t numberOfCharacters,
                  std::u16string &utf16Buffer) {
-  if (numberOfCharacters >= 8) {
+  if (numberOfCharacters >= 9) {
     const std::array hexDigits{(current[1]), (current[2]), (current[3]),
                                (current[4]), (current[5]), (current[6]),
                                (current[7]), (current[8]), kNull};
@@ -70,7 +70,7 @@ void decodeUTF32(std::string_view::const_iterator &current,
 /// string.</param> <returns>UTF16 character for "\uxxxx".</returns>
 char16_t decodeUTF16(std::string_view::const_iterator &current,
                      const ptrdiff_t numberOfCharacters) {
-  if (numberOfCharacters >= 4) {
+  if (numberOfCharacters >= 5) {
     char16_t utf16value{};
     // Hex digits will be ascii so can throw away high order byte of char
     const std::array hexDigits{(current[1]), (current[2]), (current[3]),

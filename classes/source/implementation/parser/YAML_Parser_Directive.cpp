@@ -172,6 +172,10 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
     }
   }
   if (unparsed.empty()) {
+    if (maxAliasCount != 0 && ctx_.yamlAliasMap.count(name) == 0 &&
+        ctx_.yamlAliasMap.size() + 1 > maxAliasCount) {
+      YAML_THROW_POS(source, "YAML anchor count exceeds configured limit.");
+    }
     ctx_.yamlAliasMap[name] = unparsed;
     return Node::make<Null>();
   }
@@ -207,6 +211,10 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
         }
       }
     }
+  }
+  if (maxAliasCount != 0 && ctx_.yamlAliasMap.count(name) == 0 &&
+      ctx_.yamlAliasMap.size() + 1 > maxAliasCount) {
+    YAML_THROW_POS(source, "YAML anchor count exceeds configured limit.");
   }
   ctx_.yamlAliasMap[name] = unparsed;
   return parseFromBuffer(unparsed, delimiters, indentation);

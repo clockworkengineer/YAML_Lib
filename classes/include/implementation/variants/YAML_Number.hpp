@@ -1,6 +1,9 @@
 #pragma once
 
 #include <charconv>
+#include <cmath>
+#include <iomanip>
+#include <sstream>
 
 namespace YAML_Lib {
 

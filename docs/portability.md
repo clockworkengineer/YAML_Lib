@@ -22,6 +22,8 @@ YAML_Lib is built with CMake 3.18+ and targets C++20.
 
 These flags are build-time only. The library's core runtime remains dependent only on the C++ standard library when optional features are disabled.
 
+> A no-exceptions build disables `YAML::tryParse()` and `YAML::tryStringify()`. Register a custom panic handler with `YAML_Lib::setErrorHandler(...)` when using `YAML_LIB_NO_EXCEPTIONS=ON` so errors can be logged or handled before the library aborts.
+
 ### Safe defaults for untrusted YAML
 
 When parsing untrusted input, configure parser limits and strict boolean handling:
@@ -47,6 +49,14 @@ A regression target compiles the stable public header set under strict flags to 
 ctest --test-dir build -R "YAML_Lib_Header_Compile_Tests" --output-on-failure
 ```
 
+For public API contract hardening, run header-only validation across supported build configurations, including:
+
+- default feature set
+- minimal builds with `YAML_LIB_FILE_IO=OFF`, `YAML_LIB_SAX_API=OFF`, and `YAML_LIB_TIMESTAMP_PARSE=OFF`
+- no-exceptions builds with `YAML_LIB_NO_EXCEPTIONS=ON`
+
+This helps ensure the public headers remain stable across optional feature combinations.
+
 ## Cross-platform build examples
 
 Linux/macOS:
@@ -69,6 +79,7 @@ Minimal footprint build:
 cmake -S . -B build_minimal \
   -DBUILD_YAML_EXAMPLES=OFF \
   -DBUILD_YAML_TESTS=OFF \
+  -DBUILD_YAML_PARSER_FUZZ_TESTS=OFF \
   -DYAML_LIB_FILE_IO=OFF \
   -DYAML_LIB_SAX_API=OFF \
   -DYAML_LIB_TIMESTAMP_PARSE=OFF

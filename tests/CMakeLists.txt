@@ -106,6 +106,9 @@ target_compile_definitions(${TEST_EXECUTABLE} PRIVATE
 add_test(NAME ${TEST_EXECUTABLE} COMMAND ${TEST_EXECUTABLE})
 set_tests_properties(${TEST_EXECUTABLE} PROPERTIES LABELS "unit;testability;api")
 
+# Header-only validation of the stable public API surface and public header contracts.
+# This target helps catch unsupported public header dependencies or interface regressions
+# before they reach library consumers.
 set(HEADER_COMPILE_TEST_EXECUTABLE ${YAML_LIBRARY_NAME}_Header_Compile_Tests)
 add_executable(${HEADER_COMPILE_TEST_EXECUTABLE} source/misc/YAML_Lib_Tests_HeaderCompile.cpp)
 target_include_directories(${HEADER_COMPILE_TEST_EXECUTABLE} PRIVATE
@@ -124,9 +127,13 @@ target_include_directories(${HEADER_COMPILE_TEST_EXECUTABLE} PRIVATE
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/tests/include
 )
-target_precompile_headers(${HEADER_COMPILE_TEST_EXECUTABLE} REUSE_FROM YAML_Lib)
+
+if(NOT YAML_LIB_NO_EXCEPTIONS)
+  target_precompile_headers(${HEADER_COMPILE_TEST_EXECUTABLE} REUSE_FROM YAML_Lib)
+endif()
+
 add_test(NAME ${HEADER_COMPILE_TEST_EXECUTABLE} COMMAND ${HEADER_COMPILE_TEST_EXECUTABLE})
-set_tests_properties(${HEADER_COMPILE_TEST_EXECUTABLE} PROPERTIES LABELS "unit;portability")
+set_tests_properties(${HEADER_COMPILE_TEST_EXECUTABLE} PROPERTIES LABELS "unit;portability;api")
 
 if(BUILD_YAML_PARSER_FUZZ_TESTS)
   set(FUZZ_TEST_EXECUTABLE ${YAML_LIBRARY_NAME}_Fuzz_Tests)

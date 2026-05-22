@@ -1,5 +1,9 @@
 #pragma once
 
+#include <cstring>
+#include <iterator>
+#include <ranges>
+
 namespace YAML_Lib {
 
 class BufferDestination final : public IDestination {

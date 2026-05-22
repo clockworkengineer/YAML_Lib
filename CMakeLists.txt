@@ -90,6 +90,17 @@ target_include_directories(${YAML_LIBRARY_NAME}
 
 target_precompile_headers(${YAML_LIBRARY_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/stdafx.h)
 
+set(NO_EXCEPTIONS_COMPILE_TEST_EXECUTABLE ${YAML_LIBRARY_NAME}_NoExceptions_Compile_Tests)
+add_executable(${NO_EXCEPTIONS_COMPILE_TEST_EXECUTABLE}
+  tests/source/misc/YAML_Lib_Tests_NoExceptionsCompile.cpp)
+target_include_directories(${NO_EXCEPTIONS_COMPILE_TEST_EXECUTABLE} PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/classes/include
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/tests/include
+)
+target_link_libraries(${NO_EXCEPTIONS_COMPILE_TEST_EXECUTABLE} PRIVATE ${YAML_LIBRARY_NAME})
+add_dependencies(${NO_EXCEPTIONS_COMPILE_TEST_EXECUTABLE} ${YAML_LIBRARY_NAME})
+
 if(YAML_LIB_NO_EXCEPTIONS)
   target_compile_definitions(${YAML_LIBRARY_NAME} PUBLIC YAML_LIB_NO_EXCEPTIONS)
   target_compile_options(${YAML_LIBRARY_NAME} PUBLIC -fno-exceptions)

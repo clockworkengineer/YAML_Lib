@@ -52,6 +52,9 @@ void Options::validate() const {
   static constexpr unsigned long kMaxSafeDocuments = 1000000UL;
   static constexpr unsigned long kMaxSafeParseDepth = 65536UL;
   static constexpr unsigned long kMaxSafeAliasExpansions = 1000000UL;
+  static constexpr unsigned long kMaxSafeAliases = 1000000UL;
+  static constexpr unsigned long kMaxSafeScalarLength = 256UL * 1024UL * 1024UL;
+  static constexpr unsigned long kMaxSafeCollectionSize = 10000000UL;
 
   if (max_documents > kMaxSafeDocuments) {
     YAML_THROW(std::invalid_argument,
@@ -64,6 +67,18 @@ void Options::validate() const {
   if (max_alias_expansions > kMaxSafeAliasExpansions) {
     YAML_THROW(std::invalid_argument,
                "YAML::Options::max_alias_expansions exceeds safe limit.");
+  }
+  if (max_aliases > kMaxSafeAliases) {
+    YAML_THROW(std::invalid_argument,
+               "YAML::Options::max_aliases exceeds safe limit.");
+  }
+  if (max_scalar_length > kMaxSafeScalarLength) {
+    YAML_THROW(std::invalid_argument,
+               "YAML::Options::max_scalar_length exceeds safe limit.");
+  }
+  if (max_collection_size > kMaxSafeCollectionSize) {
+    YAML_THROW(std::invalid_argument,
+               "YAML::Options::max_collection_size exceeds safe limit.");
   }
 }
 /// <summary>

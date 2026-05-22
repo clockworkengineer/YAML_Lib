@@ -37,6 +37,21 @@ void Default_Parser::rightTrim(std::string &str) {
           .base(),
       str.end());
 }
+
+void Default_Parser::checkScalarLength(ISource &source,
+                                       const std::size_t length) const {
+  if (maxScalarLength != 0 && length > maxScalarLength) {
+    YAML_THROW_POS(source, "YAML scalar length exceeds configured limit.");
+  }
+}
+
+void Default_Parser::checkCollectionSize(unsigned long nextSize,
+                                         ISource &source) const {
+  if (maxCollectionSize != 0 && nextSize > maxCollectionSize) {
+    YAML_THROW_POS(source, "YAML collection size exceeds configured limit.");
+  }
+}
+
 /// <summary>
 /// Move to the next delimiter on source stream in a set.
 /// </summary>
@@ -157,6 +172,7 @@ std::string Default_Parser::extractString(ISource &source, const char quote,
           extracted += quote;
           extracted += quote;
           source.next(); // consume the second quote; continue scanning
+          checkScalarLength(source, extracted.size());
           continue;
         }
         // Real closing quote: already consumed above.
@@ -168,6 +184,7 @@ std::string Default_Parser::extractString(ISource &source, const char quote,
       break; // double-quoted (or other): closing quote
     }
     extracted += source.current();
+    checkScalarLength(source, extracted.size());
     source.next();
   }
   if (!foundClosing) {
@@ -221,6 +238,7 @@ std::string Default_Parser::extractToNext(ISource &source,
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
       extracted += source.append();
+      checkScalarLength(source, extracted.size());
     }
   }
   return extracted;
@@ -251,6 +269,7 @@ std::string Default_Parser::extractInLine(ISource &source, const char start,
   unsigned long depth{1};
   extracted += start;
   source.next();
+  checkScalarLength(source, extracted.size());
   while (depth > 0 && source.more()) {
     if (source.current() == start) {
       depth++;
@@ -258,6 +277,7 @@ std::string Default_Parser::extractInLine(ISource &source, const char start,
       depth--;
     }
     extracted += source.current();
+    checkScalarLength(source, extracted.size());
     source.next();
   }
   source.ignoreWS();
@@ -304,6 +324,7 @@ Default_Parser::captureIndentedBlock(ISource &source,
     }
     const std::string indent(source.getPosition().second, kSpace);
     text += indent + extractToNext(source, {kLineFeed}) + "\n";
+    checkScalarLength(source, text.size());
     moveToNextIndent(source);
   }
   return text;

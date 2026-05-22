@@ -23,9 +23,20 @@ ctest --test-dir build --output-on-failure
 cmake -S . -B build_no_file_io -DYAML_LIB_FILE_IO=OFF
 cmake --build build_no_file_io --target YAML_Lib
 
+cmake -S . -B build_minimal \
+  -DBUILD_YAML_EXAMPLES=OFF \
+  -DBUILD_YAML_TESTS=OFF \
+  -DBUILD_YAML_PARSER_FUZZ_TESTS=OFF \
+  -DYAML_LIB_FILE_IO=OFF \
+  -DYAML_LIB_SAX_API=OFF \
+  -DYAML_LIB_TIMESTAMP_PARSE=OFF
+cmake --build build_minimal --target YAML_Lib
+
 cmake -S . -B build_no_exceptions -DYAML_LIB_NO_EXCEPTIONS=ON
 cmake --build build_no_exceptions --target YAML_Lib
 ```
+
+> Note: Catch2-based unit tests cannot run under `-fno-exceptions`. The library build itself is the best no-exceptions validation, and this repository includes a small compile-only target `YAML_Lib_NoExceptions_Compile_Tests` to verify the panic handler API.
 
 4. Refer to `docs/attribute-checklist.md` for a Phase 7 audit summary of library attributes.
 
@@ -36,6 +47,13 @@ cmake -S . -B build -DBUILD_YAML_PARSER_FUZZ_TESTS=ON
 cmake --build build
 ./build/tests/YAML_Lib_Fuzz_Tests
 ```
+
+## Security-focused testing
+
+- The Jenkins pipeline now builds both `Release` and `Debug` with `BUILD_YAML_PARSER_FUZZ_TESTS=ON` and executes the test suite regularly.
+- Use `scripts/Linux-Build-Sanitizers.sh` to validate AddressSanitizer and UndefinedBehaviorSanitizer builds with the unit test suite.
+- `YAML_Lib_Fuzz_Tests` is labeled with `fuzz` and `security` to make it easy to run security test jobs.
+- `scripts/Linux-Style-Check.sh` includes `clang-format` checks and runs `clang-tidy` when the tool is available.
 
 ## Test structure
 
@@ -118,6 +136,7 @@ This helps keep example programs as lightweight integration checks for the publi
 
 - Keep public API headers lean and stable; internal implementation headers should remain hidden unless explicitly exposed by `YAML_Core.hpp`, `YAML.hpp`, or the public interface.
 - Use the existing `YAML_Lib_Tests_HeaderCompile` target as a maintainability gate for public header stability.
+- Run header-only validation for supported feature combinations, especially minimal and no-exceptions builds.
 - Add focused public API tests for top-level helpers such as `YAML::load()`, `YAML::dump()`, `YAML::toString()`, and `YAML::loadFile()`.
 - Prefer one responsibility per source file, especially in parser and stringify implementation modules.
 - Document all public interfaces with clear lifetime and ownership semantics for callers.
