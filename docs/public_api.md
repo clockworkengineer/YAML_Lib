@@ -19,6 +19,13 @@ This document lists the stable public headers that are installed and intended fo
 - `YAML_Interfaces.hpp`
 - `YAML_SAX.hpp` (when built with `YAML_LIB_SAX_API=ON`)
 
+## Contract expectations for public input/output interfaces
+
+- `ISource` implementations must preserve the contract of `more()`, `current()`, `next()`, `save()`, `restore()`, and `discardSave()`.
+- `ISource` objects must outlive any active call to `YAML::parse()` and may propagate parser-visible errors via `ISource::Error`.
+- `IDestination` implementations must preserve byte order, support `clear()` semantics, and propagate output failures via `IDestination::Error`.
+- `StreamDestination` now detects bad `std::ostream` state during writes and converts it into a destination error.
+
 ## Public implementation headers used by the API
 
 These headers are part of the public include chain and are installed because they are referenced by public headers:

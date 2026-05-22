@@ -1,6 +1,10 @@
 #pragma once
 
 #include <bitset>
+#include <functional>
+#include <map>
+#include <set>
+#include <unordered_map>
 
 #include "YAML.hpp"
 #include "YAML_Core.hpp"

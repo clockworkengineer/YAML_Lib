@@ -136,6 +136,7 @@ This helps keep example programs as lightweight integration checks for the publi
 
 - Keep public API headers lean and stable; internal implementation headers should remain hidden unless explicitly exposed by `YAML_Core.hpp`, `YAML.hpp`, or the public interface.
 - Use the existing `YAML_Lib_Tests_HeaderCompile` target as a maintainability gate for public header stability.
+- Run header-only validation for supported feature combinations, especially minimal and no-exceptions builds.
 - Add focused public API tests for top-level helpers such as `YAML::load()`, `YAML::dump()`, `YAML::toString()`, and `YAML::loadFile()`.
 - Prefer one responsibility per source file, especially in parser and stringify implementation modules.
 - Document all public interfaces with clear lifetime and ownership semantics for callers.

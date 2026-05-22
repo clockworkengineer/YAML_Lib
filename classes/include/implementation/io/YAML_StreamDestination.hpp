@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstring>
+#include <ostream>
+
 namespace YAML_Lib {
 
 // ======================================================================
@@ -27,25 +30,40 @@ public:
 
   void add(const char ch) override {
     stream.put(ch);
+    if (!stream) {
+      YAML_THROW(IDestination::Error, "Failed to write to output stream.");
+    }
     lastChar = ch;
   }
   void add(const std::string &bytes) override {
-    stream.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
-    if (!bytes.empty()) {
-      lastChar = bytes.back();
+    if (bytes.empty()) {
+      return;
     }
+    stream.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
+    if (!stream) {
+      YAML_THROW(IDestination::Error, "Failed to write to output stream.");
+    }
+    lastChar = bytes.back();
   }
   void add(const char *bytes) override {
     if (bytes != nullptr && bytes[0] != '\0') {
-      stream.write(bytes, static_cast<std::streamsize>(std::strlen(bytes)));
-      lastChar = bytes[std::strlen(bytes) - 1];
+      const std::size_t length = std::strlen(bytes);
+      stream.write(bytes, static_cast<std::streamsize>(length));
+      if (!stream) {
+        YAML_THROW(IDestination::Error, "Failed to write to output stream.");
+      }
+      lastChar = bytes[length - 1];
     }
   }
   void add(const std::string_view &bytes) override {
-    stream.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
-    if (!bytes.empty()) {
-      lastChar = bytes.back();
+    if (bytes.empty()) {
+      return;
     }
+    stream.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
+    if (!stream) {
+      YAML_THROW(IDestination::Error, "Failed to write to output stream.");
+    }
+    lastChar = bytes.back();
   }
   void clear() override {
     // Streams cannot have data removed once written; just reset the

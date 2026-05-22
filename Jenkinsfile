@@ -30,6 +30,13 @@ pipeline {
                 sh './scripts/Linux-Build-Sanitizers.sh'
             }
         }
+        stage ('Header-only API validation') {
+            steps {
+                sh 'echo "Validating public header API across supported configurations..."'
+                sh 'chmod +x ./scripts/Linux-Build-HeaderCompile.sh'
+                sh './scripts/Linux-Build-HeaderCompile.sh'
+            }
+        }
         stage ('Minimal Safe Build') {
             steps {
                 sh 'echo "Building minimal safe library..."'

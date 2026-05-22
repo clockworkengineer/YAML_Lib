@@ -49,6 +49,14 @@ A regression target compiles the stable public header set under strict flags to 
 ctest --test-dir build -R "YAML_Lib_Header_Compile_Tests" --output-on-failure
 ```
 
+For public API contract hardening, run header-only validation across supported build configurations, including:
+
+- default feature set
+- minimal builds with `YAML_LIB_FILE_IO=OFF`, `YAML_LIB_SAX_API=OFF`, and `YAML_LIB_TIMESTAMP_PARSE=OFF`
+- no-exceptions builds with `YAML_LIB_NO_EXCEPTIONS=ON`
+
+This helps ensure the public headers remain stable across optional feature combinations.
+
 ## Cross-platform build examples
 
 Linux/macOS:
