@@ -10,7 +10,6 @@
 //
 
 #include "YAML_Utility.hpp"
-#include <iostream>
 
 namespace yml = YAML_Lib;
 
