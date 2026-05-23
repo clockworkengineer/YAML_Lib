@@ -48,6 +48,9 @@ YAML::YAML(const std::string_view &yamlString) : YAML() {
   parse(BufferSource{yamlString});
 }
 
+/// <summary>
+/// Function header.
+/// </summary>
 void Options::validate() const {
   static constexpr unsigned long kMaxSafeDocuments = 1000000UL;
   static constexpr unsigned long kMaxSafeParseDepth = 65536UL;
@@ -123,6 +126,9 @@ unsigned long YAML::getNumberOfDocuments() const {
 void YAML::parse(ISource &source) const { implementation->parse(source); }
 void YAML::parse(ISource &&source) const { implementation->parse(source); }
 #ifndef YAML_LIB_NO_EXCEPTIONS
+/// <summary>
+/// Function header.
+/// </summary>
 bool YAML::tryParse(ISource &source, std::string &errorMessage) {
   try {
     parse(source);
@@ -132,6 +138,9 @@ bool YAML::tryParse(ISource &source, std::string &errorMessage) {
     return false;
   }
 }
+/// <summary>
+/// Function header.
+/// </summary>
 bool YAML::tryParse(ISource &&source, std::string &errorMessage) {
   return tryParse(source, errorMessage);
 }
@@ -143,10 +152,16 @@ bool YAML::tryParse(ISource &&source, std::string &errorMessage) {
 void YAML::stringify(IDestination &destination) const {
   implementation->stringify(destination);
 }
+/// <summary>
+/// Function header.
+/// </summary>
 void YAML::stringify(IDestination &&destination) const {
   implementation->stringify(destination);
 }
 #ifndef YAML_LIB_NO_EXCEPTIONS
+/// <summary>
+/// Function header.
+/// </summary>
 bool YAML::tryStringify(IDestination &destination, std::string &errorMessage) const {
   try {
     stringify(destination);
@@ -156,6 +171,9 @@ bool YAML::tryStringify(IDestination &destination, std::string &errorMessage) co
     return false;
   }
 }
+/// <summary>
+/// Function header.
+/// </summary>
 bool YAML::tryStringify(IDestination &&destination, std::string &errorMessage) const {
   return tryStringify(destination, errorMessage);
 }
@@ -168,6 +186,9 @@ bool YAML::tryStringify(IDestination &&destination, std::string &errorMessage) c
 Node &YAML::document(const unsigned long index) {
   return implementation->document(index);
 }
+/// <summary>
+/// Function header.
+/// </summary>
 const Node &YAML::document(const unsigned long index) const {
   return implementation->document(index);
 }
@@ -219,6 +240,9 @@ const Node &YAML::operator[](const std::size_t index) const {
 /// <param name="yamlFileName">YAML file name</param>
 /// <returns>YAML string.</returns>
 #ifdef YAML_LIB_FILE_IO
+/// <summary>
+/// Function header.
+/// </summary>
 std::string YAML::fromFile(const std::string_view &yamlFileName) {
   return YAML_Impl::fromFile(yamlFileName);
 }

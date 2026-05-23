@@ -44,6 +44,9 @@ YAML_Impl::YAML_Impl(const Options &options)
   }
 }
 
+/// <summary>
+/// Function header.
+/// </summary>
 std::string YAML_Impl::version() {
   std::stringstream versionString;
   versionString << "YAML_Lib Version  " << YAML_VERSION_MAJOR << "."
@@ -51,6 +54,9 @@ std::string YAML_Impl::version() {
   return versionString.str();
 }
 
+/// <summary>
+/// Function header.
+/// </summary>
 void YAML_Impl::parse(ISource &source) {
   // RAII guard: if the caller supplied a PMR resource, install it as the PMR
   // default for the duration of parse so that all std::pmr::* containers

@@ -3,6 +3,9 @@
 
 namespace YAML_Lib {
 
+/// <summary>
+/// Function header.
+/// </summary>
 void YAML_Impl::traverse(IAction &action) {
   if (yamlTree.empty()) {
     YAML_THROW(Error, "No YAML to traverse.");
@@ -10,6 +13,9 @@ void YAML_Impl::traverse(IAction &action) {
   traverseNodes(yamlTree[0][0], action);
 }
 
+/// <summary>
+/// Function header.
+/// </summary>
 void YAML_Impl::traverse(IAction &action) const {
   if (yamlTree.empty()) {
     YAML_THROW(Error, "No YAML to traverse.");
@@ -18,6 +24,9 @@ void YAML_Impl::traverse(IAction &action) const {
 }
 
 #ifdef YAML_LIB_SAX_API
+/// <summary>
+/// Function header.
+/// </summary>
 void YAML_Impl::traverseEvents(IYAMLEvents &handler) const {
   if (yamlTree.empty()) {
     YAML_THROW(Error, "No YAML to traverse.");

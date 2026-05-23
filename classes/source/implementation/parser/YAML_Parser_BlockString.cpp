@@ -20,6 +20,9 @@ namespace YAML_Lib {
 /// <returns>Pair of chomping indicator and explicit indent (0 =
 /// auto-detect).</returns>
 std::pair<Default_Parser::BlockChomping, int>
+/// <summary>
+/// Function header.
+/// </summary>
 Default_Parser::parseBlockChomping(ISource &source) {
   source.next(); // consume '|' or '>'
   BlockChomping chomping = BlockChomping::clip;

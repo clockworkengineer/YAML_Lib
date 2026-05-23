@@ -293,6 +293,9 @@ bool Default_Parser::isDocumentStart(ISource &source) {
 bool Default_Parser::isDocumentEnd(ISource &source) {
   return matchesMarker(source, kEndDocument);
 }
+/// <summary>
+/// Function header.
+/// </summary>
 bool Default_Parser::isDocumentBoundary(ISource &source) {
   return isDocumentStart(source) || isDocumentEnd(source);
 }

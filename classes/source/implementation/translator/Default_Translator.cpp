@@ -211,6 +211,9 @@ Default_Translator::Default_Translator() {
 /// <param name="escapedString">YAML string to process.</param>
 /// <returns>String with escapes translated.</returns>
 std::string
+/// <summary>
+/// Function header.
+/// </summary>
 Default_Translator::from(const std::string_view &escapedString) const {
   std::u16string utf16Buffer;
   for (auto current = escapedString.begin(); current != escapedString.end();) {

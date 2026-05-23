@@ -150,6 +150,9 @@ void Default_Parser::moveToNextIndent(ISource &source) {
 std::string Default_Parser::extractString(ISource &source) {
   return extractString(source, source.current());
 }
+/// <summary>
+/// Function header.
+/// </summary>
 std::string Default_Parser::extractString(ISource &source, const char quote) {
   return extractString(source, quote, nullptr);
 }
