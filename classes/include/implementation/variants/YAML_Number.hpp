@@ -77,6 +77,11 @@ template <typename T> Number::Number(T value) {
 }
 // Convert string to specific numeric type (returns true on success)
 template <typename T>
+/// <summary>
+/// Parse a string value and convert it to the requested number type.
+/// </summary>
+/// <param name="number">String representation of the numeric value.</param>
+/// <returns>True when conversion succeeds.</returns>
 bool Number::stringToNumber(const std::string_view &number) {
   T value{};
   // std::from_chars does not accept a leading '+'; strip it if present.
@@ -113,6 +118,11 @@ bool Number::stringToNumber(const std::string_view &number) {
 }
 // Number to string
 template <typename T>
+/// <summary>
+/// Convert a numeric value to its YAML string representation.
+/// </summary>
+/// <param name="number">Numeric value to stringify.</param>
+/// <returns>YAML string form of the number.</returns>
 std::string Number::numberToString(const T &number) const {
   if constexpr (std::is_floating_point_v<T>) {
     // YAML 1.2 §10.3.2: special float values must stringify to .inf / -.inf /

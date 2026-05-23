@@ -146,9 +146,17 @@ inline std::string dictionaryToKey(const std::size_t count,
 }
 } // namespace detail
 
+/// <summary>
+/// Return a string representation of the node.
+/// </summary>
+/// <returns>String representation of the current node.</returns>
 inline std::string Node::toString() const {
   return std::visit(detail::NodeTextVisitor<detail::TextMode::ToString>{}, yNodeVariant);
 }
+/// <summary>
+/// Return a key string for the node.
+/// </summary>
+/// <returns>Key string representation of the current node.</returns>
 inline std::string Node::toKey() const {
   return std::visit(detail::NodeTextVisitor<detail::TextMode::ToKey>{}, yNodeVariant);
 }
@@ -164,6 +172,10 @@ inline std::string Array::toKey() const {
 // SequenceBase<Derived>::resize() — grow sequence and fill new slots with Hole nodes.
 // Shared by Array and Document; defined here after Node::make<Hole>() is available.
 template <typename Derived>
+/// <summary>
+/// Resize the sequence to the requested index and populate new elements with holes.
+/// </summary>
+/// <param name="index">Desired final index in the sequence.</param>
 inline void SequenceBase<Derived>::resize(const std::size_t index) {
   entries_.resize(index + 1);
   for (auto &entry : entries_) {
@@ -203,6 +215,10 @@ inline void StaticSequenceBase<N, Derived>::resize(const std::size_t index) {
 
 // StaticArray<N>::toKey() — same logic as Array::toKey()
 template <std::size_t N>
+/// <summary>
+/// Return a string representation for the static array key.
+/// </summary>
+/// <returns>String representation of the static array key.</returns>
 inline std::string StaticArray<N>::toKey() const {
   return detail::sequenceToKey('[', ']', this->count_,
                               [this](const std::size_t index) {
@@ -212,6 +228,10 @@ inline std::string StaticArray<N>::toKey() const {
 
 // StaticDictionary<N>::toKey() — build "{k: v, ...}" key string
 template <std::size_t N>
+/// <summary>
+/// Return a string representation for the static dictionary key.
+/// </summary>
+/// <returns>String representation of the static dictionary key.</returns>
 inline std::string StaticDictionary<N>::toKey() const {
   return detail::dictionaryToKey(this->count_,
                                  [this](const std::size_t index) {

@@ -81,6 +81,11 @@ private:
 /// <param name="yNode">Node tree to be traversed.</param>
 /// <param name="action">Action methods to call during traversal.</param>
 template <typename T>
+/// <summary>
+/// Recursively traverse a node subtree and invoke the action on each node.
+/// </summary>
+/// <param name="yNode">Node subtree to traverse.</param>
+/// <param name="action">Action callback to execute for each node.</param>
 void YAML_Impl::traverseNodes(T &yNode, IAction &action) {
   action.onNode(yNode);
   if (isA<Number>(yNode)) {

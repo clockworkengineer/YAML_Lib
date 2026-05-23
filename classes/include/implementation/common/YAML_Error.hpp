@@ -20,6 +20,10 @@ namespace YAML_Lib {
 // ---------------------------------------------------------------
 struct Error final : std::runtime_error {
     explicit Error(const std::string_view &message)
+        /// <summary>
+        /// Construct an Error using a text message.
+        /// </summary>
+        /// <param name="message">Error message text.</param>
         : std::runtime_error(std::string("YAML Error: ").append(message)) {
     }
 
@@ -34,6 +38,10 @@ struct Error final : std::runtime_error {
 
 struct SyntaxError final : std::runtime_error {
     explicit SyntaxError(const std::string_view &message)
+        /// <summary>
+        /// Construct a SyntaxError using a text message.
+        /// </summary>
+        /// <param name="message">Syntax error message text.</param>
         : std::runtime_error(std::string("YAML Syntax Error: ").append(message)) {
     }
 

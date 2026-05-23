@@ -106,6 +106,11 @@ private:
 };
 
 inline Dictionary::Entries::iterator
+/// <summary>
+/// Find an entry by key and return its iterator.
+/// </summary>
+/// <param name="key">Dictionary key to locate.</param>
+/// <returns>Iterator to the selected entry.</returns>
 Dictionary::findKey(const std::string_view &key) {
   const auto indexIt = yNodeDictionaryIndex.find(key);
   if (indexIt == yNodeDictionaryIndex.end()) {
@@ -114,6 +119,11 @@ Dictionary::findKey(const std::string_view &key) {
   return yNodeDictionary.begin() + static_cast<std::ptrdiff_t>(indexIt->second);
 }
 inline Dictionary::Entries::const_iterator
+/// <summary>
+/// Find an entry by key and return a const iterator.
+/// </summary>
+/// <param name="key">Dictionary key to locate.</param>
+/// <returns>Const iterator to the selected entry.</returns>
 Dictionary::findKey(const std::string_view &key) const {
   const auto indexIt = yNodeDictionaryIndex.find(key);
   if (indexIt == yNodeDictionaryIndex.end()) {
