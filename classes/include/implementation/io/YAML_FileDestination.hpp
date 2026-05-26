@@ -27,6 +27,9 @@ public:
     lastChar = ch;
   }
   void add(const std::string &bytes) override {
+    if (bytes.empty()) {
+      return;
+    }
     for (const auto ch : bytes) {
       add(ch);
     }
@@ -34,6 +37,10 @@ public:
   }
   void add(const char *bytes) override {
     const auto len = strlen(bytes);
+    if (len == 0) {
+      destination.flush();
+      return;
+    }
     for (std::size_t index = 0; index < len; index++) {
       add(bytes[index]);
     }
@@ -41,6 +48,10 @@ public:
     lastChar = bytes[len - 1];
   }
   void add(const std::string_view &bytes) override {
+    if (bytes.empty()) {
+      destination.flush();
+      return;
+    }
     for (const auto ch : bytes) {
       add(ch);
     }

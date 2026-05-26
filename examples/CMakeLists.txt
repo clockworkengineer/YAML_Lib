@@ -20,6 +20,15 @@ set(FILE_IO_EXAMPLES
 # Find all example source files
 file(GLOB EXAMPLE_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/source "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp")
 
+if(YAML_LIB_FILE_IO)
+  add_custom_target(copy_example_files ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/examples/files
+            ${CMAKE_BINARY_DIR}/examples/files
+    COMMENT "Copy example data files into the build examples directory"
+  )
+endif()
+
 foreach(EXAMPLE_FILE ${EXAMPLE_SOURCES})
   # Get the target name by stripping the .cpp extension
   get_filename_component(EXAMPLE_NAME ${EXAMPLE_FILE} NAME_WE)
@@ -49,6 +58,10 @@ foreach(EXAMPLE_FILE ${EXAMPLE_SOURCES})
   )
   target_link_libraries(${EXAMPLE_NAME} PRIVATE YAML_Lib)
 
+  if(YAML_LIB_FILE_IO)
+    add_dependencies(${EXAMPLE_NAME} copy_example_files)
+  endif()
+
   # Optionally reuse precompiled headers if available
   if(TARGET YAML_Lib)
     target_precompile_headers(${EXAMPLE_NAME} REUSE_FROM YAML_Lib)
@@ -56,13 +69,3 @@ foreach(EXAMPLE_FILE ${EXAMPLE_SOURCES})
 
   install(TARGETS ${EXAMPLE_NAME} DESTINATION bin)
 endforeach()
-
-# Copy example files after build (if needed by any example)
-if(YAML_LIB_FILE_IO)
-  add_custom_command(
-    TARGET YAML_Parse_File POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/examples/files
-    $<TARGET_FILE_DIR:YAML_Parse_File>/files
-  )
-endif()
