@@ -23,8 +23,8 @@ file(GLOB EXAMPLE_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/source "${CMAKE_C
 if(YAML_LIB_FILE_IO)
   add_custom_target(copy_example_files ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/examples/files
-            ${CMAKE_BINARY_DIR}/examples/files
+    ${CMAKE_SOURCE_DIR}/examples/files
+    ${CMAKE_BINARY_DIR}/examples/files
     COMMENT "Copy example data files into the build examples directory"
   )
 endif()
