@@ -407,6 +407,14 @@ All examples are in `examples/source/`:
 - [Feature Plan](docs/PARSER_FEATURES_AND_PLAN.md)
 - [YAML 1.2.2 Specification](https://yaml.org/spec/1.2.2/)
 
+## Support
+
+If you find `YAML_Lib` helpful and would like to support its development, you can buy me a coffee:
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/roberttizz1)
+
+[Buy Me a Coffee — roberttizz1](https://buymeacoffee.com/roberttizz1)
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for branch workflow, style checks, static analysis, and PR guidance.
