@@ -36,7 +36,7 @@ public:
    * @param node Un-tagged base node.
    * @return Tag-resolved Node.
    */
-  [[nodiscard]] virtual Node resolveTag(std::string_view tagHandle, std::string_view tagSuffix, const Node &node) const = 0;
+  [[nodiscard]] virtual Node resolveTag(std::string_view tagHandle, std::string_view tagSuffix, Node node) const = 0;
 };
 
 } // namespace YAML_Lib

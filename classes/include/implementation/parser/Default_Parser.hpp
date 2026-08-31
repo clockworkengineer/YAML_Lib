@@ -8,6 +8,9 @@
 
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
+#include "implementation/common/YAML_CoreSchema.hpp"
+#include "implementation/parser/YAML_AliasResolver.hpp"
+#include "implementation/parser/YAML_Lexer.hpp"
 
 namespace YAML_Lib {
 
@@ -26,6 +29,7 @@ struct ParseContext {
 
   AliasMap yamlAliasMap;
   AliasSet activeAliasExpansions;
+  AliasResolver aliasResolver;
   long          arrayIndentLevel{0};
   long          inlineArrayDepth{0};
   long          inlineDictionaryDepth{0};
@@ -77,6 +81,15 @@ public:
   Default_Parser(Default_Parser &&other) = delete;
   Default_Parser &operator=(Default_Parser &&other) = delete;
   ~Default_Parser() override = default;
+
+  void setSchema(std::unique_ptr<ISchema> schema) {
+    if (schema) {
+      schema_ = std::move(schema);
+    }
+  }
+  [[nodiscard]] const ISchema &getSchema() const noexcept {
+    return *schema_;
+  }
 
   std::vector<Node> parse(ISource &source) override;
 
@@ -332,6 +345,8 @@ private:
   unsigned long aliasExpansionCount{0};
   // Translator (per-instance, not shared across Default_Parser instances).
   std::unique_ptr<ITranslator> yamlTranslator_;
+  // Schema resolution strategy
+  std::unique_ptr<ISchema> schema_{std::make_unique<CoreSchema>()};
   const unsigned long maxParseDepth{0};
   const unsigned long maxAliasExpansions{0};
   const unsigned long maxDocuments{0};
