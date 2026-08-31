@@ -67,6 +67,9 @@ set(YAML_SOURCES
 set(YAML_PUBLIC_HEADERS
   classes/include/YAML.hpp
   classes/include/YAML_Core.hpp
+  classes/include/YAML_Reader.hpp
+  classes/include/YAML_Writer.hpp
+  classes/include/YAML_DOM.hpp
   classes/include/interface/YAML_Interfaces.hpp
   ${CMAKE_CURRENT_BINARY_DIR}/YAML_Config.hpp
 )
@@ -109,7 +112,8 @@ endif()
 
 if(YAML_LIB_FILE_IO)
   target_sources(${YAML_LIBRARY_NAME} PRIVATE
-    classes/source/implementation/file/YAML_File.cpp)
+    classes/source/implementation/file/YAML_File.cpp
+    classes/source/implementation/io/YAML_FileIO.cpp)
   target_compile_definitions(${YAML_LIBRARY_NAME} PUBLIC YAML_LIB_FILE_IO)
 endif()
 

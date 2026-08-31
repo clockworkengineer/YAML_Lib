@@ -1,5 +1,7 @@
 #pragma once
 
+#include "IDOMParser.hpp"
+
 namespace YAML_Lib {
 
 // ====================
@@ -20,7 +22,7 @@ struct Node;
  * @note The source object must outlive the call to `parse()`.
  * @note Implementations should return documents in the same order they appear in the input.
  */
-class IParser {
+class IParser : public IDOMParser {
 public:
   /**
    * @brief Exception type for parser errors.
@@ -29,12 +31,6 @@ public:
   /**
    * @brief Virtual destructor.
    */
-  virtual ~IParser() = default;
-  /**
-   * @brief Parse a YAML source stream into a vector of Node objects.
-   * @param source Input source implementing ISource.
-   * @return Vector of parsed Node objects (one per document).
-   */
-  virtual std::vector<Node> parse(ISource &source) = 0;
+  ~IParser() override = default;
 };
 } // namespace YAML_Lib

@@ -14,6 +14,8 @@
 #include "IAction.hpp"
 #include "ISource.hpp"
 #include "IDestination.hpp"
+#include "IDOMParser.hpp"
+#include "ISAXParser.hpp"
 #include "IParser.hpp"
 #include "IStringify.hpp"
 #include "ITranslator.hpp"
