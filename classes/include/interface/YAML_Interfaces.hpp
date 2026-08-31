@@ -20,3 +20,4 @@
 #include "IStringify.hpp"
 #include "ITranslator.hpp"
 #include "ISchema.hpp"
+#include "INodeFactory.hpp"

@@ -9,6 +9,7 @@
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
 #include "implementation/common/YAML_CoreSchema.hpp"
+#include "implementation/common/YAML_DefaultNodeFactory.hpp"
 #include "implementation/parser/YAML_AliasResolver.hpp"
 #include "implementation/parser/YAML_Lexer.hpp"
 
@@ -89,6 +90,15 @@ public:
   }
   [[nodiscard]] const ISchema &getSchema() const noexcept {
     return *schema_;
+  }
+
+  void setNodeFactory(std::unique_ptr<INodeFactory> factory) {
+    if (factory) {
+      nodeFactory_ = std::move(factory);
+    }
+  }
+  [[nodiscard]] const INodeFactory &getNodeFactory() const noexcept {
+    return *nodeFactory_;
   }
 
   std::vector<Node> parse(ISource &source) override;
@@ -347,6 +357,8 @@ private:
   std::unique_ptr<ITranslator> yamlTranslator_;
   // Schema resolution strategy
   std::unique_ptr<ISchema> schema_{std::make_unique<CoreSchema>()};
+  // Node creation factory strategy
+  std::unique_ptr<INodeFactory> nodeFactory_{std::make_unique<DefaultNodeFactory>()};
   const unsigned long maxParseDepth{0};
   const unsigned long maxAliasExpansions{0};
   const unsigned long maxDocuments{0};
