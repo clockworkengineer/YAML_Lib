@@ -9,6 +9,8 @@
 //
 
 #include "Default_Translator.hpp"
+#include "YAML.hpp"
+#include "implementation/converter/YAML_Converter.hpp"
 
 namespace YAML_Lib {
 

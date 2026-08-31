@@ -41,6 +41,7 @@ set(YAML_LIBRARY_NAME ${PROJECT_NAME})
 set(YAML_SOURCES
   classes/source/YAML.cpp
   classes/source/YAML_Utility.cpp
+  classes/source/implementation/common/YAML_StringifierFactory.cpp
   classes/source/implementation/YAML_Error.cpp
   classes/source/implementation/YAML_Impl.cpp
   classes/source/implementation/YAML_Impl_Stringify.cpp

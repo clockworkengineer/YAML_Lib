@@ -1,5 +1,7 @@
 #pragma once
 
+#include "implementation/common/YAML_Error.hpp"
+
 namespace YAML_Lib {
 
 // ====================================================

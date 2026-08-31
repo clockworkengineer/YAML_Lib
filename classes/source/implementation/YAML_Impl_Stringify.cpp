@@ -8,8 +8,8 @@ namespace YAML_Lib {
 /// Function header.
 /// </summary>
 void YAML_Impl::stringify(IDestination &destination) const {
-  destination.reserve(std::max<std::size_t>(4096, yamlTree.size() * 512));
-  for (auto &document : yamlTree) {
+  destination.reserve(std::max<std::size_t>(4096, documentStore.size() * 512));
+  for (auto &document : documentStore.getDocuments()) {
     yamlStringify->stringify(document, destination, 0);
   }
 }

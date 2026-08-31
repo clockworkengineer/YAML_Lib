@@ -23,6 +23,7 @@ set(TEST_EXECUTABLE ${YAML_LIBRARY_NAME}_Unit_Tests)
 
 set(TEST_SOURCES
   source/yaml/YAML_Lib_Tests_YAML.cpp
+  source/contract/YAML_Lib_Tests_SourceContract.cpp
   source/yaml/YAML_Lib_Tests_Create_Array.cpp
   source/yaml/YAML_Lib_Tests_Create_Complex.cpp
   source/yaml/YAML_Lib_Tests_Create_Dictionary.cpp

@@ -7,20 +7,20 @@ namespace YAML_Lib {
 /// Function header.
 /// </summary>
 void YAML_Impl::traverse(IAction &action) {
-  if (yamlTree.empty()) {
+  if (documentStore.empty()) {
     YAML_THROW(Error, "No YAML to traverse.");
   }
-  traverseNodes(yamlTree[0][0], action);
+  traverseNodes(documentStore.getDocuments()[0][0], action);
 }
 
 /// <summary>
 /// Function header.
 /// </summary>
 void YAML_Impl::traverse(IAction &action) const {
-  if (yamlTree.empty()) {
+  if (documentStore.empty()) {
     YAML_THROW(Error, "No YAML to traverse.");
   }
-  traverseNodes(yamlTree[0][0], action);
+  traverseNodes(documentStore.getDocuments()[0][0], action);
 }
 
 #ifdef YAML_LIB_SAX_API
@@ -28,10 +28,10 @@ void YAML_Impl::traverse(IAction &action) const {
 /// Function header.
 /// </summary>
 void YAML_Impl::traverseEvents(IYAMLEvents &handler) const {
-  if (yamlTree.empty()) {
+  if (documentStore.empty()) {
     YAML_THROW(Error, "No YAML to traverse.");
   }
-  for (const auto &docNode : yamlTree) {
+  for (const auto &docNode : documentStore.getDocuments()) {
     handler.onDocumentStart();
     emitEvents(docNode[0], handler);
     handler.onDocumentEnd();
@@ -43,7 +43,7 @@ Node &YAML_Impl::operator[](const std::string_view &key) {
   if (getNumberOfDocuments() == 0) {
     BufferSource source("---\n...\n");
     parse(source);
-    NRef<Document>(yamlTree[0]).add(Node::make<Dictionary>());
+    NRef<Document>(documentStore.getDocuments()[0]).add(Node::make<Dictionary>());
   }
   Node &root = document(0);
   if (isA<Hole>(root)) {
@@ -68,7 +68,7 @@ Node &YAML_Impl::operator[](const std::size_t index) {
   if (getNumberOfDocuments() == 0) {
     BufferSource source("---\n...\n");
     parse(source);
-    NRef<Document>(yamlTree[0]).add(Node::make<Array>());
+    NRef<Document>(documentStore.getDocuments()[0]).add(Node::make<Array>());
   }
   Node &root = document(0);
   if (isA<Hole>(root)) {

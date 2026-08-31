@@ -7,8 +7,12 @@ namespace YAML_Lib {
 
 class Default_Stringify final : public IStringify {
 public:
-  explicit Default_Stringify(std::unique_ptr<ITranslator> translator) {
-    yamlTranslator_ = std::move(translator);
+  explicit Default_Stringify(std::unique_ptr<ITranslator> translator = nullptr) {
+    if (translator == nullptr) {
+      yamlTranslator_ = std::make_unique<Default_Translator>();
+    } else {
+      yamlTranslator_ = std::move(translator);
+    }
   }
   Default_Stringify(const Default_Stringify &other) = delete;
   Default_Stringify &operator=(const Default_Stringify &other) = delete;

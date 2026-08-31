@@ -17,3 +17,4 @@
 #include "IParser.hpp"
 #include "IStringify.hpp"
 #include "ITranslator.hpp"
+#include "ISchema.hpp"

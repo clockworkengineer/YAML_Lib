@@ -2,6 +2,7 @@
 
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
+#include "implementation/common/YAML_DocumentStore.hpp"
 
 namespace YAML_Lib {
 
@@ -20,7 +21,7 @@ public:
   static std::string version();
   // Get number of documents
   [[nodiscard]] auto getNumberOfDocuments() const {
-    return yamlTree.size();
+    return documentStore.size();
   }
   // Parse YAML into Node tree
   void parse(ISource &source);
@@ -28,16 +29,10 @@ public:
   void stringify(IDestination &destination) const;
   // Get the document
   [[nodiscard]] Node &document(const unsigned long index) {
-    if (index >= yamlTree.size()) {
-      YAML_THROW(Error, "Document does not exist.");
-    }
-    return yamlTree[index][0];
+    return documentStore.document(index);
   }
   [[nodiscard]] const Node &document(const unsigned long index) const {
-    if (index >= yamlTree.size()) {
-      YAML_THROW(Error, "Document does not exist.");
-    }
-    return yamlTree[index][0];
+    return documentStore.document(index);
   }
   // Traverse YAML tree
   void traverse(IAction &action);
@@ -70,8 +65,8 @@ private:
   std::unique_ptr<IParser> yamlParser;
   // Pointer to YAML stringify interface
   std::unique_ptr<IStringify> yamlStringify;
-  // YAML tree
-  std::vector<Node> yamlTree;
+  // Document container store
+  DocumentStore documentStore;
 };
 
 /// <summary>

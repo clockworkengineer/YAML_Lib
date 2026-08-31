@@ -1,8 +1,10 @@
 
 #pragma once
 
-#include "YAML.hpp"
-#include "YAML_Core.hpp"
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include "interface/ITranslator.hpp"
 
 
 namespace YAML_Lib {
@@ -18,6 +20,7 @@ constexpr char16_t kLowSurrogatesEnd{0xDFFF};
 
 class Default_Translator final : public ITranslator {
 public:
+  YAML_MAKE_ERROR(Error, "Default_Translator Error");
 
   Default_Translator();
   Default_Translator(const Default_Translator &other) = delete;

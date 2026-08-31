@@ -13,7 +13,7 @@ namespace YAML_Lib {
 
 YAML_Impl::YAML_Impl(IStringify *stringify, IParser *parser,
                      std::pmr::memory_resource *mr)
-    : memoryResource{mr} {
+    : memoryResource{mr}, documentStore{mr} {
   if (parser == nullptr) {
     yamlParser = std::make_unique<Default_Parser>(std::make_unique<Default_Translator>());
   } else {
@@ -27,7 +27,7 @@ YAML_Impl::YAML_Impl(IStringify *stringify, IParser *parser,
 }
 
 YAML_Impl::YAML_Impl(const Options &options)
-    : memoryResource{options.memory_resource} {
+    : memoryResource{options.memory_resource}, documentStore{options.memory_resource} {
   options.validate();
   Default_Parser::setStrictBooleans(options.strict_booleans);
 
@@ -75,7 +75,7 @@ void YAML_Impl::parse(ISource &source) {
       if (active_) std::pmr::set_default_resource(prev_);
     }
   } scope{memoryResource};
-  yamlTree = yamlParser->parse(source);
+  documentStore.setDocuments(yamlParser->parse(source));
 }
 
 } // namespace YAML_Lib
