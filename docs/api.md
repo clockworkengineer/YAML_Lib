@@ -316,5 +316,18 @@ YAML::Format YAML::getFileFormat(const std::string_view& fileName);
 
 ---
 
-For practical examples see the [User Guide](guide.md) or the `examples/` directory.
+## Strategy & Extensibility Interfaces (SOLID)
+
+- **`IDOMParser`**: Segregated interface for vector DOM parsing (`virtual std::vector<Node> parse(ISource &source) = 0`).
+- **`ISAXParser`**: Segregated interface for push-based SAX event parsing (`virtual void parseSAX(ISource &source, IYAMLEvents &events) = 0`).
+- **`ISchema` / `CoreSchema`**: Strategy interface for scalar type resolution and tag handle coercions.
+- **`INodeFactory` / `DefaultNodeFactory`**: Abstract factory interface for node variant allocation.
+- **`StringifierFactory`**: Thread-safe strategy registry for dynamic stringifier format creators (`"YAML"`, `"JSON"`, `"XML"`, `"Bencode"`).
+- **`DocumentStore`**: Container manager separating document tree storage from facade coordination.
+- **`YAML_FileReader` / `YAML_FileWriter`**: File system I/O stream reading and BOM detection components.
+
+---
+
+For practical examples see the [User Guide](guide.md), [SOLID Architecture Guide](solid_architecture.md), or [Extending YAML_Lib](extending_yaml_lib.md).
+
 

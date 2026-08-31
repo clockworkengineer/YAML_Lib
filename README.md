@@ -17,8 +17,10 @@ YAML_Lib is a lightweight, header-friendly C++20 library for parsing, manipulati
 - **Unicode** — full YAML 1.2 escape set including `\U` 8-digit SMP codepoints
 
 ### Library Design
+- **100% SOLID Architecture** — decoupled parser lexing, container storage (`DocumentStore`), schema strategies (`ISchema`/`CoreSchema`), and node factory strategies (`INodeFactory`).
+- **Segregated Facade Headers** — include only what you need: `YAML_Reader.hpp` for parsing, `YAML_Writer.hpp` for stringification, or `YAML_DOM.hpp` for tree manipulation.
 - **Extensible I/O** — parse from `BufferSource`, `FileSource`, or `StreamSource` (`std::istream&`); stringify to `BufferDestination`, `FileDestination`, or `StreamDestination` (`std::ostream&`)
-- **Pluggable stringifiers** — built-in YAML, JSON, XML, and Bencode output; custom stringifiers via `IStringify`
+- **Pluggable stringifiers** — built-in YAML, JSON, XML, and Bencode output via `StringifierFactory`; custom stringifiers via `IStringify`
 - **Traversal** — visitor pattern via `IAction` for tree-wide operations
 - **Exception-based error reporting** — `SyntaxError` on malformed input; `Node::Error` on type violations
 
@@ -26,7 +28,7 @@ YAML_Lib is a lightweight, header-friendly C++20 library for parsing, manipulati
 YAML_Lib is built around a small set of practical library attributes:
 
 - **Intuitive API design** with easy-to-use static helpers, optional runtime customization, and stable public headers.
-- **Comprehensive documentation** through `docs/guide.md`, `docs/api.md`, and `docs/public_api.md`.
+- **Comprehensive documentation** through `docs/guide.md`, `docs/api.md`, `docs/solid_architecture.md`, and `docs/extending_yaml_lib.md`.
 - **High reliability** with explicit parser limits, secure `Options`, and strong error-handling guidance.
 - **Performance and efficiency** via `std::pmr::memory_resource` support and lightweight core data structures.
 - **Maintainability** through clean header boundaries, modular implementation, and documented extension points.
