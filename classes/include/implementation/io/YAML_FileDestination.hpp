@@ -1,5 +1,10 @@
 #pragma once
 
+#include <cstring>
+#include <fstream>
+#include <string>
+#include <string_view>
+
 namespace YAML_Lib {
 
 class FileDestination final : public IDestination {

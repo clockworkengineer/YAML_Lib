@@ -67,5 +67,6 @@ foreach(EXAMPLE_FILE ${EXAMPLE_SOURCES})
     target_precompile_headers(${EXAMPLE_NAME} REUSE_FROM YAML_Lib)
   endif()
 
-  install(TARGETS ${EXAMPLE_NAME} DESTINATION bin)
+  install(TARGETS ${EXAMPLE_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
 endforeach()
+

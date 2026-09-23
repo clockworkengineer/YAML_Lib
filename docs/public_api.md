@@ -69,28 +69,65 @@ These headers are part of the public include chain and are installed because the
 - `YAML_Node_Index.hpp`
 - `YAML_Node_Reference.hpp`
 
-## Notes
+## Installation & CMake Integration
 
-- `YAML_Impl.hpp` is intentionally not part of the installed public API.
-- The installed headers are flattened into the `include/` install directory to support the current header-first public API design.
-- Public headers are intended to be included via:
+When installed via CMake or packaged into system packages:
 
-```cpp
-#include "YAML.hpp"
-#include "YAML_Core.hpp"
+- Top-level headers are installed directly into `<prefix>/include/`
+- Interface headers are installed into `<prefix>/include/interface/`
+- Implementation headers are installed into `<prefix>/include/implementation/`
+
+### CMake `find_package`
+
+```cmake
+find_package(YAML_Lib REQUIRED)
+
+add_executable(my_target main.cpp)
+target_link_libraries(my_target PRIVATE YAML_Lib::YAML_Lib)
 ```
 
-- Convenience parsing/stringification helpers are available in `YAML.hpp`:
-  - `YAML::load(...)`
-  - `YAML::loadFile(...)` (preferred file-to-YAML helper when `YAML_LIB_FILE_IO=ON`)
-  - `YAML::dump()`
+Both `#include <YAML.hpp>` and segregated interface/implementation includes are automatically added to the target include directories.
 
-- Note: `YAML::fromFile(...)` reads the raw YAML file contents into a string, while `YAML::loadFile(...)` parses the file into a `YAML` object.
+### `pkg-config` Support
 
-- Users should avoid including private implementation headers not listed here.
+For non-CMake build systems (Makefiles, Meson, Autotools):
 
-## Public implementation boundary
+```bash
+pkg-config --cflags --libs yaml_lib
+```
 
-The headers under `classes/include/implementation/*` are only part of the public API if they are explicitly documented in this file or exposed through `YAML.hpp` / `YAML_Core.hpp`.
+## Recommended Header Inclusions
 
-Direct inclusion of internal headers that are not listed here is unsupported and may change without notice.
+```cpp
+#include <YAML.hpp>
+#include <YAML_Core.hpp>
+```
+
+For modular or compile-time sensitive consumers:
+```cpp
+#include <YAML_Reader.hpp> // Only parsing APIs
+#include <YAML_Writer.hpp> // Only emission APIs
+#include <YAML_DOM.hpp>    // Only node manipulation APIs
+```
+
+## Convenience API
+
+`YAML.hpp` provides high-level convenience methods:
+- `YAML::load(source)`: Parse from `std::string_view` or any `ISource`.
+- `YAML::loadFile(filepath)`: Parse directly from a file path (when `YAML_LIB_FILE_IO=ON`).
+- `YAML::dump()`: Serialize DOM to a YAML string.
+- `YAML::dump(formatName)`: Serialize DOM to any registered format (`"yaml"`, `"json"`, `"xml"`, `"bencode"`).
+- `yaml.stringify()` / `yaml.stringify(formatName)`: Serialize instance DOM to string.
+
+## Thread Safety & Reentrancy
+
+- `Default_Parser` instances and parser routines are re-entrant and thread-safe.
+- Strict booleans can be configured per-instance via `Options::strict_booleans`, avoiding mutable global state.
+- `StringifierFactory` registry uses internal synchronization for thread-safe format lookup and registration.
+- Unicode UTF-8 / UTF-16 conversions via `YAML_Converter` are pure C++20 and thread-safe.
+
+## Public Implementation Boundary
+
+The headers under `classes/include/implementation/*` are internal implementation details unless explicitly documented in this file or exposed through `YAML.hpp` / `YAML_Core.hpp`.
+Direct inclusion of internal headers not listed here is unsupported and may change between minor versions.
+

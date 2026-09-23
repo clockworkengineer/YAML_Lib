@@ -50,23 +50,24 @@ The library also provides convenient file helpers such as `YAML::loadFile()` for
 - No runtime dependencies beyond the C++ standard library
 
 ### Supported platforms
-- Linux with GCC 10+ or Clang 15+
+- Linux with GCC 11+ or Clang 16+
 - macOS with Apple Clang 15+ / Xcode 15+
 - Windows with MSVC 2019+ / Visual Studio 2022
 
-Linux and macOS share the same POSIX-compatible converter implementation, while Windows uses a dedicated Windows converter path.
+Unicode transcoding uses a pure, portable standard C++20 UTF-8 / UTF-16 codec across all supported operating systems without platform-specific dependencies.
 
 This project is built with strict warnings on supported platforms:
 - Linux/macOS: `-Wall -Werror -pedantic`
 - Windows/MSVC: `/W4`
 
-### Build
+### Build and Install
 
 ```sh
 git clone <repo-url> YAML_Lib
 cd YAML_Lib
-cmake -S . -B build
-cmake --build build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j$(nproc)
+sudo cmake --install build
 ```
 
 On Windows with Visual Studio:
@@ -77,10 +78,28 @@ cmake --build build --config Release
 
 ### Integrate with CMake
 
+#### Option A: Installed Package (Recommended)
+
+```cmake
+find_package(YAML_Lib REQUIRED)
+
+add_executable(your_target main.cpp)
+target_link_libraries(your_target PRIVATE YAML_Lib::YAML_Lib)
+```
+
+#### Option B: Subdirectory or FetchContent
+
 ```cmake
 add_subdirectory(YAML_Lib)
 target_link_libraries(your_target PRIVATE YAML_Lib)
 ```
+
+#### Option C: `pkg-config`
+
+```sh
+pkg-config --cflags --libs yaml_lib
+```
+
 
 
 ### Build options

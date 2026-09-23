@@ -41,9 +41,10 @@ Following the completion of the 100% SOLID architectural refactoring across `YAM
 
 ## 3. Implementation Checklist
 
-- [ ] Create `docs/solid_architecture.md`
-- [ ] Create `docs/extending_yaml_lib.md`
-- [ ] Update `docs/api.md`
-- [ ] Update `docs/guide.md`
-- [ ] Update `docs/public_api.md`
-- [ ] Update `README.md`
+- [x] Create `docs/solid_architecture.md`
+- [x] Create `docs/extending_yaml_lib.md`
+- [x] Update `docs/api.md`
+- [x] Update `docs/guide.md`
+- [x] Update `docs/public_api.md`
+- [x] Update `README.md`
+

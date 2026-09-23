@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <bitset>
 #include <functional>
 #include <map>
@@ -76,7 +77,8 @@ public:
         maxDocuments(options.max_documents),
         maxScalarLength(options.max_scalar_length),
         maxCollectionSize(options.max_collection_size),
-        maxAliasCount(options.max_aliases) {}
+        maxAliasCount(options.max_aliases),
+        strictBooleans_(options.strict_booleans) {}
   Default_Parser(const Default_Parser &other) = delete;
   Default_Parser &operator=(const Default_Parser &other) = delete;
   Default_Parser(Default_Parser &&other) = delete;
@@ -103,8 +105,16 @@ public:
 
   std::vector<Node> parse(ISource &source) override;
 
-  // Enable/disable strict YAML 1.2 boolean mode (only 'true'/'false' valid)
-  static void setStrictBooleans(const bool strict) { strictBooleans = strict; }
+  // Per-instance strict boolean mode
+  void setStrictBooleansMode(const bool strict) noexcept { strictBooleans_ = strict; }
+  [[nodiscard]] bool isStrictBooleans() const noexcept {
+    return strictBooleans_ || globalStrictBooleans.load(std::memory_order_relaxed);
+  }
+
+  // Global strict boolean mode (preserved for backwards compatibility with YAML::setStrictBooleans)
+  static void setStrictBooleans(const bool strict) noexcept {
+    globalStrictBooleans.store(strict, std::memory_order_relaxed);
+  }
 
 private:
   // RAII save/restore guard for ISource lookahead.
@@ -365,8 +375,9 @@ private:
   const unsigned long maxScalarLength{0};
   const unsigned long maxCollectionSize{0};
   const unsigned long maxAliasCount{0};
-  // Strict YAML 1.2 boolean mode — process-global setting (not per-parse).
-  inline static bool strictBooleans{false};
+  bool strictBooleans_{false};
+  // Process-global fallback for backwards compatibility with YAML::setStrictBooleans()
+  inline static std::atomic<bool> globalStrictBooleans{false};
 };
 
 } // namespace YAML_Lib

@@ -27,13 +27,16 @@ public:
   static StringifierFactory &instance();
 
   void registerCreator(StringifyFormat format, Creator creator);
+  void registerCreator(std::string_view formatName, Creator creator);
 
   [[nodiscard]] std::unique_ptr<IStringify> create(StringifyFormat format) const;
+  [[nodiscard]] std::unique_ptr<IStringify> create(std::string_view formatName) const;
 
 private:
   StringifierFactory();
   void registerDefaults();
   std::unordered_map<StringifyFormat, Creator> creators;
+  std::unordered_map<std::string, Creator> namedCreators;
 };
 
 } // namespace YAML_Lib

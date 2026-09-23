@@ -129,9 +129,7 @@ target_include_directories(${HEADER_COMPILE_TEST_EXECUTABLE} PRIVATE
   ${CMAKE_SOURCE_DIR}/tests/include
 )
 
-if(NOT YAML_LIB_NO_EXCEPTIONS)
-  target_precompile_headers(${HEADER_COMPILE_TEST_EXECUTABLE} REUSE_FROM YAML_Lib)
-endif()
+# Header compile test deliberately avoids precompiled headers to test headers standalone
 
 add_test(NAME ${HEADER_COMPILE_TEST_EXECUTABLE} COMMAND ${HEADER_COMPILE_TEST_EXECUTABLE})
 set_tests_properties(${HEADER_COMPILE_TEST_EXECUTABLE} PROPERTIES LABELS "unit;portability;api")

@@ -1,0 +1,128 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.os }} / ${{ matrix.cxx }} / ${{ matrix.build_type }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-22.04, ubuntu-24.04 ]
+        build_type: [ Debug, Release ]
+        cxx: [ g++-11, g++-13, clang++-16, clang++-18 ]
+        exclude:
+          - os: ubuntu-22.04
+            cxx: g++-13
+          - os: ubuntu-22.04
+            cxx: clang++-18
+          - os: ubuntu-24.04
+            cxx: g++-11
+          - os: ubuntu-24.04
+            cxx: clang++-16
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install compiler
+        run: |
+          sudo apt-get update
+          if [[ "${{ matrix.cxx }}" =~ "clang" ]]; then
+            sudo apt-get install -y ${{ matrix.cxx }}
+          else
+            sudo apt-get install -y ${{ matrix.cxx }}
+          fi
+
+      - name: Configure CMake
+        env:
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBUILD_YAML_TESTS=ON \
+            -DYAML_LIB_FILE_IO=ON \
+            -DBUILD_YAML_EXAMPLES=ON
+
+      - name: Build
+        run: cmake --build build -j$(nproc)
+
+      - name: Run Tests
+        run: ctest --test-dir build/tests --output-on-failure
+
+  sanitizers:
+    name: Sanitizers (ASan + UBSan)
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Clang
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-18
+
+      - name: Run Sanitizer Build & Tests
+        env:
+          CC: clang-18
+          CXX: clang++-18
+        run: |
+          chmod +x ./scripts/Linux-Build-Sanitizers.sh
+          ./scripts/Linux-Build-Sanitizers.sh
+
+  packaging-smoke-test:
+    name: CMake find_package & pkg-config Smoke Test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build and Install to Local Staging Prefix
+        run: |
+          cmake -S . -B build_pkg \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=$HOME/yaml_lib_install
+          cmake --build build_pkg -j$(nproc)
+          cmake --install build_pkg
+
+      - name: Test find_package(YAML_Lib) with Downstream Consumer
+        run: |
+          mkdir -p /tmp/consumer_test
+          cat << 'EOF' > /tmp/consumer_test/CMakeLists.txt
+          cmake_minimum_required(VERSION 3.18)
+          project(ConsumerTest CXX)
+          set(CMAKE_CXX_STANDARD 20)
+          set(CMAKE_CXX_STANDARD_REQUIRED ON)
+          find_package(YAML_Lib REQUIRED)
+          add_executable(consumer main.cpp)
+          target_link_libraries(consumer PRIVATE YAML_Lib::YAML_Lib)
+          EOF
+
+          cat << 'EOF' > /tmp/consumer_test/main.cpp
+          #include <YAML.hpp>
+          #include <iostream>
+          int main() {
+            auto yaml = YAML_Lib::YAML::load("name: test\nversion: 1.2.0");
+            std::cout << yaml.dump("json") << std::endl;
+            return 0;
+          }
+          EOF
+
+          cmake -S /tmp/consumer_test -B /tmp/consumer_test/build \
+            -DCMAKE_PREFIX_PATH=$HOME/yaml_lib_install
+          cmake --build /tmp/consumer_test/build
+          /tmp/consumer_test/build/consumer
+
+      - name: Test pkg-config
+        run: |
+          export PKG_CONFIG_PATH=$HOME/yaml_lib_install/lib/pkgconfig:$PKG_CONFIG_PATH
+          pkg-config --cflags --libs yaml_lib

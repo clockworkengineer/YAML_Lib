@@ -514,9 +514,7 @@ Node Default_Parser::parseKey(ISource &source) {
       // Peek ahead to see if next line is indented (continuation of key)
       SourceGuard guard(source);
       source.next();
-      unsigned long spaces = 0;
       while (source.more() && source.current() == ' ') {
-        ++spaces;
         source.next();
       }
       // If next non-space is ':' or a flow delimiter, stop

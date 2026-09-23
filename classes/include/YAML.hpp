@@ -60,6 +60,8 @@ class IYAMLEvents;  ///< Interface for SAX event handlers
 struct Options {
   IStringify *stringifier{nullptr};
   IParser *parser{nullptr};
+  bool own_stringifier{true};
+  bool own_parser{true};
   std::pmr::memory_resource *memory_resource{nullptr};
   bool strict_booleans{false};
   unsigned long max_documents{32};
@@ -155,7 +157,7 @@ public:
    * @param yaml_string YAML text to parse
    * @return YAML object
    */
-  [[nodiscard]] [[nodiscard]] static std::unique_ptr<YAML> load(const std::string_view &yaml_string) {
+  [[nodiscard]] static std::unique_ptr<YAML> load(const std::string_view &yaml_string) {
     return fromString(yaml_string);
   }
 
@@ -175,6 +177,22 @@ public:
    * @return YAML string
    */
   [[nodiscard]] std::string dump() const { return toString(); }
+
+  /**
+   * @brief Stringify the node tree to a formatted string using a named format.
+   * @param format Format name (e.g. "YAML", "JSON", "XML", "Bencode", or custom format).
+   * @return Formatted string
+   */
+  [[nodiscard]] std::string dump(const std::string_view &format) const;
+
+  /**
+   * @brief Stringify the node tree to a formatted string using a named format.
+   * @param format Format name (e.g. "YAML", "JSON", "XML", "Bencode", or custom format).
+   * @return Formatted string
+   */
+  [[nodiscard]] std::string stringify(const std::string_view &format) const {
+    return dump(format);
+  }
 
 public:
   /**

@@ -61,10 +61,15 @@ private:
   // Optional PMR resource used to back all node allocations during parse.
   // nullptr means: use the standard new/delete allocator (default behaviour).
   std::pmr::memory_resource *memoryResource{nullptr};
-  // Pointer to YAML parser interface
-  std::unique_ptr<IParser> yamlParser;
-  // Pointer to YAML stringify interface
-  std::unique_ptr<IStringify> yamlStringify;
+  // Default instances when no custom interfaces are provided
+  std::unique_ptr<IParser> defaultParser;
+  std::unique_ptr<IStringify> defaultStringify;
+  std::unique_ptr<IParser> ownedParser;
+  std::unique_ptr<IStringify> ownedStringify;
+  // Active non-owning pointers to YAML parser and stringify interfaces
+  IParser *yamlParser{nullptr};
+  IStringify *yamlStringify{nullptr};
+
   // Document container store
   DocumentStore documentStore;
 };

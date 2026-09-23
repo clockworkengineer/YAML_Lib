@@ -6,7 +6,7 @@
 namespace YAML_Lib {
 
 struct Node;
-class Number;
+struct Number;
 
 /**
  * @brief Abstract Factory interface for Node creation.

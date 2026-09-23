@@ -114,7 +114,7 @@ bool Default_Parser::isArray(ISource &source) {
 /// <returns>If true, a boolean value has been found.</returns>
 bool Default_Parser::isBoolean(ISource &source) {
   const auto ch = source.current();
-  if (strictBooleans || ctx_.yamlDirectiveMinor >= 2) {
+  if (isStrictBooleans() || ctx_.yamlDirectiveMinor >= 2) {
     // YAML 1.2 strict: only 'true' and 'false'
     return ch == 't' || ch == 'f';
   }

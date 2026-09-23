@@ -115,7 +115,7 @@ public:
     if (tagSuffix == "null") {
       return Node::make<Null>();
     }
-    return std::move(node);
+    return node;
   }
 
 private:

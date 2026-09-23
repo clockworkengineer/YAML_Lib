@@ -15,14 +15,18 @@ YAML_Impl::YAML_Impl(IStringify *stringify, IParser *parser,
                      std::pmr::memory_resource *mr)
     : memoryResource{mr}, documentStore{mr} {
   if (parser == nullptr) {
-    yamlParser = std::make_unique<Default_Parser>(std::make_unique<Default_Translator>());
+    defaultParser = std::make_unique<Default_Parser>(std::make_unique<Default_Translator>());
+    yamlParser = defaultParser.get();
   } else {
-    yamlParser.reset(parser);
+    ownedParser.reset(parser);
+    yamlParser = ownedParser.get();
   }
   if (stringify == nullptr) {
-    yamlStringify = std::make_unique<Default_Stringify>(std::make_unique<Default_Translator>());
+    defaultStringify = std::make_unique<Default_Stringify>(std::make_unique<Default_Translator>());
+    yamlStringify = defaultStringify.get();
   } else {
-    yamlStringify.reset(stringify);
+    ownedStringify.reset(stringify);
+    yamlStringify = ownedStringify.get();
   }
 }
 
@@ -32,17 +36,26 @@ YAML_Impl::YAML_Impl(const Options &options)
   Default_Parser::setStrictBooleans(options.strict_booleans);
 
   if (options.parser == nullptr) {
-    yamlParser = std::make_unique<Default_Parser>(
+    defaultParser = std::make_unique<Default_Parser>(
         std::make_unique<Default_Translator>(), options);
+    yamlParser = defaultParser.get();
+  } else if (options.own_parser) {
+    ownedParser.reset(options.parser);
+    yamlParser = ownedParser.get();
   } else {
-    yamlParser.reset(options.parser);
+    yamlParser = options.parser;
   }
   if (options.stringifier == nullptr) {
-    yamlStringify = std::make_unique<Default_Stringify>(std::make_unique<Default_Translator>());
+    defaultStringify = std::make_unique<Default_Stringify>(std::make_unique<Default_Translator>());
+    yamlStringify = defaultStringify.get();
+  } else if (options.own_stringifier) {
+    ownedStringify.reset(options.stringifier);
+    yamlStringify = ownedStringify.get();
   } else {
-    yamlStringify.reset(options.stringifier);
+    yamlStringify = options.stringifier;
   }
 }
+
 
 /// <summary>
 /// Function header.

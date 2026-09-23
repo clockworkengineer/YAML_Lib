@@ -1,5 +1,9 @@
 #pragma once
 
+#include <fstream>
+#include <string>
+#include <string_view>
+
 namespace YAML_Lib {
 
 class FileSource final : public BufferedSourceBase {

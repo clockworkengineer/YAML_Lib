@@ -106,7 +106,7 @@ Node Default_Parser::parseBoolean(ISource &source, const Delimiters &delimiters,
   static const std::set<std::string_view> strict12False{"false"};
   return tryParseToken(source, delimiters, indentation,
                        [&](const std::string &tok) -> Node {
-    const bool strictMode = strictBooleans || ctx_.yamlDirectiveMinor >= 2;
+    const bool strictMode = isStrictBooleans() || ctx_.yamlDirectiveMinor >= 2;
     const auto &trueSet = strictMode ? strict12True : Boolean::isTrue;
     const auto &falseSet = strictMode ? strict12False : Boolean::isFalse;
     if (trueSet.contains(tok))

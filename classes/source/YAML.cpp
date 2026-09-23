@@ -9,6 +9,8 @@
 //
 
 #include "YAML_Impl.hpp"
+#include "implementation/common/YAML_StringifierFactory.hpp"
+#include "implementation/io/YAML_Destinations.hpp"
 #include <stdexcept>
 
 namespace YAML_Lib {
@@ -157,6 +159,17 @@ void YAML::stringify(IDestination &destination) const {
 /// </summary>
 void YAML::stringify(IDestination &&destination) const {
   implementation->stringify(destination);
+}
+/// <summary>
+/// Stringify Node tree to formatted string using named format from StringifierFactory.
+/// </summary>
+std::string YAML::dump(const std::string_view &format) const {
+  auto str = StringifierFactory::instance().create(format);
+  BufferDestination destination;
+  for (unsigned long i = 0; i < getNumberOfDocuments(); ++i) {
+    str->stringify(document(i), destination, 0);
+  }
+  return destination.toString();
 }
 #ifndef YAML_LIB_NO_EXCEPTIONS
 /// <summary>

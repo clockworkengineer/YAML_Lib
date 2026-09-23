@@ -1,5 +1,8 @@
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
+#include "YAML_Reader.hpp"
+#include "YAML_Writer.hpp"
+#include "YAML_DOM.hpp"
 
 int main() {
   static_assert(sizeof(YAML_Lib::YAML) > 0, "YAML type must be complete");
