@@ -36,8 +36,7 @@ These values help protect against document flooding, deeply nested structures, a
 
 ## Platform-specific implementation notes
 
-- Linux and macOS builds share the POSIX UTF converter implementation located under `classes/source/implementation/converter/linux/`.
-- Windows builds use the Windows-specific converter implementation under `classes/source/implementation/converter/windows/`.
+- UTF conversion is handled via the unified, cross-platform converter implementation in `classes/source/implementation/converter/YAML_Converter.cpp` (and `YAML_Converter.hpp`), compatible with Linux, macOS, and Windows.
 - `YAML.hpp` and `YAML_Core.hpp` are the stable public headers for portable integration; platform-specific internals remain isolated behind implementation directories.
 - `YAML_LIB_FILE_IO=OFF` is useful for embedded or bare-metal environments where filesystem APIs are unavailable.
 

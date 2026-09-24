@@ -171,7 +171,7 @@ private:
   // otherwise the guard restores the source to where it was.
   template <typename Predicate>
   Node tryParseToken(ISource &source, const Delimiters &delimiters,
-                            unsigned long indentation, Predicate &&pred) {
+                            [[maybe_unused]] unsigned long indentation, Predicate &&pred) {
     const unsigned long tokenIndent = source.getPosition().second;
     SourceGuard guard(source);
     std::string token{extractToNext(source, delimiters)};

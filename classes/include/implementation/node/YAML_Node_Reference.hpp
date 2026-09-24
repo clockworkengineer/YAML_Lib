@@ -240,4 +240,43 @@ inline std::string StaticDictionary<N>::toKey() const {
                                  });
 }
 
+// Node::clone() — deep copy scalar or container node
+inline Node Node::clone() const {
+  Node copy;
+  copy.yamlTag = yamlTag;
+  std::visit([&copy](const auto &val) {
+    using T = std::decay_t<decltype(val)>;
+    if constexpr (std::is_same_v<T, std::monostate>) {
+      // empty monostate
+    } else if constexpr (std::is_same_v<T, std::unique_ptr<Array>>) {
+      if (val) {
+        auto newArr = std::make_unique<Array>();
+        for (const auto &elem : val->value()) {
+          newArr->add(elem.clone());
+        }
+        copy.yNodeVariant = std::move(newArr);
+      }
+    } else if constexpr (std::is_same_v<T, std::unique_ptr<Dictionary>>) {
+      if (val) {
+        auto newDict = std::make_unique<Dictionary>();
+        for (const auto &entry : val->value()) {
+          newDict->add(DictionaryEntry(entry.getKey(), entry.getNode().clone(), entry.getKeyQuote()));
+        }
+        copy.yNodeVariant = std::move(newDict);
+      }
+    } else if constexpr (std::is_same_v<T, std::unique_ptr<Document>>) {
+      if (val) {
+        auto newDoc = std::make_unique<Document>();
+        for (const auto &elem : val->value()) {
+          newDoc->add(elem.clone());
+        }
+        copy.yNodeVariant = std::move(newDoc);
+      }
+    } else {
+      copy.yNodeVariant = val;
+    }
+  }, yNodeVariant);
+  return copy;
+}
+
 } // namespace YAML_Lib

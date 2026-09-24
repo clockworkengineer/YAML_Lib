@@ -42,6 +42,15 @@ YAML::YAML(std::pmr::memory_resource *mr)
 /// Destroy YAML object.
 /// </summary>
 YAML::~YAML() noexcept = default;
+
+YAML::YAML(YAML &&other) noexcept = default;
+YAML &YAML::operator=(YAML &&other) noexcept = default;
+
+std::unique_ptr<YAML> YAML::clone() const {
+  auto copy = std::make_unique<YAML>();
+  copy->implementation = implementation->clone();
+  return copy;
+}
 /// <summary>
 /// YAML constructor. Pass a YAML string to be initially parsed.
 /// </summary>

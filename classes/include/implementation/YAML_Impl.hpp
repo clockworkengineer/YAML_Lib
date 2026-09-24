@@ -14,9 +14,11 @@ public:
   YAML_Impl(const Options &options);
   YAML_Impl(const YAML_Impl &other) = delete;
   YAML_Impl &operator=(const YAML_Impl &other) = delete;
-  YAML_Impl(YAML_Impl &&other) = delete;
-  YAML_Impl &operator=(YAML_Impl &&other) = delete;
+  YAML_Impl(YAML_Impl &&other) noexcept;
+  YAML_Impl &operator=(YAML_Impl &&other) noexcept;
   ~YAML_Impl() = default;
+
+  [[nodiscard]] std::unique_ptr<YAML_Impl> clone() const;
   // Get YAML_Lib version
   static std::string version();
   // Get number of documents

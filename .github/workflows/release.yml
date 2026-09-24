@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Source Tarball
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          mkdir -p release-dist
+          git archive --format=tar.gz --prefix=yaml_lib-${VERSION}/ -o release-dist/yaml_lib-${VERSION}.tar.gz HEAD
+          git archive --format=zip --prefix=yaml_lib-${VERSION}/ -o release-dist/yaml_lib-${VERSION}.zip HEAD
+
+      - name: Generate Checksums
+        run: |
+          cd release-dist
+          sha256sum * > SHA256SUMS
+          cd ..
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release-dist/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true

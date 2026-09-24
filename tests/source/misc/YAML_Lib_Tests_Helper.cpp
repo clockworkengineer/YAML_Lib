@@ -46,15 +46,18 @@ bool compareFile(const std::string &str, const std::string &fileName) {
   }
   return fileContents.str() == str;
 }
+#include <atomic>
+#include <chrono>
+
 /// <summary>
 /// Generate unique file name.
 /// </summary>
-/// <returns>Unique torrent file name</returns>
+/// <returns>Unique temporary file name</returns>
 std::string generateRandomFileName(void) {
-  std::filesystem::path namepath = std::tmpnam(nullptr);
-  std::string result { std::filesystem::temp_directory_path().string() };
-  result.push_back(std::filesystem::path::preferred_separator);
-  return result+namepath.filename().string();
+  static std::atomic<uint64_t> counter{0};
+  const auto timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
+  const auto filename = "yaml_lib_test_" + std::to_string(timestamp) + "_" + std::to_string(++counter) + ".tmp";
+  return (std::filesystem::temp_directory_path() / filename).string();
 }
 std::string generateEscapes(const unsigned char first,
                             const unsigned char last) {

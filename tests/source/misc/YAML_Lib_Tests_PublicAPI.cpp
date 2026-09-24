@@ -127,3 +127,68 @@ TEST_CASE("YAML::loadFile parses a YAML file into a YAML object", "[YAML][API][F
   std::remove(fileName.c_str());
 }
 #endif
+
+TEST_CASE("YAML supports move construction and move assignment", "[YAML][API][Move]") {
+  YAML original("item: book\ncount: 5\n");
+  REQUIRE(original.getNumberOfDocuments() == 1);
+  REQUIRE(isA<String>(original["item"]));
+
+  // Move construct
+  YAML movedTo(std::move(original));
+  REQUIRE(movedTo.getNumberOfDocuments() == 1);
+  REQUIRE(NRef<String>(movedTo["item"]).value() == "book");
+
+  // Move assign
+  YAML assigned;
+  assigned = std::move(movedTo);
+  REQUIRE(assigned.getNumberOfDocuments() == 1);
+  REQUIRE(NRef<String>(assigned["item"]).value() == "book");
+}
+
+TEST_CASE("YAML and Node support deep-copy via clone()", "[YAML][API][Clone]") {
+  auto yaml = YAML::load("title: Original\nitems:\n  - a\n  - b\n");
+  REQUIRE(yaml != nullptr);
+
+  // Clone YAML object
+  auto cloned = yaml->clone();
+  REQUIRE(cloned != nullptr);
+  REQUIRE(cloned->getNumberOfDocuments() == 1);
+  REQUIRE(NRef<String>((*cloned)["title"]).value() == "Original");
+
+  // Modify clone, verify original unchanged
+  (*cloned)["title"] = "Modified";
+  REQUIRE(NRef<String>((*cloned)["title"]).value() == "Modified");
+  REQUIRE(NRef<String>((*yaml)["title"]).value() == "Original");
+
+  // Clone individual Node
+  Node clonedNode = (*yaml)["items"].clone();
+  REQUIRE(isA<Array>(clonedNode));
+  REQUIRE(NRef<Array>(clonedNode).size() == 2);
+}
+
+TEST_CASE("YAML exceptions can be caught via YAML_Lib::Exception", "[YAML][API][Exception]") {
+  YAML yaml;
+  bool caughtYAML_LibException = false;
+  try {
+    yaml.parse(BufferSource{"---\nkey:\n\tvalue\n"});
+  } catch (const YAML_Lib::Exception &e) {
+    caughtYAML_LibException = true;
+    REQUIRE(std::string(e.what()).find("YAML Syntax Error") != std::string::npos);
+  }
+  REQUIRE(caughtYAML_LibException);
+}
+
+TEST_CASE("YAML::dump supports case-insensitive format names", "[YAML][API][Stringify]") {
+  auto yaml = YAML::load("name: Test\nstatus: active\n");
+  REQUIRE(yaml != nullptr);
+
+  const std::string lowerJson = yaml->dump("json");
+  const std::string upperJson = yaml->dump("JSON");
+  REQUIRE(lowerJson == upperJson);
+  REQUIRE(lowerJson.find("\"name\":\"Test\"") != std::string::npos);
+
+  const std::string lowerYaml = yaml->dump("yaml");
+  const std::string upperYaml = yaml->dump("YAML");
+  REQUIRE(lowerYaml == upperYaml);
+}
+

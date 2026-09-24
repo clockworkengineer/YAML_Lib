@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "implementation/common/YAML_Error.hpp"
 
 namespace YAML_Lib {
@@ -57,7 +58,7 @@ public:
   }
 
 };
-// Make custom stringify to pass to JSON constructor: Pointer is tidied up internally.
+// Make custom stringify to pass to YAML constructor: Pointer is tidied up internally.
 template <typename T> IStringify *makeStringify() {
     return std::make_unique<T>().release();
 }

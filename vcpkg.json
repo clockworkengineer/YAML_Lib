@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "yaml-lib",
+  "version-semver": "1.2.0",
+  "description": "Fast, modern C++20 YAML library with DOM and JSON/YAML conversion support",
+  "homepage": "https://github.com/clockworkengineer/YAML_Lib",
+  "license": "MIT",
+  "supports": "!(uwp)",
+  "features": {
+    "file-io": {
+      "description": "Enable file input and output support"
+    },
+    "sax-api": {
+      "description": "Enable streaming SAX-style event traversal API"
+    }
+  }
+}

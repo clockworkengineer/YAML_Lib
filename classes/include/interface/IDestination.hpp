@@ -1,5 +1,10 @@
 #pragma once
 
+#include <cstddef>
+#include <string>
+#include <string_view>
+#include "implementation/common/YAML_Error.hpp"
+
 namespace YAML_Lib {
 
 // ====================================================================

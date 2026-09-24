@@ -1,53 +1,67 @@
 #pragma once
 
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <utility>
+
 namespace YAML_Lib {
+
+// ---------------------------------------------------------------
+// Root exception class for all YAML_Lib exceptions.
+// Inherits from std::runtime_error for standard compatibility.
+// ---------------------------------------------------------------
+struct Exception : public std::runtime_error {
+  explicit Exception(const std::string &message) : std::runtime_error(message) {}
+  explicit Exception(const char *message) : std::runtime_error(message) {}
+};
 
 // ---------------------------------------------------------------
 // Macro: define a simple prefixed Error struct in one line.
 // Usage: YAML_MAKE_ERROR(Error, "ISource Error")
-// Produces: struct Error final : std::runtime_error { ... }
+// Produces: struct Error final : Exception { ... }
 // Not used for YAML::Error / YAML::SyntaxError which have extra
 // constructors (with position pair).
 // ---------------------------------------------------------------
 #define YAML_MAKE_ERROR(StructName, Prefix)                                    \
-  struct StructName final : std::runtime_error {                               \
+  struct StructName final : ::YAML_Lib::Exception {                            \
     explicit StructName(const std::string_view &message)                       \
-        : std::runtime_error(std::string(Prefix ": ").append(message)) {}      \
+        : ::YAML_Lib::Exception(std::string(Prefix ": ").append(message)) {}  \
   }
 
 // ---------------------------------------------------------------
-// YAML error types (unchanged for backward compatibility)
+// YAML error types (inherit from Exception for specific catches)
 // ---------------------------------------------------------------
-struct Error final : std::runtime_error {
+struct Error final : Exception {
     explicit Error(const std::string_view &message)
         /// <summary>
         /// Construct an Error using a text message.
         /// </summary>
         /// <param name="message">Error message text.</param>
-        : std::runtime_error(std::string("YAML Error: ").append(message)) {
+        : Exception(std::string("YAML Error: ").append(message)) {
     }
 
     explicit Error(const std::pair<unsigned long, unsigned long> &position,
                    const std::string_view &message = "")
-        : std::runtime_error(
+        : Exception(
             std::string("YAML Error [Line: ").append(std::to_string(position.first))
             .append(" Column: ").append(std::to_string(position.second))
             .append("]: ").append(message)) {
     }
 };
 
-struct SyntaxError final : std::runtime_error {
+struct SyntaxError final : Exception {
     explicit SyntaxError(const std::string_view &message)
         /// <summary>
         /// Construct a SyntaxError using a text message.
         /// </summary>
         /// <param name="message">Syntax error message text.</param>
-        : std::runtime_error(std::string("YAML Syntax Error: ").append(message)) {
+        : Exception(std::string("YAML Syntax Error: ").append(message)) {
     }
 
     explicit SyntaxError(const std::pair<unsigned long, unsigned long> &position,
                          const std::string_view message = "")
-        : std::runtime_error(
+        : Exception(
             std::string("YAML Syntax Error [Line: ").append(std::to_string(position.first))
             .append(" Column: ").append(std::to_string(position.second))
             .append("]: ").append(message)) {

@@ -11,15 +11,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-test:
-    name: ${{ matrix.os }} / ${{ matrix.cxx }} / ${{ matrix.build_type }}
+  format-and-lint:
+    name: Code Formatting & Quality Checks
+    runs-on: ubuntu-24.04
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format
+
+      - name: Check clang-format style
+        run: |
+          chmod +x ./scripts/Linux-Style-Check.sh
+          ./scripts/Linux-Style-Check.sh
+
+  build-and-test-linux:
+    name: Linux / ${{ matrix.os }} / ${{ matrix.cxx }} / ${{ matrix.build_type }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ ubuntu-22.04, ubuntu-24.04 ]
         build_type: [ Debug, Release ]
-        cxx: [ g++-11, g++-13, clang++-16, clang++-18 ]
+        cxx: [ g++-11, g++-13, clang++-15, clang++-18 ]
         exclude:
           - os: ubuntu-22.04
             cxx: g++-13
@@ -28,7 +46,7 @@ jobs:
           - os: ubuntu-24.04
             cxx: g++-11
           - os: ubuntu-24.04
-            cxx: clang++-16
+            cxx: clang++-15
 
     steps:
       - name: Checkout repository
@@ -38,7 +56,9 @@ jobs:
         run: |
           sudo apt-get update
           if [[ "${{ matrix.cxx }}" =~ "clang" ]]; then
-            sudo apt-get install -y ${{ matrix.cxx }}
+            pkg="${{ matrix.cxx }}"
+            pkg="${pkg/clang++/clang}"
+            sudo apt-get install -y "${pkg}"
           else
             sudo apt-get install -y ${{ matrix.cxx }}
           fi
@@ -58,6 +78,71 @@ jobs:
 
       - name: Run Tests
         run: ctest --test-dir build/tests --output-on-failure
+
+  build-and-test-macos:
+    name: macOS / AppleClang / ${{ matrix.build_type }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [ Debug, Release ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBUILD_YAML_TESTS=ON \
+            -DYAML_LIB_FILE_IO=ON \
+            -DBUILD_YAML_EXAMPLES=ON
+
+      - name: Build
+        run: cmake --build build -j$(sysctl -n hw.ncpu)
+
+      - name: Run Tests
+        run: ctest --test-dir build/tests --output-on-failure
+
+  build-and-test-windows:
+    name: Windows / MSVC / ${{ matrix.build_type }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [ Debug, Release ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_YAML_TESTS=ON -DYAML_LIB_FILE_IO=ON -DBUILD_YAML_EXAMPLES=ON
+
+      - name: Build
+        run: cmake --build build --config ${{ matrix.build_type }}
+
+      - name: Run Tests
+        run: ctest --test-dir build/tests -C ${{ matrix.build_type }} --output-on-failure
+
+  minimal-embedded-build:
+    name: Minimal & Embedded Configuration
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Minimal Build (File IO OFF, Extra Parsers OFF)
+        run: |
+          chmod +x ./scripts/Linux-Build-Minimal.sh
+          ./scripts/Linux-Build-Minimal.sh
+
+      - name: Test No-Exceptions Header & Build Flags
+        run: |
+          cmake -S . -B build_noexcept \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DYAML_LIB_NO_EXCEPTIONS=ON \
+            -DBUILD_YAML_TESTS=OFF
+          cmake --build build_noexcept --target YAML_Lib_NoExceptions_Compile_Tests
 
   sanitizers:
     name: Sanitizers (ASan + UBSan)
@@ -111,8 +196,9 @@ jobs:
           #include <YAML.hpp>
           #include <iostream>
           int main() {
-            auto yaml = YAML_Lib::YAML::load("name: test\nversion: 1.2.0");
-            std::cout << yaml.dump("json") << std::endl;
+            auto yaml = YAML_Lib::YAML::load("name: test\nversion: 1.2.0\n");
+            if (!yaml) return 1;
+            std::cout << yaml->dump("json") << std::endl;
             return 0;
           }
           EOF

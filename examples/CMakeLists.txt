@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.18)
 
 project(YAML_Lib_Examples VERSION 1.2.0 DESCRIPTION "YAML_Lib example programs")
 
+option(YAML_LIB_INSTALL_EXAMPLES "Install example executables" OFF)
+
 # Examples that require file I/O support
 set(FILE_IO_EXAMPLES
   YAML_Analyze_File
@@ -67,6 +69,8 @@ foreach(EXAMPLE_FILE ${EXAMPLE_SOURCES})
     target_precompile_headers(${EXAMPLE_NAME} REUSE_FROM YAML_Lib)
   endif()
 
-  install(TARGETS ${EXAMPLE_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
+  if(YAML_LIB_INSTALL_EXAMPLES)
+    install(TARGETS ${EXAMPLE_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
+  endif()
 endforeach()
 

@@ -111,7 +111,9 @@ set_tests_properties(${TEST_EXECUTABLE} PROPERTIES LABELS "unit;testability;api"
 # This target helps catch unsupported public header dependencies or interface regressions
 # before they reach library consumers.
 set(HEADER_COMPILE_TEST_EXECUTABLE ${YAML_LIBRARY_NAME}_Header_Compile_Tests)
-add_executable(${HEADER_COMPILE_TEST_EXECUTABLE} source/misc/YAML_Lib_Tests_HeaderCompile.cpp)
+add_executable(${HEADER_COMPILE_TEST_EXECUTABLE}
+  source/misc/YAML_Lib_Tests_HeaderCompile.cpp
+  source/misc/YAML_Lib_Tests_Header_Interfaces.cpp)
 target_include_directories(${HEADER_COMPILE_TEST_EXECUTABLE} PRIVATE
   ${CMAKE_SOURCE_DIR}/classes/include
   ${CMAKE_SOURCE_DIR}/classes/include/implementation

@@ -31,6 +31,10 @@ struct Node {
   Node(Node &&other) = default;
   Node &operator=(Node &&other) = default;
   ~Node() = default;
+
+  // Deep-copy / clone this node and its entire subtree
+  [[nodiscard]] Node clone() const;
+
   // Assignment operators
   template <typename T> Node &operator=(T value) {
     return *this = Node(value);

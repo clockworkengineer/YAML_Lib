@@ -3,6 +3,10 @@
 #include "implementation/stringify/JSON_Stringify.hpp"
 #include "implementation/stringify/XML_Stringify.hpp"
 #include "implementation/stringify/Bencode_Stringify.hpp"
+#include <algorithm>
+#include <cctype>
+#include <mutex>
+#include <shared_mutex>
 
 namespace YAML_Lib {
 
@@ -13,6 +17,15 @@ StringifierFactory &StringifierFactory::instance() {
 
 StringifierFactory::StringifierFactory() {
   registerDefaults();
+}
+
+std::string StringifierFactory::normalizeName(std::string_view name) {
+  std::string normalized;
+  normalized.reserve(name.size());
+  for (char ch : name) {
+    normalized.push_back(static_cast<char>(std::toupper(static_cast<unsigned char>(ch))));
+  }
+  return normalized;
 }
 
 void StringifierFactory::registerDefaults() {
@@ -36,14 +49,17 @@ void StringifierFactory::registerDefaults() {
 }
 
 void StringifierFactory::registerCreator(StringifyFormat format, Creator creator) {
+  std::unique_lock<std::shared_mutex> lock(mutex);
   creators[format] = std::move(creator);
 }
 
 void StringifierFactory::registerCreator(std::string_view formatName, Creator creator) {
-  namedCreators[std::string(formatName)] = std::move(creator);
+  std::unique_lock<std::shared_mutex> lock(mutex);
+  namedCreators[normalizeName(formatName)] = std::move(creator);
 }
 
 std::unique_ptr<IStringify> StringifierFactory::create(StringifyFormat format) const {
+  std::shared_lock<std::shared_mutex> lock(mutex);
   auto it = creators.find(format);
   if (it != creators.end()) {
     return (it->second)();
@@ -52,7 +68,8 @@ std::unique_ptr<IStringify> StringifierFactory::create(StringifyFormat format) c
 }
 
 std::unique_ptr<IStringify> StringifierFactory::create(std::string_view formatName) const {
-  auto it = namedCreators.find(std::string(formatName));
+  std::shared_lock<std::shared_mutex> lock(mutex);
+  auto it = namedCreators.find(normalizeName(formatName));
   if (it != namedCreators.end()) {
     return (it->second)();
   }

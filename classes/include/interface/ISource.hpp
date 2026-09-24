@@ -1,6 +1,11 @@
 #pragma once
 
+#include <cstddef>
 #include <cstring>
+#include <string_view>
+#include <utility>
+#include <vector>
+#include "implementation/common/YAML_Error.hpp"
 
 namespace YAML_Lib {
 

@@ -70,12 +70,34 @@ set(YAML_PUBLIC_HEADERS
   ${CMAKE_CURRENT_BINARY_DIR}/YAML_Config.hpp
 )
 
-add_library(${YAML_LIBRARY_NAME} STATIC ${YAML_SOURCES})
+add_library(${YAML_LIBRARY_NAME} ${YAML_SOURCES})
+add_library(YAML_Lib::YAML_Lib ALIAS ${YAML_LIBRARY_NAME})
+
+include(GenerateExportHeader)
+generate_export_header(${YAML_LIBRARY_NAME}
+  BASE_NAME YAML_Lib
+  EXPORT_FILE_NAME "${CMAKE_CURRENT_BINARY_DIR}/YAML_Lib_Export.hpp"
+)
+list(APPEND YAML_PUBLIC_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/YAML_Lib_Export.hpp")
+
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  set(YAML_LIB_IS_TOP_LEVEL ON)
+else()
+  set(YAML_LIB_IS_TOP_LEVEL OFF)
+endif()
+
+option(YAML_LIB_WERROR "Treat compiler warnings as errors" ${YAML_LIB_IS_TOP_LEVEL})
 
 if(MSVC)
   target_compile_options(${YAML_LIBRARY_NAME} PRIVATE /W4)
+  if(YAML_LIB_WERROR)
+    target_compile_options(${YAML_LIBRARY_NAME} PRIVATE /WX)
+  endif()
 else()
-  target_compile_options(${YAML_LIBRARY_NAME} PRIVATE -Wall -Werror -pedantic)
+  target_compile_options(${YAML_LIBRARY_NAME} PRIVATE -Wall -Wextra -pedantic)
+  if(YAML_LIB_WERROR)
+    target_compile_options(${YAML_LIBRARY_NAME} PRIVATE -Werror)
+  endif()
 endif()
 
 target_include_directories(${YAML_LIBRARY_NAME}
@@ -136,6 +158,16 @@ if(BUILD_YAML_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
+find_package(Doxygen QUIET)
+if(DOXYGEN_FOUND)
+  add_custom_target(docs
+    COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT "Generating API documentation with Doxygen"
+    VERBATIM
+  )
+endif()
+
 install(TARGETS ${YAML_LIBRARY_NAME}
   EXPORT YAML_LibTargets
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -145,14 +177,25 @@ install(TARGETS ${YAML_LIBRARY_NAME}
 )
 
 install(FILES ${YAML_PUBLIC_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(FILES ${YAML_PUBLIC_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/YAML_Lib)
 
 install(DIRECTORY classes/include/interface/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/interface
   FILES_MATCHING PATTERN "*.hpp"
 )
+install(DIRECTORY classes/include/interface/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/YAML_Lib/interface
+  FILES_MATCHING PATTERN "*.hpp"
+)
 
 install(DIRECTORY classes/include/implementation/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/implementation
+  FILES_MATCHING
+  PATTERN "*.hpp"
+  PATTERN "YAML_Impl.hpp" EXCLUDE
+)
+install(DIRECTORY classes/include/implementation/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/YAML_Lib/implementation
   FILES_MATCHING
   PATTERN "*.hpp"
   PATTERN "YAML_Impl.hpp" EXCLUDE

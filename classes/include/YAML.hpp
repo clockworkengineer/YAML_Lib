@@ -262,8 +262,14 @@ public:
 
   YAML(const YAML &other) = delete;
   YAML &operator=(const YAML &other) = delete;
-  YAML(YAML &&other) = delete;
-  YAML &operator=(YAML &&other) = delete;
+  YAML(YAML &&other) noexcept;
+  YAML &operator=(YAML &&other) noexcept;
+
+  /**
+   * @brief Create a deep-copy of this YAML instance and its node trees.
+   * @return Cloned YAML object
+   */
+  [[nodiscard]] std::unique_ptr<YAML> clone() const;
 
   /**
    * @brief Destructor for YAML object.
@@ -383,7 +389,7 @@ public:
 
 private:
   // Internal implementation pointer
-  const std::unique_ptr<YAML_Impl> implementation;
+  std::unique_ptr<YAML_Impl> implementation;
 };
 
 } // namespace YAML_Lib

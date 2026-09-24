@@ -2,6 +2,9 @@
 
 #include <functional>
 #include <memory>
+#include <shared_mutex>
+#include <string>
+#include <string_view>
 #include <unordered_map>
 #include "interface/IStringify.hpp"
 
@@ -19,6 +22,7 @@ enum class StringifyFormat {
  *
  * Implements Open/Closed Principle (OCP) and Dependency Inversion Principle (DIP).
  * Allows registering custom stringifiers without modifying internal format switch statements.
+ * Thread-safe across concurrent registrations and lookups.
  */
 class StringifierFactory {
 public:
@@ -35,6 +39,9 @@ public:
 private:
   StringifierFactory();
   void registerDefaults();
+  static std::string normalizeName(std::string_view name);
+
+  mutable std::shared_mutex mutex;
   std::unordered_map<StringifyFormat, Creator> creators;
   std::unordered_map<std::string, Creator> namedCreators;
 };
