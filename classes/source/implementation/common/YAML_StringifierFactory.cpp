@@ -57,7 +57,6 @@ std::unique_ptr<IStringify> StringifierFactory::create(StringifyFormat format) c
     return (it->second)();
   }
   YAML_THROW(IStringify::Error, "Unsupported StringifyFormat specified.");
-  return nullptr;
 }
 
 std::unique_ptr<IStringify> StringifierFactory::create(std::string_view formatName) const {
@@ -67,7 +66,6 @@ std::unique_ptr<IStringify> StringifierFactory::create(std::string_view formatNa
     return (it->second)();
   }
   YAML_THROW(IStringify::Error, "Unsupported format name specified: " + std::string(formatName));
-  return nullptr;
 }
 
 }  // namespace YAML_Lib

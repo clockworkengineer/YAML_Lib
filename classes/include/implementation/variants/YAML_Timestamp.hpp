@@ -29,17 +29,11 @@ struct Timestamp {
 #endif
 
   // Return reference to raw timestamp string
-  [[nodiscard]] std::string_view value() const {
-    return rawValue;
-  }
+  [[nodiscard]] std::string_view value() const { return rawValue; }
   // Return string representation
-  [[nodiscard]] std::string toString() const {
-    return std::string(rawValue);
-  }
+  [[nodiscard]] std::string toString() const { return std::string(rawValue); }
   // Convert variant to a key
-  [[nodiscard]] std::string toKey() const {
-    return std::string(rawValue);
-  }
+  [[nodiscard]] std::string toKey() const { return std::string(rawValue); }
 
 #ifdef YAML_LIB_TIMESTAMP_PARSE
   // -----------------------------------------------------------------------

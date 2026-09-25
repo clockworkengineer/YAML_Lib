@@ -175,9 +175,7 @@ class YAML {
    * @brief Stringify the node tree to a string (YAML format).
    * @return YAML string
    */
-  [[nodiscard]] std::string dump() const {
-    return toString();
-  }
+  [[nodiscard]] std::string dump() const { return toString(); }
 
   /**
    * @brief Stringify the node tree to a formatted string using a named format.
@@ -191,9 +189,7 @@ class YAML {
    * @param format Format name (e.g. "YAML", "JSON", "XML", "Bencode", or custom format).
    * @return Formatted string
    */
-  [[nodiscard]] std::string stringify(const std::string_view& format) const {
-    return dump(format);
-  }
+  [[nodiscard]] std::string stringify(const std::string_view& format) const { return dump(format); }
 
  public:
   /**

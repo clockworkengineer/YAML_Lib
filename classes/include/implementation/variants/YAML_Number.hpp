@@ -1,7 +1,9 @@
 #pragma once
 
+#include <cerrno>
 #include <charconv>
 #include <cmath>
+#include <cstdlib>
 #include <iomanip>
 #include <sstream>
 
@@ -113,6 +115,18 @@ bool Number::stringToNumber(const std::string_view& number) {
     } else {
       result = std::from_chars(begin, end, value, 10);
     }
+  } else if constexpr (std::is_same_v<T, long double>) {
+    // libc++ (e.g. AppleClang) explicitly deletes std::from_chars for long double.
+    // Use std::strtold as a portable fallback.
+    char* endptr = nullptr;
+    errno = 0;
+    std::string s(sv);
+    value = std::strtold(s.c_str(), &endptr);
+    if (errno != 0 || endptr != s.c_str() + s.size() || endptr == s.c_str()) {
+      return false;
+    }
+    *this = Number(value);
+    return true;
   } else {
     // Floating-point: from_chars (GCC 11+ / Clang 12+ / MSVC 16.4+).
     result = std::from_chars(begin, end, value);

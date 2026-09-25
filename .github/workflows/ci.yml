@@ -59,12 +59,17 @@ jobs:
             pkg="${{ matrix.cxx }}"
             pkg="${pkg/clang++/clang}"
             sudo apt-get install -y "${pkg}"
+            echo "CC=${pkg}" >> $GITHUB_ENV
           else
             sudo apt-get install -y ${{ matrix.cxx }}
+            cc="${{ matrix.cxx }}"
+            cc="${cc/g++/gcc}"
+            echo "CC=${cc}" >> $GITHUB_ENV
           fi
 
       - name: Configure CMake
         env:
+          CC: ${{ env.CC }}
           CXX: ${{ matrix.cxx }}
         run: |
           cmake -S . -B build \

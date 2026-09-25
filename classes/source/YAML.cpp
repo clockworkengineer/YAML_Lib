@@ -122,7 +122,7 @@ std::string YAML::version() {
 /// </summary>
 /// <returns>Number of documents.</returns>
 unsigned long YAML::getNumberOfDocuments() const {
-  return implementation->getNumberOfDocuments();
+  return static_cast<unsigned long>(implementation->getNumberOfDocuments());
 }
 /// <summary>
 /// Parse YAML from source stream into the Node tree.
