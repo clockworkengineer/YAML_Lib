@@ -25,20 +25,19 @@ namespace YAML_Lib {
 ///   yaml.stringify(dest);   // characters streamed to UART as they are produced
 /// @endcode
 class CallbackDestination final : public IDestination {
-public:
+ public:
   /// Plain C function pointer: receives one character and an opaque context.
-  using Sink = void (*)(char ch, void *ctx);
+  using Sink = void (*)(char ch, void* ctx);
 
   /// @param sink  Character sink; must not be nullptr.
   /// @param ctx   Opaque pointer forwarded verbatim to every sink call.
-  CallbackDestination(Sink sink, void *ctx) noexcept
-      : sink_{sink}, ctx_{ctx} {}
+  CallbackDestination(Sink sink, void* ctx) noexcept : sink_{sink}, ctx_{ctx} {}
 
   CallbackDestination() = delete;
-  CallbackDestination(const CallbackDestination &) = delete;
-  CallbackDestination &operator=(const CallbackDestination &) = delete;
-  CallbackDestination(CallbackDestination &&) = delete;
-  CallbackDestination &operator=(CallbackDestination &&) = delete;
+  CallbackDestination(const CallbackDestination&) = delete;
+  CallbackDestination& operator=(const CallbackDestination&) = delete;
+  CallbackDestination(CallbackDestination&&) = delete;
+  CallbackDestination& operator=(CallbackDestination&&) = delete;
   ~CallbackDestination() override = default;
 
   void add(char ch) override {
@@ -47,16 +46,14 @@ public:
   }
 
   /// No-op: a streaming destination has no persistent buffer to clear.
-  void clear() override {
-    last_ = kNull;
-  }
+  void clear() override { last_ = kNull; }
 
   [[nodiscard]] char last() override { return last_; }
 
-private:
-  Sink  sink_;
-  void *ctx_;
-  char  last_{kNull};
+ private:
+  Sink sink_;
+  void* ctx_;
+  char last_{kNull};
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

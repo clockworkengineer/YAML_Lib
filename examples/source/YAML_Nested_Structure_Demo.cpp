@@ -11,10 +11,10 @@
 
 namespace yl = YAML_Lib;
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
   try {
     // Initialise logging.
-        std::cout << "YAML_Nested_Structure_Demo started ...";
+    std::cout << "YAML_Nested_Structure_Demo started ...";
     std::cout << YAML_Lib::YAML::version();
     yl::YAML yaml;
     yaml["user"]["name"] = "Alice";
@@ -23,7 +23,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     yaml["settings"]["notifications"] = true;
     yaml.stringify(yl::FileDestination("files/nested_demo.yaml"));
     std::cout << "Created nested YAML structure and wrote to file.";
-  } catch (const std::exception &ex) {
+  } catch (const std::exception& ex) {
     std::cerr << "Error: [" << ex.what() << "]\n";
   }
   std::cout << "YAML_Nested_Structure_Demo exited.";

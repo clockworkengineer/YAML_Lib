@@ -7,70 +7,67 @@
 namespace YAML_Lib {
 
 class YAML_Impl {
-public:
+ public:
   // Constructors/Destructors
-  YAML_Impl(IStringify *stringify, IParser *parser,
-            std::pmr::memory_resource *mr = nullptr);
-  YAML_Impl(const Options &options);
-  YAML_Impl(const YAML_Impl &other) = delete;
-  YAML_Impl &operator=(const YAML_Impl &other) = delete;
-  YAML_Impl(YAML_Impl &&other) noexcept;
-  YAML_Impl &operator=(YAML_Impl &&other) noexcept;
+  YAML_Impl(IStringify* stringify, IParser* parser, std::pmr::memory_resource* mr = nullptr);
+  YAML_Impl(const Options& options);
+  YAML_Impl(const YAML_Impl& other) = delete;
+  YAML_Impl& operator=(const YAML_Impl& other) = delete;
+  YAML_Impl(YAML_Impl&& other) noexcept;
+  YAML_Impl& operator=(YAML_Impl&& other) noexcept;
   ~YAML_Impl() = default;
 
   [[nodiscard]] std::unique_ptr<YAML_Impl> clone() const;
   // Get YAML_Lib version
   static std::string version();
   // Get number of documents
-  [[nodiscard]] auto getNumberOfDocuments() const {
-    return documentStore.size();
-  }
+  [[nodiscard]] auto getNumberOfDocuments() const { return documentStore.size(); }
   // Parse YAML into Node tree
-  void parse(ISource &source);
+  void parse(ISource& source);
   // Create YAML text string from Node tree
-  void stringify(IDestination &destination) const;
+  void stringify(IDestination& destination) const;
   // Get the document
-  [[nodiscard]] Node &document(const unsigned long index) {
-    return documentStore.document(index);
-  }
-  [[nodiscard]] const Node &document(const unsigned long index) const {
+  [[nodiscard]] Node& document(const unsigned long index) { return documentStore.document(index); }
+  [[nodiscard]] const Node& document(const unsigned long index) const {
     return documentStore.document(index);
   }
   // Traverse YAML tree
-  void traverse(IAction &action);
-  void traverse(IAction &action) const;
+  void traverse(IAction& action);
+  void traverse(IAction& action) const;
 #ifdef YAML_LIB_SAX_API
   // Emit SAX events for every document in the tree
-  void traverseEvents(IYAMLEvents &handler) const;
-#endif // YAML_LIB_SAX_API
+  void traverseEvents(IYAMLEvents& handler) const;
+#endif  // YAML_LIB_SAX_API
   // Search for YAML object entry with a given key
-  Node &operator[](const std::string_view &key);
-  const Node &operator[](const std::string_view &key) const;
+  Node& operator[](const std::string_view& key);
+  const Node& operator[](const std::string_view& key) const;
   // Get YAML array element at index
-  Node &operator[](std::size_t index);
-  const Node &operator[](std::size_t index) const;
+  Node& operator[](std::size_t index);
+  const Node& operator[](std::size_t index) const;
   // Read/Write YAML from a file (only when YAML_LIB_FILE_IO is enabled)
 #ifdef YAML_LIB_FILE_IO
-  static std::string fromFile(const std::string_view &fileName);
-  static void toFile(const std::string_view &fileName, const std::string_view &yamlString, YAML::Format format);
+  static std::string fromFile(const std::string_view& fileName);
+  static void toFile(const std::string_view& fileName, const std::string_view& yamlString,
+                     YAML::Format format);
   // Get YAML file format
-  static YAML::Format getFileFormat(const std::string_view &fileName);
-#endif // YAML_LIB_FILE_IO
+  static YAML::Format getFileFormat(const std::string_view& fileName);
+#endif  // YAML_LIB_FILE_IO
 
-private:
+ private:
   // Traverse YAML tree
-  template <typename T> static void traverseNodes(T &yNode, IAction &action);
+  template <typename T>
+  static void traverseNodes(T& yNode, IAction& action);
   // Optional PMR resource used to back all node allocations during parse.
   // nullptr means: use the standard new/delete allocator (default behaviour).
-  std::pmr::memory_resource *memoryResource{nullptr};
+  std::pmr::memory_resource* memoryResource{nullptr};
   // Default instances when no custom interfaces are provided
   std::unique_ptr<IParser> defaultParser;
   std::unique_ptr<IStringify> defaultStringify;
   std::unique_ptr<IParser> ownedParser;
   std::unique_ptr<IStringify> ownedStringify;
   // Active non-owning pointers to YAML parser and stringify interfaces
-  IParser *yamlParser{nullptr};
-  IStringify *yamlStringify{nullptr};
+  IParser* yamlParser{nullptr};
+  IStringify* yamlStringify{nullptr};
 
   // Document container store
   DocumentStore documentStore;
@@ -88,7 +85,7 @@ template <typename T>
 /// </summary>
 /// <param name="yNode">Node subtree to traverse.</param>
 /// <param name="action">Action callback to execute for each node.</param>
-void YAML_Impl::traverseNodes(T &yNode, IAction &action) {
+void YAML_Impl::traverseNodes(T& yNode, IAction& action) {
   action.onNode(yNode);
   if (isA<Number>(yNode)) {
     action.onNumber(yNode);
@@ -100,16 +97,16 @@ void YAML_Impl::traverseNodes(T &yNode, IAction &action) {
     action.onNull(yNode);
   } else if (isA<Dictionary>(yNode)) {
     action.onDictionary(yNode);
-    for (auto &entry : NRef<Dictionary>(yNode).value()) {
+    for (auto& entry : NRef<Dictionary>(yNode).value()) {
       traverseNodes(entry.getNode(), action);
     }
   } else if (isA<Array>(yNode)) {
     action.onArray(yNode);
-    for (auto &entry : NRef<Array>(yNode).value()) {
+    for (auto& entry : NRef<Array>(yNode).value()) {
       traverseNodes(entry, action);
     }
   } else if (!isA<Hole>(yNode)) {
     YAML_THROW(Error, "Unknown Node type encountered during tree traversal.");
   }
 }
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

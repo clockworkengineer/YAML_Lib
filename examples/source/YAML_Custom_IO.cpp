@@ -20,7 +20,7 @@ struct CustomDestination : yl::IDestination {
 };
 
 struct PrefixStringify : yl::IStringify {
-  void stringify(const yl::Node &yNode, yl::IDestination &destination,
+  void stringify(const yl::Node& yNode, yl::IDestination& destination,
                  unsigned long) const override {
     destination.add('[');
     if (yl::isA<yl::Dictionary>(yNode)) {
@@ -34,7 +34,7 @@ struct PrefixStringify : yl::IStringify {
 };
 
 struct ConstantParser : yl::IParser {
-  std::vector<yl::Node> parse(yl::ISource &) override {
+  std::vector<yl::Node> parse(yl::ISource&) override {
     std::vector<yl::Node> result;
     result.emplace_back(yl::Node{{{"custom", "parser"}}});
     return result;

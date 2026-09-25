@@ -8,17 +8,15 @@
 namespace YAML_Lib {
 
 class FileDestination final : public IDestination {
-public:
-  explicit FileDestination(const std::string_view &filename)
-      : filename(filename) {
-    destination.open(filename.data(),
-                     std::ios_base::binary | std::ios_base::trunc);
+ public:
+  explicit FileDestination(const std::string_view& filename) : filename(filename) {
+    destination.open(filename.data(), std::ios_base::binary | std::ios_base::trunc);
   }
   FileDestination() = delete;
-  FileDestination(const FileDestination &other) = delete;
-  FileDestination &operator=(const FileDestination &other) = delete;
-  FileDestination(FileDestination &&other) = delete;
-  FileDestination &operator=(FileDestination &&other) = delete;
+  FileDestination(const FileDestination& other) = delete;
+  FileDestination& operator=(const FileDestination& other) = delete;
+  FileDestination(FileDestination&& other) = delete;
+  FileDestination& operator=(FileDestination&& other) = delete;
   ~FileDestination() override = default;
 
   void add(const char ch) override {
@@ -31,7 +29,7 @@ public:
     }
     lastChar = ch;
   }
-  void add(const std::string &bytes) override {
+  void add(const std::string& bytes) override {
     if (bytes.empty()) {
       return;
     }
@@ -40,7 +38,7 @@ public:
     }
     lastChar = bytes.back();
   }
-  void add(const char *bytes) override {
+  void add(const char* bytes) override {
     const auto len = strlen(bytes);
     if (len == 0) {
       destination.flush();
@@ -52,7 +50,7 @@ public:
     destination.flush();
     lastChar = bytes[len - 1];
   }
-  void add(const std::string_view &bytes) override {
+  void add(const std::string_view& bytes) override {
     if (bytes.empty()) {
       destination.flush();
       return;
@@ -67,8 +65,7 @@ public:
     if (destination.is_open()) {
       destination.close();
     }
-    destination.open(filename.c_str(),
-                     std::ios_base::binary | std::ios_base::trunc);
+    destination.open(filename.c_str(), std::ios_base::binary | std::ios_base::trunc);
     if (!destination.is_open()) {
       YAML_THROW(Error, "File output stream failed to open or could not be created.");
     }
@@ -82,10 +79,10 @@ public:
 
   [[nodiscard]] char last() override { return lastChar; }
 
-private:
+ private:
   std::ofstream destination;
   std::string filename;
   std::size_t fileSize{};
   char lastChar{};
 };
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

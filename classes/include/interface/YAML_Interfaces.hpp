@@ -4,7 +4,8 @@
  * @file YAML_Interfaces.hpp
  * @brief Aggregates all public interface definitions for YAML_Lib.
  *
- * Include this header to access IAction, ISource, IDestination, IParser, IStringify, and ITranslator interfaces.
+ * Include this header to access IAction, ISource, IDestination, IParser, IStringify, and
+ * ITranslator interfaces.
  *
  * These interfaces form the stable public customization boundary for YAML_Lib.
  * Implementers should preserve the lifetime and ownership semantics documented

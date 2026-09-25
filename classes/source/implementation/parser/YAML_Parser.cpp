@@ -17,8 +17,7 @@ namespace YAML_Lib {
 /// <param name="delimiters">Delimiters used to parse document.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Document root Node.</returns>
-Node Default_Parser::parseDocument(ISource &source,
-                                   const Delimiters &delimiters,
+Node Default_Parser::parseDocument(ISource& source, const Delimiters& delimiters,
                                    const unsigned long indentation) {
   DepthGuard depthGuard(parseDepth, maxParseDepth);
   moveToNextIndent(source);
@@ -28,7 +27,7 @@ Node Default_Parser::parseDocument(ISource &source,
     YAML_THROW_POS(source, "Document marker not permitted inside flow collection.");
   }
   for (std::size_t i = 0; i < parsers_.size(); ++i) {
-    const auto &[fst, snd] = parsers_[i];
+    const auto& [fst, snd] = parsers_[i];
     if ((this->*fst)(source)) {
       if (Node yNode = (this->*snd)(source, delimiters, indentation); !yNode.isEmpty()) {
         moveToNextIndent(source);
@@ -43,7 +42,7 @@ Node Default_Parser::parseDocument(ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>Array of YAML documents.</returns>
-std::vector<Node> Default_Parser::parse(ISource &source) {
+std::vector<Node> Default_Parser::parse(ISource& source) {
   std::vector<Node> yNodeTree;
   ctx_.arrayIndentLevel = 0;
   ctx_.inlineArrayDepth = 0;
@@ -83,16 +82,15 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       yNodeTree.push_back(Node::make<Document>());
       source.next();
       source.next();
-      source.next(); // consume '-', '-', '-'
+      source.next();  // consume '-', '-', '-'
       source.ignoreWS();
-      if (source.more() && source.current() != kLineFeed &&
-          !isComment(source) &&
+      if (source.more() && source.current() != kLineFeed && !isComment(source) &&
           (isKey(source) || isMapping(source) || isArray(source))) {
-        YAML_THROW_POS(source, "Block collection cannot start on the same line as "
-                          "document start.");
+        YAML_THROW_POS(source,
+                       "Block collection cannot start on the same line as "
+                       "document start.");
       }
-      if (!source.more() || source.current() == kLineFeed ||
-          isComment(source)) {
+      if (!source.more() || source.current() == kLineFeed || isComment(source)) {
         moveToNextIndent(source);
       }
       // End of a document
@@ -107,12 +105,11 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       // skipped for backward compatibility.
       source.next();
       source.next();
-      source.next(); // consume '.', '.', '.'
+      source.next();  // consume '.', '.', '.'
       if (source.more() && source.isWS()) {
         // "... something" form — validate only whitespace/comment allowed.
         source.ignoreWS();
-        if (source.more() && source.current() != kLineFeed &&
-            !isComment(source)) {
+        if (source.more() && source.current() != kLineFeed && !isComment(source)) {
           YAML_THROW_POS(source, "Invalid content after document-end marker '...'.");
         }
       }
@@ -131,9 +128,8 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       parseComment(source, {kLineFeed});
       // Skip stray whitespace (e.g. leading-space comment lines between
       // directives)
-    } else if (!inDocument &&
-               (source.current() == kSpace || source.current() == '\t' ||
-                source.current() == kLineFeed)) {
+    } else if (!inDocument && (source.current() == kSpace || source.current() == '\t' ||
+                               source.current() == kLineFeed)) {
       source.next();
       // Parse document contents
     } else {
@@ -146,8 +142,7 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
       }
       inDocument = true;
       if (NRef<Document>(yNodeTree.back()).size() == 0) {
-        NRef<Document>(yNodeTree.back())
-            .add(parseDocument(source, {kLineFeed, '#'}, 0));
+        NRef<Document>(yNodeTree.back()).add(parseDocument(source, {kLineFeed, '#'}, 0));
       } else {
         YAML_THROW_POS(source, "Invalid YAML encountered.");
       }
@@ -164,15 +159,14 @@ std::vector<Node> Default_Parser::parse(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream (positioned at '%').</param>
 /// <param name="inDocument">True if a document has already started.</param>
-void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
+void Default_Parser::parseDirective(ISource& source, const bool inDocument) {
   if (inDocument) {
     YAML_THROW_POS(source, "Directives must appear before document start.");
   }
-  source.next(); // consume '%'
+  source.next();  // consume '%'
   // Extract the full directive name so we don't mistake "%YAMLL" for "%YAML"
   // (source.match does a prefix-match that would consume "YAML" from "YAMLL").
-  const std::string directiveName{
-      extractToNext(source, {kLineFeed, kSpace, '\t'})};
+  const std::string directiveName{extractToNext(source, {kLineFeed, kSpace, '\t'})};
   if (directiveName == "YAML") {
     // %YAML major.minor
     source.ignoreWS();
@@ -184,20 +178,18 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
     // Validate: version must be all-digit . all-digit (no stray chars like '#')
     const std::string majorStr = version.substr(0, dot);
     const std::string minorStr = version.substr(dot + 1);
-    const auto isAllDigits = [](const std::string &s) {
-      return !s.empty() && std::all_of(s.begin(), s.end(), [](unsigned char c) {
-        return std::isdigit(c) != 0;
-      });
+    const auto isAllDigits = [](const std::string& s) {
+      return !s.empty() &&
+             std::all_of(s.begin(), s.end(), [](unsigned char c) { return std::isdigit(c) != 0; });
     };
     if (!isAllDigits(majorStr) || !isAllDigits(minorStr)) {
-      YAML_THROW_POS(source, "%YAML directive has invalid version number '" +
-                            version + "'.");
+      YAML_THROW_POS(source, "%YAML directive has invalid version number '" + version + "'.");
     }
     const int major = std::stoi(majorStr);
     const int minor = std::stoi(minorStr);
     if (major != 1) {
-      YAML_THROW_POS(source, "%YAML directive: unsupported major version " +
-                            std::to_string(major) + ".");
+      YAML_THROW_POS(source,
+                     "%YAML directive: unsupported major version " + std::to_string(major) + ".");
     }
     if (ctx_.yamlDirectiveSeen) {
       YAML_THROW_POS(source, "%YAML directive appears more than once for the same document.");
@@ -205,8 +197,7 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
     ctx_.yamlDirectiveSeen = true;
     ctx_.yamlDirectiveMinor = minor;
     source.ignoreWS();
-    if (source.more() && source.current() != kLineFeed &&
-        source.current() != '#') {
+    if (source.more() && source.current() != kLineFeed && source.current() != '#') {
       // Allow one extra version-looking token such as "1.2" in weird but
       // valid legacy directive forms (e.g. ZYU8/2).
       const std::string trailing{extractToNext(source, {kLineFeed, ' '})};
@@ -220,8 +211,7 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
         YAML_THROW_POS(source, "%YAML directive has unexpected content after version.");
       }
       source.ignoreWS();
-      if (source.more() && source.current() != kLineFeed &&
-          source.current() != '#') {
+      if (source.more() && source.current() != kLineFeed && source.current() != '#') {
         YAML_THROW_POS(source, "%YAML directive has unexpected content after version.");
       }
     }
@@ -235,6 +225,6 @@ void Default_Parser::parseDirective(ISource &source, const bool inDocument) {
   } else {
     // Unknown directive — YAML spec says warn and ignore
   }
-  skipLine(source); // always advance past the directive line
+  skipLine(source);  // always advance past the directive line
 }
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

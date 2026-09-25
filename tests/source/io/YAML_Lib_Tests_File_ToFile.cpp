@@ -18,8 +18,7 @@ TEST_CASE("Checks for toFile() api.", "[YAML][ToFile]") {
     REQUIRE(YAML::fromFile(testFileName) == expected);
     std::filesystem::remove(testFileName);
   }
-  SECTION("Check that toFile() works with UTF8BOM.",
-          "[YAML][ToFile][UTF8BOM]") {
+  SECTION("Check that toFile() works with UTF8BOM.", "[YAML][ToFile][UTF8BOM]") {
     std::string testFileName{generateRandomFileName()};
     std::string expected{
         "version: \"3.9\"\n\nservices:\n  production-db:\n    image: "
@@ -34,8 +33,7 @@ TEST_CASE("Checks for toFile() api.", "[YAML][ToFile]") {
     REQUIRE(YAML::fromFile(testFileName) == expected);
     std::filesystem::remove(testFileName);
   }
-  SECTION("Check that toFile() works with UTF16BE.",
-          "[YAML][ToFile][UTF16BE]") {
+  SECTION("Check that toFile() works with UTF16BE.", "[YAML][ToFile][UTF16BE]") {
     std::string testFileName{generateRandomFileName()};
     std::string expected{
         "version: \"3.9\"\n\nservices:\n  production-db:\n    image: "
@@ -50,8 +48,7 @@ TEST_CASE("Checks for toFile() api.", "[YAML][ToFile]") {
     REQUIRE(YAML::fromFile(testFileName) == expected);
     std::filesystem::remove(testFileName);
   }
-  SECTION("Check that toFile() works with UTF16BLE.",
-          "[YAML][ToFile][UTF16LE]") {
+  SECTION("Check that toFile() works with UTF16BLE.", "[YAML][ToFile][UTF16LE]") {
     std::string testFileName{generateRandomFileName()};
     std::string expected{
         "version: \"3.9\"\n\nservices:\n  production-db:\n    image: "
@@ -67,7 +64,8 @@ TEST_CASE("Checks for toFile() api.", "[YAML][ToFile]") {
     std::filesystem::remove(testFileName);
   }
   SECTION("Check that toFile() rejects invalid output paths.", "[YAML][ToFile][Error]") {
-    const auto invalidPath = std::filesystem::temp_directory_path() / "does_not_exist_dir" / "yaml_lib_invalid_output.yaml";
+    const auto invalidPath = std::filesystem::temp_directory_path() / "does_not_exist_dir" /
+                             "yaml_lib_invalid_output.yaml";
     REQUIRE_FALSE(std::filesystem::exists(invalidPath.parent_path()));
     REQUIRE_THROWS_AS(YAML::toFile(invalidPath.string(), "---\nkey: value\n"), YAML_Lib::Error);
   }
@@ -92,4 +90,4 @@ TEST_CASE("Checks for toFile() api.", "[YAML][ToFile]") {
   //                         Order Mark) specified.");
   // }
 }
-#endif // YAML_LIB_FILE_IO
+#endif  // YAML_LIB_FILE_IO

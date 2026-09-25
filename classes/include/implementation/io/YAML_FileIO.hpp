@@ -16,9 +16,9 @@ namespace YAML_Lib {
  * and BOM detection from the core YAML_Impl facade.
  */
 class YAML_FileReader {
-public:
-  [[nodiscard]] static YAML::Format getFileFormat(const std::string_view &fileName);
-  [[nodiscard]] static std::string read(const std::string_view &fileName);
+ public:
+  [[nodiscard]] static YAML::Format getFileFormat(const std::string_view& fileName);
+  [[nodiscard]] static std::string read(const std::string_view& fileName);
 };
 
 /**
@@ -28,12 +28,11 @@ public:
  * and character encoding serialization.
  */
 class YAML_FileWriter {
-public:
-  static void write(const std::string_view &fileName,
-                    const std::string_view &yamlString,
+ public:
+  static void write(const std::string_view& fileName, const std::string_view& yamlString,
                     YAML::Format format);
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib
 
-#endif // YAML_LIB_FILE_IO
+#endif  // YAML_LIB_FILE_IO

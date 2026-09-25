@@ -41,20 +41,20 @@ namespace YAML_Lib {
 // Default implementations are no-ops so callers only override what they need.
 // ---------------------------------------------------------------------------
 class IYAMLEvents {
-public:
+ public:
   virtual ~IYAMLEvents() = default;
 
   // Document boundary
   virtual void onDocumentStart() {}
-  virtual void onDocumentEnd()   {}
+  virtual void onDocumentEnd() {}
 
   // Mapping (Dictionary) boundary
-  virtual void onMappingStart()  {}
-  virtual void onMappingEnd()    {}
+  virtual void onMappingStart() {}
+  virtual void onMappingEnd() {}
 
   // Sequence (Array) boundary
   virtual void onSequenceStart() {}
-  virtual void onSequenceEnd()   {}
+  virtual void onSequenceEnd() {}
 
   // Dictionary key (fired immediately before the associated value event)
   virtual void onKey(std::string_view /*key*/) {}
@@ -68,28 +68,27 @@ public:
 //
 // Recursive; depth proportional to YAML nesting level only.
 // ---------------------------------------------------------------------------
-inline void emitEvents(const Node &node, IYAMLEvents &handler) {
+inline void emitEvents(const Node& node, IYAMLEvents& handler) {
   if (isA<String>(node)) {
     handler.onScalar(NodeType::String, NRef<String>(node).value());
   } else if (isA<Number>(node)) {
     handler.onScalar(NodeType::Number, NRef<Number>(node).toString());
   } else if (isA<Boolean>(node)) {
-    handler.onScalar(NodeType::Boolean,
-                     NRef<Boolean>(node).value() ? "true" : "false");
+    handler.onScalar(NodeType::Boolean, NRef<Boolean>(node).value() ? "true" : "false");
   } else if (isA<Null>(node)) {
     handler.onScalar(NodeType::Null, "null");
   } else if (isA<Timestamp>(node)) {
     handler.onScalar(NodeType::Timestamp, NRef<Timestamp>(node).value());
   } else if (isA<Dictionary>(node)) {
     handler.onMappingStart();
-    for (const auto &entry : NRef<Dictionary>(node).value()) {
+    for (const auto& entry : NRef<Dictionary>(node).value()) {
       handler.onKey(entry.getKey());
       emitEvents(entry.getNode(), handler);
     }
     handler.onMappingEnd();
   } else if (isA<Array>(node)) {
     handler.onSequenceStart();
-    for (const auto &elem : NRef<Array>(node).value()) {
+    for (const auto& elem : NRef<Array>(node).value()) {
       emitEvents(elem, handler);
     }
     handler.onSequenceEnd();
@@ -97,6 +96,6 @@ inline void emitEvents(const Node &node, IYAMLEvents &handler) {
   // Hole / Anchor / Comment: silently skipped (internal-only nodes)
 }
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib
 
-#endif // YAML_LIB_SAX_API
+#endif  // YAML_LIB_SAX_API

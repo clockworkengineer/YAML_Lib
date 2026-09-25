@@ -16,7 +16,7 @@ namespace YAML_Lib {
  * @note Translator implementations must be thread-safe if shared across YAML objects.
  */
 class ITranslator {
-public:
+ public:
   // =================
   // ITranslator Error
   // =================
@@ -29,12 +29,11 @@ public:
   // Convert any escape sequences in a string to their correct sequence
   // of UTF-8 characters.
   // =====================================================================
-  [[nodiscard]] virtual std::string
-  from(const std::string_view &escapedString) const = 0;
+  [[nodiscard]] virtual std::string from(const std::string_view& escapedString) const = 0;
   // =========================================================================
   // Convert a string from raw character values (UTF8) so that it has character
   // escapes where applicable for its form.
   // =========================================================================
-  [[nodiscard]] virtual std::string to(const std::string_view &rawString) const = 0;
+  [[nodiscard]] virtual std::string to(const std::string_view& rawString) const = 0;
 };
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

@@ -5,7 +5,8 @@ namespace YAML_Lib {
 // =======================
 // What is Node variant ?
 // =======================
-template <typename T> bool isA(const Node &yNode) {
+template <typename T>
+bool isA(const Node& yNode) {
   if constexpr (std::is_same_v<T, Array> || std::is_same_v<T, Dictionary> ||
                 std::is_same_v<T, Document>) {
     return std::holds_alternative<std::unique_ptr<T>>(yNode.getVariant());
@@ -23,26 +24,38 @@ template <typename T> bool isA(const Node &yNode) {
 // can produce the same error text as the previous per-branch chain.
 template <typename T>
 consteval std::string_view nodeName() noexcept {
-  if constexpr (std::is_same_v<T, String>)          return "a string";
-  else if constexpr (std::is_same_v<T, Number>)     return "a number";
-  else if constexpr (std::is_same_v<T, Array>)      return "an array";
-  else if constexpr (std::is_same_v<T, Dictionary>) return "an dictionary";
-  else if constexpr (std::is_same_v<T, Boolean>)    return "a boolean";
-  else if constexpr (std::is_same_v<T, Null>)       return "a null";
-  else if constexpr (std::is_same_v<T, Hole>)       return "a hole";
-  else if constexpr (std::is_same_v<T, Comment>)    return "a comment";
-  else if constexpr (std::is_same_v<T, Document>)   return "a document";
-  else if constexpr (std::is_same_v<T, Timestamp>)  return "a timestamp";
-  else                                               return "unknown";
+  if constexpr (std::is_same_v<T, String>)
+    return "a string";
+  else if constexpr (std::is_same_v<T, Number>)
+    return "a number";
+  else if constexpr (std::is_same_v<T, Array>)
+    return "an array";
+  else if constexpr (std::is_same_v<T, Dictionary>)
+    return "an dictionary";
+  else if constexpr (std::is_same_v<T, Boolean>)
+    return "a boolean";
+  else if constexpr (std::is_same_v<T, Null>)
+    return "a null";
+  else if constexpr (std::is_same_v<T, Hole>)
+    return "a hole";
+  else if constexpr (std::is_same_v<T, Comment>)
+    return "a comment";
+  else if constexpr (std::is_same_v<T, Document>)
+    return "a document";
+  else if constexpr (std::is_same_v<T, Timestamp>)
+    return "a timestamp";
+  else
+    return "unknown";
 }
 
-template <typename T> void checkNode(const Node &yNode) {
+template <typename T>
+void checkNode(const Node& yNode) {
   if (!isA<T>(yNode))
-    YAML_THROW(Node::Error,
-               std::string("Node not ").append(nodeName<T>()).append("."));
+    YAML_THROW(Node::Error, std::string("Node not ").append(nodeName<T>()).append("."));
 }
 
-template <typename T> T &NRef(Node &yNode) {
+template <typename T>
+T& NRef(Node& yNode) {
   checkNode<T>(yNode);
   if constexpr (std::is_same_v<T, Array> || std::is_same_v<T, Dictionary> ||
                 std::is_same_v<T, Document>) {
@@ -51,7 +64,8 @@ template <typename T> T &NRef(Node &yNode) {
     return std::get<T>(yNode.getVariant());
   }
 }
-template <typename T> const T &NRef(const Node &yNode) {
+template <typename T>
+const T& NRef(const Node& yNode) {
   checkNode<T>(yNode);
   if constexpr (std::is_same_v<T, Array> || std::is_same_v<T, Dictionary> ||
                 std::is_same_v<T, Document>) {
@@ -60,7 +74,8 @@ template <typename T> const T &NRef(const Node &yNode) {
     return std::get<T>(yNode.getVariant());
   }
 }
-template <typename T> T &NRef(Dictionary::Entry &yNodeEntry) {
+template <typename T>
+T& NRef(Dictionary::Entry& yNodeEntry) {
   checkNode<T>(yNodeEntry.getNode());
   if constexpr (std::is_same_v<T, Array> || std::is_same_v<T, Dictionary> ||
                 std::is_same_v<T, Document>) {
@@ -69,7 +84,8 @@ template <typename T> T &NRef(Dictionary::Entry &yNodeEntry) {
     return std::get<T>(yNodeEntry.getNode().getVariant());
   }
 }
-template <typename T> const T &NRef(const Dictionary::Entry &yNodeEntry) {
+template <typename T>
+const T& NRef(const Dictionary::Entry& yNodeEntry) {
   checkNode<T>(yNodeEntry.getNode());
   if constexpr (std::is_same_v<T, Array> || std::is_same_v<T, Dictionary> ||
                 std::is_same_v<T, Document>) {
@@ -90,7 +106,7 @@ namespace detail {
 enum class TextMode { ToString, ToKey };
 
 template <typename T>
-inline std::string pointerContainerToKey(const std::unique_ptr<T> &p) {
+inline std::string pointerContainerToKey(const std::unique_ptr<T>& p) {
   if constexpr (std::is_same_v<T, Document>) {
     return "";
   } else {
@@ -100,22 +116,23 @@ inline std::string pointerContainerToKey(const std::unique_ptr<T> &p) {
 
 template <TextMode Mode>
 struct NodeTextVisitor {
-  std::string operator()(const std::monostate &) const { return ""; }
+  std::string operator()(const std::monostate&) const { return ""; }
   template <typename T>
-  std::string operator()(const std::unique_ptr<T> &p) const {
+  std::string operator()(const std::unique_ptr<T>& p) const {
     return pointerContainerToKey(p);
   }
-  template <typename T> std::string operator()(const T &v) const {
-    if constexpr (Mode == TextMode::ToString) return v.toString();
-    else                                      return v.toKey();
+  template <typename T>
+  std::string operator()(const T& v) const {
+    if constexpr (Mode == TextMode::ToString)
+      return v.toString();
+    else
+      return v.toKey();
   }
 };
 
 template <typename ElementAccessor>
-inline std::string sequenceToKey(const char leftBracket,
-                                 const char rightBracket,
-                                 const std::size_t count,
-                                 ElementAccessor accessor) {
+inline std::string sequenceToKey(const char leftBracket, const char rightBracket,
+                                 const std::size_t count, ElementAccessor accessor) {
   std::string result;
   result += leftBracket;
   if (count > 0) {
@@ -132,8 +149,7 @@ inline std::string sequenceToKey(const char leftBracket,
 }
 
 template <typename EntryAccessor>
-inline std::string dictionaryToKey(const std::size_t count,
-                                   EntryAccessor accessor) {
+inline std::string dictionaryToKey(const std::size_t count, EntryAccessor accessor) {
   std::string result{kLeftCurlyBrace};
   for (std::size_t i = 0; i < count; ++i) {
     result += accessor(i);
@@ -144,7 +160,7 @@ inline std::string dictionaryToKey(const std::size_t count,
   result += kRightCurlyBrace;
   return result;
 }
-} // namespace detail
+}  // namespace detail
 
 /// <summary>
 /// Return a string representation of the node.
@@ -163,10 +179,9 @@ inline std::string Node::toKey() const {
 
 // Array::toKey() — build "[a, b, c]" key string
 inline std::string Array::toKey() const {
-  return detail::sequenceToKey('[', ']', entries_.size(),
-                              [this](const std::size_t index) {
-                                return this->entries_[index].toString();
-                              });
+  return detail::sequenceToKey('[', ']', entries_.size(), [this](const std::size_t index) {
+    return this->entries_[index].toString();
+  });
 }
 
 // SequenceBase<Derived>::resize() — grow sequence and fill new slots with Hole nodes.
@@ -178,7 +193,7 @@ template <typename Derived>
 /// <param name="index">Desired final index in the sequence.</param>
 inline void SequenceBase<Derived>::resize(const std::size_t index) {
   entries_.resize(index + 1);
-  for (auto &entry : entries_) {
+  for (auto& entry : entries_) {
     if (entry.isEmpty()) {
       entry = Node::make<Hole>();
     }
@@ -187,12 +202,10 @@ inline void SequenceBase<Derived>::resize(const std::size_t index) {
 
 // Dictionary::toKey() — build "{k: v, ...}" key string
 inline std::string Dictionary::toKey() const {
-  return detail::dictionaryToKey(yNodeDictionary.size(),
-                                 [this](const std::size_t index) {
-                                   const auto &entryNode = yNodeDictionary[index];
-                                   return std::string(entryNode.getKey()) + ": " +
-                                          entryNode.getNode().toString();
-                                 });
+  return detail::dictionaryToKey(yNodeDictionary.size(), [this](const std::size_t index) {
+    const auto& entryNode = yNodeDictionary[index];
+    return std::string(entryNode.getKey()) + ": " + entryNode.getNode().toString();
+  });
 }
 
 // -----------------------------------------------------------------------
@@ -220,10 +233,9 @@ template <std::size_t N>
 /// </summary>
 /// <returns>String representation of the static array key.</returns>
 inline std::string StaticArray<N>::toKey() const {
-  return detail::sequenceToKey('[', ']', this->count_,
-                              [this](const std::size_t index) {
-                                return this->entries_[index].toString();
-                              });
+  return detail::sequenceToKey('[', ']', this->count_, [this](const std::size_t index) {
+    return this->entries_[index].toString();
+  });
 }
 
 // StaticDictionary<N>::toKey() — build "{k: v, ...}" key string
@@ -233,50 +245,51 @@ template <std::size_t N>
 /// </summary>
 /// <returns>String representation of the static dictionary key.</returns>
 inline std::string StaticDictionary<N>::toKey() const {
-  return detail::dictionaryToKey(this->count_,
-                                 [this](const std::size_t index) {
-                                   return keys_[index] + std::string(": ") +
-                                          values_[index].toString();
-                                 });
+  return detail::dictionaryToKey(this->count_, [this](const std::size_t index) {
+    return keys_[index] + std::string(": ") + values_[index].toString();
+  });
 }
 
 // Node::clone() — deep copy scalar or container node
 inline Node Node::clone() const {
   Node copy;
   copy.yamlTag = yamlTag;
-  std::visit([&copy](const auto &val) {
-    using T = std::decay_t<decltype(val)>;
-    if constexpr (std::is_same_v<T, std::monostate>) {
-      // empty monostate
-    } else if constexpr (std::is_same_v<T, std::unique_ptr<Array>>) {
-      if (val) {
-        auto newArr = std::make_unique<Array>();
-        for (const auto &elem : val->value()) {
-          newArr->add(elem.clone());
+  std::visit(
+      [&copy](const auto& val) {
+        using T = std::decay_t<decltype(val)>;
+        if constexpr (std::is_same_v<T, std::monostate>) {
+          // empty monostate
+        } else if constexpr (std::is_same_v<T, std::unique_ptr<Array>>) {
+          if (val) {
+            auto newArr = std::make_unique<Array>();
+            for (const auto& elem : val->value()) {
+              newArr->add(elem.clone());
+            }
+            copy.yNodeVariant = std::move(newArr);
+          }
+        } else if constexpr (std::is_same_v<T, std::unique_ptr<Dictionary>>) {
+          if (val) {
+            auto newDict = std::make_unique<Dictionary>();
+            for (const auto& entry : val->value()) {
+              newDict->add(
+                  DictionaryEntry(entry.getKey(), entry.getNode().clone(), entry.getKeyQuote()));
+            }
+            copy.yNodeVariant = std::move(newDict);
+          }
+        } else if constexpr (std::is_same_v<T, std::unique_ptr<Document>>) {
+          if (val) {
+            auto newDoc = std::make_unique<Document>();
+            for (const auto& elem : val->value()) {
+              newDoc->add(elem.clone());
+            }
+            copy.yNodeVariant = std::move(newDoc);
+          }
+        } else {
+          copy.yNodeVariant = val;
         }
-        copy.yNodeVariant = std::move(newArr);
-      }
-    } else if constexpr (std::is_same_v<T, std::unique_ptr<Dictionary>>) {
-      if (val) {
-        auto newDict = std::make_unique<Dictionary>();
-        for (const auto &entry : val->value()) {
-          newDict->add(DictionaryEntry(entry.getKey(), entry.getNode().clone(), entry.getKeyQuote()));
-        }
-        copy.yNodeVariant = std::move(newDict);
-      }
-    } else if constexpr (std::is_same_v<T, std::unique_ptr<Document>>) {
-      if (val) {
-        auto newDoc = std::make_unique<Document>();
-        for (const auto &elem : val->value()) {
-          newDoc->add(elem.clone());
-        }
-        copy.yNodeVariant = std::move(newDoc);
-      }
-    } else {
-      copy.yNodeVariant = val;
-    }
-  }, yNodeVariant);
+      },
+      yNodeVariant);
   return copy;
 }
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

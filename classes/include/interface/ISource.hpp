@@ -23,7 +23,7 @@ namespace YAML_Lib {
  *       by the interface and support save/restore for parser lookahead.
  */
 class ISource {
-public:
+ public:
   /**
    * @brief Exception type for source errors.
    */
@@ -76,7 +76,7 @@ public:
    * @param targetString String to match.
    * @return True if matched.
    */
-  [[nodiscard]] bool match(const std::string_view &targetString) {
+  [[nodiscard]] bool match(const std::string_view& targetString) {
     long index = 0;
     while (more() && current() == targetString[index]) {
       next();
@@ -87,7 +87,7 @@ public:
     backup(index);
     return false;
   }
-  bool match(const char *target) {
+  bool match(const char* target) {
     long index = 0;
     while (more() && current() == static_cast<char>(target[index])) {
       next();
@@ -121,7 +121,7 @@ public:
   virtual void restore() = 0;
   virtual void discardSave() = 0;
 
-protected:
+ protected:
   // ========================
   // Backup length characters
   // ========================
@@ -133,47 +133,41 @@ protected:
   // Bytes >= 0x80 are UTF-8 continuation bytes — always allowed.
   // =========================================================
   static constexpr bool kForbiddenChar[256] = {
-    // 0x00-0x08: forbidden
-    true,true,true,true,true,true,true,true,true,
-    // 0x09 TAB: allowed
-    false,
-    // 0x0A LF: allowed
-    false,
-    // 0x0B,0x0C: forbidden
-    true,true,
-    // 0x0D CR: allowed
-    false,
-    // 0x0E-0x1F: forbidden (18 bytes)
-    true,true,true,true,true,true,true,true,true,true,
-    true,true,true,true,true,true,true,true,
-    // 0x20-0x7E: allowed (95 bytes)
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,
-    // 0x7F DEL: forbidden
-    true,
-    // 0x80-0xFF: UTF-8 multi-byte bytes — allowed (128 bytes)
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,false
-  };
+      // 0x00-0x08: forbidden
+      true, true, true, true, true, true, true, true, true,
+      // 0x09 TAB: allowed
+      false,
+      // 0x0A LF: allowed
+      false,
+      // 0x0B,0x0C: forbidden
+      true, true,
+      // 0x0D CR: allowed
+      false,
+      // 0x0E-0x1F: forbidden (18 bytes)
+      true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+      true, true, true,
+      // 0x20-0x7E: allowed (95 bytes)
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false,
+      // 0x7F DEL: forbidden
+      true,
+      // 0x80-0xFF: UTF-8 multi-byte bytes — allowed (128 bytes)
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false, false, false, false};
   // ========================================
   // Current line and column on source stream
   // ========================================
@@ -192,4 +186,4 @@ protected:
   };
   std::vector<Context> contexts;
 };
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

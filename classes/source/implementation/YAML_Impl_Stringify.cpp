@@ -7,11 +7,11 @@ namespace YAML_Lib {
 /// <summary>
 /// Function header.
 /// </summary>
-void YAML_Impl::stringify(IDestination &destination) const {
+void YAML_Impl::stringify(IDestination& destination) const {
   destination.reserve(std::max<std::size_t>(4096, documentStore.size() * 512));
-  for (auto &document : documentStore.getDocuments()) {
+  for (auto& document : documentStore.getDocuments()) {
     yamlStringify->stringify(document, destination, 0);
   }
 }
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

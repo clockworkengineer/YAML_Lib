@@ -12,4 +12,3 @@ int main() {
   static_assert(sizeof(YAML_Lib::Node) > 0, "Node type must be complete");
   return 0;
 }
-

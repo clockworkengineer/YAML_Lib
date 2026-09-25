@@ -12,8 +12,7 @@ TEST_CASE("Check YAML parsing of timestamps.", "[YAML][Parse][Timestamp]") {
     REQUIRE(NRef<Timestamp>(yaml.document(0)).value() == "2001-07-08");
   }
 
-  SECTION("YAML parse date-only timestamp as dictionary value.",
-          "[YAML][Parse][Timestamp][Date]") {
+  SECTION("YAML parse date-only timestamp as dictionary value.", "[YAML][Parse][Timestamp][Date]") {
     BufferSource source{"---\ndate: 2023-12-25\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
@@ -21,8 +20,7 @@ TEST_CASE("Check YAML parsing of timestamps.", "[YAML][Parse][Timestamp]") {
     REQUIRE(NRef<Timestamp>(yaml.document(0)["date"]).value() == "2023-12-25");
   }
 
-  SECTION("YAML parse date-only timestamp in a sequence.",
-          "[YAML][Parse][Timestamp][Date]") {
+  SECTION("YAML parse date-only timestamp in a sequence.", "[YAML][Parse][Timestamp][Date]") {
     BufferSource source{"---\n- 2020-01-01\n- 2021-06-15\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
@@ -39,8 +37,7 @@ TEST_CASE("Check YAML parsing of timestamps.", "[YAML][Parse][Timestamp]") {
     BufferSource source{"---\n2001-07-08T17:08:28Z\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Timestamp>(yaml.document(0)));
-    REQUIRE(NRef<Timestamp>(yaml.document(0)).value() ==
-            "2001-07-08T17:08:28Z");
+    REQUIRE(NRef<Timestamp>(yaml.document(0)).value() == "2001-07-08T17:08:28Z");
   }
 
   SECTION("YAML parse datetime timestamp with space separator.",
@@ -49,8 +46,7 @@ TEST_CASE("Check YAML parsing of timestamps.", "[YAML][Parse][Timestamp]") {
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<Timestamp>(yaml.document(0)["ts"]));
-    REQUIRE(NRef<Timestamp>(yaml.document(0)["ts"]).value() ==
-            "2001-07-08 17:08:28");
+    REQUIRE(NRef<Timestamp>(yaml.document(0)["ts"]).value() == "2001-07-08 17:08:28");
   }
 
   SECTION("YAML parse datetime timestamp with timezone offset.",
@@ -58,20 +54,17 @@ TEST_CASE("Check YAML parsing of timestamps.", "[YAML][Parse][Timestamp]") {
     BufferSource source{"---\nts: 2001-07-08T15:08:28+05:30\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Timestamp>(yaml.document(0)["ts"]));
-    REQUIRE(NRef<Timestamp>(yaml.document(0)["ts"]).value() ==
-            "2001-07-08T15:08:28+05:30");
+    REQUIRE(NRef<Timestamp>(yaml.document(0)["ts"]).value() == "2001-07-08T15:08:28+05:30");
   }
 
   // ---- !!timestamp tag ----
 
-  SECTION("YAML parse value with !!timestamp tag.",
-          "[YAML][Parse][Timestamp][Tag]") {
+  SECTION("YAML parse value with !!timestamp tag.", "[YAML][Parse][Timestamp][Tag]") {
     BufferSource source{"---\n!!timestamp 2001-07-08\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Timestamp>(yaml.document(0)));
     REQUIRE(NRef<Timestamp>(yaml.document(0)).value() == "2001-07-08");
-    REQUIRE(yaml.document(0).getTag() ==
-            "tag:yaml.org,2002:timestamp");
+    REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:timestamp");
   }
 
   // ---- Non-timestamps should not be parsed as Timestamp ----
@@ -85,16 +78,14 @@ TEST_CASE("Check YAML parsing of timestamps.", "[YAML][Parse][Timestamp]") {
     REQUIRE(isA<String>(yaml.document(0)));
   }
 
-  SECTION("YAML partial date is not a timestamp.",
-          "[YAML][Parse][Timestamp][NonDate]") {
+  SECTION("YAML partial date is not a timestamp.", "[YAML][Parse][Timestamp][NonDate]") {
     // Only 3 digit year segment — not a valid date
     BufferSource source{"---\n200-07-08\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(isA<Timestamp>(yaml.document(0)));
   }
 
-  SECTION("YAML integer is not parsed as timestamp.",
-          "[YAML][Parse][Timestamp][NonDate]") {
+  SECTION("YAML integer is not parsed as timestamp.", "[YAML][Parse][Timestamp][NonDate]") {
     BufferSource source{"---\n2001\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(isA<Timestamp>(yaml.document(0)));
@@ -123,15 +114,13 @@ TEST_CASE("Check YAML parsing of timestamps.", "[YAML][Parse][Timestamp]") {
 
   // ---- isA and NRef access ----
 
-  SECTION("isA<Timestamp> returns true for timestamp node.",
-          "[YAML][Parse][Timestamp][IsA]") {
+  SECTION("isA<Timestamp> returns true for timestamp node.", "[YAML][Parse][Timestamp][IsA]") {
     BufferSource source{"---\n2000-01-01\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Timestamp>(yaml.document(0)));
   }
 
-  SECTION("isA<Timestamp> returns false for non-timestamp node.",
-          "[YAML][Parse][Timestamp][IsA]") {
+  SECTION("isA<Timestamp> returns false for non-timestamp node.", "[YAML][Parse][Timestamp][IsA]") {
     BufferSource source{"---\nhello\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(isA<Timestamp>(yaml.document(0)));
@@ -147,7 +136,7 @@ TEST_CASE("Check YAML parsing of timestamps.", "[YAML][Parse][Timestamp]") {
     REQUIRE(isA<Timestamp>(yaml.document(0)));
     const std::tm t = NRef<Timestamp>(yaml.document(0)).toTm();
     REQUIRE(t.tm_year == 2024 - 1900);
-    REQUIRE(t.tm_mon  == 3 - 1);   // 0-based
+    REQUIRE(t.tm_mon == 3 - 1);  // 0-based
     REQUIRE(t.tm_mday == 15);
   }
 
@@ -158,11 +147,11 @@ TEST_CASE("Check YAML parsing of timestamps.", "[YAML][Parse][Timestamp]") {
     REQUIRE(isA<Timestamp>(yaml.document(0)));
     const std::tm t = NRef<Timestamp>(yaml.document(0)).toTm();
     REQUIRE(t.tm_year == 2001 - 1900);
-    REQUIRE(t.tm_mon  == 7 - 1);
+    REQUIRE(t.tm_mon == 7 - 1);
     REQUIRE(t.tm_mday == 8);
     REQUIRE(t.tm_hour == 17);
-    REQUIRE(t.tm_min  == 8);
-    REQUIRE(t.tm_sec  == 28);
+    REQUIRE(t.tm_min == 8);
+    REQUIRE(t.tm_sec == 28);
   }
 
   SECTION("toTimeT() returns a positive value for a valid timestamp.",
@@ -173,5 +162,5 @@ TEST_CASE("Check YAML parsing of timestamps.", "[YAML][Parse][Timestamp]") {
     const std::time_t t = NRef<Timestamp>(yaml.document(0)).toTimeT();
     REQUIRE(t > 0);
   }
-#endif // YAML_LIB_TIMESTAMP_PARSE
+#endif  // YAML_LIB_TIMESTAMP_PARSE
 }

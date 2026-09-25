@@ -18,12 +18,12 @@ namespace YAML_Lib {
 // NOT used by: StreamSource (its next()/reset() use std::istream seekg/get).
 // =============================================================================
 class BufferedSourceBase : public ISource {
-public:
+ public:
   BufferedSourceBase() = default;
-  BufferedSourceBase(const BufferedSourceBase &) = delete;
-  BufferedSourceBase &operator=(const BufferedSourceBase &) = delete;
-  BufferedSourceBase(BufferedSourceBase &&) = delete;
-  BufferedSourceBase &operator=(BufferedSourceBase &&) = delete;
+  BufferedSourceBase(const BufferedSourceBase&) = delete;
+  BufferedSourceBase& operator=(const BufferedSourceBase&) = delete;
+  BufferedSourceBase(BufferedSourceBase&&) = delete;
+  BufferedSourceBase& operator=(BufferedSourceBase&&) = delete;
   ~BufferedSourceBase() override = default;
 
   // --------------------------
@@ -36,8 +36,7 @@ public:
       char buf[5];
       std::snprintf(buf, sizeof(buf), "%04X", static_cast<unsigned>(uc));
       YAML_THROW_POS(*this,
-                     std::string("Disallowed control character U+") + buf +
-                         " in YAML stream.");
+                     std::string("Disallowed control character U+") + buf + " in YAML stream.");
     }
     if (current() == kLineFeed) {
       lineNo++;
@@ -53,37 +52,35 @@ public:
 
   void reset() override {
     bufferPosition = 0;
-    lineNo         = 1;
-    column         = 1;
+    lineNo = 1;
+    column = 1;
   }
 
   [[nodiscard]] std::size_t position() override { return bufferPosition; }
 
-  void save() override {
-    contexts.push_back(Context(lineNo, column, bufferPosition));
-  }
+  void save() override { contexts.push_back(Context(lineNo, column, bufferPosition)); }
 
   void restore() override {
     const Context ctx{contexts.back()};
     contexts.pop_back();
-    lineNo         = ctx.lineNo;
-    column         = ctx.column;
+    lineNo = ctx.lineNo;
+    column = ctx.column;
     bufferPosition = ctx.bufferPosition;
   }
 
   void discardSave() override { contexts.pop_back(); }
 
-protected:
+ protected:
   void backup(const unsigned long length) override {
     if (static_cast<long>(column) - static_cast<long>(length) < 1) {
       YAML_THROW(Error, "Backup past start column.");
     }
     bufferPosition -= length;
-    column         -= length;
+    column -= length;
   }
 
   /// Subclass supplies the "read past end" error message (string literal).
-  [[nodiscard]] virtual const char *endOfInputMessage() const noexcept = 0;
+  [[nodiscard]] virtual const char* endOfInputMessage() const noexcept = 0;
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

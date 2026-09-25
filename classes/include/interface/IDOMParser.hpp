@@ -15,11 +15,11 @@ struct Node;
  * to depend only on DOM node vector output without pulling in SAX dependencies.
  */
 class IDOMParser {
-public:
+ public:
   YAML_MAKE_ERROR(Error, "IDOMParser Error");
   virtual ~IDOMParser() = default;
 
-  [[nodiscard]] virtual std::vector<Node> parse(ISource &source) = 0;
+  [[nodiscard]] virtual std::vector<Node> parse(ISource& source) = 0;
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

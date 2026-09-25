@@ -11,7 +11,7 @@ namespace YAML_Lib {
  * Implements Dependency Inversion Principle (DIP) and Open/Closed Principle (OCP).
  */
 class DefaultNodeFactory : public INodeFactory {
-public:
+ public:
   DefaultNodeFactory() = default;
   ~DefaultNodeFactory() override = default;
 
@@ -19,7 +19,7 @@ public:
     return Node::make<String>(value);
   }
 
-  [[nodiscard]] Node createNumber(const Number &value) const override {
+  [[nodiscard]] Node createNumber(const Number& value) const override {
     return Node::make<Number>(value);
   }
 
@@ -31,25 +31,15 @@ public:
     return Node::make<Boolean>(value, representation);
   }
 
-  [[nodiscard]] Node createNull() const override {
-    return Node::make<Null>();
-  }
+  [[nodiscard]] Node createNull() const override { return Node::make<Null>(); }
 
-  [[nodiscard]] Node createArray() const override {
-    return Node::make<Array>();
-  }
+  [[nodiscard]] Node createArray() const override { return Node::make<Array>(); }
 
-  [[nodiscard]] Node createDictionary() const override {
-    return Node::make<Dictionary>();
-  }
+  [[nodiscard]] Node createDictionary() const override { return Node::make<Dictionary>(); }
 
-  [[nodiscard]] Node createDocument() const override {
-    return Node::make<Document>();
-  }
+  [[nodiscard]] Node createDocument() const override { return Node::make<Document>(); }
 
-  [[nodiscard]] Node createHole() const override {
-    return Node::make<Hole>();
-  }
+  [[nodiscard]] Node createHole() const override { return Node::make<Hole>(); }
 
   [[nodiscard]] Node createTimestamp(std::string_view value) const override {
     return Node::make<Timestamp>(value);
@@ -60,4 +50,4 @@ public:
   }
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

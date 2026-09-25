@@ -23,33 +23,31 @@ namespace YAML_Lib {
 // concurrent parses do not corrupt each other's state.
 // -----------------------------------------------------------------------
 struct ParseContext {
-  using AliasMap = std::pmr::unordered_map<std::string, std::string,
-                                          std::hash<std::string_view>,
-                                          std::equal_to<>>;
+  using AliasMap = std::pmr::unordered_map<std::string, std::string, std::hash<std::string_view>,
+                                           std::equal_to<>>;
   using AliasSet = std::pmr::set<std::string>;
   using TagPrefixMap = std::pmr::map<std::string, std::string>;
 
   AliasMap yamlAliasMap;
   AliasSet activeAliasExpansions;
   AliasResolver aliasResolver;
-  long          arrayIndentLevel{0};
-  long          inlineArrayDepth{0};
-  long          inlineDictionaryDepth{0};
+  long arrayIndentLevel{0};
+  long inlineArrayDepth{0};
+  long inlineDictionaryDepth{0};
   unsigned long blockFlowValueIndent{0};
-  int           yamlDirectiveMinor{2};
-  bool          yamlDirectiveSeen{false};
+  int yamlDirectiveMinor{2};
+  bool yamlDirectiveSeen{false};
   TagPrefixMap yamlTagPrefixes;
 };
 
 class Default_Parser final : public IParser {
-
-public:
+ public:
   class Delimiters {
-  public:
+   public:
     Delimiters() = default;
     Delimiters(std::initializer_list<char> chars) { insert(chars); }
-    Delimiters(const Delimiters &other) = default;
-    Delimiters &operator=(const Delimiters &other) = default;
+    Delimiters(const Delimiters& other) = default;
+    Delimiters& operator=(const Delimiters& other) = default;
 
     bool empty() const noexcept { return none(); }
     bool contains(const char ch) const noexcept {
@@ -61,7 +59,7 @@ public:
       }
     }
 
-  private:
+   private:
     bool none() const noexcept { return bitmask_.none(); }
 
     std::bitset<256> bitmask_;
@@ -69,8 +67,7 @@ public:
   enum class BlockChomping : uint8_t { clip = 0, strip, keep };
   explicit Default_Parser(std::unique_ptr<ITranslator> translator)
       : Default_Parser(std::move(translator), Options()) {}
-  explicit Default_Parser(std::unique_ptr<ITranslator> translator,
-                          const Options &options)
+  explicit Default_Parser(std::unique_ptr<ITranslator> translator, const Options& options)
       : yamlTranslator_(std::move(translator)),
         maxParseDepth(options.max_parse_depth),
         maxAliasExpansions(options.max_alias_expansions),
@@ -79,10 +76,10 @@ public:
         maxCollectionSize(options.max_collection_size),
         maxAliasCount(options.max_aliases),
         strictBooleans_(options.strict_booleans) {}
-  Default_Parser(const Default_Parser &other) = delete;
-  Default_Parser &operator=(const Default_Parser &other) = delete;
-  Default_Parser(Default_Parser &&other) = delete;
-  Default_Parser &operator=(Default_Parser &&other) = delete;
+  Default_Parser(const Default_Parser& other) = delete;
+  Default_Parser& operator=(const Default_Parser& other) = delete;
+  Default_Parser(Default_Parser&& other) = delete;
+  Default_Parser& operator=(Default_Parser&& other) = delete;
   ~Default_Parser() override = default;
 
   void setSchema(std::unique_ptr<ISchema> schema) {
@@ -90,20 +87,16 @@ public:
       schema_ = std::move(schema);
     }
   }
-  [[nodiscard]] const ISchema &getSchema() const noexcept {
-    return *schema_;
-  }
+  [[nodiscard]] const ISchema& getSchema() const noexcept { return *schema_; }
 
   void setNodeFactory(std::unique_ptr<INodeFactory> factory) {
     if (factory) {
       nodeFactory_ = std::move(factory);
     }
   }
-  [[nodiscard]] const INodeFactory &getNodeFactory() const noexcept {
-    return *nodeFactory_;
-  }
+  [[nodiscard]] const INodeFactory& getNodeFactory() const noexcept { return *nodeFactory_; }
 
-  std::vector<Node> parse(ISource &source) override;
+  std::vector<Node> parse(ISource& source) override;
 
   // Per-instance strict boolean mode
   void setStrictBooleansMode(const bool strict) noexcept { strictBooleans_ = strict; }
@@ -116,12 +109,12 @@ public:
     globalStrictBooleans.store(strict, std::memory_order_relaxed);
   }
 
-private:
+ private:
   // RAII save/restore guard for ISource lookahead.
   // Calls source.restore() in the destructor unless release() is called first.
   class SourceGuard {
-  public:
-    explicit SourceGuard(ISource &src) : src_(&src) { src_->save(); }
+   public:
+    explicit SourceGuard(ISource& src) : src_(&src) { src_->save(); }
     ~SourceGuard() {
       if (src_) {
         src_->restore();
@@ -134,34 +127,33 @@ private:
       }
       src_ = nullptr;
     }
-    SourceGuard(const SourceGuard &) = delete;
-    SourceGuard &operator=(const SourceGuard &) = delete;
-    SourceGuard(SourceGuard &&) = delete;
-    SourceGuard &operator=(SourceGuard &&) = delete;
+    SourceGuard(const SourceGuard&) = delete;
+    SourceGuard& operator=(const SourceGuard&) = delete;
+    SourceGuard(SourceGuard&&) = delete;
+    SourceGuard& operator=(SourceGuard&&) = delete;
 
-  private:
-    ISource *src_;
+   private:
+    ISource* src_;
   };
 
   // RAII guard that increments a depth counter on construction and
   // decrements it on destruction (including on exception).
   class DepthGuard {
-  public:
-    explicit DepthGuard(long &depth, unsigned long maxDepth = 0)
-        : depth_(depth) {
+   public:
+    explicit DepthGuard(long& depth, unsigned long maxDepth = 0) : depth_(depth) {
       if (maxDepth != 0 && static_cast<unsigned long>(depth_) + 1 > maxDepth) {
         YAML_THROW(Error, "YAML parse nesting depth limit exceeded.");
       }
       ++depth_;
     }
     ~DepthGuard() { --depth_; }
-    DepthGuard(const DepthGuard &) = delete;
-    DepthGuard &operator=(const DepthGuard &) = delete;
-    DepthGuard(DepthGuard &&) = delete;
-    DepthGuard &operator=(DepthGuard &&) = delete;
+    DepthGuard(const DepthGuard&) = delete;
+    DepthGuard& operator=(const DepthGuard&) = delete;
+    DepthGuard(DepthGuard&&) = delete;
+    DepthGuard& operator=(DepthGuard&&) = delete;
 
-  private:
-    long &depth_;
+   private:
+    long& depth_;
   };
 
   // Scaffold shared by simple scalar parsers (parseNone, parseBoolean,
@@ -170,8 +162,8 @@ private:
   // returns a non-empty Node the guard is released (position stays consumed);
   // otherwise the guard restores the source to where it was.
   template <typename Predicate>
-  Node tryParseToken(ISource &source, const Delimiters &delimiters,
-                            [[maybe_unused]] unsigned long indentation, Predicate &&pred) {
+  Node tryParseToken(ISource& source, const Delimiters& delimiters,
+                     [[maybe_unused]] unsigned long indentation, Predicate&& pred) {
     const unsigned long tokenIndent = source.getPosition().second;
     SourceGuard guard(source);
     std::string token{extractToNext(source, delimiters)};
@@ -187,177 +179,136 @@ private:
     return result;
   }
 
-  bool hasPlainScalarContinuation(ISource &source,
-                                         unsigned long indentation);
+  bool hasPlainScalarContinuation(ISource& source, unsigned long indentation);
 
   // YAML parser
-  bool endsWith(const std::string_view &str,
-                       const std::string_view &substr);
-  void rightTrim(std::string &str);
-  void moveToNext(ISource &source, const Delimiters &delimiters);
-  void skipLine(ISource &source);
-  bool skipIfComment(ISource &source);
-  void moveToNextIndent(ISource &source);
-  void addUniqueDictEntry(Node &dictionaryNode, DictionaryEntry entry,
-                                 ISource &source);
-  void addInlineDictEntry(Dictionary &dict, DictionaryEntry entry,
-                                 ISource &source);
-  const std::string &resolveAlias(const std::string &name,
-                                         ISource &source);
-  bool isNullStringNode(const Node &node);
-  bool looksLikeIso8601Date(const std::string &s);
-  std::string extractString(ISource &source, char quote);
-  std::string extractString(ISource &source, char quote,
-                                   unsigned long *quoteColumn);
-  std::string extractString(ISource &source);
-  std::string extractRawQuotedScalar(ISource &source);
-  std::string extractTagSuffix(ISource &source);
-  std::string extractToNext(ISource &source,
-                                   const Delimiters &delimiters);
-  std::string extractTrimmed(ISource &source,
-                                    const Delimiters &delimiters);
-  std::string extractInLine(ISource &source, char start, char end);
-  std::string extractInlineCollectionAt(ISource &source);
-  std::string extractMapping(ISource &source);
-  void checkForEnd(ISource &source, char end);
-  void checkScalarLength(ISource &source, std::size_t length) const;
-  void checkCollectionSize(unsigned long nextSize, ISource &source) const;
-  void checkFlowDelimiter(ISource &source, const Delimiters &delimiters);
-  void checkAtFlowClose(ISource &source, const Delimiters &delimiters,
-                               long depth);
-  Node parseFromBuffer(const std::string &text,
-                              const Delimiters &delimiters,
+  bool endsWith(const std::string_view& str, const std::string_view& substr);
+  void rightTrim(std::string& str);
+  void moveToNext(ISource& source, const Delimiters& delimiters);
+  void skipLine(ISource& source);
+  bool skipIfComment(ISource& source);
+  void moveToNextIndent(ISource& source);
+  void addUniqueDictEntry(Node& dictionaryNode, DictionaryEntry entry, ISource& source);
+  void addInlineDictEntry(Dictionary& dict, DictionaryEntry entry, ISource& source);
+  const std::string& resolveAlias(const std::string& name, ISource& source);
+  bool isNullStringNode(const Node& node);
+  bool looksLikeIso8601Date(const std::string& s);
+  std::string extractString(ISource& source, char quote);
+  std::string extractString(ISource& source, char quote, unsigned long* quoteColumn);
+  std::string extractString(ISource& source);
+  std::string extractRawQuotedScalar(ISource& source);
+  std::string extractTagSuffix(ISource& source);
+  std::string extractToNext(ISource& source, const Delimiters& delimiters);
+  std::string extractTrimmed(ISource& source, const Delimiters& delimiters);
+  std::string extractInLine(ISource& source, char start, char end);
+  std::string extractInlineCollectionAt(ISource& source);
+  std::string extractMapping(ISource& source);
+  void checkForEnd(ISource& source, char end);
+  void checkScalarLength(ISource& source, std::size_t length) const;
+  void checkCollectionSize(unsigned long nextSize, ISource& source) const;
+  void checkFlowDelimiter(ISource& source, const Delimiters& delimiters);
+  void checkAtFlowClose(ISource& source, const Delimiters& delimiters, long depth);
+  Node parseFromBuffer(const std::string& text, const Delimiters& delimiters,
+                       unsigned long indentation);
+  std::string captureIndentedBlock(ISource& source, unsigned long minIndent);
+  void upsertDictEntry(Dictionary& dict, const std::string& key, Node value);
+  Node mergeOverrides(Node& overrideRoot);
+  Node convertYAMLToStringNode(const std::string_view& yamlString);
+  Node convertYAMLToStringNode(const std::string_view& yamlString, unsigned long indentation);
+  bool isValidKey(const std::string_view& key) noexcept;
+  bool isOverride(ISource& source);
+  bool isKey(ISource& source);
+  bool isArray(ISource& source);
+  bool isBoolean(ISource& source);
+  bool isQuotedString(ISource& source);
+  bool isNumber(ISource& source);
+  bool isNone(ISource& source);
+  bool isFoldedBlockString(ISource& source);
+  bool isPipedBlockString(ISource& source);
+  bool isComment(ISource& source);
+  bool isAnchor(ISource& source);
+  bool isAlias(ISource& source);
+  bool isInlineArray(ISource& source);
+  bool isInlineDictionary(ISource& source);
+  bool isInlineCollection(ISource& source);
+  bool isMapping(ISource& source);
+  bool isDictionary(ISource& source);
+  bool isDefault(ISource& source);
+  bool matchesMarker(ISource& source, const char* marker);
+  bool isDocumentStart(ISource& source);
+  bool isDocumentEnd(ISource& source);
+  bool isDocumentBoundary(ISource& source);
+  bool isInlineComment(const ISource& source, const std::string& yamlString);
+  void convertOctalToDecimal(std::string& numeric, const std::string& digits);
+  bool isDirective(ISource& source);
+  bool isTagged(ISource& source);
+  bool isTimestamp(ISource& source);
+  void appendCharacterToString(ISource& source, std::string& yamlString, bool escapeAware = false,
+                               unsigned long minIndent = 0);
+  std::string extractKey(ISource& source, unsigned long* quoteIndent = nullptr);
+  std::pair<BlockChomping, int> parseBlockChomping(ISource& source);
+  std::string parseBlockString(ISource& source, const Delimiters& delimiters,
+                               unsigned long indentation, char fillerDefault);
+  Node parseKey(ISource& source);
+  Node parseFoldedBlockString(ISource& source, const Delimiters& delimiters,
                               unsigned long indentation);
-  std::string captureIndentedBlock(ISource &source,
-                                          unsigned long minIndent);
-  void upsertDictEntry(Dictionary &dict, const std::string &key,
-                              Node value);
-  Node mergeOverrides(Node &overrideRoot);
-  Node convertYAMLToStringNode(const std::string_view &yamlString);
-  Node convertYAMLToStringNode(const std::string_view &yamlString,
-                                      unsigned long indentation);
-  bool isValidKey(const std::string_view &key) noexcept;
-  bool isOverride(ISource &source);
-  bool isKey(ISource &source);
-  bool isArray(ISource &source);
-  bool isBoolean(ISource &source);
-  bool isQuotedString(ISource &source);
-  bool isNumber(ISource &source);
-  bool isNone(ISource &source);
-  bool isFoldedBlockString(ISource &source);
-  bool isPipedBlockString(ISource &source);
-  bool isComment(ISource &source);
-  bool isAnchor(ISource &source);
-  bool isAlias(ISource &source);
-  bool isInlineArray(ISource &source);
-  bool isInlineDictionary(ISource &source);
-  bool isInlineCollection(ISource &source);
-  bool isMapping(ISource &source);
-  bool isDictionary(ISource &source);
-  bool isDefault(ISource &source);
-  bool matchesMarker(ISource &source, const char *marker);
-  bool isDocumentStart(ISource &source);
-  bool isDocumentEnd(ISource &source);
-  bool isDocumentBoundary(ISource &source);
-  bool isInlineComment(const ISource &source,
-                              const std::string &yamlString);
-  void convertOctalToDecimal(std::string &numeric,
-                                    const std::string &digits);
-  bool isDirective(ISource &source);
-  bool isTagged(ISource &source);
-  bool isTimestamp(ISource &source);
-  void appendCharacterToString(ISource &source, std::string &yamlString,
-                                      bool escapeAware = false,
-                                      unsigned long minIndent = 0);
-  std::string extractKey(ISource &source,
-                                unsigned long *quoteIndent = nullptr);
-  std::pair<BlockChomping, int> parseBlockChomping(ISource &source);
-  std::string parseBlockString(ISource &source,
-                                      const Delimiters &delimiters,
-                                      unsigned long indentation,
-                                      char fillerDefault);
-  Node parseKey(ISource &source);
-  Node parseFoldedBlockString(ISource &source,
-                                     const Delimiters &delimiters,
-                                     unsigned long indentation);
-  Node parseLiteralBlockString(ISource &source,
-                                      const Delimiters &delimiters,
-                                      unsigned long indentation);
-  Node parsePlainFlowString(ISource &source,
-                                   const Delimiters &delimiters,
-                                   unsigned long indentation);
-  Node parseQuotedFlowString(ISource &source,
-                                    const Delimiters &delimiters,
-                                    unsigned long indentation);
-  Node parseComment(ISource &source,
-                           [[maybe_unused]] const Delimiters &delimiters);
-  Node parseNumber(ISource &source, const Delimiters &delimiters,
-                          unsigned long indentation);
-  Node parseNone(ISource &source, const Delimiters &delimiters,
-                        unsigned long indentation);
-  Node parseBoolean(ISource &source, const Delimiters &delimiters,
-                           unsigned long indentation);
-  Node parseTimestamp(ISource &source, const Delimiters &delimiters,
-                             unsigned long indentation);
-  Node parseAnchor(ISource &source, const Delimiters &delimiters,
-                          unsigned long indentation);
-  Node parseAlias(ISource &source, const Delimiters &delimiters,
-                         unsigned long indentation);
-  Node parseOverride(ISource &source, const Delimiters &delimiters,
-                            unsigned long indentation);
-  Node parseArray(ISource &source, const Delimiters &delimiters,
-                         unsigned long indentation);
-  Node parseInlineArray(ISource &source,
-                               [[maybe_unused]] const Delimiters &delimiters,
+  Node parseLiteralBlockString(ISource& source, const Delimiters& delimiters,
                                unsigned long indentation);
-  DictionaryEntry parseKeyValue(ISource &source,
-                                       const Delimiters &delimiters,
-                                       unsigned long indentation);
-  DictionaryEntry parseInlineKeyValue(ISource &source,
-                                             const Delimiters &delimiters,
-                                             unsigned long indentation);
-  Node parseDictionary(ISource &source, const Delimiters &delimiters,
-                              unsigned long indentation);
-  Node
-  parseInlineDictionary(ISource &source,
-                        [[maybe_unused]] const Delimiters &delimiters,
-                        unsigned long indentation);
-  Node parseDocument(ISource &source,
-                            [[maybe_unused]] const Delimiters &delimiters,
+  Node parsePlainFlowString(ISource& source, const Delimiters& delimiters,
                             unsigned long indentation);
-  void parseDirective(ISource &source, bool inDocument);
-  unsigned long scanToFirstBlockContent(ISource &source);
-  Delimiters withExtras(const Delimiters &base,
-                               std::initializer_list<char> extras);
+  Node parseQuotedFlowString(ISource& source, const Delimiters& delimiters,
+                             unsigned long indentation);
+  Node parseComment(ISource& source, [[maybe_unused]] const Delimiters& delimiters);
+  Node parseNumber(ISource& source, const Delimiters& delimiters, unsigned long indentation);
+  Node parseNone(ISource& source, const Delimiters& delimiters, unsigned long indentation);
+  Node parseBoolean(ISource& source, const Delimiters& delimiters, unsigned long indentation);
+  Node parseTimestamp(ISource& source, const Delimiters& delimiters, unsigned long indentation);
+  Node parseAnchor(ISource& source, const Delimiters& delimiters, unsigned long indentation);
+  Node parseAlias(ISource& source, const Delimiters& delimiters, unsigned long indentation);
+  Node parseOverride(ISource& source, const Delimiters& delimiters, unsigned long indentation);
+  Node parseArray(ISource& source, const Delimiters& delimiters, unsigned long indentation);
+  Node parseInlineArray(ISource& source, [[maybe_unused]] const Delimiters& delimiters,
+                        unsigned long indentation);
+  DictionaryEntry parseKeyValue(ISource& source, const Delimiters& delimiters,
+                                unsigned long indentation);
+  DictionaryEntry parseInlineKeyValue(ISource& source, const Delimiters& delimiters,
+                                      unsigned long indentation);
+  Node parseDictionary(ISource& source, const Delimiters& delimiters, unsigned long indentation);
+  Node parseInlineDictionary(ISource& source, [[maybe_unused]] const Delimiters& delimiters,
+                             unsigned long indentation);
+  Node parseDocument(ISource& source, [[maybe_unused]] const Delimiters& delimiters,
+                     unsigned long indentation);
+  void parseDirective(ISource& source, bool inDocument);
+  unsigned long scanToFirstBlockContent(ISource& source);
+  Delimiters withExtras(const Delimiters& base, std::initializer_list<char> extras);
   Delimiters keyStopDelimiters();
   [[nodiscard]] bool isInsideFlowContext() noexcept;
-  Node parseTagged(ISource &source, const Delimiters &delimiters,
-                          unsigned long indentation);
+  Node parseTagged(ISource& source, const Delimiters& delimiters, unsigned long indentation);
   // YAML parser routing table — static constexpr so the 16-entry dispatch
   // table lives in .rodata (ROM on Harvard MCUs) with no heap allocation and
   // no std::function type-erasure overhead.  Member function pointers are
   // used so each call dispatches through `this` into the per-instance
   // ParseContext without any lambda capture.
-  using IsAFunc   = bool (Default_Parser::*)(ISource &);
-  using ParseFunc = Node (Default_Parser::*)(ISource &, const Delimiters &, unsigned long);
+  using IsAFunc = bool (Default_Parser::*)(ISource&);
+  using ParseFunc = Node (Default_Parser::*)(ISource&, const Delimiters&, unsigned long);
   using ParserEntry = std::pair<IsAFunc, ParseFunc>;
   inline static constexpr std::array<ParserEntry, 16> parsers_{{
-      {&Default_Parser::isArray,            &Default_Parser::parseArray},
-      {&Default_Parser::isDictionary,       &Default_Parser::parseDictionary},
+      {&Default_Parser::isArray, &Default_Parser::parseArray},
+      {&Default_Parser::isDictionary, &Default_Parser::parseDictionary},
       {&Default_Parser::isInlineDictionary, &Default_Parser::parseInlineDictionary},
-      {&Default_Parser::isInlineArray,      &Default_Parser::parseInlineArray},
-      {&Default_Parser::isBoolean,          &Default_Parser::parseBoolean},
-      {&Default_Parser::isQuotedString,     &Default_Parser::parseQuotedFlowString},
-      {&Default_Parser::isTimestamp,        &Default_Parser::parseTimestamp},
-      {&Default_Parser::isNumber,           &Default_Parser::parseNumber},
-      {&Default_Parser::isNone,             &Default_Parser::parseNone},
-      {&Default_Parser::isFoldedBlockString,&Default_Parser::parseFoldedBlockString},
+      {&Default_Parser::isInlineArray, &Default_Parser::parseInlineArray},
+      {&Default_Parser::isBoolean, &Default_Parser::parseBoolean},
+      {&Default_Parser::isQuotedString, &Default_Parser::parseQuotedFlowString},
+      {&Default_Parser::isTimestamp, &Default_Parser::parseTimestamp},
+      {&Default_Parser::isNumber, &Default_Parser::parseNumber},
+      {&Default_Parser::isNone, &Default_Parser::parseNone},
+      {&Default_Parser::isFoldedBlockString, &Default_Parser::parseFoldedBlockString},
       {&Default_Parser::isPipedBlockString, &Default_Parser::parseLiteralBlockString},
-      {&Default_Parser::isAnchor,           &Default_Parser::parseAnchor},
-      {&Default_Parser::isAlias,            &Default_Parser::parseAlias},
-      {&Default_Parser::isOverride,         &Default_Parser::parseOverride},
-      {&Default_Parser::isTagged,           &Default_Parser::parseTagged},
-      {&Default_Parser::isDefault,          &Default_Parser::parsePlainFlowString},
+      {&Default_Parser::isAnchor, &Default_Parser::parseAnchor},
+      {&Default_Parser::isAlias, &Default_Parser::parseAlias},
+      {&Default_Parser::isOverride, &Default_Parser::parseOverride},
+      {&Default_Parser::isTagged, &Default_Parser::parseTagged},
+      {&Default_Parser::isDefault, &Default_Parser::parsePlainFlowString},
   }};
   // Per-parse mutable state (replaces the former inline static members).
   ParseContext ctx_;
@@ -380,4 +331,4 @@ private:
   inline static std::atomic<bool> globalStrictBooleans{false};
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

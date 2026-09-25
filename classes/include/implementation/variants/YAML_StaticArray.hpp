@@ -16,13 +16,13 @@ struct StaticArray final : StaticSequenceBase<N, StaticArray<N>> {
 
   /// Override operator[] to emit the "array" diagnostic on out-of-range.
   using StaticSequenceBase<N, StaticArray<N>>::operator[];
-  Node &operator[](const std::size_t index) {
+  Node& operator[](const std::size_t index) {
     if (index < this->count_) {
       return this->entries_[index];
     }
     YAML_THROW(Node::Error, "Invalid index used to access static array.");
   }
-  const Node &operator[](const std::size_t index) const {
+  const Node& operator[](const std::size_t index) const {
     if (index < this->count_) {
       return this->entries_[index];
     }
@@ -38,4 +38,4 @@ struct StaticDocument final : StaticSequenceBase<N, StaticDocument<N>> {
   [[nodiscard]] std::string toKey() const { return ""; }
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

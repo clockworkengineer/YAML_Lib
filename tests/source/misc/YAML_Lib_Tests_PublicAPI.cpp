@@ -24,7 +24,8 @@ TEST_CASE("YAML::toString produces equivalent YAML text", "[YAML][API][Public]")
   REQUIRE(text.find("---") != std::string::npos);
 }
 
-TEST_CASE("Custom ISource implementations propagate source errors through parse", "[YAML][API][Source][Error]") {
+TEST_CASE("Custom ISource implementations propagate source errors through parse",
+          "[YAML][API][Source][Error]") {
   struct BrokenSource : ISource {
     explicit BrokenSource(std::string contents) : buffer(std::move(contents)) {}
 
@@ -49,7 +50,11 @@ TEST_CASE("Custom ISource implementations propagate source errors through parse"
     }
 
     bool more() const override { return position_ <= buffer.size(); }
-    void reset() override { position_ = 0; lineNo = 1; column = 1; }
+    void reset() override {
+      position_ = 0;
+      lineNo = 1;
+      column = 1;
+    }
     std::size_t position() override { return position_; }
     void save() override { contexts.emplace_back(lineNo, column, position_); }
     void restore() override {
@@ -69,7 +74,7 @@ TEST_CASE("Custom ISource implementations propagate source errors through parse"
       contexts.pop_back();
     }
 
-  private:
+   private:
     void backup(unsigned long length) override {
       if (length > position_) {
         throw ISource::Error("BrokenSource: backup() beyond start");
@@ -97,7 +102,8 @@ TEST_CASE("Custom ISource implementations propagate source errors through parse"
   REQUIRE_THROWS_AS(yaml.parse(source), ISource::Error);
 }
 
-TEST_CASE("Stringify fails fast when std::ostream is already in a bad state", "[YAML][API][Destination][Error]") {
+TEST_CASE("Stringify fails fast when std::ostream is already in a bad state",
+          "[YAML][API][Destination][Error]") {
   YAML yaml;
   yaml.parse(BufferSource{"---\nkey: value\n"});
 
@@ -171,7 +177,7 @@ TEST_CASE("YAML exceptions can be caught via YAML_Lib::Exception", "[YAML][API][
   bool caughtYAML_LibException = false;
   try {
     yaml.parse(BufferSource{"---\nkey:\n\tvalue\n"});
-  } catch (const YAML_Lib::Exception &e) {
+  } catch (const YAML_Lib::Exception& e) {
     caughtYAML_LibException = true;
     REQUIRE(std::string(e.what()).find("YAML Syntax Error") != std::string::npos);
   }
@@ -191,4 +197,3 @@ TEST_CASE("YAML::dump supports case-insensitive format names", "[YAML][API][Stri
   const std::string upperYaml = yaml->dump("YAML");
   REQUIRE(lowerYaml == upperYaml);
 }
-

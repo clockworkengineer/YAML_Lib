@@ -28,7 +28,7 @@ static std::string makeLargeYaml(std::size_t entries) {
   return yaml;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   const std::size_t entries = (argc > 1) ? std::stoull(argv[1]) : 50000;
   const std::string yamlText = makeLargeYaml(entries);
 
@@ -40,27 +40,21 @@ int main(int argc, char **argv) {
   yaml.parse(yl::BufferSource{yamlText});
   const auto parseStop = HighResClock::now();
 
-  std::cout << "Parse time: "
-            << duration_ms(parseStop - parseStart).count()
-            << " ms\n";
+  std::cout << "Parse time: " << duration_ms(parseStop - parseStart).count() << " ms\n";
 
   yl::BufferDestination dest;
   const auto stringifyStart = HighResClock::now();
   yaml.stringify(dest);
   const auto stringifyStop = HighResClock::now();
 
-  std::cout << "Stringify time: "
-            << duration_ms(stringifyStop - stringifyStart).count()
-            << " ms\n";
+  std::cout << "Stringify time: " << duration_ms(stringifyStop - stringifyStart).count() << " ms\n";
   std::cout << "Output size: " << dest.size() << " bytes\n";
 
   const auto reparseStart = HighResClock::now();
   yaml.parse(yl::BufferSource{dest.toString()});
   const auto reparseStop = HighResClock::now();
 
-  std::cout << "Reparse time: "
-            << duration_ms(reparseStop - reparseStart).count()
-            << " ms\n";
+  std::cout << "Reparse time: " << duration_ms(reparseStop - reparseStart).count() << " ms\n";
 
   return 0;
 }

@@ -10,12 +10,7 @@
 
 namespace YAML_Lib {
 
-enum class StringifyFormat {
-  YAML,
-  JSON,
-  XML,
-  Bencode
-};
+enum class StringifyFormat { YAML, JSON, XML, Bencode };
 
 /**
  * @brief Factory and registry strategy for creating IStringify instances.
@@ -25,10 +20,10 @@ enum class StringifyFormat {
  * Thread-safe across concurrent registrations and lookups.
  */
 class StringifierFactory {
-public:
+ public:
   using Creator = std::function<std::unique_ptr<IStringify>()>;
 
-  static StringifierFactory &instance();
+  static StringifierFactory& instance();
 
   void registerCreator(StringifyFormat format, Creator creator);
   void registerCreator(std::string_view formatName, Creator creator);
@@ -36,7 +31,7 @@ public:
   [[nodiscard]] std::unique_ptr<IStringify> create(StringifyFormat format) const;
   [[nodiscard]] std::unique_ptr<IStringify> create(std::string_view formatName) const;
 
-private:
+ private:
   StringifierFactory();
   void registerDefaults();
   static std::string normalizeName(std::string_view name);
@@ -46,4 +41,4 @@ private:
   std::unordered_map<std::string, Creator> namedCreators;
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

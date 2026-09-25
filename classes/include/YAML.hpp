@@ -22,17 +22,16 @@ namespace YAML_Lib {
 // =========================
 // YAML forward declarations
 // =========================
-class IStringify;   ///< Interface for custom stringifiers
-class IParser;      ///< Interface for custom parsers
-class ISource;      ///< Interface for input sources
-class IDestination; ///< Interface for output destinations
-class IAction;      ///< Interface for tree traversal actions
-class YAML_Impl;    ///< Internal implementation class
-struct Node;        ///< YAML node type
+class IStringify;    ///< Interface for custom stringifiers
+class IParser;       ///< Interface for custom parsers
+class ISource;       ///< Interface for input sources
+class IDestination;  ///< Interface for output destinations
+class IAction;       ///< Interface for tree traversal actions
+class YAML_Impl;     ///< Internal implementation class
+struct Node;         ///< YAML node type
 #ifdef YAML_LIB_SAX_API
 class IYAMLEvents;  ///< Interface for SAX event handlers
 #endif
-
 
 /**
  * @brief Options for configuring YAML_Lib parsing and stringification.
@@ -58,11 +57,11 @@ class IYAMLEvents;  ///< Interface for SAX event handlers
  *   Max alias expansions (0 = unlimited)
  */
 struct Options {
-  IStringify *stringifier{nullptr};
-  IParser *parser{nullptr};
+  IStringify* stringifier{nullptr};
+  IParser* parser{nullptr};
   bool own_stringifier{true};
   bool own_parser{true};
-  std::pmr::memory_resource *memory_resource{nullptr};
+  std::pmr::memory_resource* memory_resource{nullptr};
   bool strict_booleans{false};
   unsigned long max_documents{32};
   unsigned long max_parse_depth{128};
@@ -129,13 +128,13 @@ constexpr auto kEndDocument{"..."};
  * and stringify back to YAML or other formats. Supports multiple documents per stream.
  */
 class YAML {
-public:
+ public:
   /**
    * @brief Parse YAML from a string and return a YAML object.
    * @param yaml_string YAML text to parse
    * @return YAML object
    */
-  [[nodiscard]] static std::unique_ptr<YAML> fromString(const std::string_view &yaml_string);
+  [[nodiscard]] static std::unique_ptr<YAML> fromString(const std::string_view& yaml_string);
 
 #ifdef YAML_LIB_FILE_IO
   /**
@@ -143,7 +142,7 @@ public:
    * @param file_name Path to YAML file
    * @return YAML object
    */
-  [[nodiscard]] static std::unique_ptr<YAML> fromFileToYAML(const std::string_view &file_name);
+  [[nodiscard]] static std::unique_ptr<YAML> fromFileToYAML(const std::string_view& file_name);
 #endif
 
   /**
@@ -157,7 +156,7 @@ public:
    * @param yaml_string YAML text to parse
    * @return YAML object
    */
-  [[nodiscard]] static std::unique_ptr<YAML> load(const std::string_view &yaml_string) {
+  [[nodiscard]] static std::unique_ptr<YAML> load(const std::string_view& yaml_string) {
     return fromString(yaml_string);
   }
 
@@ -167,7 +166,7 @@ public:
    * @param file_name Path to YAML file
    * @return YAML object
    */
-  [[nodiscard]] static std::unique_ptr<YAML> loadFile(const std::string_view &file_name) {
+  [[nodiscard]] static std::unique_ptr<YAML> loadFile(const std::string_view& file_name) {
     return fromFileToYAML(file_name);
   }
 #endif
@@ -176,31 +175,32 @@ public:
    * @brief Stringify the node tree to a string (YAML format).
    * @return YAML string
    */
-  [[nodiscard]] std::string dump() const { return toString(); }
+  [[nodiscard]] std::string dump() const {
+    return toString();
+  }
 
   /**
    * @brief Stringify the node tree to a formatted string using a named format.
    * @param format Format name (e.g. "YAML", "JSON", "XML", "Bencode", or custom format).
    * @return Formatted string
    */
-  [[nodiscard]] std::string dump(const std::string_view &format) const;
+  [[nodiscard]] std::string dump(const std::string_view& format) const;
 
   /**
    * @brief Stringify the node tree to a formatted string using a named format.
    * @param format Format name (e.g. "YAML", "JSON", "XML", "Bencode", or custom format).
    * @return Formatted string
    */
-  [[nodiscard]] std::string stringify(const std::string_view &format) const {
+  [[nodiscard]] std::string stringify(const std::string_view& format) const {
     return dump(format);
   }
 
-public:
+ public:
   /**
    * @brief Variant types allowed in YAML initializer lists.
    */
-  using InitializerListTypes =
-      std::variant<int, long, long long, float, double, long double, bool,
-                   std::string, std::nullptr_t, Node>;
+  using InitializerListTypes = std::variant<int, long, long long, float, double, long double, bool,
+                                            std::string, std::nullptr_t, Node>;
   /**
    * @brief Array initializer list for YAML arrays.
    */
@@ -208,18 +208,17 @@ public:
   /**
    * @brief Dictionary initializer list for YAML mappings.
    */
-  using DictionaryInitializer =
-      std::initializer_list<std::pair<std::string, InitializerListTypes>>;
+  using DictionaryInitializer = std::initializer_list<std::pair<std::string, InitializerListTypes>>;
   /**
    * @brief Supported file formats for reading/writing YAML files.
    */
   enum class Format : uint8_t {
-    utf8 = 0,    ///< UTF-8 (default)
-    utf8BOM,     ///< UTF-8 with BOM
-    utf16BE,     ///< UTF-16 big-endian
-    utf16LE,     ///< UTF-16 little-endian
-    utf32BE,     ///< UTF-32 big-endian
-    utf32LE      ///< UTF-32 little-endian
+    utf8 = 0,  ///< UTF-8 (default)
+    utf8BOM,   ///< UTF-8 with BOM
+    utf16BE,   ///< UTF-16 big-endian
+    utf16LE,   ///< UTF-16 little-endian
+    utf32BE,   ///< UTF-32 big-endian
+    utf32LE    ///< UTF-32 little-endian
   };
 
   /**
@@ -227,43 +226,43 @@ public:
    * @param stringify Custom stringifier (default: built-in)
    * @param parser Custom parser (default: built-in)
    */
-  explicit YAML(IStringify *stringifier = nullptr, IParser *parser = nullptr);
+  explicit YAML(IStringify* stringifier = nullptr, IParser* parser = nullptr);
 
   /**
    * @brief Construct a YAML object with custom options.
    * @param options Options struct for configuration
    */
-  explicit YAML(const Options &options);
+  explicit YAML(const Options& options);
 
   /**
    * @brief Construct a YAML object using a custom memory resource.
    * @param mr Polymorphic memory resource for allocations
    * @note The resource must outlive this YAML object.
    */
-  explicit YAML(std::pmr::memory_resource *memory_resource);
+  explicit YAML(std::pmr::memory_resource* memory_resource);
 
   /**
    * @brief Construct a YAML object by parsing a YAML string.
    * @param yamlString YAML text to parse
    */
-  explicit YAML(const std::string_view &yaml_string);
+  explicit YAML(const std::string_view& yaml_string);
 
   /**
    * @brief Construct a YAML array from an initializer list.
    * @param array Array initializer
    */
-  YAML(const ArrayInitializer &array_initializer);
+  YAML(const ArrayInitializer& array_initializer);
 
   /**
    * @brief Construct a YAML mapping from an initializer list.
    * @param dictionary Dictionary initializer
    */
-  YAML(const DictionaryInitializer &dictionary_initializer);
+  YAML(const DictionaryInitializer& dictionary_initializer);
 
-  YAML(const YAML &other) = delete;
-  YAML &operator=(const YAML &other) = delete;
-  YAML(YAML &&other) noexcept;
-  YAML &operator=(YAML &&other) noexcept;
+  YAML(const YAML& other) = delete;
+  YAML& operator=(const YAML& other) = delete;
+  YAML(YAML&& other) noexcept;
+  YAML& operator=(YAML&& other) noexcept;
 
   /**
    * @brief Create a deep-copy of this YAML instance and its node trees.
@@ -292,22 +291,22 @@ public:
    * @brief Parse YAML from a source into the node tree.
    * @param source Input source
    */
-  void parse(ISource &source) const;
-  void parse(ISource &&source) const;
+  void parse(ISource& source) const;
+  void parse(ISource&& source) const;
 #ifndef YAML_LIB_NO_EXCEPTIONS
-  [[nodiscard]] bool tryParse(ISource &source, std::string &errorMessage);
-  [[nodiscard]] bool tryParse(ISource &&source, std::string &errorMessage);
+  [[nodiscard]] bool tryParse(ISource& source, std::string& errorMessage);
+  [[nodiscard]] bool tryParse(ISource&& source, std::string& errorMessage);
 #endif
 
   /**
    * @brief Stringify the node tree to a destination (no whitespace formatting).
    * @param destination Output destination
    */
-  void stringify(IDestination &destination) const;
-  void stringify(IDestination &&destination) const;
+  void stringify(IDestination& destination) const;
+  void stringify(IDestination&& destination) const;
 #ifndef YAML_LIB_NO_EXCEPTIONS
-  [[nodiscard]] bool tryStringify(IDestination &destination, std::string &errorMessage) const;
-  [[nodiscard]] bool tryStringify(IDestination &&destination, std::string &errorMessage) const;
+  [[nodiscard]] bool tryStringify(IDestination& destination, std::string& errorMessage) const;
+  [[nodiscard]] bool tryStringify(IDestination&& destination, std::string& errorMessage) const;
 #endif
 
   /**
@@ -315,45 +314,45 @@ public:
    * @param index Document index
    * @return Mutable Node reference
    */
-  [[nodiscard]] Node &document(unsigned long index);
+  [[nodiscard]] Node& document(unsigned long index);
 
   /**
    * @brief Get a const reference to the document at the given index.
    * @param index Document index
    * @return Const Node reference
    */
-  [[nodiscard]] const Node &document(unsigned long index) const;
+  [[nodiscard]] const Node& document(unsigned long index) const;
 
   /**
    * @brief Traverse the YAML node tree with an action visitor.
    * @param action Visitor implementing IAction
    */
-  void traverse(IAction &action);
-  void traverse(IAction &action) const;
+  void traverse(IAction& action);
+  void traverse(IAction& action) const;
 
 #ifdef YAML_LIB_SAX_API
   /**
    * @brief Emit SAX events for every document in the tree.
    * @param handler SAX event handler
    */
-  void traverseEvents(IYAMLEvents &handler) const;
-#endif // YAML_LIB_SAX_API
+  void traverseEvents(IYAMLEvents& handler) const;
+#endif  // YAML_LIB_SAX_API
 
   /**
    * @brief Access a mapping entry by key.
    * @param key Mapping key
    * @return Mutable Node reference
    */
-  [[nodiscard]] Node &operator[](const std::string_view &key);
-  [[nodiscard]] const Node &operator[](const std::string_view &key) const;
+  [[nodiscard]] Node& operator[](const std::string_view& key);
+  [[nodiscard]] const Node& operator[](const std::string_view& key) const;
 
   /**
    * @brief Access a sequence entry by index.
    * @param index Array index
    * @return Mutable Node reference
    */
-  [[nodiscard]] Node &operator[](std::size_t index);
-  [[nodiscard]] const Node &operator[](std::size_t index) const;
+  [[nodiscard]] Node& operator[](std::size_t index);
+  [[nodiscard]] const Node& operator[](std::size_t index) const;
 
 #ifdef YAML_LIB_FILE_IO
   /**
@@ -361,7 +360,7 @@ public:
    * @param yamlFileName Path to YAML file
    * @return File contents as string
    */
-  [[nodiscard]] static std::string fromFile(const std::string_view &yamlFileName);
+  [[nodiscard]] static std::string fromFile(const std::string_view& yamlFileName);
 
   /**
    * @brief Write a YAML string to a file.
@@ -369,8 +368,7 @@ public:
    * @param yamlString YAML text to write
    * @param format File encoding format (default: utf8)
    */
-  static void toFile(const std::string_view &fileName,
-                     const std::string_view &yamlString,
+  static void toFile(const std::string_view& fileName, const std::string_view& yamlString,
                      Format format = Format::utf8);
 
   /**
@@ -378,8 +376,8 @@ public:
    * @param fileName Path to file
    * @return File format
    */
-  static Format getFileFormat(const std::string_view &fileName);
-#endif // YAML_LIB_FILE_IO
+  static Format getFileFormat(const std::string_view& fileName);
+#endif  // YAML_LIB_FILE_IO
 
   /**
    * @brief Enable or disable strict YAML 1.2 boolean parsing.
@@ -387,9 +385,9 @@ public:
    */
   static void setStrictBooleans(bool strict) noexcept;
 
-private:
+ private:
   // Internal implementation pointer
   std::unique_ptr<YAML_Impl> implementation;
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

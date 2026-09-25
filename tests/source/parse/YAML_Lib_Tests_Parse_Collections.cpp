@@ -5,8 +5,7 @@
 // mixed flow/block, multi-line plain scalars, embedded block strings.
 // ============================================================================
 
-TEST_CASE("Check YAML parsing of collection edge cases.",
-          "[YAML][Parse][Collections]") {
+TEST_CASE("Check YAML parsing of collection edge cases.", "[YAML][Parse][Collections]") {
   const YAML yaml;
 
   // ---- Compact block sequence / mapping notation ----
@@ -14,11 +13,12 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
   SECTION("YAML compact block sequence entry with inline dict value.",
           "[YAML][Parse][Collections][Compact]") {
     // '- key: value' on one line is valid compact block notation.
-    BufferSource source{"---\n"
-                        "- name: Alice\n"
-                        "  age: 30\n"
-                        "- name: Bob\n"
-                        "  age: 25\n"};
+    BufferSource source{
+        "---\n"
+        "- name: Alice\n"
+        "  age: 30\n"
+        "- name: Bob\n"
+        "  age: 25\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 2);
@@ -30,12 +30,13 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
 
   SECTION("YAML block sequence nested inside a block mapping.",
           "[YAML][Parse][Collections][Compact]") {
-    BufferSource source{"---\n"
-                        "fruits:\n"
-                        "  - apple\n"
-                        "  - banana\n"
-                        "  - cherry\n"
-                        "count: 3\n"};
+    BufferSource source{
+        "---\n"
+        "fruits:\n"
+        "  - apple\n"
+        "  - banana\n"
+        "  - cherry\n"
+        "count: 3\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<Array>(yaml.document(0)["fruits"]));
@@ -48,26 +49,24 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
 
   SECTION("YAML three-level block dict with flow sequence leaf.",
           "[YAML][Parse][Collections][Deep]") {
-    BufferSource source{"---\n"
-                        "config:\n"
-                        "  database:\n"
-                        "    ports: [5432, 5433, 5434]\n"};
+    BufferSource source{
+        "---\n"
+        "config:\n"
+        "  database:\n"
+        "    ports: [5432, 5433, 5434]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<Array>(yaml.document(0)["config"]["database"]["ports"]));
-    REQUIRE(
-        NRef<Array>(yaml.document(0)["config"]["database"]["ports"]).size() ==
-        3);
-    REQUIRE(NRef<Number>(yaml.document(0)["config"]["database"]["ports"][0])
-                .value<int>() == 5432);
+    REQUIRE(NRef<Array>(yaml.document(0)["config"]["database"]["ports"]).size() == 3);
+    REQUIRE(NRef<Number>(yaml.document(0)["config"]["database"]["ports"][0]).value<int>() == 5432);
   }
 
-  SECTION("YAML block sequence of flow dictionaries.",
-          "[YAML][Parse][Collections][Deep]") {
-    BufferSource source{"---\n"
-                        "- {x: 1, y: 2}\n"
-                        "- {x: 3, y: 4}\n"
-                        "- {x: 5, y: 6}\n"};
+  SECTION("YAML block sequence of flow dictionaries.", "[YAML][Parse][Collections][Deep]") {
+    BufferSource source{
+        "---\n"
+        "- {x: 1, y: 2}\n"
+        "- {x: 3, y: 4}\n"
+        "- {x: 5, y: 6}\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 3);
@@ -77,8 +76,9 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
 
   SECTION("YAML flow dict with block-sequence-like keys (quoted).",
           "[YAML][Parse][Collections][Deep]") {
-    BufferSource source{"---\n"
-                        "{\"key1\": [1, 2], \"key2\": [3, 4]}\n"};
+    BufferSource source{
+        "---\n"
+        "{\"key1\": [1, 2], \"key2\": [3, 4]}\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<Array>(yaml.document(0)["key1"]));
@@ -89,10 +89,11 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
 
   SECTION("YAML literal block scalar (|) as mapping value.",
           "[YAML][Parse][Collections][BlockStr]") {
-    BufferSource source{"---\n"
-                        "message: |\n"
-                        "  Hello,\n"
-                        "  World!\n"};
+    BufferSource source{
+        "---\n"
+        "message: |\n"
+        "  Hello,\n"
+        "  World!\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<String>(yaml.document(0)["message"]));
@@ -103,11 +104,12 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
 
   SECTION("YAML folded block scalar (>) as mapping value.",
           "[YAML][Parse][Collections][BlockStr]") {
-    BufferSource source{"---\n"
-                        "description: >\n"
-                        "  This is a long\n"
-                        "  description that\n"
-                        "  gets folded.\n"};
+    BufferSource source{
+        "---\n"
+        "description: >\n"
+        "  This is a long\n"
+        "  description that\n"
+        "  gets folded.\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<String>(yaml.document(0)["description"]));
@@ -118,11 +120,12 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
 
   SECTION("YAML literal block scalar with strip chomping (|-) in sequence.",
           "[YAML][Parse][Collections][BlockStr]") {
-    BufferSource source{"---\n"
-                        "- |-\n"
-                        "  first\n"
-                        "- |-\n"
-                        "  second\n"};
+    BufferSource source{
+        "---\n"
+        "- |-\n"
+        "  first\n"
+        "- |-\n"
+        "  second\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 2);
@@ -134,9 +137,10 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
 
   SECTION("YAML multi-line plain scalar value folds newlines to spaces.",
           "[YAML][Parse][Collections][PlainScalar]") {
-    BufferSource source{"---\n"
-                        "summary: This is line one\n"
-                        "         and line two\n"};
+    BufferSource source{
+        "---\n"
+        "summary: This is line one\n"
+        "         and line two\n"};
     // The second line is indented more and continuation of the value
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
@@ -146,22 +150,23 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
   SECTION("YAML plain scalar key with colon-containing text.",
           "[YAML][Parse][Collections][PlainScalar]") {
     // ':' inside a key value is part of the key text (not a separator)
-    BufferSource source{"---\n"
-                        "http://example.com: homepage\n"};
+    BufferSource source{
+        "---\n"
+        "http://example.com: homepage\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<Dictionary>(yaml.document(0)).contains("http://example.com"));
-    REQUIRE(NRef<String>(yaml.document(0)["http://example.com"]).value() ==
-            "homepage");
+    REQUIRE(NRef<String>(yaml.document(0)["http://example.com"]).value() == "homepage");
   }
 
   // ---- Flow collection edge cases ----
 
   SECTION("YAML empty flow sequence and empty flow dict in same doc.",
           "[YAML][Parse][Collections][Flow]") {
-    BufferSource source{"---\n"
-                        "empty_seq: []\n"
-                        "empty_map: {}\n"};
+    BufferSource source{
+        "---\n"
+        "empty_seq: []\n"
+        "empty_map: {}\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)["empty_seq"]));
     REQUIRE(NRef<Array>(yaml.document(0)["empty_seq"]).size() == 0);
@@ -169,8 +174,7 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
     REQUIRE(NRef<Dictionary>(yaml.document(0)["empty_map"]).size() == 0);
   }
 
-  SECTION("YAML flow sequence with trailing comma.",
-          "[YAML][Parse][Collections][Flow]") {
+  SECTION("YAML flow sequence with trailing comma.", "[YAML][Parse][Collections][Flow]") {
     BufferSource source{"---\n[1, 2, 3,]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
@@ -180,13 +184,14 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
 
   SECTION("YAML flow collections allow whitespace after scalars.",
           "[YAML][Parse][Collections][Flow]") {
-    BufferSource source{"---\n"
-                        "- [a, b , c ]\n"
-                        "- { \"a\"  : b\n"
-                        "   , c : 'd' ,\n"
-                        "   e   : \"f\"\n"
-                        "  }\n"
-                        "- [      ]\n"};
+    BufferSource source{
+        "---\n"
+        "- [a, b , c ]\n"
+        "- { \"a\"  : b\n"
+        "   , c : 'd' ,\n"
+        "   e   : \"f\"\n"
+        "  }\n"
+        "- [      ]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 3);
@@ -224,9 +229,10 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
 
   SECTION("YAML block plain scalar cannot continue after comment-only line.",
           "[YAML][Parse][Collections][Flow]") {
-    BufferSource source{"key: word1\n"
-                        "#  xxx\n"
-                        "  word2\n"};
+    BufferSource source{
+        "key: word1\n"
+        "#  xxx\n"
+        "  word2\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
@@ -240,35 +246,32 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
     REQUIRE(NRef<String>(yaml.document(0)[0]["foo"]).value() == "bar");
   }
 
-  SECTION("YAML flow sequence allows implicit single-pair flow mappings with "
-          "quoted and collection keys.",
-          "[YAML][Parse][Collections][Flow]") {
-    BufferSource source{"---\n"
-                        "- [ YAML : separate ]\n"
-                        "- [ \"JSON like\":adjacent ]\n"
-                        "- [ {JSON: like}:adjacent ]\n"};
+  SECTION(
+      "YAML flow sequence allows implicit single-pair flow mappings with "
+      "quoted and collection keys.",
+      "[YAML][Parse][Collections][Flow]") {
+    BufferSource source{
+        "---\n"
+        "- [ YAML : separate ]\n"
+        "- [ \"JSON like\":adjacent ]\n"
+        "- [ {JSON: like}:adjacent ]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 3);
     REQUIRE(isA<Dictionary>(yaml.document(0)[0][0]));
     REQUIRE(NRef<String>(yaml.document(0)[0][0]["YAML"]).value() == "separate");
     REQUIRE(isA<Dictionary>(yaml.document(0)[1][0]));
-    REQUIRE(NRef<String>(yaml.document(0)[1][0]["JSON like"]).value() ==
-            "adjacent");
+    REQUIRE(NRef<String>(yaml.document(0)[1][0]["JSON like"]).value() == "adjacent");
     REQUIRE(isA<Dictionary>(yaml.document(0)[2][0]));
-    REQUIRE(NRef<String>(yaml.document(0)[2][0]["{JSON: like}"]).value() ==
-            "adjacent");
+    REQUIRE(NRef<String>(yaml.document(0)[2][0]["{JSON: like}"]).value() == "adjacent");
   }
 
-  SECTION("YAML flow dict with quoted keys.",
-          "[YAML][Parse][Collections][Flow]") {
-    BufferSource source{
-        "---\n{\"content-type\": \"text/html\", \"version\": 2}\n"};
+  SECTION("YAML flow dict with quoted keys.", "[YAML][Parse][Collections][Flow]") {
+    BufferSource source{"---\n{\"content-type\": \"text/html\", \"version\": 2}\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<Dictionary>(yaml.document(0)).contains("content-type"));
-    REQUIRE(NRef<String>(yaml.document(0)["content-type"]).value() ==
-            "text/html");
+    REQUIRE(NRef<String>(yaml.document(0)["content-type"]).value() == "text/html");
     REQUIRE(NRef<Number>(yaml.document(0)["version"]).value<int>() == 2);
   }
 
@@ -276,11 +279,12 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
 
   SECTION("YAML anchor on a sequence, aliased in another mapping.",
           "[YAML][Parse][Collections][AnchorAlias]") {
-    BufferSource source{"---\n"
-                        "defaults: &defaults\n"
-                        "  - one\n"
-                        "  - two\n"
-                        "copy: *defaults\n"};
+    BufferSource source{
+        "---\n"
+        "defaults: &defaults\n"
+        "  - one\n"
+        "  - two\n"
+        "copy: *defaults\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<Array>(yaml.document(0)["defaults"]));
@@ -291,9 +295,10 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
 
   SECTION("YAML inline anchor on a scalar used in array.",
           "[YAML][Parse][Collections][AnchorAlias]") {
-    BufferSource source{"---\n"
-                        "- &name Alice\n"
-                        "- *name\n"};
+    BufferSource source{
+        "---\n"
+        "- &name Alice\n"
+        "- *name\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 2);
@@ -301,15 +306,15 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
     REQUIRE(NRef<String>(yaml.document(0)[1]).value() == "Alice");
   }
 
-  SECTION("YAML merge key (<<) merges base dict into child.",
-          "[YAML][Parse][Collections][Merge]") {
-    BufferSource source{"---\n"
-                        "base: &base\n"
-                        "  x: 1\n"
-                        "  y: 2\n"
-                        "child:\n"
-                        "  <<: *base\n"
-                        "  z: 3\n"};
+  SECTION("YAML merge key (<<) merges base dict into child.", "[YAML][Parse][Collections][Merge]") {
+    BufferSource source{
+        "---\n"
+        "base: &base\n"
+        "  x: 1\n"
+        "  y: 2\n"
+        "child:\n"
+        "  <<: *base\n"
+        "  z: 3\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)["child"]));
     REQUIRE(NRef<Number>(yaml.document(0)["child"]["x"]).value<int>() == 1);
@@ -317,16 +322,16 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
     REQUIRE(NRef<Number>(yaml.document(0)["child"]["z"]).value<int>() == 3);
   }
 
-  SECTION("YAML multi-merge with two anchors.",
-          "[YAML][Parse][Collections][Merge]") {
-    BufferSource source{"---\n"
-                        "a: &a\n"
-                        "  x: 10\n"
-                        "b: &b\n"
-                        "  y: 20\n"
-                        "c:\n"
-                        "  <<: [*a, *b]\n"
-                        "  z: 30\n"};
+  SECTION("YAML multi-merge with two anchors.", "[YAML][Parse][Collections][Merge]") {
+    BufferSource source{
+        "---\n"
+        "a: &a\n"
+        "  x: 10\n"
+        "b: &b\n"
+        "  y: 20\n"
+        "c:\n"
+        "  <<: [*a, *b]\n"
+        "  z: 30\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)["c"]));
     REQUIRE(NRef<Number>(yaml.document(0)["c"]["x"]).value<int>() == 10);
@@ -339,9 +344,10 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
   SECTION("YAML 1.2: literal block scalar with explicit indent indicator |2",
           "[YAML][Parse][Collections][BlockStr][ExplicitIndent]") {
     // |2 means content indented 2 spaces relative to the key's block level.
-    BufferSource source{"key: |2\n"
-                        "  line one\n"
-                        "  line two\n"};
+    BufferSource source{
+        "key: |2\n"
+        "  line one\n"
+        "  line two\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)["key"]));
     const auto val = NRef<String>(yaml.document(0)["key"]).value();
@@ -351,12 +357,14 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
     REQUIRE(val.find("line two") != std::string::npos);
   }
 
-  SECTION("YAML 1.2: literal block scalar with explicit indent and strip "
-          "chomping |2-",
-          "[YAML][Parse][Collections][BlockStr][ExplicitIndent]") {
+  SECTION(
+      "YAML 1.2: literal block scalar with explicit indent and strip "
+      "chomping |2-",
+      "[YAML][Parse][Collections][BlockStr][ExplicitIndent]") {
     // |2- means content at indent 2, strip trailing newline.
-    BufferSource source{"key: |2-\n"
-                        "  stripped\n"};
+    BufferSource source{
+        "key: |2-\n"
+        "  stripped\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)["key"]));
     const auto val = NRef<String>(yaml.document(0)["key"]).value();
@@ -366,8 +374,9 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
   SECTION("YAML 1.2: literal block scalar chomping-then-digit |-2",
           "[YAML][Parse][Collections][BlockStr][ExplicitIndent]") {
     // |-2 is the same as |2- (both orderings are legal per spec §8.1.1).
-    BufferSource source{"key: |-2\n"
-                        "  stripped\n"};
+    BufferSource source{
+        "key: |-2\n"
+        "  stripped\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)["key"]));
     const auto val = NRef<String>(yaml.document(0)["key"]).value();
@@ -377,9 +386,10 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
   SECTION("YAML 1.2: folded block scalar with explicit indent indicator >2",
           "[YAML][Parse][Collections][BlockStr][ExplicitIndent]") {
     // >2 means folded with content at indent-level 2.
-    BufferSource source{"key: >2\n"
-                        "  fold one\n"
-                        "  fold two\n"};
+    BufferSource source{
+        "key: >2\n"
+        "  fold one\n"
+        "  fold two\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)["key"]));
     const auto val = NRef<String>(yaml.document(0)["key"]).value();
@@ -393,10 +403,11 @@ TEST_CASE("Check YAML parsing of collection edge cases.",
           "[YAML][Parse][Collections][BlockStr][ExplicitIndent]") {
     // With |2, a normal line at 2-space indent followed by a 4-space line.
     // The more-indented line retains its extra leading spaces in the content.
-    BufferSource source{"key: |2\n"
-                        "  normal\n"
-                        "    extra indent\n"
-                        "  back\n"};
+    BufferSource source{
+        "key: |2\n"
+        "  normal\n"
+        "    extra indent\n"
+        "  back\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)["key"]));
     const auto val = NRef<String>(yaml.document(0)["key"]).value();

@@ -14,31 +14,28 @@
 namespace yl = YAML_Lib;
 namespace fs = std::filesystem;
 
-static const std::string kConfigFile =
-    (fs::current_path() / "files" / "app_config.yaml").string();
+static const std::string kConfigFile = (fs::current_path() / "files" / "app_config.yaml").string();
 static const std::string kUpdatedConfigFile =
     (fs::current_path() / "files" / "app_config_updated.yaml").string();
 
 // ---------------------------------------------------------------------------
 // Print all top-level sections and their immediate fields.
 // ---------------------------------------------------------------------------
-static void dumpConfig(const yl::YAML &yaml) {
-  const auto &doc = yaml.document(0);
-  for (const auto &section : yl::NRef<yl::Dictionary>(doc).value()) {
+static void dumpConfig(const yl::YAML& yaml) {
+  const auto& doc = yaml.document(0);
+  for (const auto& section : yl::NRef<yl::Dictionary>(doc).value()) {
     std::cout << "  [" << section.getKey() << "]";
     if (yl::isA<yl::Dictionary>(section.getNode())) {
-      for (const auto &field :
-           yl::NRef<yl::Dictionary>(section.getNode()).value()) {
-        std::cout << "    " << field.getKey() << " = "
-                  << field.getNode().toString();
+      for (const auto& field : yl::NRef<yl::Dictionary>(section.getNode()).value()) {
+        std::cout << "    " << field.getKey() << " = " << field.getNode().toString();
       }
     }
   }
 }
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
   try {
-        std::cout << "YAML_Config_Manager started ...";
+    std::cout << "YAML_Config_Manager started ...";
     std::cout << YAML_Lib::YAML::version();
 
     yl::YAML yaml;
@@ -48,19 +45,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     yaml.parse(yl::FileSource{kConfigFile});
 
     // Read specific typed values by key path
-    auto &doc = yaml.document(0);
-    std::cout << "database.host      = "
-              << yl::NRef<yl::String>(doc["database"]["host"]).value();
+    auto& doc = yaml.document(0);
+    std::cout << "database.host      = " << yl::NRef<yl::String>(doc["database"]["host"]).value();
     std::cout << "database.port      = "
               << yl::NRef<yl::Number>(doc["database"]["port"]).value<int>();
     std::cout << "server.workers     = "
               << yl::NRef<yl::Number>(doc["server"]["workers"]).value<int>();
-    std::cout << "logging.level      = "
-              << yl::NRef<yl::String>(doc["logging"]["level"]).value();
+    std::cout << "logging.level      = " << yl::NRef<yl::String>(doc["logging"]["level"]).value();
     std::cout << "logging.console    = "
-              << (yl::NRef<yl::Boolean>(doc["logging"]["console"]).value()
-                      ? "true"
-                      : "false");
+              << (yl::NRef<yl::Boolean>(doc["logging"]["console"]).value() ? "true" : "false");
 
     std::cout << "--- Full config (before update) ---";
     dumpConfig(yaml);
@@ -86,13 +79,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     verify.parse(yl::FileSource{kUpdatedConfigFile});
     std::cout << "--- Re-parsed config (round-trip check) ---";
     std::cout << "server.workers = "
-              << yl::NRef<yl::Number>(verify.document(0)["server"]["workers"])
-                     .value<int>();
-    std::cout
-        << "logging.level  = "
-        << yl::NRef<yl::String>(verify.document(0)["logging"]["level"]).value();
+              << yl::NRef<yl::Number>(verify.document(0)["server"]["workers"]).value<int>();
+    std::cout << "logging.level  = "
+              << yl::NRef<yl::String>(verify.document(0)["logging"]["level"]).value();
 
-  } catch (const std::exception &ex) {
+  } catch (const std::exception& ex) {
     std::cerr << "Error: " << ex.what();
   }
   std::cout << "YAML_Config_Manager exited.";

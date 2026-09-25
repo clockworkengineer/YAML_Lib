@@ -4,8 +4,8 @@
 namespace YAML_Lib {
 namespace {
 void customPanicHandler(std::string_view, unsigned long, unsigned long) noexcept {}
-} // namespace
-} // namespace YAML_Lib
+}  // namespace
+}  // namespace YAML_Lib
 
 int main() {
   YAML_Lib::setErrorHandler(YAML_Lib::customPanicHandler);

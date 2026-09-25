@@ -17,7 +17,7 @@ namespace YAML_Lib {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a tag has been found.</returns>
-bool Default_Parser::isTagged(ISource &source) {
+bool Default_Parser::isTagged(ISource& source) {
   return source.current() == '!';
 }
 
@@ -30,7 +30,7 @@ bool Default_Parser::isTagged(ISource &source) {
 /// <param name="delimiters">Delimiters used to parse value.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Tagged Node.</returns>
-Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
+Node Default_Parser::parseTagged(ISource& source, const Delimiters& delimiters,
                                  const unsigned long indentation) {
   // Consume first '!'
   source.next();
@@ -50,7 +50,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     if (!source.more() || source.current() != '>') {
       YAML_THROW_POS(source, "Unclosed verbatim tag '<'.");
     }
-    source.next(); // consume '>'
+    source.next();  // consume '>'
   } else if (source.current() == '!') {
     // Secondary tag handle: !! -> primary handle "tag:yaml.org,2002:"
     source.next();
@@ -64,7 +64,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     std::string preExcl;
     preExcl = extractToNext(source, {'!', kSpace, kLineFeed});
     if (source.more() && source.current() == '!') {
-      source.next(); // consume second '!'
+      source.next();  // consume second '!'
       tagHandle = "!" + preExcl + "!";
       tagSuffix = extractTagSuffix(source);
     } else {
@@ -82,8 +82,8 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
       return true;
     }
     if (source.current() == kColon || source.current() == kComma ||
-        source.current() == kRightSquareBracket ||
-        source.current() == kRightCurlyBrace || source.current() == '#') {
+        source.current() == kRightSquareBracket || source.current() == kRightCurlyBrace ||
+        source.current() == '#') {
       return true;
     }
     if (source.current() == kLineFeed) {
@@ -99,8 +99,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   // not flow separators; if they appear inside the extracted suffix the tag is
   // malformed; reject by throwing.
   static constexpr std::string_view kInvalidTagChars{",[]{}"};
-  if (!tagSuffix.empty() &&
-      tagSuffix.find_first_of(kInvalidTagChars) != std::string::npos) {
+  if (!tagSuffix.empty() && tagSuffix.find_first_of(kInvalidTagChars) != std::string::npos) {
     YAML_THROW_POS(source, "Invalid character in tag suffix '" + tagSuffix + "'.");
   }
 
@@ -112,8 +111,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
     // Expand using registered prefix or default yaml.org
     const std::string defaultPrefix{"tag:yaml.org,2002:"};
     auto it = ctx_.yamlTagPrefixes.find("!!");
-    fullTag =
-        (it != ctx_.yamlTagPrefixes.end() ? it->second : defaultPrefix) + tagSuffix;
+    fullTag = (it != ctx_.yamlTagPrefixes.end() ? it->second : defaultPrefix) + tagSuffix;
   } else {
     // Named handle (e.g. !ns!suffix) or local tag (e.g. !suffix)
     auto it = ctx_.yamlTagPrefixes.find(tagHandle);
@@ -137,17 +135,14 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
 
   Node result;
   static const std::string kCoreTagPrefix{"tag:yaml.org,2002:"};
-  static const std::unordered_set<std::string> passthroughTags{"seq", "map",
-                                                               "omap", "pairs"};
+  static const std::unordered_set<std::string> passthroughTags{"seq", "map", "omap", "pairs"};
   const auto valueRequiresNodeParse = [&]() {
     return valueStartsOnNextLine ||
            (source.more() &&
-            (source.current() == '&' || source.current() == '*' ||
-             source.current() == '!'));
+            (source.current() == '&' || source.current() == '*' || source.current() == '!'));
   };
-  const bool isCoreSecondaryTag =
-      fullTag.rfind(kCoreTagPrefix, 0) == 0 &&
-      fullTag.size() == kCoreTagPrefix.size() + tagSuffix.size();
+  const bool isCoreSecondaryTag = fullTag.rfind(kCoreTagPrefix, 0) == 0 &&
+                                  fullTag.size() == kCoreTagPrefix.size() + tagSuffix.size();
   if (isCoreSecondaryTag && !tagSuffix.empty()) {
     if (tagSuffix == "str") {
       std::string value;
@@ -168,34 +163,30 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
         }
       }
       result = Node::make<String>(value, kNull);
-    } else if (tagSuffix == "int" || tagSuffix == "float" ||
-               tagSuffix == "bool" || tagSuffix == "null") {
+    } else if (tagSuffix == "int" || tagSuffix == "float" || tagSuffix == "bool" ||
+               tagSuffix == "null") {
       // Dispatch table for the four core type-coercion tags.
-      using CoerceFunc =
-          std::function<Node(ISource &, const Delimiters &, unsigned long)>;
-      const std::unordered_map<std::string, std::pair<CoerceFunc, const char *>>
-          coercions{
-              {"int",
-               {[this](ISource &s, const Delimiters &d, unsigned long i) {
-                  return parseNumber(s, d, i);
-                },
-                "!!int"}},
-              {"float",
-               {[this](ISource &s, const Delimiters &d, unsigned long i) {
-                  return parseNumber(s, d, i);
-                },
-                "!!float"}},
-              {"bool",
-               {[this](ISource &s, const Delimiters &d, unsigned long i) {
-                  return parseBoolean(s, d, i);
-                },
-                "!!bool"}},
-              {"null",
-               {[this](ISource &s, const Delimiters &d, unsigned long i) {
-                  return parseNone(s, d, i);
-                },
-                "!!null"}}};
-      const auto &[fn, tagName] = coercions.at(tagSuffix);
+      using CoerceFunc = std::function<Node(ISource&, const Delimiters&, unsigned long)>;
+      const std::unordered_map<std::string, std::pair<CoerceFunc, const char*>> coercions{
+          {"int",
+           {[this](ISource& s, const Delimiters& d, unsigned long i) {
+              return parseNumber(s, d, i);
+            },
+            "!!int"}},
+          {"float",
+           {[this](ISource& s, const Delimiters& d, unsigned long i) {
+              return parseNumber(s, d, i);
+            },
+            "!!float"}},
+          {"bool",
+           {[this](ISource& s, const Delimiters& d, unsigned long i) {
+              return parseBoolean(s, d, i);
+            },
+            "!!bool"}},
+          {"null",
+           {[this](ISource& s, const Delimiters& d, unsigned long i) { return parseNone(s, d, i); },
+            "!!null"}}};
+      const auto& [fn, tagName] = coercions.at(tagSuffix);
       const bool needsNodeParse = valueRequiresNodeParse();
       if (isEmptyScalar && tagSuffix == "null") {
         result = Node::make<Null>();
@@ -207,8 +198,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
         result = fn(source, delimiters, indentation);
       } else {
         Node parsed = parseDocument(source, delimiters, indentation);
-        if (isA<Number>(parsed) &&
-            (tagSuffix == "int" || tagSuffix == "float")) {
+        if (isA<Number>(parsed) && (tagSuffix == "int" || tagSuffix == "float")) {
           result = std::move(parsed);
         } else if (isA<Boolean>(parsed) && tagSuffix == "bool") {
           result = std::move(parsed);
@@ -221,8 +211,7 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
         }
       }
       if (result.isEmpty()) {
-        YAML_THROW_POS(source, std::string("Value cannot be parsed as ") + tagName +
-                              ".");
+        YAML_THROW_POS(source, std::string("Value cannot be parsed as ") + tagName + ".");
       }
     } else if (passthroughTags.count(tagSuffix)) {
       result = parseDocument(source, delimiters, indentation);
@@ -253,4 +242,4 @@ Node Default_Parser::parseTagged(ISource &source, const Delimiters &delimiters,
   return result;
 }
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

@@ -21,7 +21,7 @@ namespace YAML_Lib {
  *       optimize `reserve()` for buffer-backed outputs.
  */
 class IDestination {
-public:
+ public:
   /**
    * @brief Exception type for destination errors.
    */
@@ -39,21 +39,21 @@ public:
    * @brief Add bytes to the destination (default: delegates to add(char)).
    * @param bytes String view to add.
    */
-  virtual void add(const std::string_view &bytes) {
+  virtual void add(const std::string_view& bytes) {
     for (const char ch : bytes) add(ch);
   }
   /**
    * @brief Add bytes to the destination (default: delegates to add(char)).
    * @param bytes String to add.
    */
-  virtual void add(const std::string &bytes) {
+  virtual void add(const std::string& bytes) {
     for (const char ch : bytes) add(ch);
   }
   /**
    * @brief Add bytes to the destination (default: delegates to add(char)).
    * @param bytes C-string to add.
    */
-  virtual void add(const char *bytes) {
+  virtual void add(const char* bytes) {
     while (*bytes) add(*bytes++);
   }
   /**
@@ -71,4 +71,4 @@ public:
    */
   virtual void reserve([[maybe_unused]] std::size_t n) {}
 };
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

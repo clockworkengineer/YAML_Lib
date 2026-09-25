@@ -13,27 +13,33 @@ namespace YAML_Lib {
 struct Timestamp {
   // Constructors/Destructors
   Timestamp() = default;
-  Timestamp(const Timestamp &other) = default;
-  Timestamp &operator=(const Timestamp &other) = default;
-  Timestamp(Timestamp &&other) = default;
-  Timestamp &operator=(Timestamp &&other) = default;
+  Timestamp(const Timestamp& other) = default;
+  Timestamp& operator=(const Timestamp& other) = default;
+  Timestamp(Timestamp&& other) = default;
+  Timestamp& operator=(Timestamp&& other) = default;
   ~Timestamp() = default;
 
   // Construct from string_view — copies into owned storage (both modes).
-  explicit Timestamp(const std::string_view &raw) : rawValue(raw) {}
+  explicit Timestamp(const std::string_view& raw) : rawValue(raw) {}
 
 #ifndef YAML_LIB_TIMESTAMP_PARSE
   // OFF mode: move constructor so the parser can hand over the extracted
   // token string without an extra heap allocation.
-  explicit Timestamp(std::string &&raw) noexcept : rawValue(std::move(raw)) {}
+  explicit Timestamp(std::string&& raw) noexcept : rawValue(std::move(raw)) {}
 #endif
 
   // Return reference to raw timestamp string
-  [[nodiscard]] std::string_view value() const { return rawValue; }
+  [[nodiscard]] std::string_view value() const {
+    return rawValue;
+  }
   // Return string representation
-  [[nodiscard]] std::string toString() const { return std::string(rawValue); }
+  [[nodiscard]] std::string toString() const {
+    return std::string(rawValue);
+  }
   // Convert variant to a key
-  [[nodiscard]] std::string toKey() const { return std::string(rawValue); }
+  [[nodiscard]] std::string toKey() const {
+    return std::string(rawValue);
+  }
 
 #ifdef YAML_LIB_TIMESTAMP_PARSE
   // -----------------------------------------------------------------------
@@ -47,17 +53,17 @@ struct Timestamp {
     const std::string_view sv{rawValue};
     if (sv.size() >= 10) {
       t.tm_year = field(sv, 0, 4) - 1900;
-      t.tm_mon  = field(sv, 5, 2) - 1;
+      t.tm_mon = field(sv, 5, 2) - 1;
       t.tm_mday = field(sv, 8, 2);
     }
     if (sv.size() >= 16 && (sv[10] == 'T' || sv[10] == ' ')) {
       t.tm_hour = field(sv, 11, 2);
-      t.tm_min  = field(sv, 14, 2);
+      t.tm_min = field(sv, 14, 2);
     }
     if (sv.size() >= 19 && sv[16] == ':') {
       t.tm_sec = field(sv, 17, 2);
     }
-    t.tm_isdst = -1; // let mktime determine DST
+    t.tm_isdst = -1;  // let mktime determine DST
     return t;
   }
 
@@ -67,10 +73,9 @@ struct Timestamp {
   }
 #endif
 
-private:
+ private:
 #ifdef YAML_LIB_TIMESTAMP_PARSE
-  static int field(std::string_view sv, std::size_t start,
-                   std::size_t len) noexcept {
+  static int field(std::string_view sv, std::size_t start, std::size_t len) noexcept {
     int val = 0;
     for (std::size_t i = start; i < start + len && i < sv.size(); ++i) {
       val = val * 10 + static_cast<int>(sv[i] - '0');
@@ -80,4 +85,4 @@ private:
 #endif
   std::pmr::string rawValue;
 };
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

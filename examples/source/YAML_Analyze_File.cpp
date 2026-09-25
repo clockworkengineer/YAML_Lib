@@ -16,7 +16,7 @@ namespace yl = YAML_Lib;
 /// Parse YAML file and analyze its YAML tree.
 /// </summary>
 /// <param name="fileName">YAML file name</param>
-void processYAMLFile(const std::string &fileName) {
+void processYAMLFile(const std::string& fileName) {
   std::cout << "Analyzing " << fileName;
   const yl::YAML yaml;
   YAML_Analyzer yamlAnalyzer;
@@ -26,18 +26,18 @@ void processYAMLFile(const std::string &fileName) {
   std::cout << "Finished " << fileName << ".";
 }
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
   // Initialise logging.
-    std::cout << "YAML_Analyze_File started ...";
+  std::cout << "YAML_Analyze_File started ...";
   // Output YAML Lib version and data structure metrics
   std::cout << YAML_Lib::YAML::version();
   std::cout << YAML_Analyzer::dumpNumericSizes();
   std::cout << YAML_Analyzer::dumpNodeSizes();
   // Analyze YAML files.
-  for (auto &fileName : Utility::createYAMLFileList()) {
+  for (auto& fileName : Utility::createYAMLFileList()) {
     try {
       processYAMLFile(fileName);
-    } catch (std::exception &ex) {
+    } catch (std::exception& ex) {
       std::cerr << "Error: " << ex.what();
     }
   }

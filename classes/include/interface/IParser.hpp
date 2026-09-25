@@ -23,7 +23,7 @@ struct Node;
  * @note Implementations should return documents in the same order they appear in the input.
  */
 class IParser : public IDOMParser {
-public:
+ public:
   /**
    * @brief Exception type for parser errors.
    */
@@ -33,4 +33,4 @@ public:
    */
   ~IParser() override = default;
 };
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

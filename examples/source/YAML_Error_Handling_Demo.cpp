@@ -15,17 +15,16 @@ namespace yl = YAML_Lib;
 // ---------------------------------------------------------------------------
 // Helper: try to parse source and report any SyntaxError.
 // ---------------------------------------------------------------------------
-static void tryParse(const std::string &label, const std::string &yamlText) {
+static void tryParse(const std::string& label, const std::string& yamlText) {
   yl::YAML yaml;
   std::cout << "--- Trying: " << label;
   try {
     yl::BufferSource source{yamlText};
     yaml.parse(source);
-    std::cout << "  OK: parsed " << yaml.getNumberOfDocuments()
-              << " document(s).";
-  } catch (const yl::SyntaxError &ex) {
+    std::cout << "  OK: parsed " << yaml.getNumberOfDocuments() << " document(s).";
+  } catch (const yl::SyntaxError& ex) {
     std::cerr << "  SyntaxError: " << ex.what();
-  } catch (const std::exception &ex) {
+  } catch (const std::exception& ex) {
     std::cerr << "  Unexpected error: " << ex.what();
   }
 }
@@ -35,17 +34,17 @@ static void tryParse(const std::string &label, const std::string &yamlText) {
 // ---------------------------------------------------------------------------
 static void safeKeyAccess() {
   yl::YAML yaml;
-  yl::BufferSource source{"---\n"
-                          "username: alice\n"
-                          "role: admin\n"};
+  yl::BufferSource source{
+      "---\n"
+      "username: alice\n"
+      "role: admin\n"};
   yaml.parse(source);
 
-  const auto &doc = yaml.document(0);
+  const auto& doc = yaml.document(0);
 
   // Safe: check before accessing
   if (yl::NRef<yl::Dictionary>(doc).contains("username")) {
-    std::cout << "  username = "
-              << yl::NRef<yl::String>(doc["username"]).value();
+    std::cout << "  username = " << yl::NRef<yl::String>(doc["username"]).value();
   }
 
   // The key 'email' is not present — contains() prevents a crash
@@ -59,18 +58,18 @@ static void safeKeyAccess() {
 // ---------------------------------------------------------------------------
 static void safeTypeAccess() {
   yl::YAML yaml;
-  yl::BufferSource source{"---\n"
-                          "count: 42\n"
-                          "name: demo\n"
-                          "active: true\n"};
+  yl::BufferSource source{
+      "---\n"
+      "count: 42\n"
+      "name: demo\n"
+      "active: true\n"};
   yaml.parse(source);
 
-  const auto &doc = yaml.document(0);
+  const auto& doc = yaml.document(0);
 
   // Safely read a Number
   if (yl::isA<yl::Number>(doc["count"])) {
-    std::cout << "  count = "
-              << yl::NRef<yl::Number>(doc["count"]).value<int>();
+    std::cout << "  count = " << yl::NRef<yl::Number>(doc["count"]).value<int>();
   }
 
   // Safely read a String
@@ -80,8 +79,7 @@ static void safeTypeAccess() {
 
   // Safely read a Boolean
   if (yl::isA<yl::Boolean>(doc["active"])) {
-    std::cout << "  active = "
-              << (yl::NRef<yl::Boolean>(doc["active"]).value() ? "yes" : "no");
+    std::cout << "  active = " << (yl::NRef<yl::Boolean>(doc["active"]).value() ? "yes" : "no");
   }
 }
 
@@ -117,9 +115,9 @@ static void tabIndentation() {
   tryParse("tab indent", "---\nparent:\n\tchild: value\n");
 }
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
   try {
-        std::cout << "YAML_Error_Handling_Demo started ...";
+    std::cout << "YAML_Error_Handling_Demo started ...";
     std::cout << yl::YAML::version();
 
     // 1. Safe parse with error reporting
@@ -138,12 +136,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     std::cout << "=== Structure validation ===";
     {
       yl::YAML yaml;
-      yl::BufferSource source{"---\n"
-                              "server:\n"
-                              "  host: localhost\n"
-                              "  port: 8080\n"};
+      yl::BufferSource source{
+          "---\n"
+          "server:\n"
+          "  host: localhost\n"
+          "  port: 8080\n"};
       yaml.parse(source);
-      const auto &doc = yaml.document(0);
+      const auto& doc = yaml.document(0);
       if (!yl::isA<yl::Dictionary>(doc)) {
         throw std::runtime_error("Expected top-level mapping.");
       }
@@ -157,7 +156,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
       std::cout << "  Server port validated: " << port;
     }
 
-  } catch (const std::exception &ex) {
+  } catch (const std::exception& ex) {
     std::cerr << "Fatal error: " << ex.what();
   }
   std::cout << "YAML_Error_Handling_Demo exited.";

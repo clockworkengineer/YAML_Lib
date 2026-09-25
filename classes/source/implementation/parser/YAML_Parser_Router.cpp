@@ -16,7 +16,7 @@ namespace YAML_Lib {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true value is an override.</returns>
-bool Default_Parser::isOverride(ISource &source) {
+bool Default_Parser::isOverride(ISource& source) {
   return matchesMarker(source, "<<:");
 }
 // <summary>
@@ -24,16 +24,15 @@ bool Default_Parser::isOverride(ISource &source) {
 // </summary>
 // <param name="source">Source stream.</param>
 // <returns>== true if a dictionary key has been found.</returns>
-bool Default_Parser::isKey(ISource &source) {
+bool Default_Parser::isKey(ISource& source) {
   SourceGuard guard(source);
   bool keyPresent{false};
   if (std::string key{extractKey(source)};
       source.current() == kColon || (!key.empty() && key.back() == kColon)) {
     const bool nonPlainFlowKey =
-        !key.empty() &&
-        (key.front() == kDoubleQuote || key.front() == kApostrophe ||
-         key.front() == kLeftSquareBracket || key.front() == kLeftCurlyBrace ||
-         key.front() == '&' || key.front() == '!');
+        !key.empty() && (key.front() == kDoubleQuote || key.front() == kApostrophe ||
+                         key.front() == kLeftSquareBracket || key.front() == kLeftCurlyBrace ||
+                         key.front() == '&' || key.front() == '!');
     if (ctx_.inlineDictionaryDepth == 0 && !key.empty() &&
         (key.front() == kDoubleQuote || key.front() == kApostrophe) &&
         key.find('\n') != std::string::npos) {
@@ -57,28 +56,26 @@ bool Default_Parser::isKey(ISource &source) {
     // A tab followed by a space is a valid s-white separation sequence
     // (e.g. 6BCT: "foo:" + TAB + " bar").
     bool validTabSeparator = false;
-    if (ctx_.inlineDictionaryDepth == 0 && source.more() &&
-        source.current() == '\t') {
+    if (ctx_.inlineDictionaryDepth == 0 && source.more() && source.current() == '\t') {
       SourceGuard tabGuard(source);
       while (source.more() && source.current() == '\t') {
         source.next();
       }
-      if (!source.more() || source.current() == kSpace ||
-          source.current() == kLineFeed || source.current() == '#' ||
-          source.current() == '|' || source.current() == '>') {
+      if (!source.more() || source.current() == kSpace || source.current() == kLineFeed ||
+          source.current() == '#' || source.current() == '|' || source.current() == '>') {
         validTabSeparator = true;
         if (source.current() == kSpace) {
-          tabGuard.release(); // space follows — consume the tab(s)
+          tabGuard.release();  // space follows — consume the tab(s)
         }
       } else {
-        YAML_THROW_POS(source, "Tab used as block value-separator after ':'; block indentation "
-            "must use spaces, not tabs (YAML 1.2 \xc2\xa7"
-            "6.1).");
+        YAML_THROW_POS(source,
+                       "Tab used as block value-separator after ':'; block indentation "
+                       "must use spaces, not tabs (YAML 1.2 \xc2\xa7"
+                       "6.1).");
       }
     }
     if (!source.more() || source.current() == ' ' || source.current() == '\t' ||
-        source.current() == kLineFeed ||
-        (!key.empty() && key.back() == kColon) ||
+        source.current() == kLineFeed || (!key.empty() && key.back() == kColon) ||
         (isInsideFlowContext() && nonPlainFlowKey) || validTabSeparator) {
       if (!key.empty() && key.back() == kColon) {
         key.pop_back();
@@ -94,7 +91,7 @@ bool Default_Parser::isKey(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an array element has been found.</returns>
-bool Default_Parser::isArray(ISource &source) {
+bool Default_Parser::isArray(ISource& source) {
   SourceGuard guard(source);
   auto ch = source.current();
   auto arrayPresent{false};
@@ -112,22 +109,22 @@ bool Default_Parser::isArray(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a boolean value has been found.</returns>
-bool Default_Parser::isBoolean(ISource &source) {
+bool Default_Parser::isBoolean(ISource& source) {
   const auto ch = source.current();
   if (isStrictBooleans() || ctx_.yamlDirectiveMinor >= 2) {
     // YAML 1.2 strict: only 'true' and 'false'
     return ch == 't' || ch == 'f';
   }
   // YAML 1.1 permissive: True/False/On/Off/Yes/No (all cases)
-  return ch == 'T' || ch == 'F' || ch == 'O' || ch == 'Y' || ch == 'N' ||
-         ch == 't' || ch == 'f' || ch == 'y' || ch == 'n' || ch == 'o';
+  return ch == 'T' || ch == 'F' || ch == 'O' || ch == 'Y' || ch == 'N' || ch == 't' || ch == 'f' ||
+         ch == 'y' || ch == 'n' || ch == 'o';
 }
 /// <summary>
 /// Has a quoted string been found in the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, then a quoted string has been found.</returns>
-bool Default_Parser::isQuotedString(ISource &source) {
+bool Default_Parser::isQuotedString(ISource& source) {
   const auto ch = source.current();
   return ch == kApostrophe || ch == kDoubleQuote;
 }
@@ -136,7 +133,7 @@ bool Default_Parser::isQuotedString(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, then a number has been found.</returns>
-bool Default_Parser::isNumber(ISource &source) {
+bool Default_Parser::isNumber(ISource& source) {
   const auto ch = source.current();
   // Include '.' to catch YAML 1.2 special floats: .inf, .nan
   return (ch >= '0' && ch <= '9') || ch == '-' || ch == '+' || ch == '.';
@@ -146,7 +143,7 @@ bool Default_Parser::isNumber(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a null (none) value has been found.</returns>
-bool Default_Parser::isNone(ISource &source) {
+bool Default_Parser::isNone(ISource& source) {
   const auto second = source.current();
   return second == 'n' || second == '~';
 }
@@ -155,7 +152,7 @@ bool Default_Parser::isNone(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a founded block string has been found.</returns>
-bool Default_Parser::isFoldedBlockString(ISource &source) {
+bool Default_Parser::isFoldedBlockString(ISource& source) {
   return source.current() == '>';
 }
 /// <summary>
@@ -163,7 +160,7 @@ bool Default_Parser::isFoldedBlockString(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a piped block string has been found.</returns>
-bool Default_Parser::isPipedBlockString(ISource &source) {
+bool Default_Parser::isPipedBlockString(ISource& source) {
   return source.current() == '|';
 }
 /// <summary>
@@ -171,7 +168,7 @@ bool Default_Parser::isPipedBlockString(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a comment has been found.</returns>
-bool Default_Parser::isComment(ISource &source) {
+bool Default_Parser::isComment(ISource& source) {
   return source.current() == '#';
 }
 /// <summary>
@@ -179,7 +176,7 @@ bool Default_Parser::isComment(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an anchor has been found.</returns>
-bool Default_Parser::isAnchor(ISource &source) {
+bool Default_Parser::isAnchor(ISource& source) {
   return source.current() == '&';
 }
 /// <summary>
@@ -187,7 +184,7 @@ bool Default_Parser::isAnchor(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an alias has been found.</returns>
-bool Default_Parser::isAlias(ISource &source) {
+bool Default_Parser::isAlias(ISource& source) {
   return source.current() == '*';
 }
 /// <summary>
@@ -195,7 +192,7 @@ bool Default_Parser::isAlias(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an inline array has been found.</returns>
-bool Default_Parser::isInlineArray(ISource &source) {
+bool Default_Parser::isInlineArray(ISource& source) {
   return source.current() == kLeftSquareBracket;
 }
 /// <summary>
@@ -203,7 +200,7 @@ bool Default_Parser::isInlineArray(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an inline dictionary has been found.</returns>
-bool Default_Parser::isInlineDictionary(ISource &source) {
+bool Default_Parser::isInlineDictionary(ISource& source) {
   return source.current() == kLeftCurlyBrace;
 }
 /// <summary>
@@ -212,7 +209,7 @@ bool Default_Parser::isInlineDictionary(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an inline array or dictionary has been found.</returns>
-bool Default_Parser::isInlineCollection(ISource &source) {
+bool Default_Parser::isInlineCollection(ISource& source) {
   return isInlineDictionary(source) || isInlineArray(source);
 }
 /// <summary>
@@ -224,29 +221,29 @@ bool Default_Parser::isInlineCollection(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a mapping has been found.</returns>
-bool Default_Parser::isMapping(ISource &source) {
+bool Default_Parser::isMapping(ISource& source) {
   if (source.current() != '?') {
     return false;
   }
   SourceGuard guard(source);
-  source.next(); // peek at char after '?'
+  source.next();  // peek at char after '?'
   // YAML 1.2 §6.1: block indentation must use spaces, not tabs.
   // A tab immediately after '?' uses a tab as the block-structure separator.
   if (source.more() && source.current() == '\t') {
-    YAML_THROW_POS(source, "Tab used as block structure separator after '?' explicit mapping key "
-        "indicator; block indentation must use spaces, not tabs "
-        "(YAML 1.2 \xc2\xa7"
-        "6.1).");
+    YAML_THROW_POS(source,
+                   "Tab used as block structure separator after '?' explicit mapping key "
+                   "indicator; block indentation must use spaces, not tabs "
+                   "(YAML 1.2 \xc2\xa7"
+                   "6.1).");
   }
-  return !source.more() || source.current() == kSpace ||
-         source.current() == kLineFeed;
+  return !source.more() || source.current() == kSpace || source.current() == kLineFeed;
 }
 /// <summary>
 /// Has a dictionary been found on the source stream?
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a dictionary has been found.</returns>
-bool Default_Parser::isDictionary(ISource &source) {
+bool Default_Parser::isDictionary(ISource& source) {
   // If the source starts with '*', extract the alias name using alias-name
   // rules (colon is valid in an anchor/alias name, it is NOT a delimiter).
   // When the extracted name ends with ':' and matches a known anchor, the
@@ -258,11 +255,9 @@ bool Default_Parser::isDictionary(ISource &source) {
   if (source.current() == '*') {
     SourceGuard guard(source);
     source.next();
-    const Delimiters aliasStop{kLineFeed, kSpace, kComma, kRightSquareBracket,
-                               kRightCurlyBrace};
+    const Delimiters aliasStop{kLineFeed, kSpace, kComma, kRightSquareBracket, kRightCurlyBrace};
     const std::string aliasName = extractToNext(source, aliasStop);
-    if (!aliasName.empty() && aliasName.back() == kColon &&
-        ctx_.yamlAliasMap.count(aliasName)) {
+    if (!aliasName.empty() && aliasName.back() == kColon && ctx_.yamlAliasMap.count(aliasName)) {
       return false;
     }
   }
@@ -273,7 +268,7 @@ bool Default_Parser::isDictionary(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true,a start of document has been found.</returns>
-bool Default_Parser::matchesMarker(ISource &source, const char *marker) {
+bool Default_Parser::matchesMarker(ISource& source, const char* marker) {
   SourceGuard guard(source);
   return source.match(marker);
 }
@@ -282,7 +277,7 @@ bool Default_Parser::matchesMarker(ISource &source, const char *marker) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true,a start of document has been found.</returns>
-bool Default_Parser::isDocumentStart(ISource &source) {
+bool Default_Parser::isDocumentStart(ISource& source) {
   return matchesMarker(source, kStartDocument);
 }
 /// <summary>
@@ -290,13 +285,13 @@ bool Default_Parser::isDocumentStart(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, an end document has been found.</returns>
-bool Default_Parser::isDocumentEnd(ISource &source) {
+bool Default_Parser::isDocumentEnd(ISource& source) {
   return matchesMarker(source, kEndDocument);
 }
 /// <summary>
 /// Function header.
 /// </summary>
-bool Default_Parser::isDocumentBoundary(ISource &source) {
+bool Default_Parser::isDocumentBoundary(ISource& source) {
   return isDocumentStart(source) || isDocumentEnd(source);
 }
 /// <summary>
@@ -304,7 +299,7 @@ bool Default_Parser::isDocumentBoundary(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>True</returns>
-bool Default_Parser::isDefault([[maybe_unused]] ISource &source) {
+bool Default_Parser::isDefault([[maybe_unused]] ISource& source) {
   return true;
 }
 
@@ -313,8 +308,8 @@ bool Default_Parser::isDefault([[maybe_unused]] ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>If true, a directive line has been found.</returns>
-bool Default_Parser::isDirective(ISource &source) {
+bool Default_Parser::isDirective(ISource& source) {
   return source.current() == '%';
 }
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

@@ -15,12 +15,12 @@ struct Number;
  * to construct Node instances via abstraction rather than depending on concrete Node types.
  */
 class INodeFactory {
-public:
+ public:
   YAML_MAKE_ERROR(Error, "INodeFactory Error");
   virtual ~INodeFactory() = default;
 
   [[nodiscard]] virtual Node createString(std::string_view value) const = 0;
-  [[nodiscard]] virtual Node createNumber(const Number &value) const = 0;
+  [[nodiscard]] virtual Node createNumber(const Number& value) const = 0;
   [[nodiscard]] virtual Node createNumber(std::string_view value) const = 0;
   [[nodiscard]] virtual Node createBoolean(bool value, std::string_view representation) const = 0;
   [[nodiscard]] virtual Node createNull() const = 0;
@@ -32,4 +32,4 @@ public:
   [[nodiscard]] virtual Node createComment(std::string_view value) const = 0;
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

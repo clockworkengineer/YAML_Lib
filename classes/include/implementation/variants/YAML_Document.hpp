@@ -7,4 +7,4 @@ struct Document final : SequenceBase<Document> {
   [[nodiscard]] std::string toKey() const { return ""; }
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

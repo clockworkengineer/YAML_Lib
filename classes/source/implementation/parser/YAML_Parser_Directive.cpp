@@ -17,26 +17,25 @@ namespace YAML_Lib {
 /// (<<: [*a, *b, ...]) where earlier entries in the sequence have higher
 /// priority (first definition wins).
 /// </summary>
-Node Default_Parser::mergeOverrides(Node &overrideRoot) {
-  if (isA<Dictionary>(overrideRoot) &&
-      NRef<Dictionary>(overrideRoot).contains(kOverride)) {
-    auto &dictionary = NRef<Dictionary>(overrideRoot);
+Node Default_Parser::mergeOverrides(Node& overrideRoot) {
+  if (isA<Dictionary>(overrideRoot) && NRef<Dictionary>(overrideRoot).contains(kOverride)) {
+    auto& dictionary = NRef<Dictionary>(overrideRoot);
     // Collect explicit (non-override) keys for later merging.
     std::set<std::string> overrideKeys;
-    for (auto &entry : dictionary.value()) {
+    for (auto& entry : dictionary.value()) {
       if (entry.getKey() != kOverride) {
         overrideKeys.insert(std::string(entry.getKey()));
       }
     }
     // Apply explicit outer keys on top of a base dictionary (shared by both
     // single-alias and multi-alias branches).
-    const auto applyOuter = [&](Dictionary &base) {
-      for (auto &entry : overrideKeys) {
+    const auto applyOuter = [&](Dictionary& base) {
+      for (auto& entry : overrideKeys) {
         auto merged = mergeOverrides(dictionary[entry]);
         upsertDictEntry(base, entry, std::move(merged));
       }
     };
-    Node &overrideValue = dictionary[kOverride];
+    Node& overrideValue = dictionary[kOverride];
     if (isA<Dictionary>(overrideValue)) {
       // Single-alias merge: <<: *alias
       applyOuter(NRef<Dictionary>(overrideValue));
@@ -46,13 +45,12 @@ Node Default_Parser::mergeOverrides(Node &overrideRoot) {
       // Multi-alias merge: <<: [*a, *b, ...]
       // Earlier entries in the sequence have higher priority (first wins).
       auto mergedBase = Node::make<Dictionary>();
-      auto &mergedDict = NRef<Dictionary>(mergedBase);
-      for (auto &element : NRef<Array>(overrideValue).value()) {
+      auto& mergedDict = NRef<Dictionary>(mergedBase);
+      for (auto& element : NRef<Array>(overrideValue).value()) {
         if (!isA<Dictionary>(element)) {
-          YAML_THROW(SyntaxError, 
-              "Merge key '<<' sequence must contain only mappings.");
+          YAML_THROW(SyntaxError, "Merge key '<<' sequence must contain only mappings.");
         }
-        for (auto &entry : NRef<Dictionary>(element).value()) {
+        for (auto& entry : NRef<Dictionary>(element).value()) {
           const std::string key{entry.getKey()};
           if (!mergedDict.contains(key)) {
             mergedDict.add(DictionaryEntry(key, std::move(entry.getNode())));
@@ -73,8 +71,7 @@ Node Default_Parser::mergeOverrides(Node &overrideRoot) {
 /// <param name="name">Alias name to resolve.</param>
 /// <param name="source">Source stream (used only for error position).</param>
 /// <returns>Reference to the stored unparsed alias value.</returns>
-const std::string &Default_Parser::resolveAlias(const std::string &name,
-                                                ISource &source) {
+const std::string& Default_Parser::resolveAlias(const std::string& name, ISource& source) {
   const auto aliasIt = ctx_.yamlAliasMap.find(name);
   if (aliasIt == ctx_.yamlAliasMap.end()) {
     YAML_THROW_POS(source, "Undefined alias '" + name + "'.");
@@ -87,8 +84,7 @@ const std::string &Default_Parser::resolveAlias(const std::string &name,
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiters used to parse comment.</param>
 /// <returns>Comment Node.</returns>
-Node Default_Parser::parseComment(
-    ISource &source, [[maybe_unused]] const Delimiters &delimiters) {
+Node Default_Parser::parseComment(ISource& source, [[maybe_unused]] const Delimiters& delimiters) {
   source.next();
   std::string comment{extractToNext(source, {kLineFeed})};
   if (source.more()) {
@@ -104,19 +100,19 @@ Node Default_Parser::parseComment(
 /// <param name="delimiters">Delimiters used to parse anchor.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Anchor Node.</returns>
-Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
+Node Default_Parser::parseAnchor(ISource& source, const Delimiters& delimiters,
                                  const unsigned long indentation) {
   source.next();
   const std::string name{extractToNext(source, {kLineFeed, kSpace})};
   source.ignoreWS();
-  const auto isStandaloneTagToken = [](const std::string &text) {
+  const auto isStandaloneTagToken = [](const std::string& text) {
     const auto first = text.find_first_not_of(" \t");
     if (first == std::string::npos || text[first] != '!') {
       return false;
     }
     return text.find_first_of(" \t", first) == std::string::npos;
   };
-  const auto isStandaloneFlowCollectionStart = [](const std::string &text) {
+  const auto isStandaloneFlowCollectionStart = [](const std::string& text) {
     const auto first = text.find_first_not_of(" \t");
     if (first == std::string::npos) {
       return false;
@@ -127,7 +123,7 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
     }
     return text.find_first_not_of(" \t", first + 1) == std::string::npos;
   };
-  const auto closingFlowCollectionChar = [](const std::string &text) {
+  const auto closingFlowCollectionChar = [](const std::string& text) {
     const auto first = text.find_first_not_of(" \t");
     if (first == std::string::npos) {
       return '\0';
@@ -147,8 +143,7 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
     const auto inlineStop = withExtras(delimiters, {kLineFeed});
     unparsed += extractToNext(source, inlineStop);
     moveToNextIndent(source);
-    if ((isStandaloneTagToken(unparsed) ||
-         isStandaloneFlowCollectionStart(unparsed)) &&
+    if ((isStandaloneTagToken(unparsed) || isStandaloneFlowCollectionStart(unparsed)) &&
         source.more() && source.getPosition().second > indentation) {
       unparsed += kLineFeed;
       unparsed += captureIndentedBlock(source, source.getPosition().second);
@@ -166,8 +161,7 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
     // Usually the anchor value must be more indented than the parent.
     // Exception: a zero-indented block sequence value may start at the same
     // column as the parent mapping key (e.g. SKE5).
-    if (anchorIndent > indentation ||
-        (anchorIndent == indentation && isArray(source))) {
+    if (anchorIndent > indentation || (anchorIndent == indentation && isArray(source))) {
       unparsed = captureIndentedBlock(source, anchorIndent);
     }
   }
@@ -187,12 +181,11 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
   {
     const auto firstContent = unparsed.find_first_not_of(" \t\n\r");
     if (firstContent != std::string::npos) {
-      if (inlineValue && unparsed[firstContent] == '-' &&
-          firstContent + 1 < unparsed.size() &&
-          (unparsed[firstContent + 1] == ' ' ||
-           unparsed[firstContent + 1] == '\t')) {
-        YAML_THROW_POS(source, "Anchor may not precede a block sequence entry on "
-                          "the same line.");
+      if (inlineValue && unparsed[firstContent] == '-' && firstContent + 1 < unparsed.size() &&
+          (unparsed[firstContent + 1] == ' ' || unparsed[firstContent + 1] == '\t')) {
+        YAML_THROW_POS(source,
+                       "Anchor may not precede a block sequence entry on "
+                       "the same line.");
       }
       if (inlineValue && unparsed[firstContent] == '*') {
         YAML_THROW_POS(source, "Alias nodes may not have anchor properties.");
@@ -205,9 +198,10 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
         // node.
         BufferSource tmpSrc{unparsed};
         if (!isDictionary(tmpSrc) && !isArray(tmpSrc)) {
-          YAML_THROW_POS(source, "A node may have at most one anchor property; two anchors found "
-              "on the same node (YAML 1.2 \xc2\xa7"
-              "3.2.3).");
+          YAML_THROW_POS(source,
+                         "A node may have at most one anchor property; two anchors found "
+                         "on the same node (YAML 1.2 \xc2\xa7"
+                         "3.2.3).");
         }
       }
     }
@@ -229,12 +223,11 @@ Node Default_Parser::parseAnchor(ISource &source, const Delimiters &delimiters,
 /// <param name="delimiters">Delimiters used to parse alias.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Alias anchor.</returns>
-Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
+Node Default_Parser::parseAlias(ISource& source, const Delimiters& delimiters,
                                 const unsigned long indentation) {
-  source.next(); // consume '*'
+  source.next();  // consume '*'
   // Stop alias-name extraction at flow separators as well as space/linefeed.
-  Delimiters nameDelimiters{kLineFeed, kSpace, kComma, kRightSquareBracket,
-                            kRightCurlyBrace};
+  Delimiters nameDelimiters{kLineFeed, kSpace, kComma, kRightSquareBracket, kRightCurlyBrace};
   const std::string name{extractToNext(source, nameDelimiters)};
   // Advance past trailing spaces; consume a terminating linefeed in block
   // context only (flow terminators such as ',' or ']' must not be consumed).
@@ -248,16 +241,16 @@ Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
   if (maxAliasExpansions != 0 && ++aliasExpansionCount > maxAliasExpansions) {
     YAML_THROW_POS(source, "YAML alias expansion limit exceeded.");
   }
-  const std::string &unparsed = resolveAlias(name, source);
+  const std::string& unparsed = resolveAlias(name, source);
   if (unparsed.empty()) {
     return Node::make<Null>();
   }
   ctx_.activeAliasExpansions.insert(name);
-  auto &activeExps = ctx_.activeAliasExpansions;
+  auto& activeExps = ctx_.activeAliasExpansions;
   struct AliasGuard {
-    ParseContext::AliasSet &set_;
-    const std::string &name_;
-    AliasGuard(ParseContext::AliasSet &s, const std::string &n) : set_(s), name_(n) {}
+    ParseContext::AliasSet& set_;
+    const std::string& name_;
+    AliasGuard(ParseContext::AliasSet& s, const std::string& n) : set_(s), name_(n) {}
     ~AliasGuard() { set_.erase(name_); }
   } aliasGuard{activeExps, name};
   return parseFromBuffer(unparsed, delimiters, indentation);
@@ -269,8 +262,7 @@ Node Default_Parser::parseAlias(ISource &source, const Delimiters &delimiters,
 /// <param name="delimiters">Delimiters used to parse alias.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Alias anchor with overrides.</returns>
-Node Default_Parser::parseOverride(ISource &source,
-                                   const Delimiters &delimiters,
+Node Default_Parser::parseOverride(ISource& source, const Delimiters& delimiters,
                                    const unsigned long indentation) {
   [[maybe_unused]] const bool consumed = source.match("<<:");
   source.ignoreWS();
@@ -286,20 +278,19 @@ Node Default_Parser::parseOverride(ISource &source,
   if (maxAliasExpansions != 0 && ++aliasExpansionCount > maxAliasExpansions) {
     YAML_THROW_POS(source, "YAML alias expansion limit exceeded.");
   }
-  const std::string &unparsed = resolveAlias(name, source);
+  const std::string& unparsed = resolveAlias(name, source);
   if (unparsed.empty()) {
     return Node::make<Null>();
   }
   ctx_.activeAliasExpansions.insert(name);
-  auto &activeExps = ctx_.activeAliasExpansions;
+  auto& activeExps = ctx_.activeAliasExpansions;
   struct AliasGuard {
-    ParseContext::AliasSet &set_;
-    const std::string &name_;
-    AliasGuard(ParseContext::AliasSet &s, const std::string &n)
-        : set_(s), name_(n) {}
+    ParseContext::AliasSet& set_;
+    const std::string& name_;
+    AliasGuard(ParseContext::AliasSet& s, const std::string& n) : set_(s), name_(n) {}
     ~AliasGuard() { set_.erase(name_); }
   } aliasGuard{activeExps, name};
   return parseFromBuffer(unparsed, delimiters, indentation);
 }
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

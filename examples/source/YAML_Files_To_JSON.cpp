@@ -13,24 +13,22 @@
 
 namespace yl = YAML_Lib;
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
-    try {
-        const yl::YAML yaml(yl::makeStringify<yl::JSON_Stringify>());
-        // Initialise logging.
-                std::cout << "YAML_Files_To_YAML started ...";
-        std::cout << YAML_Lib::YAML::version();
-        for (const auto &yamlFileName : Utility::createYAMLFileList()) {
-            yaml.parse(yl::FileSource(yamlFileName));
-            yaml.stringify(yl::FileDestination(
-                Utility::createFileName(yamlFileName, ".json")));
-            std::cout << "Created file "
-                      << Utility::createFileName(yamlFileName, ".json") << " from "
-                      << yamlFileName;
-            yaml.parse(yl::FileSource(Utility::createFileName(yamlFileName, ".json")));
-        }
-    } catch (const std::exception &ex) {
-        std::cerr << "Error Processing File: [" << ex.what() << "]\n";
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
+  try {
+    const yl::YAML yaml(yl::makeStringify<yl::JSON_Stringify>());
+    // Initialise logging.
+    std::cout << "YAML_Files_To_YAML started ...";
+    std::cout << YAML_Lib::YAML::version();
+    for (const auto& yamlFileName : Utility::createYAMLFileList()) {
+      yaml.parse(yl::FileSource(yamlFileName));
+      yaml.stringify(yl::FileDestination(Utility::createFileName(yamlFileName, ".json")));
+      std::cout << "Created file " << Utility::createFileName(yamlFileName, ".json") << " from "
+                << yamlFileName;
+      yaml.parse(yl::FileSource(Utility::createFileName(yamlFileName, ".json")));
     }
-    std::cout << "YAML_Files_To_YAML exited.";
-    exit(EXIT_SUCCESS);
+  } catch (const std::exception& ex) {
+    std::cerr << "Error Processing File: [" << ex.what() << "]\n";
+  }
+  std::cout << "YAML_Files_To_YAML exited.";
+  exit(EXIT_SUCCESS);
 }

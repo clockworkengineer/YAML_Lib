@@ -26,7 +26,7 @@ namespace {
 /// Split a test-suite metadata file into per-subtest item strings.
 /// Each top-level YAML sequence item ("- " at column 0) becomes one entry.
 /// Document markers ("---" / "...") are skipped.
-std::vector<std::string> splitTestItems(const std::string &fileContent) {
+std::vector<std::string> splitTestItems(const std::string& fileContent) {
   std::vector<std::string> items;
   std::string current;
   std::istringstream ss(fileContent);
@@ -67,39 +67,33 @@ std::vector<std::string> splitTestItems(const std::string &fileContent) {
 ///   EM-DASHes* + » (U+00BB) — hard tab: any number of EM-DASHes followed by »
 static std::string decodeDisplayChars(std::string s) {
   using sz = std::string::size_type;
-  const std::string em = "\xe2\x80\x94"; // — U+2014 EM DASH (3 bytes)
-  const std::string raq = "\xc2\xbb";    // » U+00BB (2 bytes)
+  const std::string em = "\xe2\x80\x94";  // — U+2014 EM DASH (3 bytes)
+  const std::string raq = "\xc2\xbb";     // » U+00BB (2 bytes)
   // Tab sequences: greedily match any number of EM-DASHes (≥0) followed by »
   // and replace with a single TAB.  The greedy scan handles 4+ EM-DASH cases
   // (e.g. DE56/2,3) that the old fixed-length approach missed.
   for (sz raqPos; (raqPos = s.find(raq)) != std::string::npos;) {
     sz emStart = raqPos;
-    while (emStart >= em.size() &&
-           s.substr(emStart - em.size(), em.size()) == em) {
+    while (emStart >= em.size() && s.substr(emStart - em.size(), em.size()) == em) {
       emStart -= em.size();
     }
     s.replace(emStart, raqPos - emStart + raq.size(), "\t");
   }
   // Trailing space indicator  ␣  U+2423 → ' '
-  for (sz p; (p = s.find("\xe2\x90\xa3")) != std::string::npos;)
-    s.replace(p, 3, " ");
+  for (sz p; (p = s.find("\xe2\x90\xa3")) != std::string::npos;) s.replace(p, 3, " ");
   // Trailing newline indicator  ↵  U+21B5 → remove (newline already in block)
-  for (sz p; (p = s.find("\xe2\x86\xb5")) != std::string::npos;)
-    s.erase(p, 3);
+  for (sz p; (p = s.find("\xe2\x86\xb5")) != std::string::npos;) s.erase(p, 3);
   // Carriage return  ←  U+2190 → \r
-  for (sz p; (p = s.find("\xe2\x86\x90")) != std::string::npos;)
-    s.replace(p, 3, "\r");
+  for (sz p; (p = s.find("\xe2\x86\x90")) != std::string::npos;) s.replace(p, 3, "\r");
   // BOM  ⇔  U+21D4 → UTF-8 BOM
-  for (sz p; (p = s.find("\xe2\x87\x94")) != std::string::npos;)
-    s.replace(p, 3, "\xef\xbb\xbf");
+  for (sz p; (p = s.find("\xe2\x87\x94")) != std::string::npos;) s.replace(p, 3, "\xef\xbb\xbf");
   // No-final-newline indicator  ∎  U+220E: strip it and the trailing \n it
   // replaces
   const std::string endMark = "\xe2\x88\x8e";
   sz pos = s.rfind(endMark);
   if (pos != std::string::npos) {
     s.erase(pos);
-    if (!s.empty() && s.back() == '\n')
-      s.pop_back();
+    if (!s.empty() && s.back() == '\n') s.pop_back();
   }
   return s;
 }
@@ -109,7 +103,7 @@ static std::string decodeDisplayChars(std::string s) {
 /// forms are supported — in both cases "yaml" starts at column 2.
 /// Visual display characters are decoded to their actual byte values.
 /// Returns nullopt if no 'yaml: |' field was found in the item.
-std::optional<std::string> extractYamlFromItem(const std::string &itemText) {
+std::optional<std::string> extractYamlFromItem(const std::string& itemText) {
   std::istringstream ss(itemText);
   std::string line;
   bool inBlock = false;
@@ -129,12 +123,10 @@ std::optional<std::string> extractYamlFromItem(const std::string &itemText) {
     } else {
       // Non-blank line with fewer than blockIndent leading spaces → end of
       // block
-      if (!line.empty() &&
-          (line.size() < blockIndent || line[blockIndent - 1] != ' ')) {
+      if (!line.empty() && (line.size() < blockIndent || line[blockIndent - 1] != ' ')) {
         break;
       }
-      result +=
-          (line.size() >= blockIndent ? line.substr(blockIndent) : "") + '\n';
+      result += (line.size() >= blockIndent ? line.substr(blockIndent) : "") + '\n';
     }
   }
   if (!found) {
@@ -144,41 +136,40 @@ std::optional<std::string> extractYamlFromItem(const std::string &itemText) {
 }
 
 /// Return true if the test item is marked as expected-fail.
-bool itemIsFail(const std::string &itemText) {
+bool itemIsFail(const std::string& itemText) {
   return itemText.find("fail: true") != std::string::npos;
 }
 
-} // namespace
+}  // namespace
 
-TEST_CASE("YAML test-suite — valid documents parse without error.",
-          "[YAML][TestSuite][Valid]") {
+TEST_CASE("YAML test-suite — valid documents parse without error.", "[YAML][TestSuite][Valid]") {
   const YAML yaml;
 
   // 229Q — Spec Example 2.4. Sequence of Mappings
   SECTION("229Q: sequence of mappings.", "[YAML][TestSuite][Valid]") {
-    BufferSource source{"-\n"
-                        "  name: Mark McGwire\n"
-                        "  hr:   65\n"
-                        "  avg:  0.278\n"
-                        "-\n"
-                        "  name: Sammy Sosa\n"
-                        "  hr:   63\n"
-                        "  avg:  0.288\n"};
+    BufferSource source{
+        "-\n"
+        "  name: Mark McGwire\n"
+        "  hr:   65\n"
+        "  avg:  0.278\n"
+        "-\n"
+        "  name: Sammy Sosa\n"
+        "  hr:   63\n"
+        "  avg:  0.288\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 2);
-    REQUIRE(NRef<String>(yaml.document(0)[0]["name"]).value() ==
-            "Mark McGwire");
+    REQUIRE(NRef<String>(yaml.document(0)[0]["name"]).value() == "Mark McGwire");
     REQUIRE(NRef<Number>(yaml.document(0)[0]["hr"]).value<int>() == 65);
   }
 
   // 2AUY — Tags in Block Sequence
-  SECTION("2AUY: !!str and !!int tags in block sequence.",
-          "[YAML][TestSuite][Valid]") {
-    BufferSource source{"- !!str a\n"
-                        "- b\n"
-                        "- !!int 42\n"
-                        "- d\n"};
+  SECTION("2AUY: !!str and !!int tags in block sequence.", "[YAML][TestSuite][Valid]") {
+    BufferSource source{
+        "- !!str a\n"
+        "- b\n"
+        "- !!int 42\n"
+        "- d\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(isA<String>(yaml.document(0)[0]));
@@ -189,8 +180,7 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // 4GC6 — Spec Example 7.7. Single Quoted Characters
-  SECTION("4GC6: single-quoted string with embedded single quote.",
-          "[YAML][TestSuite][Valid]") {
+  SECTION("4GC6: single-quoted string with embedded single quote.", "[YAML][TestSuite][Valid]") {
     BufferSource source{"'here''s to \"quotes\"'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
@@ -198,10 +188,10 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // 5C5M — Spec Example 7.15. Flow Mappings (trailing comma)
-  SECTION("5C5M: flow mappings with trailing comma.",
-          "[YAML][TestSuite][Valid]") {
-    BufferSource source{"- { one : two , three: four , }\n"
-                        "- {five: six,seven : eight}\n"};
+  SECTION("5C5M: flow mappings with trailing comma.", "[YAML][TestSuite][Valid]") {
+    BufferSource source{
+        "- { one : two , three: four , }\n"
+        "- {five: six,seven : eight}\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 2);
@@ -211,12 +201,12 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // 5TYM — Spec Example 6.21. Local Tag Prefix (!m! handle)
-  SECTION("5TYM: local tag prefix !m! expands to !my-.",
-          "[YAML][TestSuite][Valid]") {
+  SECTION("5TYM: local tag prefix !m! expands to !my-.", "[YAML][TestSuite][Valid]") {
     // Single-document form: %TAG !m! registers !m! as a named handle.
-    BufferSource source{"%TAG !m! !my-\n"
-                        "---\n"
-                        "!m!light fluorescent\n"};
+    BufferSource source{
+        "%TAG !m! !my-\n"
+        "---\n"
+        "!m!light fluorescent\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE(yaml.document(0).getTag() == "!my-light");
@@ -224,14 +214,14 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // 6LVF — Spec Example 6.13. Reserved Directives (ignored)
-  SECTION("6LVF: unknown %FOO directive is silently ignored.",
-          "[YAML][TestSuite][Valid]") {
+  SECTION("6LVF: unknown %FOO directive is silently ignored.", "[YAML][TestSuite][Valid]") {
     // The parser ignores unknown directives.  The following --- on its own
     // line then starts a document with a quoted string value.
-    BufferSource source{"%FOO  bar baz # Should be ignored\n"
-                        "              # with a warning.\n"
-                        "---\n"
-                        "\"foo\"\n"};
+    BufferSource source{
+        "%FOO  bar baz # Should be ignored\n"
+        "              # with a warning.\n"
+        "---\n"
+        "\"foo\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() == "foo");
@@ -239,10 +229,11 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
 
   // 26DV — Alias and mapping (whitespace)
   SECTION("26DV: alias in mapping.", "[YAML][TestSuite][Valid]") {
-    BufferSource source{"---\n"
-                        "- &a\n"
-                        "  key: value\n"
-                        "- *a\n"};
+    BufferSource source{
+        "---\n"
+        "- &a\n"
+        "  key: value\n"
+        "- *a\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 2);
@@ -255,25 +246,25 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
           "[YAML][TestSuite][Valid]") {
     // "?foo" (no space after ?) is a plain scalar key, NOT an explicit key.
     // ":foo" and "-foo" are similarly treated as plain scalar keys.
-    BufferSource source{"?foo: safe question mark\n"
-                        ":foo: safe colon\n"
-                        "-foo: safe dash\n"};
+    BufferSource source{
+        "?foo: safe question mark\n"
+        ":foo: safe colon\n"
+        "-foo: safe dash\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<Dictionary>(yaml.document(0)).contains("?foo"));
     REQUIRE(NRef<Dictionary>(yaml.document(0)).contains(":foo"));
     REQUIRE(NRef<Dictionary>(yaml.document(0)).contains("-foo"));
-    REQUIRE(NRef<String>(yaml.document(0)["?foo"]).value() ==
-            "safe question mark");
+    REQUIRE(NRef<String>(yaml.document(0)["?foo"]).value() == "safe question mark");
   }
 
   // 2XXW — Spec Example 2.25. Unordered Sets (explicit ? keys)
-  SECTION("2XXW: explicit ? keys with null value (YAML set).",
-          "[YAML][TestSuite][Valid]") {
-    BufferSource source{"--- !!set\n"
-                        "? Mark McGwire\n"
-                        "? Sammy Sosa\n"
-                        "? Ken Griff\n"};
+  SECTION("2XXW: explicit ? keys with null value (YAML set).", "[YAML][TestSuite][Valid]") {
+    BufferSource source{
+        "--- !!set\n"
+        "? Mark McGwire\n"
+        "? Sammy Sosa\n"
+        "? Ken Griff\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<Dictionary>(yaml.document(0)).size() == 3);
@@ -281,11 +272,11 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // 35KP — Tags on root objects + explicit ? key: value
-  SECTION("35KP: explicit ? a : b with !!map tag.",
-          "[YAML][TestSuite][Valid]") {
-    BufferSource source{"--- !!map\n"
-                        "? a\n"
-                        ": b\n"};
+  SECTION("35KP: explicit ? a : b with !!map tag.", "[YAML][TestSuite][Valid]") {
+    BufferSource source{
+        "--- !!map\n"
+        "? a\n"
+        ": b\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<Dictionary>(yaml.document(0)).contains("a"));
@@ -294,9 +285,10 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
 
   // S4JQ — Spec Example 6.28. Non-Specific Tags
   SECTION("S4JQ: non-specific ! tag on a scalar.", "[YAML][TestSuite][Valid]") {
-    BufferSource source{"- \"12\"\n"
-                        "- 12\n"
-                        "- ! 12\n"};
+    BufferSource source{
+        "- \"12\"\n"
+        "- 12\n"
+        "- ! 12\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 3);
@@ -307,11 +299,11 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // P94K — Spec Example 6.11. Multi-Line Comments
-  SECTION("P94K: multi-line comment between key and value.",
-          "[YAML][TestSuite][Valid]") {
-    BufferSource source{"key:    # Comment\n"
-                        "        # lines\n"
-                        "  value\n"};
+  SECTION("P94K: multi-line comment between key and value.", "[YAML][TestSuite][Valid]") {
+    BufferSource source{
+        "key:    # Comment\n"
+        "        # lines\n"
+        "  value\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)["key"]).value() == "value");
@@ -347,9 +339,10 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // DE56/2 — trailing \<TAB> at end of line in double-quoted string
-  SECTION("DE56/2: backslash-TAB at end of continuation line does not get "
-          "stripped.",
-          "[YAML][TestSuite][Valid]") {
+  SECTION(
+      "DE56/2: backslash-TAB at end of continuation line does not get "
+      "stripped.",
+      "[YAML][TestSuite][Valid]") {
     // "3 trailing\<TAB>\n    tab" → value "3 trailing" + TAB + " tab"
     // The \<TAB> escape must survive the line-folding whitespace stripping.
     BufferSource source{"\"3 trailing\\\t\n    tab\"\n"};
@@ -382,9 +375,10 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // 96NN/1 — Same as 96NN/0 but no trailing newline
-  SECTION("96NN/1: tab as first content in literal block scalar, no trailing "
-          "newline.",
-          "[YAML][TestSuite][Valid]") {
+  SECTION(
+      "96NN/1: tab as first content in literal block scalar, no trailing "
+      "newline.",
+      "[YAML][TestSuite][Valid]") {
     BufferSource source{"foo: |-\n \tbar"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
@@ -417,7 +411,7 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
 
   // DK95/5 — Space + tab on blank line between two top-level keys
   SECTION("DK95/5: space then tab on blank separator line does not throw.",
-          "[YAML][TestSuite][Valid]") { // foo: 1\n \t\nbar: 2 → foo=1, bar=2
+          "[YAML][TestSuite][Valid]") {  // foo: 1\n \t\nbar: 2 → foo=1, bar=2
     // A blank line containing only space+tab is not pure-tab indentation.
     BufferSource source{"foo: 1\n \t\nbar: 2\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -427,9 +421,10 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // KH5V/1 — Backslash + literal tab inline in double-quoted string
-  SECTION("KH5V/1: backslash followed by literal tab inline in double-quoted "
-          "string.",
-          "[YAML][TestSuite][Valid]") {
+  SECTION(
+      "KH5V/1: backslash followed by literal tab inline in double-quoted "
+      "string.",
+      "[YAML][TestSuite][Valid]") {
     // "2 inline\<TAB>tab" — YAML 1.2 §7.3.1: \<TAB> (backslash + U+0009) is
     // a valid single-char escape equivalent to \t (horizontal tab).
     BufferSource source{std::string("\"2 inline\\") + "\ttab\"\n"};
@@ -439,8 +434,7 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // MUS6/6 — Unknown directive %YAMLL (looks like YAML but is not)
-  SECTION("MUS6/6: %YAMLL directive is unknown and silently ignored.",
-          "[YAML][TestSuite][Valid]") {
+  SECTION("MUS6/6: %YAMLL directive is unknown and silently ignored.", "[YAML][TestSuite][Valid]") {
     // %YAMLL is not %YAML — the name has extra characters.  It is an
     // unknown/reserved directive and must be silently ignored; the document
     // that follows ('---') should parse successfully as a null document.
@@ -450,9 +444,10 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // VJP3/1 — Multi-line flow mapping with proper indentation
-  SECTION("VJP3/1: flow mapping spanning multiple lines with indented content "
-          "parses correctly.",
-          "[YAML][TestSuite][Valid]") {
+  SECTION(
+      "VJP3/1: flow mapping spanning multiple lines with indented content "
+      "parses correctly.",
+      "[YAML][TestSuite][Valid]") {
     // k: {\n k\n :\n v\n }
     // The inner flow mapping spans multiple lines; key 'k' and value 'v' are
     // each on their own line at indentation 2 (more than the outer mapping's
@@ -465,9 +460,10 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // Y79Y/1 — Block scalar with space+tab content line
-  SECTION("Y79Y/1: block scalar with space-then-tab content line parses "
-          "correctly.",
-          "[YAML][TestSuite][Valid]") {
+  SECTION(
+      "Y79Y/1: block scalar with space-then-tab content line parses "
+      "correctly.",
+      "[YAML][TestSuite][Valid]") {
     // foo: |\n \t\nbar: 1 — the content line has 1 leading space (sets
     // blockIndent=2) then a tab.  Block indentation is 2 > parent indent 1,
     // so this is valid.  foo maps to "\t" (library clips trailing newline),
@@ -494,14 +490,14 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // 2SXE — Anchors With Colon in Name
-  SECTION("2SXE: anchor and alias names that contain a colon.",
-          "[YAML][TestSuite][Valid]") {
+  SECTION("2SXE: anchor and alias names that contain a colon.", "[YAML][TestSuite][Valid]") {
     // Anchor name "a:" (colon is valid in an anchor name).
     // Line 1: key "key" anchored as &a:, value "value" anchored as &a.
     // Line 3: alias *a: resolves to "key".
-    BufferSource source{"&a: key: &a value\n"
-                        "foo:\n"
-                        "  *a:\n"};
+    BufferSource source{
+        "&a: key: &a value\n"
+        "foo:\n"
+        "  *a:\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<Dictionary>(yaml.document(0)).size() == 2);
@@ -510,21 +506,20 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 
   // CQ3W — Double quoted string without closing quote (should throw)
-  SECTION("CQ3W: double quoted string without closing quote.",
-          "[YAML][TestSuite][Invalid]") {
+  SECTION("CQ3W: double quoted string without closing quote.", "[YAML][TestSuite][Invalid]") {
     BufferSource source{"---\nkey: \"missing closing quote\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
   // CN3R — Various location of anchors in flow sequence
-  SECTION("CN3R: various anchor locations in flow sequence.",
-          "[YAML][TestSuite][Valid]") {
-    BufferSource source{"&flowseq [\n"
-                        " a: b,\n"
-                        " &c c: d,\n"
-                        " { &e e: f },\n"
-                        " &g { g: h }\n"
-                        "]\n"};
+  SECTION("CN3R: various anchor locations in flow sequence.", "[YAML][TestSuite][Valid]") {
+    BufferSource source{
+        "&flowseq [\n"
+        " a: b,\n"
+        " &c c: d,\n"
+        " { &e e: f },\n"
+        " &g { g: h }\n"
+        "]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 4);
@@ -556,13 +551,14 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   // JTV5 — Block Mapping with Multiline Scalars
   SECTION("JTV5: explicit block mapping with multiline scalar keys and values.",
           "[YAML][TestSuite][Valid]") {
-    BufferSource source{"? a\n"
-                        "  true\n"
-                        ": null\n"
-                        "  d\n"
-                        "?\n"
-                        "e\n"
-                        "  42\n"};
+    BufferSource source{
+        "? a\n"
+        "  true\n"
+        ": null\n"
+        "  d\n"
+        "?\n"
+        "e\n"
+        "  42\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<Dictionary>(yaml.document(0)).size() == 2);
@@ -572,8 +568,7 @@ TEST_CASE("YAML test-suite — valid documents parse without error.",
   }
 }
 
-TEST_CASE("YAML test-suite — invalid documents throw on parse.",
-          "[YAML][TestSuite][Invalid]") {
+TEST_CASE("YAML test-suite — invalid documents throw on parse.", "[YAML][TestSuite][Invalid]") {
   const YAML yaml;
 
   // Y79Y/0 — Tab-only line as first block scalar content with no space indent
@@ -588,13 +583,11 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
   }
 
   // 4JVG — Scalar value with two anchors
-  SECTION("4JVG: scalar with two anchor properties throws.",
-          "[YAML][TestSuite][Invalid]") {
+  SECTION("4JVG: scalar with two anchor properties throws.", "[YAML][TestSuite][Invalid]") {
     // top2: &node2\n  &v2 val2 — both &node2 and &v2 are anchor properties
     // on the same scalar node 'val2'.  YAML 1.2 §3.2.3: a node may have at
     // most one anchor property.
-    BufferSource source{
-        "top1: &node1\n  &k1 key1: val1\ntop2: &node2\n  &v2 val2\n"};
+    BufferSource source{"top1: &node1\n  &k1 key1: val1\ntop2: &node2\n  &v2 val2\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
@@ -609,9 +602,10 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
   }
 
   // 5LLU — Folded block scalar with over-indented whitespace-only lines
-  SECTION("5LLU: folded block scalar with blank lines having more leading "
-          "spaces than the block indent throws.",
-          "[YAML][TestSuite][Invalid]") {
+  SECTION(
+      "5LLU: folded block scalar with blank lines having more leading "
+      "spaces than the block indent throws.",
+      "[YAML][TestSuite][Invalid]") {
     // block scalar: >\n \n  \n   \n invalid
     // The block's indentation is 1 (first content " invalid" at column 2).
     // Blank lines must not have more leading spaces than the block indentation
@@ -622,9 +616,10 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
   }
 
   // 5TRB — Document-start marker inside double-quoted multi-line string
-  SECTION("5TRB: document-start marker at column 1 inside double-quoted "
-          "string throws.",
-          "[YAML][TestSuite][Invalid]") {
+  SECTION(
+      "5TRB: document-start marker at column 1 inside double-quoted "
+      "string throws.",
+      "[YAML][TestSuite][Invalid]") {
     // ---\n"\n---\n" — the second --- is a document-start marker at column 1
     // inside a double-quoted multi-line string.  YAML 1.2: '---' at the start
     // of a line terminates any preceding flow scalar; inside a double-quoted
@@ -634,19 +629,22 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
   }
 
   // JY7Z — Quoted scalar with trailing content that looks like a mapping
-  SECTION("JY7Z: quoted scalar with trailing content that looks like a "
-          "mapping throws.",
-          "[YAML][TestSuite][Invalid]") {
-    BufferSource source{"key1: \"quoted1\"\n"
-                        "key2: \"quoted2\" no key: nor value\n"
-                        "key3: \"quoted3\"\n"};
+  SECTION(
+      "JY7Z: quoted scalar with trailing content that looks like a "
+      "mapping throws.",
+      "[YAML][TestSuite][Invalid]") {
+    BufferSource source{
+        "key1: \"quoted1\"\n"
+        "key2: \"quoted2\" no key: nor value\n"
+        "key3: \"quoted3\"\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
   // 5U3A — Block sequence indicator on same line as mapping key
-  SECTION("5U3A: block sequence indicator '-' on same line as mapping key "
-          "value throws.",
-          "[YAML][TestSuite][Invalid]") {
+  SECTION(
+      "5U3A: block sequence indicator '-' on same line as mapping key "
+      "value throws.",
+      "[YAML][TestSuite][Invalid]") {
     // key: - a  /  key: - b — the '-' block sequence indicator follows the
     // implicit ':' separator on the same line.  YAML 1.2 §8.2.1: a block
     // sequence must start on its own line; using '-' inline here is invalid.
@@ -666,11 +664,12 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     //      : - one         (block sequence value)
     //        - two
     // The '?' + '|' + continuation lines form the key; ': - one' is the value.
-    BufferSource source{"? explicit key # Empty value\n"
-                        "? |\n"
-                        "  block key\n"
-                        ": - one # Explicit compact\n"
-                        "  - two # block value\n"};
+    BufferSource source{
+        "? explicit key # Empty value\n"
+        "? |\n"
+        "  block key\n"
+        ": - one # Explicit compact\n"
+        "  - two # block value\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<Dictionary>(yaml.document(0)).size() == 2);
@@ -684,15 +683,17 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
   // JKF3 — Multiline unindented double quoted block key
   SECTION("JKF3: multiline unindented double-quoted block key throws.",
           "[YAML][TestSuite][Invalid]") {
-    BufferSource source{"- - \"bar\n"
-                        "bar\": x\n"};
+    BufferSource source{
+        "- - \"bar\n"
+        "bar\": x\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
   // 565N — !!binary tagged double-quoted and literal block scalars
-  SECTION("565N: !!binary tag with double-quoted line-continuation and literal "
-          "block parses without error.",
-          "[YAML][TestSuite][Valid]") {
+  SECTION(
+      "565N: !!binary tag with double-quoted line-continuation and literal "
+      "block parses without error.",
+      "[YAML][TestSuite][Valid]") {
     // canonical uses !!binary with a double-quoted string whose source lines
     // are joined via YAML 1.2 §7.3.1 \<newline> continuation escapes.
     // generic uses !!binary with a literal block scalar (|).
@@ -730,40 +731,39 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
   }
 
   // 236B — Invalid value after mapping block
-  SECTION("236B: invalid content after block mapping value throws.",
-          "[YAML][TestSuite][Invalid]") {
-    BufferSource source{"foo:\n"
-                        "  bar\n"
-                        "invalid\n"};
+  SECTION("236B: invalid content after block mapping value throws.", "[YAML][TestSuite][Invalid]") {
+    BufferSource source{
+        "foo:\n"
+        "  bar\n"
+        "invalid\n"};
     REQUIRE_THROWS(yaml.parse(source));
   }
 
   // 6JTT — Unclosed flow sequence
-  SECTION("6JTT: unclosed flow sequence throws.",
-          "[YAML][TestSuite][Invalid]") {
+  SECTION("6JTT: unclosed flow sequence throws.", "[YAML][TestSuite][Invalid]") {
     BufferSource source{"---\n[ [ a, b, c ]\n"};
     REQUIRE_THROWS(yaml.parse(source));
   }
 
   // 2CMS — error mapping
-  SECTION("2CMS: mapping indentation error throws.",
-          "[YAML][TestSuite][Invalid]") {
-    BufferSource source{"- foo: bar\n"
-                        " baz: bat\n"};
+  SECTION("2CMS: mapping indentation error throws.", "[YAML][TestSuite][Invalid]") {
+    BufferSource source{
+        "- foo: bar\n"
+        " baz: bat\n"};
     REQUIRE_THROWS(yaml.parse(source));
   }
 
   // 3HFZ — Invalid content after document end marker
-  SECTION("3HFZ: content after document-end marker throws.",
-          "[YAML][TestSuite][Invalid]") {
+  SECTION("3HFZ: content after document-end marker throws.", "[YAML][TestSuite][Invalid]") {
     BufferSource source{"---\nkey: value\n... invalid\n"};
     REQUIRE_THROWS(yaml.parse(source));
   }
 
   // 9MQT/1 — '... x' inside a multi-line double-quoted scalar
-  SECTION("9MQT/1: document-end marker with trailing content inside "
-          "multi-line double-quoted string throws.",
-          "[YAML][TestSuite][Invalid]") {
+  SECTION(
+      "9MQT/1: document-end marker with trailing content inside "
+      "multi-line double-quoted string throws.",
+      "[YAML][TestSuite][Invalid]") {
     // '...x' (no space) is valid content of a quoted string (9MQT/0).
     // '... x' (space after ...) is a document-end marker followed by invalid
     // content — the 3HFZ rule applies even when parsing a flow scalar.
@@ -772,8 +772,7 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
   }
 
   // 2G84/0 — Literal block with zero indentation indicator
-  SECTION("2G84/0: literal block with explicit indent 0 throws.",
-          "[YAML][TestSuite][Invalid]") {
+  SECTION("2G84/0: literal block with explicit indent 0 throws.", "[YAML][TestSuite][Invalid]") {
     BufferSource source{"--- |0\n"};
     REQUIRE_THROWS(yaml.parse(source));
   }
@@ -798,8 +797,7 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
   }
 
   // Y79Y/4 — Block sequence indicator '-' with tab separator then bare '-'
-  SECTION("Y79Y/4: '-' followed by tab then bare '-' throws.",
-          "[YAML][TestSuite][Invalid]") {
+  SECTION("Y79Y/4: '-' followed by tab then bare '-' throws.", "[YAML][TestSuite][Invalid]") {
     // -\t\t\t\t- — the outer '-' is a block sequence indicator; the tabs are
     // the separator; the inner '-' (followed by newline) would itself be
     // another block sequence indicator whose indentation is tab-determined.
@@ -816,8 +814,7 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     BufferSource source{"- \t\t-\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
-  SECTION("Y79Y/6: '?' followed by tabs then bare '-' throws.",
-          "[YAML][TestSuite][Invalid]") {
+  SECTION("Y79Y/6: '?' followed by tabs then bare '-' throws.", "[YAML][TestSuite][Invalid]") {
     // ?\t\t\t\t- — '?' is the explicit mapping key indicator; the separator
     // run consists entirely of tabs; YAML 1.2 §6.1 forbids tabs in block
     // structure separators.
@@ -832,8 +829,7 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     BufferSource source{"? -\n:\t\t\t\t-\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
-  SECTION("Y79Y/8: '?' followed by tabs then 'key:' throws.",
-          "[YAML][TestSuite][Invalid]") {
+  SECTION("Y79Y/8: '?' followed by tabs then 'key:' throws.", "[YAML][TestSuite][Invalid]") {
     // ?\t\t\t\tkey: — '?' is the explicit mapping key indicator; tabs follow
     // immediately; same as Y79Y/6 but the content is a key rather than '-'.
     // YAML 1.2 §6.1: block structure separators must use spaces, not tabs.
@@ -861,10 +857,11 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
   }
 
   // U3XV — Node and Mapping Key Anchors
-  SECTION("U3XV: anchor on mapping node and anchor on mapping key are "
-          "distinct nodes; multiple anchor uses in one document parse without "
-          "error.",
-          "[YAML][TestSuite][Valid]") {
+  SECTION(
+      "U3XV: anchor on mapping node and anchor on mapping key are "
+      "distinct nodes; multiple anchor uses in one document parse without "
+      "error.",
+      "[YAML][TestSuite][Valid]") {
     // &node1/&node2/etc. anchor the mapping values; &k1/&k3/&k4 anchor the
     // mapping keys; &val6/&val7 anchor scalar values.  None of these anchor
     // the same node twice, so the YAML 1.2 §3.2.3 single-anchor-per-node
@@ -872,23 +869,24 @@ TEST_CASE("YAML test-suite — invalid documents throw on parse.",
     // (e.g. &node4 on one line, &k4 key4: four on the next) anchor different
     // nodes: the outer anchor anchors the mapping collection; the inner
     // anchor anchors the key scalar inside that mapping.
-    BufferSource source{"---\n"
-                        "top1: &node1\n"
-                        "  &k1 key1: one\n"
-                        "top2: &node2 # comment\n"
-                        "  key2: two\n"
-                        "top3:\n"
-                        "  &k3 key3: three\n"
-                        "top4:\n"
-                        "  &node4\n"
-                        "  &k4 key4: four\n"
-                        "top5:\n"
-                        "  &node5\n"
-                        "  key5: five\n"
-                        "top6: &val6\n"
-                        "  six\n"
-                        "top7:\n"
-                        "  &val7 seven\n"};
+    BufferSource source{
+        "---\n"
+        "top1: &node1\n"
+        "  &k1 key1: one\n"
+        "top2: &node2 # comment\n"
+        "  key2: two\n"
+        "top3:\n"
+        "  &k3 key3: three\n"
+        "top4:\n"
+        "  &node4\n"
+        "  &k4 key4: four\n"
+        "top5:\n"
+        "  &node5\n"
+        "  key5: five\n"
+        "top6: &val6\n"
+        "  six\n"
+        "top7:\n"
+        "  &val7 seven\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<Dictionary>(yaml.document(0)).size() == 7);
@@ -932,14 +930,13 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   // YAML_SUITE_SRC_DIR is injected as a compile definition by CMakeLists.txt
   const path suiteDir{YAML_SUITE_SRC_DIR};
   if (!is_directory(suiteDir)) {
-    WARN("YAML test-suite directory not found: " << suiteDir
-         << " — skipping suite sweep.");
+    WARN("YAML test-suite directory not found: " << suiteDir << " — skipping suite sweep.");
     return;
   }
 
   // Collect and sort all .yaml files for deterministic ordering
   std::vector<path> testFiles;
-  for (const auto &entry : directory_iterator(suiteDir)) {
+  for (const auto& entry : directory_iterator(suiteDir)) {
     if (entry.path().extension() == ".yaml") {
       testFiles.push_back(entry.path());
     }
@@ -947,7 +944,7 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
   std::sort(testFiles.begin(), testFiles.end());
   REQUIRE_FALSE(testFiles.empty());
 
-  for (const auto &fp : testFiles) {
+  for (const auto& fp : testFiles) {
     // Read the entire metadata file
     std::ifstream ifs(fp, std::ios::in | std::ios::binary);
     REQUIRE(ifs.is_open());
@@ -964,21 +961,18 @@ TEST_CASE("YAML test-suite — programmatic sweep of all suite files (gap 3.8)."
     for (std::size_t i = 0; i < items.size(); ++i) {
       const auto yamlOpt = extractYamlFromItem(items[i]);
       if (!yamlOpt.has_value()) {
-        WARN("Suite file " << fileId << " item " << i
-                           << ": no 'yaml:' field — skipped.");
+        WARN("Suite file " << fileId << " item " << i << ": no 'yaml:' field — skipped.");
         continue;
       }
 
       const bool expectFail = itemIsFail(items[i]);
       // Use "ID/N" label for files with multiple sub-tests
-      const std::string id =
-          items.size() > 1 ? fileId + "/" + std::to_string(i) : fileId;
+      const std::string id = items.size() > 1 ? fileId + "/" + std::to_string(i) : fileId;
 
       const YAML yaml;
-      const std::string &yamlInput = *yamlOpt;
+      const std::string& yamlInput = *yamlOpt;
 
-      INFO("Suite: " << id
-                     << (expectFail ? " [expect-fail]" : " [expect-pass]"));
+      INFO("Suite: " << id << (expectFail ? " [expect-fail]" : " [expect-pass]"));
       INFO("Input:\n" << yamlInput);
 
       // Skip known failures — they are logged as warnings rather than

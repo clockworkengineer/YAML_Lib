@@ -19,7 +19,11 @@ struct FakeSource : ISource {
     position_++;
   }
   bool more() const override { return position_ < buffer.size(); }
-  void reset() override { position_ = 0; lineNo = 1; column = 1; }
+  void reset() override {
+    position_ = 0;
+    lineNo = 1;
+    column = 1;
+  }
   std::size_t position() override { return position_; }
   void save() override { contexts.emplace_back(lineNo, column, position_); }
   void restore() override {
@@ -39,7 +43,7 @@ struct FakeSource : ISource {
     contexts.pop_back();
   }
 
-private:
+ private:
   void backup(unsigned long length) override {
     if (length > position_) {
       throw ISource::Error("FakeSource::backup() beyond start");
@@ -70,7 +74,7 @@ struct FakeDestination : IDestination {
 };
 
 struct FakeStringify : IStringify {
-  void stringify(const Node &yNode, IDestination &destination, unsigned long) const override {
+  void stringify(const Node& yNode, IDestination& destination, unsigned long) const override {
     destination.add("FAKE");
     if (isA<Dictionary>(yNode) && NRef<Dictionary>(yNode).contains("test")) {
       destination.add("-PASS");
@@ -79,16 +83,17 @@ struct FakeStringify : IStringify {
 };
 
 struct FakeParser : IParser {
-  std::vector<Node> parse(ISource &source) override {
+  std::vector<Node> parse(ISource& source) override {
     (void)source;
     std::vector<Node> docs;
     docs.emplace_back(Node{{{"test", "ok"}}});
     return docs;
   }
 };
-} // namespace
+}  // namespace
 
-TEST_CASE("Test helpers can be used to mock custom I/O and stringifier behavior", "[YAML][Testability][Mock]") {
+TEST_CASE("Test helpers can be used to mock custom I/O and stringifier behavior",
+          "[YAML][Testability][Mock]") {
   Options options;
   options.parser = new FakeParser();
   options.stringifier = makeStringify<FakeStringify>();
@@ -103,7 +108,8 @@ TEST_CASE("Test helpers can be used to mock custom I/O and stringifier behavior"
   REQUIRE(dest.output == "FAKE-PASS");
 }
 
-TEST_CASE("FakeSource preserves line/column state across save/restore", "[YAML][Testability][ISource]") {
+TEST_CASE("FakeSource preserves line/column state across save/restore",
+          "[YAML][Testability][ISource]") {
   FakeSource source("line1\nline2\n");
   source.next();
   source.next();
@@ -114,7 +120,8 @@ TEST_CASE("FakeSource preserves line/column state across save/restore", "[YAML][
   REQUIRE(source.more());
 }
 
-TEST_CASE("FakeDestination captures output and respects clear/last semantics", "[YAML][Testability][IDestination]") {
+TEST_CASE("FakeDestination captures output and respects clear/last semantics",
+          "[YAML][Testability][IDestination]") {
   FakeDestination dest;
   dest.add('a');
   dest.add("bc");

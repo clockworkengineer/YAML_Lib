@@ -18,22 +18,20 @@ namespace YAML_Lib {
 /// <param name="dictionaryNode">Target dictionary Node.</param>
 /// <param name="entry">Entry to add.</param>
 /// <param name="source">Source stream (used for error position).</param>
-void Default_Parser::addUniqueDictEntry(Node &dictionaryNode,
-                                        DictionaryEntry entry,
-                                        ISource &source) {
+void Default_Parser::addUniqueDictEntry(Node& dictionaryNode, DictionaryEntry entry,
+                                        ISource& source) {
   const bool isDuplicateKey = NRef<Dictionary>(dictionaryNode).contains(entry.getKey());
   if (isDuplicateKey) {
     if (entry.getKey().empty()) {
       // Empty (null) key: YAML permits duplicate null keys; last-wins.
-      NRef<Dictionary>(dictionaryNode)[entry.getKey()] =
-          std::move(entry.getNode());
+      NRef<Dictionary>(dictionaryNode)[entry.getKey()] = std::move(entry.getNode());
       return;
     }
-    YAML_THROW_POS(source, "Dictionary already contains key '" +
-                          std::string(entry.getKey()) + "'.");
+    YAML_THROW_POS(source,
+                   "Dictionary already contains key '" + std::string(entry.getKey()) + "'.");
   }
-  const unsigned long nextSize = static_cast<unsigned long>(
-      NRef<Dictionary>(dictionaryNode).size()) + 1;
+  const unsigned long nextSize =
+      static_cast<unsigned long>(NRef<Dictionary>(dictionaryNode).size()) + 1;
   if (maxCollectionSize != 0 && nextSize > maxCollectionSize) {
     YAML_THROW_POS(source, "YAML collection size exceeds configured limit.");
   }
@@ -47,12 +45,10 @@ void Default_Parser::addUniqueDictEntry(Node &dictionaryNode,
 /// <param name="dict">Target Dictionary (unwrapped).</param>
 /// <param name="entry">Entry to add.</param>
 /// <param name="source">Source stream (used for error position).</param>
-void Default_Parser::addInlineDictEntry(Dictionary &dict, DictionaryEntry entry,
-                                        ISource &source) {
+void Default_Parser::addInlineDictEntry(Dictionary& dict, DictionaryEntry entry, ISource& source) {
   const std::string keyStr{entry.getKey()};
-  const bool isComplexKey =
-      !keyStr.empty() && (keyStr.front() == kLeftSquareBracket ||
-                          keyStr.front() == kLeftCurlyBrace);
+  const bool isComplexKey = !keyStr.empty() && (keyStr.front() == kLeftSquareBracket ||
+                                                keyStr.front() == kLeftCurlyBrace);
   if (dict.contains(keyStr) && !isComplexKey) {
     YAML_THROW_POS(source, "Dictionary already contains key '" + keyStr + "'.");
   } else if (dict.contains(keyStr)) {
@@ -71,24 +67,21 @@ void Default_Parser::addInlineDictEntry(Dictionary &dict, DictionaryEntry entry,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>The raw collection text including its brackets.</returns>
-std::string Default_Parser::extractInlineCollectionAt(ISource &source) {
+std::string Default_Parser::extractInlineCollectionAt(ISource& source) {
   const char start = source.current();
-  const char end =
-      (start == kLeftCurlyBrace) ? kRightCurlyBrace : kRightSquareBracket;
+  const char end = (start == kLeftCurlyBrace) ? kRightCurlyBrace : kRightSquareBracket;
   return extractInLine(source, start, end);
 }
 /// <summary>
 /// Convert YAML key to a string Node
 /// </summary>
 /// <param name="yamlString">YAML string.</param>
-Node Default_Parser::convertYAMLToStringNode(
-    const std::string_view &yamlString) {
+Node Default_Parser::convertYAMLToStringNode(const std::string_view& yamlString) {
   return convertYAMLToStringNode(yamlString, 0);
 }
-Node Default_Parser::convertYAMLToStringNode(const std::string_view &yamlString,
+Node Default_Parser::convertYAMLToStringNode(const std::string_view& yamlString,
                                              unsigned long indentation) {
-  auto keyNode = parseFromBuffer(std::string(yamlString) + kLineFeed,
-                                 {kLineFeed}, indentation);
+  auto keyNode = parseFromBuffer(std::string(yamlString) + kLineFeed, {kLineFeed}, indentation);
   std::string keyString{keyNode.toKey()};
   char quote = '\"';
   if (isA<String>(keyNode)) {
@@ -111,18 +104,17 @@ Node Default_Parser::convertYAMLToStringNode(const std::string_view &yamlString,
 /// </summary>
 /// <param name="key">Candidate key string.</param>
 /// <returns>True if key is valid.</returns>
-bool Default_Parser::isValidKey(const std::string_view &key) noexcept {
+bool Default_Parser::isValidKey(const std::string_view& key) noexcept {
   const auto first = key.find_first_not_of(" \t");
-  if (first == std::string_view::npos) return true; // null/empty key
-  if (key[first] == '#') return false;              // comment
+  if (first == std::string_view::npos) return true;  // null/empty key
+  if (key[first] == '#') return false;               // comment
   if (key[first] == kDoubleQuote || key[first] == kApostrophe) {
     // Slow path: re-parse to catch truncated quoted-string extractions.
 #ifndef YAML_LIB_NO_EXCEPTIONS
     try {
-      const Node keyNode =
-          parseFromBuffer(std::string(key) + kLineFeed, {kLineFeed}, 0);
+      const Node keyNode = parseFromBuffer(std::string(key) + kLineFeed, {kLineFeed}, 0);
       return !keyNode.isEmpty() && !isA<Comment>(keyNode);
-    } catch ([[maybe_unused]] const std::exception &e) {
+    } catch ([[maybe_unused]] const std::exception& e) {
       return false;
     }
 #else
@@ -132,19 +124,19 @@ bool Default_Parser::isValidKey(const std::string_view &key) noexcept {
     return true;
 #endif
   }
-  return true; // fast path: plain scalar, anchor, tag, inline collection, etc.
+  return true;  // fast path: plain scalar, anchor, tag, inline collection, etc.
 }
 /// <summary>
 /// Extract mapping on source stream.
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>Extracted mapping/.</returns>
-std::string Default_Parser::extractMapping(ISource &source) {
+std::string Default_Parser::extractMapping(ISource& source) {
   std::string key;
   // Save the column of the '?' indicator so we know how deep the block key
   // content must be indented when capturing continuation lines.
   const auto questionCol = source.getPosition().second;
-  source.next(); // consume leading '?' (mapping indicator)
+  source.next();  // consume leading '?' (mapping indicator)
   while (true) {
     key.clear();
     while (source.more() && source.current() == kSpace) {
@@ -159,11 +151,10 @@ std::string Default_Parser::extractMapping(ISource &source) {
   // ?\n- a\n- b\n:\n- c\n- d
   // Capture lines up to a ':' at the same column as the '?' indicator.
   if (ctx_.inlineDictionaryDepth == 0 && source.current() == kLineFeed) {
-    source.next(); // first line of key node content (or ':' line)
+    source.next();  // first line of key node content (or ':' line)
     std::string multilineKey;
     while (source.more()) {
-      if (source.getPosition().second == questionCol &&
-          source.current() == kColon) {
+      if (source.getPosition().second == questionCol && source.current() == kColon) {
         key += multilineKey;
         key += kColon;
         return key;
@@ -191,8 +182,7 @@ std::string Default_Parser::extractMapping(ISource &source) {
       multilineKey += kLineFeed;
       source.next();
       while (source.more()) {
-        if (source.getPosition().second == questionCol &&
-            source.current() == kColon) {
+        if (source.getPosition().second == questionCol && source.current() == kColon) {
           key += multilineKey;
           key += kColon;
           return key;
@@ -218,10 +208,10 @@ std::string Default_Parser::extractMapping(ISource &source) {
     // than the '?' column.  This allows "? |\n  content\n: value" to be
     // correctly parsed: the content lines become the key text rather than
     // being mis-parsed as the value of a bare-'|' key.
-    key += extractToNext(source, {kLineFeed}); // reads '|...' or '>...'
+    key += extractToNext(source, {kLineFeed});  // reads '|...' or '>...'
     if (source.more() && source.current() == kLineFeed) {
       key += kLineFeed;
-      source.next(); // consume LF after indicator
+      source.next();  // consume LF after indicator
       // Capture continuation lines whose leading-space count is at least
       // questionCol (i.e. they are more indented than the '?' indicator).
       // IMPORTANT: SourceGuard is used only for peek, and release() is never
@@ -238,10 +228,9 @@ std::string Default_Parser::extractMapping(ISource &source) {
             spaces++;
             source.next();
           }
-          const bool isBlankLine =
-              !source.more() || source.current() == kLineFeed;
+          const bool isBlankLine = !source.more() || source.current() == kLineFeed;
           lineIsContent = !isBlankLine && spaces >= questionCol;
-        } // peekGuard always restores here — no release() used
+        }  // peekGuard always restores here — no release() used
         if (!lineIsContent) {
           break;
         }
@@ -255,7 +244,7 @@ std::string Default_Parser::extractMapping(ISource &source) {
         key += extractToNext(source, {kLineFeed});
         key += kLineFeed;
         if (source.more() && source.current() == kLineFeed) {
-          source.next(); // consume LF
+          source.next();  // consume LF
         }
       }
     }
@@ -267,8 +256,7 @@ std::string Default_Parser::extractMapping(ISource &source) {
     if (source.more() && source.current() == kLineFeed) {
       source.next();
       while (source.more()) {
-        if (source.getPosition().second == questionCol &&
-            source.current() == kColon) {
+        if (source.getPosition().second == questionCol && source.current() == kColon) {
           // Found the explicit key terminator. Preserve the full key text.
           // Example: '? a\n  true\n: value' -> 'a\n  true'.
           // 'text' holds the first line, 'multilineKey' holds subsequent lines.
@@ -280,8 +268,7 @@ std::string Default_Parser::extractMapping(ISource &source) {
         }
         const bool lineTooShallow = [&]() {
           SourceGuard guard(source);
-          while (source.more() &&
-                 (source.current() == kSpace || source.current() == '\t')) {
+          while (source.more() && (source.current() == kSpace || source.current() == '\t')) {
             source.next();
           }
           return source.getPosition().second <= questionCol;
@@ -298,8 +285,7 @@ std::string Default_Parser::extractMapping(ISource &source) {
               continue;
             }
             const char nextChar = (pos + 1 < line.size() ? line[pos + 1] : '\0');
-            if (nextChar == kSpace || nextChar == '\t' || nextChar == '#' ||
-                nextChar == '\0') {
+            if (nextChar == kSpace || nextChar == '\t' || nextChar == '#' || nextChar == '\0') {
               separatorPos = pos;
               break;
             }
@@ -330,7 +316,7 @@ std::string Default_Parser::extractMapping(ISource &source) {
     // Strip inline comment: in YAML, '#' preceded by whitespace is a comment.
     for (std::size_t i = 1; i < text.size(); ++i) {
       if (text[i] == '#' && (text[i - 1] == ' ' || text[i - 1] == '\t')) {
-        text.erase(i - 1); // erase from the whitespace before '#'
+        text.erase(i - 1);  // erase from the whitespace before '#'
         break;
       }
     }
@@ -348,47 +334,41 @@ std::string Default_Parser::extractMapping(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>YAML for key value.</returns>
-std::string Default_Parser::extractKey(ISource &source,
-                                       unsigned long *quoteIndent) {
+std::string Default_Parser::extractKey(ISource& source, unsigned long* quoteIndent) {
   const auto extractPlainKeyTail = [this, &source]() {
     const Delimiters plainKeyDelimiters = keyStopDelimiters();
     const Delimiters delimitersWithComment = withExtras(plainKeyDelimiters, {'#'});
     std::string keyTail;
     while (source.more()) {
       keyTail += extractToNext(source, delimitersWithComment);
-      if (!source.more())
-        break;
+      if (!source.more()) break;
       if (source.current() == '#') {
-        if (!keyTail.empty() &&
-            (keyTail.back() == kSpace || keyTail.back() == '\t')) {
-          break; // comment begins here; do not include the '#' or the rest
+        if (!keyTail.empty() && (keyTail.back() == kSpace || keyTail.back() == '\t')) {
+          break;  // comment begins here; do not include the '#' or the rest
         }
         keyTail += source.append();
         continue;
       }
-      if (source.current() != kColon)
-        break;
+      if (source.current() != kColon) break;
       const bool isSeparator = [&source]() -> bool {
         SourceGuard guard(source);
-        source.next(); // peek past ':'
-        if (!source.more() || source.current() == kSpace ||
-            source.current() == kLineFeed || source.current() == '#') {
+        source.next();  // peek past ':'
+        if (!source.more() || source.current() == kSpace || source.current() == kLineFeed ||
+            source.current() == '#') {
           return true;
         }
         if (source.current() == '\t') {
           while (source.more() && source.current() == '\t') {
             source.next();
           }
-          return !source.more() || source.current() == kSpace ||
-                 source.current() == kLineFeed || source.current() == '#'
-                 || source.current() == '|' || source.current() == '>';
+          return !source.more() || source.current() == kSpace || source.current() == kLineFeed ||
+                 source.current() == '#' || source.current() == '|' || source.current() == '>';
         }
         return false;
       }();
-      if (isSeparator)
-        break; // ':' is the key-value separator, stop here
+      if (isSeparator) break;  // ':' is the key-value separator, stop here
       keyTail += kColon;
-      source.next(); // consume ':', it is part of the key
+      source.next();  // consume ':', it is part of the key
     }
     return keyTail;
   };
@@ -439,16 +419,14 @@ std::string Default_Parser::extractKey(ISource &source,
         result += extractTagSuffix(source);
       }
     }
-    if (source.more() &&
-        (source.current() == kSpace || source.current() == '\t')) {
+    if (source.more() && (source.current() == kSpace || source.current() == '\t')) {
       result += ' ';
       source.ignoreWS();
       if (source.more() && source.current() == '&') {
         result += '&';
         source.next();
         result += extractToNext(source, {kSpace, '\t', kLineFeed});
-        if (source.more() &&
-            (source.current() == kSpace || source.current() == '\t')) {
+        if (source.more() && (source.current() == kSpace || source.current() == '\t')) {
           result += ' ';
           source.ignoreWS();
         }
@@ -502,7 +480,7 @@ std::string Default_Parser::extractKey(ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>Dictionary entry key.</returns>
-Node Default_Parser::parseKey(ISource &source) {
+Node Default_Parser::parseKey(ISource& source) {
   unsigned long keyQuoteIndent = 0;
   std::string key{extractKey(source, &keyQuoteIndent)};
   // Patch: In flow context, allow multi-line explicit keys (e.g., '? foo\n bar
@@ -518,9 +496,8 @@ Node Default_Parser::parseKey(ISource &source) {
         source.next();
       }
       // If next non-space is ':' or a flow delimiter, stop
-      if (source.more() &&
-          (source.current() == ':' || source.current() == ',' ||
-           source.current() == ']' || source.current() == '}')) {
+      if (source.more() && (source.current() == ':' || source.current() == ',' ||
+                            source.current() == ']' || source.current() == '}')) {
         break;
       }
       // Otherwise, treat as continuation of key
@@ -532,8 +509,7 @@ Node Default_Parser::parseKey(ISource &source) {
   if (!key.empty() && key.back() == kColon) {
     key.pop_back();
   }
-  if (source.more() &&
-      (source.current() == kColon || source.current() == kLineFeed)) {
+  if (source.more() && (source.current() == kColon || source.current() == kLineFeed)) {
     source.next();
   }
   rightTrim(key);
@@ -552,8 +528,7 @@ Node Default_Parser::parseKey(ISource &source) {
 /// <param name="delimiters">Delimiters used to parse a key/value pair.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Dictionary entry for key/value.</returns>
-DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
-                                              const Delimiters &delimiters,
+DictionaryEntry Default_Parser::parseKeyValue(ISource& source, const Delimiters& delimiters,
                                               const unsigned long indentation) {
   const unsigned long keyIndent = source.getPosition().second;
   const auto keyLine = source.getPosition().first;
@@ -563,29 +538,28 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
   // key, source lands on the ': value' line.  Consume ':' (and optional space)
   // BEFORE calling isKey(), because isKey() treats ':' as a valid key start.
   if (source.more() && source.current() == kColon) {
-    source.next(); // consume ':'
+    source.next();  // consume ':'
     if (source.more() && source.current() == kSpace) {
-      source.next(); // consume optional space after ':'
-    } else if (ctx_.inlineDictionaryDepth == 0 && source.more() &&
-               source.current() == '\t') {
+      source.next();  // consume optional space after ':'
+    } else if (ctx_.inlineDictionaryDepth == 0 && source.more() && source.current() == '\t') {
       SourceGuard tabGuard(source);
       while (source.more() && source.current() == '\t') {
         source.next();
       }
-      if (!source.more() || source.current() == kSpace ||
-          source.current() == kLineFeed || source.current() == '#') {
+      if (!source.more() || source.current() == kSpace || source.current() == kLineFeed ||
+          source.current() == '#') {
         if (source.current() == kSpace) {
           tabGuard.release();
         }
       } else {
-        YAML_THROW_POS(source, "Tab used as block value-separator after ':'; block indentation "
-            "must use spaces, not tabs (YAML 1.2 \xc2\xa7"
-            "6.1).");
+        YAML_THROW_POS(source,
+                       "Tab used as block value-separator after ':'; block indentation "
+                       "must use spaces, not tabs (YAML 1.2 \xc2\xa7"
+                       "6.1).");
       }
     }
   } else if (isKey(source) && !isMapping(source) && !isAlias(source) &&
-             (ctx_.inlineDictionaryDepth > 0 ||
-              source.getPosition().second > keyIndent)) {
+             (ctx_.inlineDictionaryDepth > 0 || source.getPosition().second > keyIndent)) {
     // Only throw when inside a flow collection (ctx_.inlineDictionaryDepth > 0)
     // or when an unexpected key appears deeper than keyIndent, indicating a
     // compact-nested / same-line key where a simple value was expected.
@@ -600,15 +574,15 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
   // on the same line as the mapping key (implicit block mapping form where
   // the ':' was already consumed inline), it is a syntax error
   // (e.g. "key: - a" is invalid).
-  if (ctx_.inlineDictionaryDepth == 0 && isArray(source) &&
-      source.getPosition().first == keyLine) {
-    YAML_THROW_POS(source, "Block sequence indicator '-' cannot appear inline on the same line "
-        "as a mapping key value (YAML 1.2 \xc2\xa7"
-        "8.2.1).");
+  if (ctx_.inlineDictionaryDepth == 0 && isArray(source) && source.getPosition().first == keyLine) {
+    YAML_THROW_POS(source,
+                   "Block sequence indicator '-' cannot appear inline on the same line "
+                   "as a mapping key value (YAML 1.2 \xc2\xa7"
+                   "8.2.1).");
   }
   Node dictionaryNode = Node::make<Null>();
-  if (source.more() && (source.getPosition().second > keyIndent ||
-                        isInlineCollection(source) || isArray(source))) {
+  if (source.more() &&
+      (source.getPosition().second > keyIndent || isInlineCollection(source) || isArray(source))) {
     const bool sameLineBlockFlowValue = ctx_.inlineDictionaryDepth == 0 &&
                                         isInlineCollection(source) &&
                                         source.getPosition().first == keyLine;
@@ -628,10 +602,8 @@ DictionaryEntry Default_Parser::parseKeyValue(ISource &source,
 /// <param name="delimiters">Delimiters used to parse a key/value pair.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Dictionary entry for key/value.</returns>
-DictionaryEntry
-Default_Parser::parseInlineKeyValue(ISource &source,
-                                    const Delimiters &delimiters,
-                                    const unsigned long indentation) {
+DictionaryEntry Default_Parser::parseInlineKeyValue(ISource& source, const Delimiters& delimiters,
+                                                    const unsigned long indentation) {
   Node keyNode = parseKey(source);
   Node dictionaryNode = Node::make<Null>();
   // In a single-line flow mapping ({k: v}), parseKey already consumed ':'
@@ -642,11 +614,10 @@ Default_Parser::parseInlineKeyValue(ISource &source,
     moveToNextIndent(source);
   }
   if (source.more() && source.current() == kColon) {
-    source.next(); // consume ':'
+    source.next();  // consume ':'
     source.ignoreWS();
   }
-  if (source.more() && source.current() != kComma &&
-      source.current() != kRightCurlyBrace) {
+  if (source.more() && source.current() != kComma && source.current() != kRightCurlyBrace) {
     dictionaryNode = parseDocument(source, delimiters, indentation);
   }
   return {keyNode, std::move(dictionaryNode)};
@@ -658,9 +629,8 @@ Default_Parser::parseInlineKeyValue(ISource &source,
 /// <param name="delimiters">Delimiters used to parse dictionary.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Dictionary Node.</returns>
-Node Default_Parser::parseDictionary(
-    ISource &source, const Delimiters &delimiters,
-    [[maybe_unused]] unsigned long indentation) {
+Node Default_Parser::parseDictionary(ISource& source, const Delimiters& delimiters,
+                                     [[maybe_unused]] unsigned long indentation) {
   const unsigned long dictionaryIndent = source.getPosition().second;
   Node dictionaryNode = Node::make<Dictionary>();
   while (source.more() && dictionaryIndent == source.getPosition().second) {
@@ -668,8 +638,7 @@ Node Default_Parser::parseDictionary(
       auto entry = parseKeyValue(source, delimiters, dictionaryIndent);
       addUniqueDictEntry(dictionaryNode, std::move(entry), source);
     } else if (isInsideFlowContext() &&
-               (source.current() == kComma ||
-                source.current() == kRightSquareBracket ||
+               (source.current() == kComma || source.current() == kRightSquareBracket ||
                 source.current() == kRightCurlyBrace)) {
       break;
     } else if (isDocumentBoundary(source)) {
@@ -693,11 +662,10 @@ Node Default_Parser::parseDictionary(
 /// <param name="delimiters">Delimiters used to parse inline dictionary.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Dictionary Node.</returns>
-Node Default_Parser::parseInlineDictionary(
-    ISource &source, [[maybe_unused]] const Delimiters &delimiters,
-    const unsigned long indentation) {
-  const auto inLineDictionaryDelimiters =
-      withExtras(delimiters, {kComma, kRightCurlyBrace});
+Node Default_Parser::parseInlineDictionary(ISource& source,
+                                           [[maybe_unused]] const Delimiters& delimiters,
+                                           const unsigned long indentation) {
+  const auto inLineDictionaryDelimiters = withExtras(delimiters, {kComma, kRightCurlyBrace});
   Node dictionaryNode = Node::make<Dictionary>();
   {
     DepthGuard depthGuard(ctx_.inlineDictionaryDepth, maxParseDepth);
@@ -719,17 +687,16 @@ Node Default_Parser::parseInlineDictionary(
         // positions restart at column 1 for re-parsed sub-strings.
         const bool crossedNewline = source.getPosition().first > openLine;
         if (crossedNewline && source.getPosition().second <= indentation) {
-          YAML_THROW_POS(source, "Flow mapping content must be more indented than the surrounding "
-              "block context (indentation level " +
-                  std::to_string(indentation) + ").");
+          YAML_THROW_POS(source,
+                         "Flow mapping content must be more indented than the surrounding "
+                         "block context (indentation level " +
+                             std::to_string(indentation) + ").");
         }
-        auto entry = parseInlineKeyValue(source, inLineDictionaryDelimiters,
-                                         indentation);
-        addInlineDictEntry(NRef<Dictionary>(dictionaryNode), std::move(entry),
-                           source);
+        auto entry = parseInlineKeyValue(source, inLineDictionaryDelimiters, indentation);
+        addInlineDictEntry(NRef<Dictionary>(dictionaryNode), std::move(entry), source);
       }
     } while (source.current() == kComma);
-  } // ctx_.inlineDictionaryDepth decremented here
+  }  // ctx_.inlineDictionaryDepth decremented here
   checkForEnd(source, kRightCurlyBrace);
   if (source.current() == kColon) {
     YAML_THROW_POS(source, "Inline dictionary used as key is meant to be on one line.");
@@ -738,4 +705,4 @@ Node Default_Parser::parseInlineDictionary(
   return dictionaryNode;
 }
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

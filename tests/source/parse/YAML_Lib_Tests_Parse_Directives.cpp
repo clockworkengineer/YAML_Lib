@@ -5,8 +5,7 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
 
   // ---- %YAML directives ----
 
-  SECTION("YAML parse %YAML 1.2 directive before document.",
-          "[YAML][Parse][Directives][YAML12]") {
+  SECTION("YAML parse %YAML 1.2 directive before document.", "[YAML][Parse][Directives][YAML12]") {
     BufferSource source{"%YAML 1.2\n---\nvalue: 42\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
@@ -23,8 +22,8 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
   SECTION("YAML parse %YAML directive with unsupported major version throws.",
           "[YAML][Parse][Directives][YAMLBadMajor]") {
     BufferSource source{"%YAML 2.0\n---\nvalue: 42\n"};
-    REQUIRE_THROWS_WITH(yaml.parse(source), Catch::Matchers::ContainsSubstring(
-                                                "unsupported major version"));
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        Catch::Matchers::ContainsSubstring("unsupported major version"));
   }
 
   SECTION("YAML parse %YAML directive with bad format throws.",
@@ -39,9 +38,8 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
-  SECTION(
-      "YAML parse %YAML directive with numeric extra content after version.",
-      "[YAML][Parse][Directives][YAMLNumericExtraContent]") {
+  SECTION("YAML parse %YAML directive with numeric extra content after version.",
+          "[YAML][Parse][Directives][YAMLNumericExtraContent]") {
     BufferSource source{"%YAML 1.1 1.2\n---\nvalue: 42\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
@@ -77,34 +75,31 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
 
   // ---- %TAG directives ----
 
-  SECTION("YAML parse %TAG directive maps handle to prefix.",
-          "[YAML][Parse][Directives][Tag]") {
+  SECTION("YAML parse %TAG directive maps handle to prefix.", "[YAML][Parse][Directives][Tag]") {
     // After %TAG, !!str should expand to "tag:example.com,2024:str"
     BufferSource source{"%TAG !! tag:example.com,2024:\n---\n!!str hello\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE(isA<String>(yaml.document(0)));
     // Tag was expanded using the custom prefix
-    REQUIRE(yaml.document(0).getTag() ==
-            "tag:example.com,2024:str");
+    REQUIRE(yaml.document(0).getTag() == "tag:example.com,2024:str");
   }
 
   SECTION("YAML parse %TAG directive with ! handle for local tags.",
           "[YAML][Parse][Directives][TagLocal]") {
-    BufferSource source{
-        "%TAG ! tag:example.com,2024:\n---\n!item some value\n"};
+    BufferSource source{"%TAG ! tag:example.com,2024:\n---\n!item some value\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE(isA<String>(yaml.document(0)));
-    REQUIRE(yaml.document(0).getTag() ==
-            "tag:example.com,2024:item");
+    REQUIRE(yaml.document(0).getTag() == "tag:example.com,2024:item");
   }
 
   SECTION("YAML parse tagged mapping key with anchor prefix.",
           "[YAML][Parse][Directives][TagAnchorKey]") {
-    BufferSource source{"!!str &a1 \"foo\":\n"
-                        "  !!str bar\n"
-                        "&a2 baz: *a1\n"};
+    BufferSource source{
+        "!!str &a1 \"foo\":\n"
+        "  !!str bar\n"
+        "&a2 baz: *a1\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)["foo"]).value() == "bar");
@@ -113,8 +108,7 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
 
   SECTION("YAML parse multiple directives before a document.",
           "[YAML][Parse][Directives][Multiple]") {
-    BufferSource source{
-        "%YAML 1.2\n%TAG ! tag:example.com,2024:\n---\nname: test\n"};
+    BufferSource source{"%YAML 1.2\n%TAG ! tag:example.com,2024:\n---\nname: test\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE(isA<Dictionary>(yaml.document(0)));
@@ -146,32 +140,32 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
           "[YAML][Parse][Directives][MultiHandle]") {
     // %TAG !e! and %TAG !m! define two different handle-to-prefix mappings.
     // Both must be registered and both tags must expand correctly.
-    BufferSource source{"%TAG !e! tag:example.com,2024:\n"
-                        "%TAG !m! !my-\n"
-                        "---\n"
-                        "a: !e!type one\n"
-                        "b: !m!color blue\n"};
+    BufferSource source{
+        "%TAG !e! tag:example.com,2024:\n"
+        "%TAG !m! !my-\n"
+        "---\n"
+        "a: !e!type one\n"
+        "b: !m!color blue\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<String>(yaml.document(0)["a"]));
-    REQUIRE(yaml.document(0)["a"].getTag() ==
-            "tag:example.com,2024:type");
+    REQUIRE(yaml.document(0)["a"].getTag() == "tag:example.com,2024:type");
     REQUIRE(isA<String>(yaml.document(0)["b"]));
     REQUIRE(yaml.document(0)["b"].getTag() == "!my-color");
   }
 
-  SECTION("YAML %TAG handle resets between documents.",
-          "[YAML][Parse][Directives][HandleReset]") {
+  SECTION("YAML %TAG handle resets between documents.", "[YAML][Parse][Directives][HandleReset]") {
     // A %TAG defined for one document does not carry over to the next;
     // the second document must re-declare its own %TAG to use the handle.
-    BufferSource source{"%TAG !m! !my-\n"
-                        "--- # doc 1\n"
-                        "!m!light fluorescent\n"
-                        "...\n"
-                        "%TAG !m! !other-\n"
-                        "--- # doc 2\n"
-                        "!m!light warm\n"};
+    BufferSource source{
+        "%TAG !m! !my-\n"
+        "--- # doc 1\n"
+        "!m!light fluorescent\n"
+        "...\n"
+        "%TAG !m! !other-\n"
+        "--- # doc 2\n"
+        "!m!light warm\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 2);
     REQUIRE(yaml.document(0).getTag() == "!my-light");
@@ -181,26 +175,27 @@ TEST_CASE("Check YAML parsing of directives.", "[YAML][Parse][Directives]") {
   SECTION("YAML %TAG !! handle remaps the secondary handle prefix.",
           "[YAML][Parse][Directives][SecondaryHandle]") {
     // %TAG !! prefix overrides the default secondary tag handle
-    BufferSource source{"%TAG !! tag:custom.org,2024:\n"
-                        "---\n"
-                        "!!mytype some value\n"};
+    BufferSource source{
+        "%TAG !! tag:custom.org,2024:\n"
+        "---\n"
+        "!!mytype some value\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
-    REQUIRE(yaml.document(0).getTag() ==
-            "tag:custom.org,2024:mytype");
+    REQUIRE(yaml.document(0).getTag() == "tag:custom.org,2024:mytype");
   }
 
-  SECTION("YAML remapped !!int stays a tagged string instead of core integer "
-          "coercion.",
-          "[YAML][Parse][Directives][SecondaryHandle]") {
-    BufferSource source{"%TAG !! tag:example.com,2000:app/\n"
-                        "---\n"
-                        "!!int 1 - 3\n"};
+  SECTION(
+      "YAML remapped !!int stays a tagged string instead of core integer "
+      "coercion.",
+      "[YAML][Parse][Directives][SecondaryHandle]") {
+    BufferSource source{
+        "%TAG !! tag:example.com,2000:app/\n"
+        "---\n"
+        "!!int 1 - 3\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE(isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() == "1 - 3");
-    REQUIRE(yaml.document(0).getTag() ==
-            "tag:example.com,2000:app/int");
+    REQUIRE(yaml.document(0).getTag() == "tag:example.com,2000:app/int");
   }
 }

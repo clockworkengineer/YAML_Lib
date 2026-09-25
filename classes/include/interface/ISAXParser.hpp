@@ -14,11 +14,11 @@ class IYAMLEvents;
  * to depend only on event-driven streaming without instantiating DOM trees.
  */
 class ISAXParser {
-public:
+ public:
   YAML_MAKE_ERROR(Error, "ISAXParser Error");
   virtual ~ISAXParser() = default;
 
-  virtual void parseSAX(ISource &source, IYAMLEvents &events) = 0;
+  virtual void parseSAX(ISource& source, IYAMLEvents& events) = 0;
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

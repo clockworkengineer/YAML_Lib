@@ -18,13 +18,11 @@ namespace YAML_Lib {
  * and tag coercion rules into an extensible strategy class.
  */
 class CoreSchema : public ISchema {
-public:
+ public:
   explicit CoreSchema(bool strictBooleans = false) : strictBooleans_(strictBooleans) {}
   ~CoreSchema() override = default;
 
-  void setStrictBooleans(bool strict) noexcept {
-    strictBooleans_ = strict;
-  }
+  void setStrictBooleans(bool strict) noexcept { strictBooleans_ = strict; }
 
   [[nodiscard]] Node resolveScalar(std::string_view scalarText, bool isQuoted) const override {
     if (isQuoted) {
@@ -49,12 +47,12 @@ public:
     }
 
     if (!strictBooleans_) {
-      if (scalarText == "yes" || scalarText == "Yes" || scalarText == "YES" ||
-          scalarText == "on"  || scalarText == "On"  || scalarText == "ON") {
+      if (scalarText == "yes" || scalarText == "Yes" || scalarText == "YES" || scalarText == "on" ||
+          scalarText == "On" || scalarText == "ON") {
         return Node::make<Boolean>(true, scalarText);
       }
-      if (scalarText == "no"  || scalarText == "No"  || scalarText == "NO" ||
-          scalarText == "off" || scalarText == "Off" || scalarText == "OFF") {
+      if (scalarText == "no" || scalarText == "No" || scalarText == "NO" || scalarText == "off" ||
+          scalarText == "Off" || scalarText == "OFF") {
         return Node::make<Boolean>(false, scalarText);
       }
     }
@@ -87,9 +85,9 @@ public:
     }
 
     if (!textStr.empty()) {
-      if (Number number{textStr}; number.is<int>() || number.is<long>() ||
-                                  number.is<long long>() || number.is<float>() ||
-                                  number.is<double>() || number.is<long double>()) {
+      if (Number number{textStr}; number.is<int>() || number.is<long>() || number.is<long long>() ||
+                                  number.is<float>() || number.is<double>() ||
+                                  number.is<long double>()) {
         return Node::make<Number>(number);
       }
     }
@@ -99,8 +97,7 @@ public:
   }
 
   [[nodiscard]] Node resolveTag([[maybe_unused]] std::string_view tagHandle,
-                                 std::string_view tagSuffix,
-                                 Node node) const override {
+                                std::string_view tagSuffix, Node node) const override {
     if (tagSuffix == "str") {
       return Node::make<String>(node.toString());
     }
@@ -118,8 +115,8 @@ public:
     return node;
   }
 
-private:
+ private:
   bool strictBooleans_{false};
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

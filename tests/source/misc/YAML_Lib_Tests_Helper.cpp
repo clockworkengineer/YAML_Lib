@@ -6,13 +6,11 @@
 /// </summary>
 /// <param name="yamlFileName">Test YAML data file name</param>
 /// <returns>Full path to a test data file</returns>
-std::string prefixTestDataPath(const std::string &yamlFileName) {
+std::string prefixTestDataPath(const std::string& yamlFileName) {
   if (std::filesystem::is_directory("./files")) {
-    return (std::filesystem::current_path() / "./files" / yamlFileName)
-        .string();
+    return (std::filesystem::current_path() / "./files" / yamlFileName).string();
   } else {
-    return (std::filesystem::current_path() / "../files" / yamlFileName)
-        .string();
+    return (std::filesystem::current_path() / "../files" / yamlFileName).string();
   }
 }
 
@@ -22,7 +20,7 @@ std::string prefixTestDataPath(const std::string &yamlFileName) {
 /// <param name="yaml"></param>
 /// <param name="destinationYAML">YAML parser instance</param>
 /// <returns>Full path to a test data file</returns>
-void compareYAML(const YAML &yaml, const std::string &destinationYAML) {
+void compareYAML(const YAML& yaml, const std::string& destinationYAML) {
   BufferDestination destination;
   REQUIRE_NOTHROW(yaml.stringify(destination));
   REQUIRE(destination.toString() == destinationYAML);
@@ -33,11 +31,11 @@ void compareYAML(const YAML &yaml, const std::string &destinationYAML) {
 /// <param name="str">String to compare.</param>
 /// <param name="fileName">File to compare against string</param>
 /// <returns>true if file the same as str, false otherwise</returns>
-bool compareFile(const std::string &str, const std::string &fileName) {
+bool compareFile(const std::string& str, const std::string& fileName) {
   std::stringstream fileContents;
   std::ifstream file(fileName, std::ifstream::binary | std::ifstream::ate);
   if (file.fail()) {
-    return false; // file problem
+    return false;  // file problem
   }
   file.seekg(0, std::ifstream::beg);
   fileContents << file.rdbuf();
@@ -56,11 +54,11 @@ bool compareFile(const std::string &str, const std::string &fileName) {
 std::string generateRandomFileName(void) {
   static std::atomic<uint64_t> counter{0};
   const auto timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
-  const auto filename = "yaml_lib_test_" + std::to_string(timestamp) + "_" + std::to_string(++counter) + ".tmp";
+  const auto filename =
+      "yaml_lib_test_" + std::to_string(timestamp) + "_" + std::to_string(++counter) + ".tmp";
   return (std::filesystem::temp_directory_path() / filename).string();
 }
-std::string generateEscapes(const unsigned char first,
-                            const unsigned char last) {
+std::string generateEscapes(const unsigned char first, const unsigned char last) {
   std::string result;
   for (char16_t utf16Char = first; utf16Char < last + 1; utf16Char++) {
     const auto digits = "0123456789ABCDEF";

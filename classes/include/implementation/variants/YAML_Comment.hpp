@@ -6,12 +6,11 @@ namespace YAML_Lib {
 
 struct Comment {
   // Constructors/Destructors
-  explicit Comment(const std::string_view &comment = "")
-      : yamlComment(comment) {}
-  Comment(const Comment &other) = default;
-  Comment &operator=(const Comment &other) = default;
-  Comment(Comment &&other) = default;
-  Comment &operator=(Comment &&other) = default;
+  explicit Comment(const std::string_view& comment = "") : yamlComment(comment) {}
+  Comment(const Comment& other) = default;
+  Comment& operator=(const Comment& other) = default;
+  Comment(Comment&& other) = default;
+  Comment& operator=(Comment&& other) = default;
   ~Comment() = default;
   // Return reference to comment
   [[nodiscard]] std::string_view value() const { return yamlComment; }
@@ -22,7 +21,7 @@ struct Comment {
   // Convert variant to a key
   [[nodiscard]] std::string toKey() const { return ""; }
 
-private:
+ private:
   std::pmr::string yamlComment;
 };
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

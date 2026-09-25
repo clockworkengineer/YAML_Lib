@@ -12,8 +12,8 @@ namespace YAML_Lib {
 // Inherits from std::runtime_error for standard compatibility.
 // ---------------------------------------------------------------
 struct Exception : public std::runtime_error {
-  explicit Exception(const std::string &message) : std::runtime_error(message) {}
-  explicit Exception(const char *message) : std::runtime_error(message) {}
+  explicit Exception(const std::string& message) : std::runtime_error(message) {}
+  explicit Exception(const char* message) : std::runtime_error(message) {}
 };
 
 // ---------------------------------------------------------------
@@ -23,49 +23,49 @@ struct Exception : public std::runtime_error {
 // Not used for YAML::Error / YAML::SyntaxError which have extra
 // constructors (with position pair).
 // ---------------------------------------------------------------
-#define YAML_MAKE_ERROR(StructName, Prefix)                                    \
-  struct StructName final : ::YAML_Lib::Exception {                            \
-    explicit StructName(const std::string_view &message)                       \
-        : ::YAML_Lib::Exception(std::string(Prefix ": ").append(message)) {}  \
+#define YAML_MAKE_ERROR(StructName, Prefix)                                  \
+  struct StructName final : ::YAML_Lib::Exception {                          \
+    explicit StructName(const std::string_view& message)                     \
+        : ::YAML_Lib::Exception(std::string(Prefix ": ").append(message)) {} \
   }
 
 // ---------------------------------------------------------------
 // YAML error types (inherit from Exception for specific catches)
 // ---------------------------------------------------------------
 struct Error final : Exception {
-    explicit Error(const std::string_view &message)
-        /// <summary>
-        /// Construct an Error using a text message.
-        /// </summary>
-        /// <param name="message">Error message text.</param>
-        : Exception(std::string("YAML Error: ").append(message)) {
-    }
+  explicit Error(const std::string_view& message)
+      /// <summary>
+      /// Construct an Error using a text message.
+      /// </summary>
+      /// <param name="message">Error message text.</param>
+      : Exception(std::string("YAML Error: ").append(message)) {}
 
-    explicit Error(const std::pair<unsigned long, unsigned long> &position,
-                   const std::string_view &message = "")
-        : Exception(
-            std::string("YAML Error [Line: ").append(std::to_string(position.first))
-            .append(" Column: ").append(std::to_string(position.second))
-            .append("]: ").append(message)) {
-    }
+  explicit Error(const std::pair<unsigned long, unsigned long>& position,
+                 const std::string_view& message = "")
+      : Exception(std::string("YAML Error [Line: ")
+                      .append(std::to_string(position.first))
+                      .append(" Column: ")
+                      .append(std::to_string(position.second))
+                      .append("]: ")
+                      .append(message)) {}
 };
 
 struct SyntaxError final : Exception {
-    explicit SyntaxError(const std::string_view &message)
-        /// <summary>
-        /// Construct a SyntaxError using a text message.
-        /// </summary>
-        /// <param name="message">Syntax error message text.</param>
-        : Exception(std::string("YAML Syntax Error: ").append(message)) {
-    }
+  explicit SyntaxError(const std::string_view& message)
+      /// <summary>
+      /// Construct a SyntaxError using a text message.
+      /// </summary>
+      /// <param name="message">Syntax error message text.</param>
+      : Exception(std::string("YAML Syntax Error: ").append(message)) {}
 
-    explicit SyntaxError(const std::pair<unsigned long, unsigned long> &position,
-                         const std::string_view message = "")
-        : Exception(
-            std::string("YAML Syntax Error [Line: ").append(std::to_string(position.first))
-            .append(" Column: ").append(std::to_string(position.second))
-            .append("]: ").append(message)) {
-    }
+  explicit SyntaxError(const std::pair<unsigned long, unsigned long>& position,
+                       const std::string_view message = "")
+      : Exception(std::string("YAML Syntax Error [Line: ")
+                      .append(std::to_string(position.first))
+                      .append(" Column: ")
+                      .append(std::to_string(position.second))
+                      .append("]: ")
+                      .append(message)) {}
 };
 
 // ---------------------------------------------------------------
@@ -74,9 +74,8 @@ struct SyntaxError final : Exception {
 // Type for a user-registered panic handler.  Called with the error message
 // and source position (line/column, both 0 when no position is available)
 // before the library aborts.  The handler MUST NOT return.
-using PanicHandler = void (*)(std::string_view message,
-                               unsigned long line,
-                               unsigned long column) noexcept;
+using PanicHandler = void (*)(std::string_view message, unsigned long line,
+                              unsigned long column) noexcept;
 
 /// Register a custom panic handler that is called instead of the default
 /// stderr dump + std::abort() when YAML_LIB_NO_EXCEPTIONS is active.
@@ -89,12 +88,11 @@ void setErrorHandler(PanicHandler handler) noexcept;
 #ifdef YAML_LIB_NO_EXCEPTIONS
 /// Internal: invoke the panic handler (or default stderr + abort).
 /// [[noreturn]] lets the compiler treat code after YAML_THROW as unreachable.
-[[noreturn]] void errorPanic(std::string_view message,
-                              unsigned long line,
-                              unsigned long col) noexcept;
+[[noreturn]] void errorPanic(std::string_view message, unsigned long line,
+                             unsigned long col) noexcept;
 #endif
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib
 
 // ---------------------------------------------------------------
 // YAML_THROW(ExceptionType, message)
@@ -107,13 +105,11 @@ void setErrorHandler(PanicHandler handler) noexcept;
 //   Pass *this when the throw site is inside an ISource subclass method.
 // ---------------------------------------------------------------
 #ifdef YAML_LIB_NO_EXCEPTIONS
-#  define YAML_THROW(ExType, msg) \
-       ::YAML_Lib::errorPanic((msg), 0UL, 0UL)
-#  define YAML_THROW_POS(src, msg) \
-       ::YAML_Lib::errorPanic((msg), \
-           static_cast<unsigned long>((src).getPosition().first), \
-           static_cast<unsigned long>((src).getPosition().second))
+#define YAML_THROW(ExType, msg) ::YAML_Lib::errorPanic((msg), 0UL, 0UL)
+#define YAML_THROW_POS(src, msg)                                                       \
+  ::YAML_Lib::errorPanic((msg), static_cast<unsigned long>((src).getPosition().first), \
+                         static_cast<unsigned long>((src).getPosition().second))
 #else
-#  define YAML_THROW(ExType, msg)     throw ExType(msg)
-#  define YAML_THROW_POS(src, msg)    throw SyntaxError((src).getPosition(), (msg))
+#define YAML_THROW(ExType, msg) throw ExType(msg)
+#define YAML_THROW_POS(src, msg) throw SyntaxError((src).getPosition(), (msg))
 #endif

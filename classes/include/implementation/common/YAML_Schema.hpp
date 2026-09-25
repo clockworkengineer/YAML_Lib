@@ -32,7 +32,7 @@ enum class NodeType : uint8_t {
   Array,
   Dictionary,
   Timestamp,
-  Any,   // wildcard — type check skipped, presence only
+  Any,  // wildcard — type check skipped, presence only
 };
 
 // ---------------------------------------------------------------------------
@@ -41,17 +41,17 @@ enum class NodeType : uint8_t {
 // and can live in ROM.
 // ---------------------------------------------------------------------------
 struct FieldSchema {
-  const char *key;           // null-terminated key name (string literal)
-  NodeType    expectedType;  // expected value type; NodeType::Any = any
-  bool        required;      // if true, key must be present
+  const char* key;        // null-terminated key name (string literal)
+  NodeType expectedType;  // expected value type; NodeType::Any = any
+  bool required;          // if true, key must be present
 };
 
 // ---------------------------------------------------------------------------
 // Schema — an array of FieldSchema entries.
 // ---------------------------------------------------------------------------
 struct Schema {
-  const FieldSchema *fields;
-  std::size_t        count;
+  const FieldSchema* fields;
+  std::size_t count;
 };
 
 // ---------------------------------------------------------------------------
@@ -59,8 +59,8 @@ struct Schema {
 // message points to a string literal or a short stack string.
 // ---------------------------------------------------------------------------
 struct ValidationError {
-  const char *key;     // which key was the problem (or "" for document-level)
-  const char *message; // human-readable description
+  const char* key;      // which key was the problem (or "" for document-level)
+  const char* message;  // human-readable description
 };
 
 // ---------------------------------------------------------------------------
@@ -77,8 +77,8 @@ struct ValidationError {
 // Note: extra keys not mentioned in the schema are not flagged — the library
 // remains permissive for forward-compatibility.
 // ---------------------------------------------------------------------------
-[[nodiscard]] inline std::vector<ValidationError>
-validateAgainst(const Node &document, const Schema &schema) {
+[[nodiscard]] inline std::vector<ValidationError> validateAgainst(const Node& document,
+                                                                  const Schema& schema) {
   std::vector<ValidationError> errors;
 
   if (!isA<Dictionary>(document)) {
@@ -86,10 +86,10 @@ validateAgainst(const Node &document, const Schema &schema) {
     return errors;
   }
 
-  const auto &dict = NRef<Dictionary>(document);
+  const auto& dict = NRef<Dictionary>(document);
 
   for (std::size_t i = 0; i < schema.count; ++i) {
-    const FieldSchema &fs = schema.fields[i];
+    const FieldSchema& fs = schema.fields[i];
 
     const bool present = dict.contains(fs.key);
 
@@ -99,25 +99,41 @@ validateAgainst(const Node &document, const Schema &schema) {
     }
 
     if (!present) {
-      continue; // optional and absent — fine
+      continue;  // optional and absent — fine
     }
 
     if (fs.expectedType == NodeType::Any) {
-      continue; // wildcard — skip type check
+      continue;  // wildcard — skip type check
     }
 
-    const Node &val = document[std::string_view{fs.key}];
+    const Node& val = document[std::string_view{fs.key}];
 
     bool typeOk = false;
     switch (fs.expectedType) {
-    case NodeType::String:     typeOk = isA<String>(val);     break;
-    case NodeType::Number:     typeOk = isA<Number>(val);     break;
-    case NodeType::Boolean:    typeOk = isA<Boolean>(val);    break;
-    case NodeType::Null:       typeOk = isA<Null>(val);       break;
-    case NodeType::Array:      typeOk = isA<Array>(val);      break;
-    case NodeType::Dictionary: typeOk = isA<Dictionary>(val); break;
-    case NodeType::Timestamp:  typeOk = isA<Timestamp>(val);  break;
-    case NodeType::Any:        typeOk = true;                  break;
+      case NodeType::String:
+        typeOk = isA<String>(val);
+        break;
+      case NodeType::Number:
+        typeOk = isA<Number>(val);
+        break;
+      case NodeType::Boolean:
+        typeOk = isA<Boolean>(val);
+        break;
+      case NodeType::Null:
+        typeOk = isA<Null>(val);
+        break;
+      case NodeType::Array:
+        typeOk = isA<Array>(val);
+        break;
+      case NodeType::Dictionary:
+        typeOk = isA<Dictionary>(val);
+        break;
+      case NodeType::Timestamp:
+        typeOk = isA<Timestamp>(val);
+        break;
+      case NodeType::Any:
+        typeOk = true;
+        break;
     }
 
     if (!typeOk) {
@@ -128,4 +144,4 @@ validateAgainst(const Node &document, const Schema &schema) {
   return errors;
 }
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

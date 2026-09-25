@@ -13,23 +13,22 @@ namespace YAML_Lib {
 
 namespace {
 
-void prepareQuotedContinuationLine(ISource &source,
-                                   const unsigned long minIndent) {
+void prepareQuotedContinuationLine(ISource& source, const unsigned long minIndent) {
   if (minIndent > 0 && source.more() && source.current() == '\t') {
     YAML_THROW_POS(source, "Tab character not allowed in YAML block indentation.");
   }
   source.ignoreWS();
   if (minIndent > 0 && source.more() && source.current() != kLineFeed &&
       source.getPosition().second <= minIndent) {
-    YAML_THROW_POS(source, "Multiline quoted scalar continuation must be indented beyond its "
-        "parent context.");
+    YAML_THROW_POS(source,
+                   "Multiline quoted scalar continuation must be indented beyond its "
+                   "parent context.");
   }
 }
 
-} // namespace
+}  // namespace
 
-bool Default_Parser::isInlineComment(const ISource &source,
-                                     const std::string &yamlString) {
+bool Default_Parser::isInlineComment(const ISource& source, const std::string& yamlString) {
   return source.current() == '#' && !yamlString.empty() &&
          (yamlString.back() == ' ' || yamlString.back() == '\t');
 }
@@ -42,8 +41,7 @@ bool Default_Parser::isInlineComment(const ISource &source,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="yamlString">YAML string appended too.</param>
-void Default_Parser::appendCharacterToString(ISource &source,
-                                             std::string &yamlString,
+void Default_Parser::appendCharacterToString(ISource& source, std::string& yamlString,
                                              const bool escapeAware,
                                              const unsigned long minIndent) {
   if (source.current() == kLineFeed) {
@@ -52,11 +50,9 @@ void Default_Parser::appendCharacterToString(ISource &source,
     // Strip trailing whitespace from the current line before folding.
     // In escape-aware mode (double-quoted strings) do not strip a space or tab
     // that is the second byte of an escape sequence (e.g. \<TAB> or \ ).
-    while (!yamlString.empty() &&
-           (yamlString.back() == kSpace || yamlString.back() == '\t')) {
-      if (escapeAware && yamlString.size() >= 2 &&
-          yamlString[yamlString.size() - 2] == '\\') {
-        break; // stop — the trailing char is part of an escape sequence
+    while (!yamlString.empty() && (yamlString.back() == kSpace || yamlString.back() == '\t')) {
+      if (escapeAware && yamlString.size() >= 2 && yamlString[yamlString.size() - 2] == '\\') {
+        break;  // stop — the trailing char is part of an escape sequence
       }
       yamlString.pop_back();
     }
@@ -77,8 +73,7 @@ void Default_Parser::appendCharacterToString(ISource &source,
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>String Node.</returns>
-Node Default_Parser::parsePlainFlowString(ISource &source,
-                                          const Delimiters &delimiters,
+Node Default_Parser::parsePlainFlowString(ISource& source, const Delimiters& delimiters,
                                           const unsigned long indentation) {
   // Extract the first-line content.  For single-line scalars rightTrim strips
   // all trailing whitespace + the sentinel space.  For multi-line scalars we
@@ -96,14 +91,14 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
     if (isInsideFlowContext() && !yamlString.empty() && yamlString.back() == ',') {
       YAML_THROW_POS(source, "Comment must be separated from comma by whitespace in flow context.");
     }
-    yamlString += source.append();                   // consume literal '#'
-    yamlString += extractToNext(source, delimiters); // read to next delimiter
+    yamlString += source.append();                    // consume literal '#'
+    yamlString += extractToNext(source, delimiters);  // read to next delimiter
   }
   if (source.current() != kLineFeed) {
     rightTrim(yamlString);
   } else {
-    rightTrim(yamlString); // strip trailing whitespace before fold
-    yamlString += kSpace;  // fold first-line break to a single space
+    rightTrim(yamlString);  // strip trailing whitespace before fold
+    yamlString += kSpace;   // fold first-line break to a single space
     const bool commentTerminatesBlockPlainScalar = [&]() {
       if (isInsideFlowContext()) {
         return false;
@@ -148,8 +143,7 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
       if (!yamlString.empty() && yamlString.back() == kSpace) {
         yamlString.pop_back();
       }
-      if (source.more() && source.current() != kComma &&
-          source.current() != kRightSquareBracket &&
+      if (source.more() && source.current() != kComma && source.current() != kRightSquareBracket &&
           source.current() != kRightCurlyBrace) {
         YAML_THROW_POS(source, "Invalid YAML encountered.");
       }
@@ -163,8 +157,7 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
         if (!isInsideFlowContext()) {
           return false;
         }
-        if (source.current() == kRightSquareBracket ||
-            source.current() == kRightCurlyBrace ||
+        if (source.current() == kRightSquareBracket || source.current() == kRightCurlyBrace ||
             source.current() == kComma) {
           return true;
         }
@@ -173,9 +166,8 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
         }
         SourceGuard guard(source);
         source.next();
-        return !source.more() || source.isWS() ||
-               source.current() == kLineFeed || source.current() == kComma ||
-               source.current() == kRightSquareBracket ||
+        return !source.more() || source.isWS() || source.current() == kLineFeed ||
+               source.current() == kComma || source.current() == kRightSquareBracket ||
                source.current() == kRightCurlyBrace;
       }();
       if (stopAtFlowIndicator) {
@@ -198,8 +190,7 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
         }
         if (isInsideFlowContext()) {
           if (!source.more() || source.current() == kComma ||
-              source.current() == kRightSquareBracket ||
-              source.current() == kRightCurlyBrace) {
+              source.current() == kRightSquareBracket || source.current() == kRightCurlyBrace) {
             break;
           }
           YAML_THROW_POS(source, "Invalid YAML encountered.");
@@ -225,8 +216,8 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
   // followed it — reject as invalid.
   if (isInsideFlowContext() && yamlString.size() == 1 &&
       (yamlString[0] == '-' || yamlString[0] == '?' || yamlString[0] == ':')) {
-    YAML_THROW_POS(source, "Bare '" + yamlString +
-                          "' is not a valid plain scalar in flow context.");
+    YAML_THROW_POS(source,
+                   "Bare '" + yamlString + "' is not a valid plain scalar in flow context.");
   }
   return Node::make<String>(yamlString, kNull);
 }
@@ -237,8 +228,7 @@ Node Default_Parser::parsePlainFlowString(ISource &source,
 /// <param name="delimiters">Delimiters used to parse string.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>String Node.</returns>
-Node Default_Parser::parseQuotedFlowString(ISource &source,
-                                           const Delimiters &delimiters,
+Node Default_Parser::parseQuotedFlowString(ISource& source, const Delimiters& delimiters,
                                            const unsigned long indentation) {
   const char quote = source.append();
   std::string yamlString;
@@ -254,25 +244,27 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
       // whitespace or EOF ('...x' without space is valid literal content).
       if (source.getPosition().second == 1) {
         if (isDocumentStart(source)) {
-          YAML_THROW_POS(source, "Document start marker inside double-quoted "
-                            "string.");
+          YAML_THROW_POS(source,
+                         "Document start marker inside double-quoted "
+                         "string.");
         }
         {
           SourceGuard guard(source);
-          if (source.match("...") && (!source.more() || source.isWS() ||
-                                      source.current() == kLineFeed)) {
-            YAML_THROW_POS(source, "Document end marker inside double-quoted "
-                              "string.");
+          if (source.match("...") &&
+              (!source.more() || source.isWS() || source.current() == kLineFeed)) {
+            YAML_THROW_POS(source,
+                           "Document end marker inside double-quoted "
+                           "string.");
           }
         }
       }
       if (source.current() == '\\') {
-        source.next(); // consume '\'
+        source.next();  // consume '\'
         if (source.more() && source.current() == kLineFeed) {
           // YAML 1.2 §7.3.1: \<newline> is a line continuation — discard
           // the backslash, the newline, and all leading white space on the
           // continuation line.
-          source.next(); // consume LF
+          source.next();  // consume LF
           prepareQuotedContinuationLine(source, indentation);
         } else {
           yamlString += '\\';
@@ -287,7 +279,7 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
     if (!source.more() || source.current() != quote) {
       YAML_THROW_POS(source, "Missing closing quote.");
     }
-    source.next(); // consume closing quote
+    source.next();  // consume closing quote
     closedQuote = true;
     yamlString = yamlTranslator_->from(yamlString);
   } else {
@@ -308,15 +300,17 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
       // is a syntax error (RXY3).
       if (source.getPosition().second == 1) {
         if (isDocumentStart(source)) {
-          YAML_THROW_POS(source, "Document start marker inside single-quoted "
-                            "string.");
+          YAML_THROW_POS(source,
+                         "Document start marker inside single-quoted "
+                         "string.");
         }
         {
           SourceGuard guard(source);
-          if (source.match("...") && (!source.more() || source.isWS() ||
-                                      source.current() == kLineFeed)) {
-            YAML_THROW_POS(source, "Document end marker inside single-quoted "
-                              "string.");
+          if (source.match("...") &&
+              (!source.more() || source.isWS() || source.current() == kLineFeed)) {
+            YAML_THROW_POS(source,
+                           "Document end marker inside single-quoted "
+                           "string.");
           }
         }
       }
@@ -340,8 +334,7 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
     YAML_THROW_POS(source, "Missing closing quote.");
   }
   bool sawTrailingWhitespace = false;
-  while (source.more() &&
-         (source.current() == kSpace || source.current() == '\t')) {
+  while (source.more() && (source.current() == kSpace || source.current() == '\t')) {
     sawTrailingWhitespace = true;
     source.next();
   }
@@ -358,4 +351,4 @@ Node Default_Parser::parseQuotedFlowString(ISource &source,
   return Node::make<String>(yamlString, quote);
 }
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

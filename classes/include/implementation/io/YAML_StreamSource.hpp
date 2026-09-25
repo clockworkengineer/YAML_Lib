@@ -18,22 +18,20 @@ namespace YAML_Lib {
 //   yaml.parse(StreamSource{ss});
 // ======================================================================
 class StreamSource final : public ISource {
-public:
-  explicit StreamSource(std::istream &stream) : stream(stream) {
+ public:
+  explicit StreamSource(std::istream& stream) : stream(stream) {
     if (!stream.good()) {
       YAML_THROW(Error, "Stream is not in a good state.");
     }
   }
   StreamSource() = delete;
-  StreamSource(const StreamSource &) = delete;
-  StreamSource &operator=(const StreamSource &) = delete;
-  StreamSource(StreamSource &&) = delete;
-  StreamSource &operator=(StreamSource &&) = delete;
+  StreamSource(const StreamSource&) = delete;
+  StreamSource& operator=(const StreamSource&) = delete;
+  StreamSource(StreamSource&&) = delete;
+  StreamSource& operator=(StreamSource&&) = delete;
   ~StreamSource() override = default;
 
-  [[nodiscard]] char current() const override {
-    return static_cast<char>(stream.peek());
-  }
+  [[nodiscard]] char current() const override { return static_cast<char>(stream.peek()); }
 
   void next() override {
     if (current() == kLineFeed) {
@@ -94,15 +92,12 @@ public:
     if (stream.eof()) {
       stream.clear();
     }
-    stream.seekg(static_cast<std::streamoff>(context.bufferPosition),
-                 std::ios_base::beg);
+    stream.seekg(static_cast<std::streamoff>(context.bufferPosition), std::ios_base::beg);
     bufferPosition = static_cast<std::size_t>(stream.tellg());
   }
-  void discardSave() override {
-    contexts.pop_back();
-  }
+  void discardSave() override { contexts.pop_back(); }
 
-protected:
+ protected:
   void backup(const unsigned long length) override {
     if (column - length < 1) {
       YAML_THROW(Error, "Backup past start column.");
@@ -112,8 +107,8 @@ protected:
     column -= length;
   }
 
-private:
-  std::istream &stream;
+ private:
+  std::istream& stream;
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

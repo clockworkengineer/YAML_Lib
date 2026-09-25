@@ -12,7 +12,7 @@
 
 namespace YAML_Lib {
 
-std::u16string toUtf16(const std::string_view &utf8) {
+std::u16string toUtf16(const std::string_view& utf8) {
   if (utf8.find(kNull) != std::string::npos) {
     YAML_THROW(Error, "Tried to convert a null character.");
   }
@@ -75,7 +75,7 @@ std::u16string toUtf16(const std::string_view &utf8) {
   return result;
 }
 
-std::string toUtf8(const std::u16string_view &utf16) {
+std::string toUtf8(const std::u16string_view& utf16) {
   if (utf16.find(static_cast<char16_t>(kNull)) != std::u16string_view::npos) {
     YAML_THROW(Error, "Tried to convert a null character.");
   }
@@ -126,4 +126,4 @@ std::string toUtf8(char16_t utf16) {
   return toUtf8(sv);
 }
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

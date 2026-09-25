@@ -18,8 +18,7 @@ namespace yml = YAML_Lib;
 /// </summary>
 /// <returns>YAML settings file name.</returns>
 std::string yamlFibonacciFile() {
-  return (std::filesystem::current_path() / "files" / "fibonacci.yaml")
-      .string();
+  return (std::filesystem::current_path() / "files" / "fibonacci.yaml").string();
 }
 /// <summary>
 /// Read in current fibonacci sequence from YAML file, calculate the
@@ -33,14 +32,12 @@ void nextFibonacci() {
   } else {
     // Parse in current sequence
     yaml.parse(yml::FileSource{yamlFibonacciFile()});
-    auto &fibonacciArray = yml::NRef<yml::Array>(yaml.document(0));
+    auto& fibonacciArray = yml::NRef<yml::Array>(yaml.document(0));
     // Get index of last element
     const auto last = fibonacciArray.size() - 1;
     // Get last two in sequence
-    const auto first =
-        yml::NRef<yml::Number>(fibonacciArray[last - 1]).value<long>();
-    const auto second =
-        yml::NRef<yml::Number>(fibonacciArray[last]).value<long>();
+    const auto first = yml::NRef<yml::Number>(fibonacciArray[last - 1]).value<long>();
+    const auto second = yml::NRef<yml::Number>(fibonacciArray[last]).value<long>();
     // Create new element for next in sequence
     fibonacciArray.add(yml::Node::make<yml::Number>(first + second));
   }
@@ -48,15 +45,15 @@ void nextFibonacci() {
   yaml.stringify(yml::FileDestination{yamlFibonacciFile()});
 }
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
   try {
     // Initialise logging.
-        std::cout << "YAML_Fibonacci started ...";
+    std::cout << "YAML_Fibonacci started ...";
     // Log version
     std::cout << YAML_Lib::YAML::version();
     // Update current sequence
     nextFibonacci();
-  } catch (std::exception &ex) {
+  } catch (std::exception& ex) {
     std::cerr << "Error: " << ex.what();
   }
   std::cout << "YAML_Fibonacci exited.";

@@ -23,7 +23,7 @@ struct Node;
  * @note Implementations should use indentation consistently for nested data.
  */
 class IStringify {
-public:
+ public:
   /**
    * @brief Exception type for stringifier errors.
    */
@@ -38,7 +38,8 @@ public:
    * @param destination Output destination implementing IDestination.
    * @param indent Indentation level for pretty-printing.
    */
-  virtual void stringify(const Node &yNode, IDestination &destination,  unsigned long indent) const = 0;
+  virtual void stringify(const Node& yNode, IDestination& destination,
+                         unsigned long indent) const = 0;
   /**
    * @brief Get the current print indentation level.
    * @return Indentation level.
@@ -48,7 +49,7 @@ public:
    * @brief Set the print indentation level.
    * @param indent Indentation level.
    */
-  virtual void setIndent([[maybe_unused]] long indent)  {}
+  virtual void setIndent([[maybe_unused]] long indent) {}
 
   /**
    * @brief Throw an error for unknown node types (used by all stringifiers).
@@ -56,10 +57,10 @@ public:
   [[noreturn]] static void throwUnknownNodeType() {
     YAML_THROW(IStringify::Error, "Unknown Node type encountered during stringification.");
   }
-
 };
 // Make custom stringify to pass to YAML constructor: Pointer is tidied up internally.
-template <typename T> IStringify *makeStringify() {
-    return std::make_unique<T>().release();
+template <typename T>
+IStringify* makeStringify() {
+  return std::make_unique<T>().release();
 }
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

@@ -6,14 +6,12 @@
 // regressions.
 // ============================================================================
 
-TEST_CASE("Check YAML stringify round-trip correctness.",
-          "[YAML][Stringify][RoundTrip]") {
+TEST_CASE("Check YAML stringify round-trip correctness.", "[YAML][Stringify][RoundTrip]") {
   const YAML yaml;
 
   // ---- Basic scalars ----
 
-  SECTION("YAML round-trip: integer scalar.",
-          "[YAML][Stringify][RoundTrip][Scalar]") {
+  SECTION("YAML round-trip: integer scalar.", "[YAML][Stringify][RoundTrip][Scalar]") {
     BufferSource source{"---\n42\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination dest;
@@ -25,8 +23,7 @@ TEST_CASE("Check YAML stringify round-trip correctness.",
     REQUIRE(NRef<Number>(yaml2.document(0)).value<int>() == 42);
   }
 
-  SECTION("YAML round-trip: float scalar.",
-          "[YAML][Stringify][RoundTrip][Scalar]") {
+  SECTION("YAML round-trip: float scalar.", "[YAML][Stringify][RoundTrip][Scalar]") {
     BufferSource source{"---\n3.14\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination dest;
@@ -37,8 +34,7 @@ TEST_CASE("Check YAML stringify round-trip correctness.",
     REQUIRE(isA<Number>(yaml2.document(0)));
   }
 
-  SECTION("YAML round-trip: boolean scalar.",
-          "[YAML][Stringify][RoundTrip][Scalar]") {
+  SECTION("YAML round-trip: boolean scalar.", "[YAML][Stringify][RoundTrip][Scalar]") {
     BufferSource source{"---\ntrue\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination dest;
@@ -50,8 +46,7 @@ TEST_CASE("Check YAML stringify round-trip correctness.",
     REQUIRE(NRef<Boolean>(yaml2.document(0)).value() == true);
   }
 
-  SECTION("YAML round-trip: null scalar.",
-          "[YAML][Stringify][RoundTrip][Scalar]") {
+  SECTION("YAML round-trip: null scalar.", "[YAML][Stringify][RoundTrip][Scalar]") {
     BufferSource source{"---\nnull\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination dest;
@@ -78,8 +73,7 @@ TEST_CASE("Check YAML stringify round-trip correctness.",
     REQUIRE(NRef<Timestamp>(yaml2.document(0)).value() == "2024-01-15");
   }
 
-  SECTION("YAML round-trip: datetime timestamp.",
-          "[YAML][Stringify][RoundTrip][Timestamp]") {
+  SECTION("YAML round-trip: datetime timestamp.", "[YAML][Stringify][RoundTrip][Timestamp]") {
     BufferSource source{"---\nts: 2024-06-15T12:00:00Z\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination dest;
@@ -88,14 +82,12 @@ TEST_CASE("Check YAML stringify round-trip correctness.",
     BufferSource reparsed{dest.toString()};
     REQUIRE_NOTHROW(yaml2.parse(reparsed));
     REQUIRE(isA<Timestamp>(yaml2.document(0)["ts"]));
-    REQUIRE(NRef<Timestamp>(yaml2.document(0)["ts"]).value() ==
-            "2024-06-15T12:00:00Z");
+    REQUIRE(NRef<Timestamp>(yaml2.document(0)["ts"]).value() == "2024-06-15T12:00:00Z");
   }
 
   // ---- Dictionary ----
 
-  SECTION("YAML round-trip: flat block dictionary.",
-          "[YAML][Stringify][RoundTrip][Dictionary]") {
+  SECTION("YAML round-trip: flat block dictionary.", "[YAML][Stringify][RoundTrip][Dictionary]") {
     BufferSource source{"---\na: 1\nb: hello\nc: true\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination dest;
@@ -109,8 +101,7 @@ TEST_CASE("Check YAML stringify round-trip correctness.",
     REQUIRE(NRef<Boolean>(yaml2.document(0)["c"]).value() == true);
   }
 
-  SECTION("YAML round-trip: nested block dictionary.",
-          "[YAML][Stringify][RoundTrip][Dictionary]") {
+  SECTION("YAML round-trip: nested block dictionary.", "[YAML][Stringify][RoundTrip][Dictionary]") {
     BufferSource source{"---\nouter:\n  inner:\n    value: 99\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination dest;
@@ -118,14 +109,12 @@ TEST_CASE("Check YAML stringify round-trip correctness.",
     YAML yaml2;
     BufferSource reparsed{dest.toString()};
     REQUIRE_NOTHROW(yaml2.parse(reparsed));
-    REQUIRE(NRef<Number>(yaml2.document(0)["outer"]["inner"]["value"])
-                .value<int>() == 99);
+    REQUIRE(NRef<Number>(yaml2.document(0)["outer"]["inner"]["value"]).value<int>() == 99);
   }
 
   // ---- Sequence ----
 
-  SECTION("YAML round-trip: block sequence of strings.",
-          "[YAML][Stringify][RoundTrip][Sequence]") {
+  SECTION("YAML round-trip: block sequence of strings.", "[YAML][Stringify][RoundTrip][Sequence]") {
     BufferSource source{"---\n- alpha\n- beta\n- gamma\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination dest;
@@ -138,12 +127,12 @@ TEST_CASE("Check YAML stringify round-trip correctness.",
     REQUIRE(NRef<String>(yaml2.document(0)[2]).value() == "gamma");
   }
 
-  SECTION("YAML round-trip: sequence of dictionaries.",
-          "[YAML][Stringify][RoundTrip][Sequence]") {
-    BufferSource source{"---\n"
-                        "- name: Alice\n  score: 95\n"
-                        "- name: Bob\n  score: 87\n"
-                        "...\n"};
+  SECTION("YAML round-trip: sequence of dictionaries.", "[YAML][Stringify][RoundTrip][Sequence]") {
+    BufferSource source{
+        "---\n"
+        "- name: Alice\n  score: 95\n"
+        "- name: Bob\n  score: 87\n"
+        "...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination dest;
     REQUIRE_NOTHROW(yaml.stringify(dest));
@@ -156,8 +145,7 @@ TEST_CASE("Check YAML stringify round-trip correctness.",
 
   // ---- Multi-document stream ----
 
-  SECTION("YAML round-trip: two-document stream.",
-          "[YAML][Stringify][RoundTrip][MultiDoc]") {
+  SECTION("YAML round-trip: two-document stream.", "[YAML][Stringify][RoundTrip][MultiDoc]") {
     BufferSource source{"---\nfirst: 1\n...\n---\nsecond: 2\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 2);
@@ -175,13 +163,14 @@ TEST_CASE("Check YAML stringify round-trip correctness.",
 
   SECTION("YAML round-trip: dict with Null, String, Number, Boolean, Array.",
           "[YAML][Stringify][RoundTrip][Mixed]") {
-    BufferSource source{"---\n"
-                        "name: Test\n"
-                        "count: 7\n"
-                        "active: false\n"
-                        "tags: [a, b, c]\n"
-                        "nothing: null\n"
-                        "...\n"};
+    BufferSource source{
+        "---\n"
+        "name: Test\n"
+        "count: 7\n"
+        "active: false\n"
+        "tags: [a, b, c]\n"
+        "nothing: null\n"
+        "...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     BufferDestination dest;
     REQUIRE_NOTHROW(yaml.stringify(dest));
@@ -211,9 +200,8 @@ TEST_CASE("Check YAML stringify round-trip correctness.",
     compareYAML(yaml, "---\n'single quoted'\n...\n");
   }
 
-  SECTION(
-      "YAML round-trip: single-quoted string escapes apostrophes in output.",
-      "[YAML][Stringify][RoundTrip][String]") {
+  SECTION("YAML round-trip: single-quoted string escapes apostrophes in output.",
+          "[YAML][Stringify][RoundTrip][String]") {
     BufferSource source{"---\n' # not a ''comment''.'\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     compareYAML(yaml, "---\n' # not a ''comment''.'\n...\n");
@@ -256,8 +244,7 @@ TEST_CASE("Check YAML stringify round-trip correctness.",
     REQUIRE(dest.toString().find("-.inf") != std::string::npos);
   }
 
-  SECTION("YAML 1.2: NaN stringifies to .nan",
-          "[YAML][Stringify][RoundTrip][SpecialFloat]") {
+  SECTION("YAML 1.2: NaN stringifies to .nan", "[YAML][Stringify][RoundTrip][SpecialFloat]") {
     BufferSource source{"---\n.nan\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Number>(yaml.document(0)));

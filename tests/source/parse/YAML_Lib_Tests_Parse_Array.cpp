@@ -26,8 +26,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     BufferSource source{"---\n   - 'One'\n   - 'Two'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
-  SECTION("YAML parse array with one element and check result.",
-          "[YAML][Parse][Array]") {
+  SECTION("YAML parse array with one element and check result.", "[YAML][Parse][Array]") {
     BufferSource source{"---\n   - 'One'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
@@ -47,8 +46,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
   }
   SECTION("YAML parse array with multiple string elements and check result.",
           "[YAML][Parse][Array]") {
-    BufferSource source{
-        "---\n   - 'One'\n   - 'Two'\n   - 'Three'\n   - 'Four'\n"};
+    BufferSource source{"---\n   - 'One'\n   - 'Two'\n   - 'Three'\n   - 'Four'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 4);
@@ -68,16 +66,14 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(NRef<Number>(yaml.document(0)[2]).value<int>() == -3);
     REQUIRE(NRef<Number>(yaml.document(0)[3]).value<int>() == 4);
   }
-  SECTION("YAML parse array with one negative integer and check result.",
-          "[YAML][Parse][Array]") {
+  SECTION("YAML parse array with one negative integer and check result.", "[YAML][Parse][Array]") {
     BufferSource source{"---\n   - -1\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 1);
     REQUIRE(NRef<Number>(yaml.document(0)[0]).value<int>() == -1);
   }
-  SECTION("YAML parse array with one element and non space whitespace",
-          "[YAML][Parse][Array]") {
+  SECTION("YAML parse array with one element and non space whitespace", "[YAML][Parse][Array]") {
     BufferSource source{"---\n  - 'One'\n  - 'Two'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
@@ -98,11 +94,9 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[1][2]));
     REQUIRE(NRef<Number>(yaml.document(0)[1][2]).value<int>() == 6);
   }
-  SECTION("Parse Array from file and verify.",
-          "[YAML][Parse][Examples][File]") {
+  SECTION("Parse Array from file and verify.", "[YAML][Parse][Examples][File]") {
 #ifdef YAML_LIB_FILE_IO
-    BufferSource yamlSource{
-        YAML::fromFile(prefixTestDataPath("testfile003.yaml"))};
+    BufferSource yamlSource{YAML::fromFile(prefixTestDataPath("testfile003.yaml"))};
     REQUIRE_NOTHROW(yaml.parse(yamlSource));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 3);
@@ -113,11 +107,9 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(NRef<Array>(yaml.document(1)).size() == 2);
     REQUIRE(NRef<String>(yaml.document(1)[0]).value() == "Chicago Cubs");
     REQUIRE(NRef<String>(yaml.document(1)[1]).value() == "St Louis Cardinals");
-#endif // YAML_LIB_FILE_IO
+#endif  // YAML_LIB_FILE_IO
   }
-  SECTION("YAML parse flat array of integers and verify.",
-          "[YAML][Parse][Array]") {
-
+  SECTION("YAML parse flat array of integers and verify.", "[YAML][Parse][Array]") {
     BufferSource source{"---\nitems: [1, 2, 3, 4, 5 ]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
@@ -129,10 +121,8 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(NRef<Number>(yaml.document(0)["items"][4]).value<int>() == 5);
   }
 
-  SECTION("YAML parse flat array of strings and verify.",
-          "[YAML][Parse][Array]") {
-    BufferSource source{
-        "---\nnames: [\"one\", \"two\", \"three\", \"four\", \"five\" ]\n"};
+  SECTION("YAML parse flat array of strings and verify.", "[YAML][Parse][Array]") {
+    BufferSource source{"---\nnames: [\"one\", \"two\", \"three\", \"four\", \"five\" ]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)["names"]));
@@ -145,8 +135,9 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
   }
 
   SECTION("YAML parse two flat arrays and verify.", "[YAML][Parse][Array]") {
-    BufferSource source{"---\nitems: [ 1, 2, 3, 4, 5 ]\nnames: [ \"one\", "
-                        "\"two\", \"three\", \"four\", \"five\" ]"};
+    BufferSource source{
+        "---\nitems: [ 1, 2, 3, 4, 5 ]\nnames: [ \"one\", "
+        "\"two\", \"three\", \"four\", \"five\" ]"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)["items"]));
     REQUIRE(NRef<Array>(yaml.document(0)["items"]).size() == 5);
@@ -164,8 +155,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(NRef<String>(yaml.document(0)["names"][4]).value() == "five");
   }
 
-  SECTION("YAML parse flat array of unquoted strings and verify.",
-          "[YAML][Parse][Array]") {
+  SECTION("YAML parse flat array of unquoted strings and verify.", "[YAML][Parse][Array]") {
     BufferSource source{"---\nnames: [ one, two, three, four, five]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)["names"]));
@@ -177,8 +167,7 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(NRef<String>(yaml.document(0)["names"][4]).value() == "five");
   }
 
-  SECTION("YAML parse flat array of booleans and verify.",
-          "[YAML][Parse][Array]") {
+  SECTION("YAML parse flat array of booleans and verify.", "[YAML][Parse][Array]") {
     BufferSource source{"---\nnames: [ true, false, false, false, true]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)["names"]));
@@ -201,9 +190,10 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE_FALSE(!isA<Null>(yaml.document(0)["names"][0]));
     REQUIRE_FALSE(!isA<Null>(yaml.document(0)["names"][0]));
   }
-  SECTION("YAML parse inline array on more than line. "
-          "(inline dictionary).",
-          "[YAML][Parse][Array]") {
+  SECTION(
+      "YAML parse inline array on more than line. "
+      "(inline dictionary).",
+      "[YAML][Parse][Array]") {
     BufferSource source{"---\n[1\n,2,\n3,4,5,6\n] \n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
@@ -214,14 +204,12 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE(NRef<Number>(yaml.document(0)[4]).value<int>() == 5);
     REQUIRE(NRef<Number>(yaml.document(0)[5]).value<int>() == 6);
   }
-  SECTION(
-      "YAML reject wrongly indented multiline flow sequence in mapping value.",
-      "[YAML][Parse][Array]") {
+  SECTION("YAML reject wrongly indented multiline flow sequence in mapping value.",
+          "[YAML][Parse][Array]") {
     BufferSource source{"---\nflow: [a,\nb,\nc]\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
-  SECTION("YAML parse array with incorrect indentation in element.",
-          "[YAML][Parse][Array]") {
+  SECTION("YAML parse array with incorrect indentation in element.", "[YAML][Parse][Array]") {
     BufferSource source{"---\n   - test\n- test"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
                         "YAML Syntax Error [Line: 3 Column: 1]: Invalid "
@@ -244,51 +232,47 @@ TEST_CASE("Check YAML Parsing of Arrays.", "[YAML][Parse][Array]") {
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
     compareYAML(yaml, "---\n- one\n- two\n- three\n...\n");
   }
-  SECTION("YAML parse inline array containing empty elements'.",
-          "[YAML][Parse][Array]") {
+  SECTION("YAML parse inline array containing empty elements'.", "[YAML][Parse][Array]") {
     BufferSource source{"---\n[,, three, ]\n..."};
-    REQUIRE_THROWS_WITH(
-        yaml.parse(source),
-        Catch::Matchers::ContainsSubstring("Unexpected ',' in in-line array."));
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        Catch::Matchers::ContainsSubstring("Unexpected ',' in in-line array."));
   }
-  SECTION("YAML parse inline array containing incorrect bracket numbers "
-          "(example 1).",
-          "[YAML][Parse][Array]") {
+  SECTION(
+      "YAML parse inline array containing incorrect bracket numbers "
+      "(example 1).",
+      "[YAML][Parse][Array]") {
     BufferSource source{"---\n test: [1,2,3, [4, 5, 6] ] ]\n..."};
-    REQUIRE_THROWS_WITH(
-        yaml.parse(source),
-        "YAML Syntax Error: Unexpected flow sequence token ']'.");
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        "YAML Syntax Error: Unexpected flow sequence token ']'.");
   }
-  SECTION("YAML parse inline array containing incorrect bracket numbers "
-          "(example 2).",
-          "[YAML][Parse][Array]") {
+  SECTION(
+      "YAML parse inline array containing incorrect bracket numbers "
+      "(example 2).",
+      "[YAML][Parse][Array]") {
     BufferSource source{"---\n test: [1,2,3, [4, 5, 6]] [ \n..."};
-    REQUIRE_THROWS_WITH(
-        yaml.parse(source),
-        "YAML Syntax Error: Unexpected flow sequence token '['.");
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        "YAML Syntax Error: Unexpected flow sequence token '['.");
   }
-  SECTION("YAML parse inline array containing '{' at end. "
-          "(example 3).",
-          "[YAML][Parse][Array]") {
+  SECTION(
+      "YAML parse inline array containing '{' at end. "
+      "(example 3).",
+      "[YAML][Parse][Array]") {
     BufferSource source{"---\n test: [1,2,3, [4, 5, 6]] { \n..."};
-    REQUIRE_THROWS_WITH(
-        yaml.parse(source),
-        "YAML Syntax Error: Unexpected flow sequence token '{'.");
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        "YAML Syntax Error: Unexpected flow sequence token '{'.");
   }
-  SECTION("YAML parse inline array containing '}' at end. "
-          "(example 4).",
-          "[YAML][Parse][Array]") {
+  SECTION(
+      "YAML parse inline array containing '}' at end. "
+      "(example 4).",
+      "[YAML][Parse][Array]") {
     BufferSource source{"---\n test: [1,2,3, [4, 5, 6]] } \n..."};
-    REQUIRE_THROWS_WITH(
-        yaml.parse(source),
-        "YAML Syntax Error: Unexpected flow sequence token '}'.");
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        "YAML Syntax Error: Unexpected flow sequence token '}'.");
   }
-  SECTION("YAML parse array and then key/value pair at end. ",
-          "[YAML][Parse][Array]") {
+  SECTION("YAML parse array and then key/value pair at end. ", "[YAML][Parse][Array]") {
     BufferSource source{"---\n- 1\n- 2\n- 3\nfour: 4\n"};
-    REQUIRE_THROWS_WITH(
-        yaml.parse(source),
-        "YAML Syntax Error [Line: 5 Column: 1]: Invalid YAML encountered.");
+    REQUIRE_THROWS_WITH(yaml.parse(source),
+                        "YAML Syntax Error [Line: 5 Column: 1]: Invalid YAML encountered.");
   }
   SECTION("YAML parse string follows by an array. ", "[YAML][Parse][Array]") {
     BufferSource source{"---\ntest string 1\n- 2\n- 3\n- 4\n- 5\n"};

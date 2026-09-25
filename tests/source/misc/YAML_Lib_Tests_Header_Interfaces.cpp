@@ -21,7 +21,8 @@ struct TestCustomSource : YAML_Lib::ISource {
   void save() override {}
   void restore() override {}
   void discardSave() override {}
-protected:
+
+ protected:
   void backup(unsigned long) override {}
 };
 
@@ -30,7 +31,7 @@ struct TestCustomDest : YAML_Lib::IDestination {
   void clear() override {}
   char last() override { return '\0'; }
 };
-}
+}  // namespace
 
 void testCompileInterfaces() {
   TestCustomSource src;

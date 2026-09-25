@@ -17,12 +17,10 @@ namespace YAML_Lib {
 /// <param name="str">Target string.</param>
 /// <param name="substr">Ends with string.</param>
 /// <returns>If true, str then ends with substr.</returns>
-bool Default_Parser::endsWith(const std::string_view &str,
-                              const std::string_view &substr) {
+bool Default_Parser::endsWith(const std::string_view& str, const std::string_view& substr) {
   const auto strLen = str.size();
   const auto substrLen = substr.size();
-  if (strLen < substrLen)
-    return false;
+  if (strLen < substrLen) return false;
 
   return str.compare(strLen - substrLen, substrLen, substr) == 0;
 }
@@ -30,23 +28,20 @@ bool Default_Parser::endsWith(const std::string_view &str,
 /// Remove any spaces at the end of str.
 /// </summary>
 /// <param name="str">Target string.</param>
-void Default_Parser::rightTrim(std::string &str) {
-  str.erase(
-      std::find_if(str.rbegin(), str.rend(),
-                   [](const unsigned char ch) { return !std::isspace(ch); })
-          .base(),
-      str.end());
+void Default_Parser::rightTrim(std::string& str) {
+  str.erase(std::find_if(str.rbegin(), str.rend(),
+                         [](const unsigned char ch) { return !std::isspace(ch); })
+                .base(),
+            str.end());
 }
 
-void Default_Parser::checkScalarLength(ISource &source,
-                                       const std::size_t length) const {
+void Default_Parser::checkScalarLength(ISource& source, const std::size_t length) const {
   if (maxScalarLength != 0 && length > maxScalarLength) {
     YAML_THROW_POS(source, "YAML scalar length exceeds configured limit.");
   }
 }
 
-void Default_Parser::checkCollectionSize(unsigned long nextSize,
-                                         ISource &source) const {
+void Default_Parser::checkCollectionSize(unsigned long nextSize, ISource& source) const {
   if (maxCollectionSize != 0 && nextSize > maxCollectionSize) {
     YAML_THROW_POS(source, "YAML collection size exceeds configured limit.");
   }
@@ -57,7 +52,7 @@ void Default_Parser::checkCollectionSize(unsigned long nextSize,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Set of possible delimiter characters.</param>
-void Default_Parser::moveToNext(ISource &source, const Delimiters &delimiters) {
+void Default_Parser::moveToNext(ISource& source, const Delimiters& delimiters) {
   if (!delimiters.empty()) {
     while (source.more() && !delimiters.contains(source.current())) {
       source.next();
@@ -70,7 +65,7 @@ void Default_Parser::moveToNext(ISource &source, const Delimiters &delimiters) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>True if a comment line was skipped.</returns>
-bool Default_Parser::skipIfComment(ISource &source) {
+bool Default_Parser::skipIfComment(ISource& source) {
   if (isComment(source)) {
     skipLine(source);
     return true;
@@ -83,7 +78,7 @@ bool Default_Parser::skipIfComment(ISource &source) {
 /// source.next();
 /// </summary>
 /// <param name="source">Source stream.</param>
-void Default_Parser::skipLine(ISource &source) {
+void Default_Parser::skipLine(ISource& source) {
   moveToNext(source, {kLineFeed});
   if (source.more()) {
     source.next();
@@ -95,7 +90,7 @@ void Default_Parser::skipLine(ISource &source) {
 /// start of a line) are rejected as per the YAML 1.2 specification.
 /// </summary>
 /// <param name="source">Source stream.</param>
-void Default_Parser::moveToNextIndent(ISource &source) {
+void Default_Parser::moveToNextIndent(ISource& source) {
   bool indentFound{false};
   while (!indentFound) {
     bool afterNewline = (source.getPosition().second == 1);
@@ -111,9 +106,8 @@ void Default_Parser::moveToNextIndent(ISource &source) {
         // (yaml-test-suite 6CA3).
         const auto firstNonWsOnLine = [&]() -> char {
           SourceGuard guard(source);
-          source.next(); // look past the first tab
-          while (source.more() && source.current() != kLineFeed &&
-                 source.isWS()) {
+          source.next();  // look past the first tab
+          while (source.more() && source.current() != kLineFeed && source.isWS()) {
             source.next();
           }
           if (!source.more() || source.current() == kLineFeed) {
@@ -125,8 +119,7 @@ void Default_Parser::moveToNextIndent(ISource &source) {
         const bool flowLine = firstNonWsOnLine == kLeftSquareBracket ||
                               firstNonWsOnLine == kRightSquareBracket ||
                               firstNonWsOnLine == kLeftCurlyBrace ||
-                              firstNonWsOnLine == kRightCurlyBrace ||
-                              firstNonWsOnLine == kComma;
+                              firstNonWsOnLine == kRightCurlyBrace || firstNonWsOnLine == kComma;
         if (!blankLine && !flowLine) {
           YAML_THROW_POS(source, "Tab character not allowed in YAML block indentation.");
         }
@@ -147,22 +140,22 @@ void Default_Parser::moveToNextIndent(ISource &source) {
 /// <param name="source">Source stream.</param>
 /// <returns>Extracted characters (uses source.current() as the quote
 /// character).</returns>
-std::string Default_Parser::extractString(ISource &source) {
+std::string Default_Parser::extractString(ISource& source) {
   return extractString(source, source.current());
 }
 /// <summary>
 /// Function header.
 /// </summary>
-std::string Default_Parser::extractString(ISource &source, const char quote) {
+std::string Default_Parser::extractString(ISource& source, const char quote) {
   return extractString(source, quote, nullptr);
 }
-std::string Default_Parser::extractString(ISource &source, const char quote,
-                                          unsigned long *quoteColumn) {
+std::string Default_Parser::extractString(ISource& source, const char quote,
+                                          unsigned long* quoteColumn) {
   if (quoteColumn) {
     *quoteColumn = source.getPosition().second;
   }
   std::string extracted{quote};
-  source.next(); // skip opening quote
+  source.next();  // skip opening quote
   bool foundClosing = false;
   while (source.more()) {
     if (source.current() == quote) {
@@ -174,7 +167,7 @@ std::string Default_Parser::extractString(ISource &source, const char quote,
           // (convertYAMLToStringNode → parseQuotedFlowString) decodes them.
           extracted += quote;
           extracted += quote;
-          source.next(); // consume the second quote; continue scanning
+          source.next();  // consume the second quote; continue scanning
           checkScalarLength(source, extracted.size());
           continue;
         }
@@ -184,7 +177,7 @@ std::string Default_Parser::extractString(ISource &source, const char quote,
         return extracted;
       }
       foundClosing = true;
-      break; // double-quoted (or other): closing quote
+      break;  // double-quoted (or other): closing quote
     }
     extracted += source.current();
     checkScalarLength(source, extracted.size());
@@ -195,7 +188,7 @@ std::string Default_Parser::extractString(ISource &source, const char quote,
   }
   extracted += quote;
   if (source.more()) {
-    source.next(); // consume closing quote
+    source.next();  // consume closing quote
   }
   source.ignoreWS();
   return extracted;
@@ -207,7 +200,7 @@ std::string Default_Parser::extractString(ISource &source, const char quote,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>Unquoted, right-trimmed scalar value.</returns>
-std::string Default_Parser::extractRawQuotedScalar(ISource &source) {
+std::string Default_Parser::extractRawQuotedScalar(ISource& source) {
   std::string raw = extractString(source);
   if (raw.size() >= 2) {
     raw = raw.substr(1, raw.size() - 2);
@@ -228,14 +221,13 @@ std::string Default_Parser::extractRawQuotedScalar(ISource &source) {
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <returns>Extracted tag suffix string.</returns>
-std::string Default_Parser::extractTagSuffix(ISource &source) {
+std::string Default_Parser::extractTagSuffix(ISource& source) {
   if (isInsideFlowContext()) {
     return extractToNext(source, {kSpace, kLineFeed, ',', ']', '}'});
   }
   return extractToNext(source, {kSpace, kLineFeed});
 }
-std::string Default_Parser::extractToNext(ISource &source,
-                                          const Delimiters &delimiters) {
+std::string Default_Parser::extractToNext(ISource& source, const Delimiters& delimiters) {
   std::string extracted;
   extracted.reserve(64);
   if (!delimiters.empty()) {
@@ -252,8 +244,7 @@ std::string Default_Parser::extractToNext(ISource &source,
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Delimiter set.</param>
 /// <returns>Extracted and right-trimmed string.</returns>
-std::string Default_Parser::extractTrimmed(ISource &source,
-                                           const Delimiters &delimiters) {
+std::string Default_Parser::extractTrimmed(ISource& source, const Delimiters& delimiters) {
   std::string s{extractToNext(source, delimiters)};
   rightTrim(s);
   return s;
@@ -265,8 +256,7 @@ std::string Default_Parser::extractTrimmed(ISource &source,
 /// <param name="start">Start character.</param>
 /// <param name="end">End character.</param>
 /// <returns>Extracted characters.</returns>
-std::string Default_Parser::extractInLine(ISource &source, const char start,
-                                          const char end) {
+std::string Default_Parser::extractInLine(ISource& source, const char start, const char end) {
   std::string extracted;
   extracted.reserve(128);
   unsigned long depth{1};
@@ -291,7 +281,7 @@ std::string Default_Parser::extractInLine(ISource &source, const char start,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="end">End character.</param>
-void Default_Parser::checkForEnd(ISource &source, const char end) {
+void Default_Parser::checkForEnd(ISource& source, const char end) {
   if (source.current() != end) {
     YAML_THROW_POS(source, std::string("Missing closing ") + end + ".");
   }
@@ -304,10 +294,9 @@ void Default_Parser::checkForEnd(ISource &source, const char end) {
 /// <param name="delimiters">Delimiters used to parse the document.</param>
 /// <param name="indentation">Parent indentation.</param>
 /// <returns>Parsed Node.</returns>
-Node Default_Parser::parseFromBuffer(const std::string &text,
-                                     const Delimiters &delimiters,
+Node Default_Parser::parseFromBuffer(const std::string& text, const Delimiters& delimiters,
                                      const unsigned long indentation) {
-  BufferSource src{text}; // string_view into text — no copy; text outlives src
+  BufferSource src{text};  // string_view into text — no copy; text outlives src
   return parseDocument(src, delimiters, indentation);
 }
 /// <summary>
@@ -317,9 +306,7 @@ Node Default_Parser::parseFromBuffer(const std::string &text,
 /// <param name="source">Source stream.</param>
 /// <param name="minIndent">Minimum column for inclusion.</param>
 /// <returns>Captured block text.</returns>
-std::string
-Default_Parser::captureIndentedBlock(ISource &source,
-                                     const unsigned long minIndent) {
+std::string Default_Parser::captureIndentedBlock(ISource& source, const unsigned long minIndent) {
   std::string text;
   while (source.more() && source.getPosition().second >= minIndent) {
     if (isDocumentBoundary(source)) {
@@ -340,8 +327,7 @@ Default_Parser::captureIndentedBlock(ISource &source,
 /// <param name="dict">Target dictionary.</param>
 /// <param name="key">Key string.</param>
 /// <param name="value">Value node (moved in).</param>
-void Default_Parser::upsertDictEntry(Dictionary &dict, const std::string &key,
-                                     Node value) {
+void Default_Parser::upsertDictEntry(Dictionary& dict, const std::string& key, Node value) {
   if (dict.contains(key)) {
     dict[key] = std::move(value);
   } else {
@@ -354,11 +340,10 @@ void Default_Parser::upsertDictEntry(Dictionary &dict, const std::string &key,
 /// </summary>
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Expected delimiter set.</param>
-void Default_Parser::checkFlowDelimiter(ISource &source,
-                                        const Delimiters &delimiters) {
+void Default_Parser::checkFlowDelimiter(ISource& source, const Delimiters& delimiters) {
   if (source.more() && !delimiters.contains(source.current())) {
-    YAML_THROW(SyntaxError, "Unexpected flow sequence token '" +
-                      std::string(1, source.current()) + "'.");
+    YAML_THROW(SyntaxError,
+               "Unexpected flow sequence token '" + std::string(1, source.current()) + "'.");
   }
 }
 /// <summary>
@@ -369,8 +354,7 @@ void Default_Parser::checkFlowDelimiter(ISource &source,
 /// <param name="source">Source stream.</param>
 /// <param name="delimiters">Expected delimiter set.</param>
 /// <param name="depth">Post-decrement inline-collection depth.</param>
-void Default_Parser::checkAtFlowClose(ISource &source,
-                                      const Delimiters &delimiters,
+void Default_Parser::checkAtFlowClose(ISource& source, const Delimiters& delimiters,
                                       const long depth) {
   bool separatedFromClose = false;
   while (source.more() && source.isWS()) {
@@ -390,9 +374,8 @@ void Default_Parser::checkAtFlowClose(ISource &source,
 /// <param name="base">Base delimiter set to copy.</param>
 /// <param name="extras">Additional characters to include.</param>
 /// <returns>New Delimiters set.</returns>
-Default_Parser::Delimiters
-Default_Parser::withExtras(const Delimiters &base,
-                           std::initializer_list<char> extras) {
+Default_Parser::Delimiters Default_Parser::withExtras(const Delimiters& base,
+                                                      std::initializer_list<char> extras) {
   Delimiters result{base};
   result.insert(extras);
   return result;
@@ -405,9 +388,8 @@ Default_Parser::withExtras(const Delimiters &base,
 /// </summary>
 /// <returns>Appropriate Delimiters set for the current parser depth.</returns>
 Default_Parser::Delimiters Default_Parser::keyStopDelimiters() {
-  return ctx_.inlineDictionaryDepth > 0
-             ? Delimiters{kColon, kComma, kRightCurlyBrace, kLineFeed}
-             : Delimiters{kColon, kLineFeed};
+  return ctx_.inlineDictionaryDepth > 0 ? Delimiters{kColon, kComma, kRightCurlyBrace, kLineFeed}
+                                        : Delimiters{kColon, kLineFeed};
 }
 /// <summary>
 /// Is the parser currently inside at least one flow collection ([] or {})?
@@ -418,4 +400,4 @@ bool Default_Parser::isInsideFlowContext() noexcept {
   return ctx_.inlineArrayDepth > 0 || ctx_.inlineDictionaryDepth > 0;
 }
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

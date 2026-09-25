@@ -1,6 +1,7 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("YAML::Options::secureOptions returns recommended safe defaults", "[YAML][Options][Security]") {
+TEST_CASE("YAML::Options::secureOptions returns recommended safe defaults",
+          "[YAML][Options][Security]") {
   ::YAML_Lib::Options secure = ::YAML_Lib::Options::secureOptions();
 
   REQUIRE(secure.strict_booleans);
@@ -12,15 +13,17 @@ TEST_CASE("YAML::Options::secureOptions returns recommended safe defaults", "[YA
   REQUIRE(secure.max_collection_size == 1024);
 }
 
-TEST_CASE("YAML::Options::validate rejects excessive configured scalar length", "[YAML][Options][Validate]") {
+TEST_CASE("YAML::Options::validate rejects excessive configured scalar length",
+          "[YAML][Options][Validate]") {
   ::YAML_Lib::Options options;
-  options.max_scalar_length = 512UL * 1024UL * 1024UL; // above safe validated limit
+  options.max_scalar_length = 512UL * 1024UL * 1024UL;  // above safe validated limit
 
   auto createYaml = [&]() { return ::YAML_Lib::YAML(options); };
   REQUIRE_THROWS_AS(createYaml(), std::invalid_argument);
 }
 
-TEST_CASE("YAML::Options enforces maxScalarLength during parsing", "[YAML][Options][Parse][Security]") {
+TEST_CASE("YAML::Options enforces maxScalarLength during parsing",
+          "[YAML][Options][Parse][Security]") {
   ::YAML_Lib::Options options;
   options.max_scalar_length = 2;
 
@@ -30,7 +33,8 @@ TEST_CASE("YAML::Options enforces maxScalarLength during parsing", "[YAML][Optio
   REQUIRE_THROWS_AS(yaml.parse(src), ::YAML_Lib::SyntaxError);
 }
 
-TEST_CASE("YAML::Options enforces maxCollectionSize during parsing", "[YAML][Options][Parse][Security]") {
+TEST_CASE("YAML::Options enforces maxCollectionSize during parsing",
+          "[YAML][Options][Parse][Security]") {
   ::YAML_Lib::Options options;
   options.max_collection_size = 1;
 
@@ -40,7 +44,8 @@ TEST_CASE("YAML::Options enforces maxCollectionSize during parsing", "[YAML][Opt
   REQUIRE_THROWS_AS(yaml.parse(src), ::YAML_Lib::SyntaxError);
 }
 
-TEST_CASE("YAML::Options enforces maxAliasCount during parsing", "[YAML][Options][Parse][Security]") {
+TEST_CASE("YAML::Options enforces maxAliasCount during parsing",
+          "[YAML][Options][Parse][Security]") {
   ::YAML_Lib::Options options;
   options.max_aliases = 1;
 
@@ -103,7 +108,8 @@ TEST_CASE("YAML::Options enforces maxAliasExpansions during parsing", "[YAML][Op
   REQUIRE_THROWS_AS(yaml.parse(src), ::YAML_Lib::SyntaxError);
 }
 
-TEST_CASE("YAML::Options enforces alias expansion limits for merge keys", "[YAML][Options][Parse][AliasLimit]") {
+TEST_CASE("YAML::Options enforces alias expansion limits for merge keys",
+          "[YAML][Options][Parse][AliasLimit]") {
   ::YAML_Lib::Options options;
   options.max_alias_expansions = 2;
 
@@ -139,7 +145,8 @@ TEST_CASE("YAML::tryParse returns false for malformed YAML", "[YAML][Options][Pa
   REQUIRE(!errorMessage.empty());
 }
 
-TEST_CASE("YAML::tryStringify returns false when destination fails", "[YAML][Options][Stringify][TryStringify]") {
+TEST_CASE("YAML::tryStringify returns false when destination fails",
+          "[YAML][Options][Stringify][TryStringify]") {
   struct FailingDestination : ::YAML_Lib::IDestination {
     void add(char) override { throw std::runtime_error("destination failed"); }
     void clear() override {}
@@ -165,7 +172,8 @@ TEST_CASE("YAML root numeric operator[] grows array without exception", "[YAML][
   REQUIRE(::YAML_Lib::NRef<::YAML_Lib::Number>(yaml.document(0)[2]).value<int>() == 42);
 }
 
-TEST_CASE("YAML root string operator[] creates a dictionary entry safely", "[YAML][Options][Index]") {
+TEST_CASE("YAML root string operator[] creates a dictionary entry safely",
+          "[YAML][Options][Index]") {
   ::YAML_Lib::YAML yaml;
   yaml["name"] = "Alice";
 

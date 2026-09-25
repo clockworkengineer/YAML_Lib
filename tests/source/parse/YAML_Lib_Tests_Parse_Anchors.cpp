@@ -2,8 +2,7 @@
 
 TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
   const YAML yaml;
-  SECTION("YAML parse array with one simple anchor.",
-          "[YAML][Parse][Anchors]") {
+  SECTION("YAML parse array with one simple anchor.", "[YAML][Parse][Anchors]") {
     BufferSource source{
         "---\nhr:\n  - Mark McGwire\n  # Following node labeled SS\n  - &SS "
         "Sammy Sosa\nrbi:\n  - *SS # Subsequent occurance\n  - Ken Griffey"};
@@ -20,8 +19,7 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
     REQUIRE(NRef<String>(yaml.document(0)["rbi"][0]).value() == "Sammy Sosa");
     REQUIRE(NRef<String>(yaml.document(0)["rbi"][1]).value() == "Ken Griffey");
   }
-  SECTION("YAML parse array with one complex anchor (example 1).",
-          "[YAML][Parse][Anchors]") {
+  SECTION("YAML parse array with one complex anchor (example 1).", "[YAML][Parse][Anchors]") {
     BufferSource source{
         "version: \"3.9\"\n\nservices:\n  production-db: "
         "&database-definition\n    image: mysql:5.7\n    volumes:\n      - "
@@ -30,20 +28,18 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
         "     MYSQL_USER: wordpress\n      MYSQL_PASSWORD: wordpress\n  "
         "test-db: *database-definition\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    compareYAML(
-        yaml,
-        "---\nversion: \"3.9\"\nservices: \n  production-db: \n    image: "
-        "mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n    "
-        "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
-        "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
-        "wordpress\n      MYSQL_PASSWORD: wordpress\n  test-db: \n    "
-        "image: mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n "
-        "   restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
-        "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
-        "wordpress\n      MYSQL_PASSWORD: wordpress\n...\n");
+    compareYAML(yaml,
+                "---\nversion: \"3.9\"\nservices: \n  production-db: \n    image: "
+                "mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n    "
+                "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
+                "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
+                "wordpress\n      MYSQL_PASSWORD: wordpress\n  test-db: \n    "
+                "image: mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n "
+                "   restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
+                "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
+                "wordpress\n      MYSQL_PASSWORD: wordpress\n...\n");
   }
-  SECTION("YAML parse array with one complex anchor (example 2).",
-          "[YAML][Parse][Anchors]") {
+  SECTION("YAML parse array with one complex anchor (example 2).", "[YAML][Parse][Anchors]") {
     BufferSource source{
         "definitions: \n  steps:\n    - step: &build-test\n        name: Build "
         "and test\n        script:\n          - mvn package\n        "
@@ -51,16 +47,15 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
         "develop:\n      - step: *build-test\n    master:\n      - step: "
         "*build-test\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    compareYAML(
-        yaml,
-        "---\ndefinitions: \n  steps: \n    - step: \n        name: Build "
-        "and test\n        script: \n          - mvn package\n        "
-        "artifacts: \n          - target/**\npipelines: \n  branches: \n   "
-        " develop: \n      - step: \n          name: Build and test\n      "
-        "    script: \n            - mvn package\n          artifacts: \n  "
-        "          - target/**\n    master: \n      - step: \n          "
-        "name: Build and test\n          script: \n            - mvn "
-        "package\n          artifacts: \n            - target/**\n...\n");
+    compareYAML(yaml,
+                "---\ndefinitions: \n  steps: \n    - step: \n        name: Build "
+                "and test\n        script: \n          - mvn package\n        "
+                "artifacts: \n          - target/**\npipelines: \n  branches: \n   "
+                " develop: \n      - step: \n          name: Build and test\n      "
+                "    script: \n            - mvn package\n          artifacts: \n  "
+                "          - target/**\n    master: \n      - step: \n          "
+                "name: Build and test\n          script: \n            - mvn "
+                "package\n          artifacts: \n            - target/**\n...\n");
   }
   SECTION("YAML parse array with one complex anchor and overrides (example 1).",
           "[YAML][Parse][Anchors]") {
@@ -74,17 +69,16 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
         "*database-definition\n    environment:\n      <<: "
         "*environment-definition\n      MYSQL_PASSWORD: test-password"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    compareYAML(
-        yaml,
-        "---\nversion: \"3.9\"\nservices: \n  production-db: \n    image: "
-        "mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n    "
-        "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
-        "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
-        "wordpress\n      MYSQL_PASSWORD: production-password\n  test-db: \n   "
-        " image: mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n    "
-        "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
-        "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
-        "wordpress\n      MYSQL_PASSWORD: test-password\n...\n");
+    compareYAML(yaml,
+                "---\nversion: \"3.9\"\nservices: \n  production-db: \n    image: "
+                "mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n    "
+                "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
+                "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
+                "wordpress\n      MYSQL_PASSWORD: production-password\n  test-db: \n   "
+                " image: mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n    "
+                "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
+                "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
+                "wordpress\n      MYSQL_PASSWORD: test-password\n...\n");
   }
   SECTION("YAML parse array with one complex anchor and overrides (example 2).",
           "[YAML][Parse][Anchors]") {
@@ -96,17 +90,16 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
         "     MYSQL_USER: wordpress\n      MYSQL_PASSWORD: wordpress\n  "
         "test-db: *database-definition\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    compareYAML(
-        yaml,
-        "---\nversion: \"3.9\"\nservices: \n  production-db: \n    image: "
-        "mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n    "
-        "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
-        "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
-        "wordpress\n      MYSQL_PASSWORD: wordpress\n  test-db: \n    "
-        "image: mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n "
-        "   restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
-        "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
-        "wordpress\n      MYSQL_PASSWORD: wordpress\n...\n");
+    compareYAML(yaml,
+                "---\nversion: \"3.9\"\nservices: \n  production-db: \n    image: "
+                "mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n    "
+                "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
+                "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
+                "wordpress\n      MYSQL_PASSWORD: wordpress\n  test-db: \n    "
+                "image: mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n "
+                "   restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
+                "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
+                "wordpress\n      MYSQL_PASSWORD: wordpress\n...\n");
   }
   SECTION("YAML parse array with one complex anchor and overrides (example 3).",
           "[YAML][Parse][Anchors]") {
@@ -121,17 +114,16 @@ TEST_CASE("Check YAML Parsing of Anchors.", "[YAML][Parse][Anchors]") {
         "*environment-definition\n      MYSQL_PASSWORD: test-password\n      "
         "MYSQL_EXTRA: test"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    compareYAML(
-        yaml,
-        "---\nversion: \"3.9\"\nservices: \n  production-db: \n    image: "
-        "mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n    "
-        "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
-        "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
-        "wordpress\n      MYSQL_PASSWORD: production-password\n  test-db: "
-        "\n    image: mysql:5.7\n    volumes: \n      - "
-        "db_data:/var/lib/mysql\n    restart: always\n    environment: \n  "
-        "    MYSQL_ROOT_PASSWORD: somewordpress\n      MYSQL_DATABASE: "
-        "wordpress\n      MYSQL_USER: wordpress\n      MYSQL_PASSWORD: "
-        "test-password\n      MYSQL_EXTRA: test\n...\n");
+    compareYAML(yaml,
+                "---\nversion: \"3.9\"\nservices: \n  production-db: \n    image: "
+                "mysql:5.7\n    volumes: \n      - db_data:/var/lib/mysql\n    "
+                "restart: always\n    environment: \n      MYSQL_ROOT_PASSWORD: "
+                "somewordpress\n      MYSQL_DATABASE: wordpress\n      MYSQL_USER: "
+                "wordpress\n      MYSQL_PASSWORD: production-password\n  test-db: "
+                "\n    image: mysql:5.7\n    volumes: \n      - "
+                "db_data:/var/lib/mysql\n    restart: always\n    environment: \n  "
+                "    MYSQL_ROOT_PASSWORD: somewordpress\n      MYSQL_DATABASE: "
+                "wordpress\n      MYSQL_USER: wordpress\n      MYSQL_PASSWORD: "
+                "test-password\n      MYSQL_EXTRA: test\n...\n");
   }
 }

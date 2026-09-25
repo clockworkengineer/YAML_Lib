@@ -19,13 +19,13 @@ namespace YAML_Lib {
 //   yaml.stringify(StreamDestination{std::cout});
 // ======================================================================
 class StreamDestination final : public IDestination {
-public:
-  explicit StreamDestination(std::ostream &stream) : stream(stream) {}
+ public:
+  explicit StreamDestination(std::ostream& stream) : stream(stream) {}
   StreamDestination() = delete;
-  StreamDestination(const StreamDestination &) = delete;
-  StreamDestination &operator=(const StreamDestination &) = delete;
-  StreamDestination(StreamDestination &&) = delete;
-  StreamDestination &operator=(StreamDestination &&) = delete;
+  StreamDestination(const StreamDestination&) = delete;
+  StreamDestination& operator=(const StreamDestination&) = delete;
+  StreamDestination(StreamDestination&&) = delete;
+  StreamDestination& operator=(StreamDestination&&) = delete;
   ~StreamDestination() override = default;
 
   void add(const char ch) override {
@@ -35,7 +35,7 @@ public:
     }
     lastChar = ch;
   }
-  void add(const std::string &bytes) override {
+  void add(const std::string& bytes) override {
     if (bytes.empty()) {
       return;
     }
@@ -45,7 +45,7 @@ public:
     }
     lastChar = bytes.back();
   }
-  void add(const char *bytes) override {
+  void add(const char* bytes) override {
     if (bytes != nullptr && bytes[0] != '\0') {
       const std::size_t length = std::strlen(bytes);
       stream.write(bytes, static_cast<std::streamsize>(length));
@@ -55,7 +55,7 @@ public:
       lastChar = bytes[length - 1];
     }
   }
-  void add(const std::string_view &bytes) override {
+  void add(const std::string_view& bytes) override {
     if (bytes.empty()) {
       return;
     }
@@ -72,9 +72,9 @@ public:
   }
   [[nodiscard]] char last() override { return lastChar; }
 
-private:
-  std::ostream &stream;
+ private:
+  std::ostream& stream;
   char lastChar{kNull};
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

@@ -30,26 +30,25 @@ namespace YAML_Lib {
 /// @tparam N  Capacity of the backing buffer in bytes.
 template <std::size_t N>
 class MonotonicArena {
-public:
+ public:
   MonotonicArena() noexcept
-      : mbr_{buffer_.data(), buffer_.size(), std::pmr::null_memory_resource()},
-        pool_{&mbr_} {}
+      : mbr_{buffer_.data(), buffer_.size(), std::pmr::null_memory_resource()}, pool_{&mbr_} {}
 
-  MonotonicArena(const MonotonicArena &) = delete;
-  MonotonicArena &operator=(const MonotonicArena &) = delete;
-  MonotonicArena(MonotonicArena &&) = delete;
-  MonotonicArena &operator=(MonotonicArena &&) = delete;
+  MonotonicArena(const MonotonicArena&) = delete;
+  MonotonicArena& operator=(const MonotonicArena&) = delete;
+  MonotonicArena(MonotonicArena&&) = delete;
+  MonotonicArena& operator=(MonotonicArena&&) = delete;
 
   /// Returns the PMR memory_resource backed by this arena.
-  [[nodiscard]] std::pmr::memory_resource *resource() noexcept { return &pool_; }
+  [[nodiscard]] std::pmr::memory_resource* resource() noexcept { return &pool_; }
 
   /// Maximum capacity of this arena in bytes.
   static constexpr std::size_t capacity() noexcept { return N; }
 
-private:
+ private:
   alignas(std::max_align_t) std::array<std::byte, N> buffer_{};
   std::pmr::monotonic_buffer_resource mbr_;
   std::pmr::unsynchronized_pool_resource pool_;
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

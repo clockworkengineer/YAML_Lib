@@ -24,10 +24,10 @@ struct StaticSequenceBase {
   using Entry = Node;
 
   StaticSequenceBase() = default;
-  StaticSequenceBase(const StaticSequenceBase &) = delete;
-  StaticSequenceBase &operator=(const StaticSequenceBase &) = delete;
-  StaticSequenceBase(StaticSequenceBase &&) = default;
-  StaticSequenceBase &operator=(StaticSequenceBase &&) = default;
+  StaticSequenceBase(const StaticSequenceBase&) = delete;
+  StaticSequenceBase& operator=(const StaticSequenceBase&) = delete;
+  StaticSequenceBase(StaticSequenceBase&&) = default;
+  StaticSequenceBase& operator=(StaticSequenceBase&&) = default;
   ~StaticSequenceBase() = default;
 
   /// Add an element; throws Node::Error if capacity N is exceeded.
@@ -55,13 +55,13 @@ struct StaticSequenceBase {
 
   [[nodiscard]] std::string toString() const { return ""; }
 
-  Entry &operator[](const std::size_t index) {
+  Entry& operator[](const std::size_t index) {
     if (index < count_) {
       return entries_[index];
     }
     YAML_THROW(Node::Error, "Invalid index used to access static sequence.");
   }
-  const Entry &operator[](const std::size_t index) const {
+  const Entry& operator[](const std::size_t index) const {
     if (index < count_) {
       return entries_[index];
     }
@@ -72,9 +72,9 @@ struct StaticSequenceBase {
   /// Body defined in YAML_Node_Reference.hpp after Node::make<Hole>() is available.
   void resize(std::size_t index);
 
-protected:
+ protected:
   std::array<Entry, N> entries_{};
   std::size_t count_{0};
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

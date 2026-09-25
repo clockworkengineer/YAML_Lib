@@ -7,8 +7,8 @@
 namespace YAML_Lib {
 
 class FileSource final : public BufferedSourceBase {
-public:
-  explicit FileSource(const std::string_view &filename) {
+ public:
+  explicit FileSource(const std::string_view& filename) {
     std::ifstream source(filename.data(), std::ios_base::binary | std::ios_base::ate);
     if (!source.is_open()) {
       YAML_THROW(Error, "File input stream failed to open or does not exist.");
@@ -24,7 +24,7 @@ public:
       if (buffer[i] == kCarriageReturn) {
         normalised += kLineFeed;
         if (i + 1 < buffer.size() && buffer[i + 1] == kLineFeed) {
-          ++i; // skip the LF of a CRLF pair
+          ++i;  // skip the LF of a CRLF pair
         }
       } else {
         normalised += buffer[i];
@@ -33,10 +33,10 @@ public:
     buffer = std::move(normalised);
   }
   FileSource() = delete;
-  FileSource(const FileSource &other) = delete;
-  FileSource &operator=(const FileSource &other) = delete;
-  FileSource(FileSource &&other) = delete;
-  FileSource &operator=(FileSource &&other) = delete;
+  FileSource(const FileSource& other) = delete;
+  FileSource& operator=(const FileSource& other) = delete;
+  FileSource(FileSource&& other) = delete;
+  FileSource& operator=(FileSource&& other) = delete;
   ~FileSource() override = default;
 
   [[nodiscard]] char current() const override {
@@ -45,16 +45,14 @@ public:
     }
     return EOF;
   }
-  [[nodiscard]] bool more() const override {
-    return bufferPosition < buffer.size();
-  }
+  [[nodiscard]] bool more() const override { return bufferPosition < buffer.size(); }
 
-protected:
-  [[nodiscard]] const char *endOfInputMessage() const noexcept override {
+ protected:
+  [[nodiscard]] const char* endOfInputMessage() const noexcept override {
     return "Tried to read past end of file.";
   }
 
-private:
+ private:
   std::string buffer;
 };
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

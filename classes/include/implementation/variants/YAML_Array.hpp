@@ -7,14 +7,18 @@ struct Array final : SequenceBase<Array> {
   // after Node::toString() is fully available.
   [[nodiscard]] std::string toKey() const;
   // Override operator[] to produce the expected "array" error message.
-  Node &operator[](const std::size_t index) {
-    if (index < entries_.size()) { return entries_[index]; }
+  Node& operator[](const std::size_t index) {
+    if (index < entries_.size()) {
+      return entries_[index];
+    }
     YAML_THROW(Node::Error, "Invalid index used to access array.");
   }
-  const Node &operator[](const std::size_t index) const {
-    if (index < entries_.size()) { return entries_[index]; }
+  const Node& operator[](const std::size_t index) const {
+    if (index < entries_.size()) {
+      return entries_[index];
+    }
     YAML_THROW(Node::Error, "Invalid index used to access array.");
   }
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

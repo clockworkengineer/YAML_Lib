@@ -5,21 +5,22 @@
 
 namespace YAML_Lib {
 
-class XML_Translator final : public ITranslator
-{
-public:
+class XML_Translator final : public ITranslator {
+ public:
   XML_Translator() = default;
-  XML_Translator(const XML_Translator &other) = delete;
-  XML_Translator &operator=(const XML_Translator &other) = delete;
-  XML_Translator(XML_Translator &&other) = delete;
-  XML_Translator &operator=(XML_Translator &&other) = delete;
+  XML_Translator(const XML_Translator& other) = delete;
+  XML_Translator& operator=(const XML_Translator& other) = delete;
+  XML_Translator(XML_Translator&& other) = delete;
+  XML_Translator& operator=(XML_Translator&& other) = delete;
   ~XML_Translator() override = default;
 
   // Convert to/from XML-escaped characters
-  [[nodiscard]] std::string from([[maybe_unused]] const std::string_view &escapedString) const override { return std::string(escapedString); }
+  [[nodiscard]] std::string from(
+      [[maybe_unused]] const std::string_view& escapedString) const override {
+    return std::string(escapedString);
+  }
 
-  [[nodiscard]] std::string to(const std::string_view &rawString) const override
-  {
+  [[nodiscard]] std::string to(const std::string_view& rawString) const override {
     std::string translated;
     for (const char16_t ch : toUtf16(std::string(rawString))) {
       if (isASCII(ch) && std::isprint(ch)) {
@@ -42,20 +43,21 @@ public:
         translated += digits[ch >> 12 & 0x0f];
         translated += digits[ch >> 8 & 0x0f];
         translated += digits[ch >> 4 & 0x0f];
-        translated += digits[ch&0x0f];
+        translated += digits[ch & 0x0f];
         translated += ";";
       }
     }
     return translated;
   }
 
-private:
-
+ private:
   /// <summary>
   /// Determine whether passed in character is valid ASCII
   /// </summary>
   /// <param name="utf16Char">UTF16 character.</param>
   /// <returns>True if valid ASCII.</returns>
-  [[nodiscard]] static bool isASCII(const char16_t utf16Char) { return utf16Char > 0x001F && utf16Char < 0x0080; }
+  [[nodiscard]] static bool isASCII(const char16_t utf16Char) {
+    return utf16Char > 0x001F && utf16Char < 0x0080;
+  }
 };
-}// namespace YAML_Lib
+}  // namespace YAML_Lib

@@ -32,7 +32,8 @@ TEST_CASE("YAML::Options can install a JSON stringifier", "[YAML][Options][Custo
   REQUIRE(output.find("\"key\"") != std::string::npos);
 }
 
-TEST_CASE("Custom ISource and IDestination integrate in a lightweight end-to-end test", "[YAML][Testability][Integration]") {
+TEST_CASE("Custom ISource and IDestination integrate in a lightweight end-to-end test",
+          "[YAML][Testability][Integration]") {
   struct MemorySource : ISource {
     explicit MemorySource(std::string text) : buffer(std::move(text)) {}
 
@@ -50,7 +51,11 @@ TEST_CASE("Custom ISource and IDestination integrate in a lightweight end-to-end
       position_++;
     }
     bool more() const override { return position_ < buffer.size(); }
-    void reset() override { position_ = 0; lineNo = 1; column = 1; }
+    void reset() override {
+      position_ = 0;
+      lineNo = 1;
+      column = 1;
+    }
     std::size_t position() override { return position_; }
     void save() override { contexts.emplace_back(lineNo, column, position_); }
     void restore() override {
@@ -70,7 +75,7 @@ TEST_CASE("Custom ISource and IDestination integrate in a lightweight end-to-end
       contexts.pop_back();
     }
 
-  private:
+   private:
     void backup(unsigned long length) override {
       if (length > position_) {
         throw ISource::Error("MemorySource::backup() beyond start");
@@ -108,8 +113,7 @@ TEST_CASE("Custom ISource and IDestination integrate in a lightweight end-to-end
   yaml.stringify(dest);
 
   REQUIRE(dest.output.find("name") != std::string::npos);
-  const bool endedWithExpectedChar = dest.last() == '\n' ||
-                                    dest.last() == '"' ||
-                                    dest.last() == '}';
+  const bool endedWithExpectedChar =
+      dest.last() == '\n' || dest.last() == '"' || dest.last() == '}';
   REQUIRE(endedWithExpectedChar);
 }

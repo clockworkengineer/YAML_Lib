@@ -1,8 +1,7 @@
 #include "YAML_Lib_Tests.hpp"
 
 TEST_CASE("Check ISource (Stream) interface.", "[YAML][ISource][Stream]") {
-  SECTION("Create StreamSource from a std::istringstream.",
-          "[YAML][ISource][Stream][Construct]") {
+  SECTION("Create StreamSource from a std::istringstream.", "[YAML][ISource][Stream][Construct]") {
     std::istringstream ss{"---\n- 1\n- 2\n"};
     REQUIRE_NOTHROW(StreamSource(ss));
   }
@@ -19,13 +18,12 @@ TEST_CASE("Check ISource (Stream) interface.", "[YAML][ISource][Stream]") {
     REQUIRE(source.more());
     REQUIRE(source.current() == '-');
   }
-  SECTION("Create StreamSource and advance a few characters.",
-          "[YAML][ISource][Stream][Next]") {
+  SECTION("Create StreamSource and advance a few characters.", "[YAML][ISource][Stream][Next]") {
     std::istringstream ss{"---\n"};
     StreamSource source{ss};
-    source.next(); // '-'
-    source.next(); // '-'
-    source.next(); // '-'
+    source.next();  // '-'
+    source.next();  // '-'
+    source.next();  // '-'
     REQUIRE(source.more());
     REQUIRE(source.current() == kLineFeed);
   }
@@ -71,30 +69,27 @@ TEST_CASE("Check ISource (Stream) interface.", "[YAML][ISource][Stream]") {
     StreamSource source{ss};
     REQUIRE(source.current() == 'a');
     source.save();
-    source.next(); // 'b'
-    source.next(); // 'c'
+    source.next();  // 'b'
+    source.next();  // 'c'
     REQUIRE(source.current() == 'c');
     source.restore();
     REQUIRE(source.current() == 'a');
   }
-  SECTION(
-      "Check that StreamSource match() finds a string and advances past it.",
-      "[YAML][ISource][Stream][Match]") {
+  SECTION("Check that StreamSource match() finds a string and advances past it.",
+          "[YAML][ISource][Stream][Match]") {
     std::istringstream ss{R"(doe: "a deer, a female deer")"};
     StreamSource source{ss};
-    REQUIRE_FALSE(source.match("dow")); // not there
-    REQUIRE(source.match("doe"));       // match
+    REQUIRE_FALSE(source.match("dow"));  // not there
+    REQUIRE(source.match("doe"));        // match
     REQUIRE(source.position() == 3);
   }
-  SECTION("Parse YAML document through StreamSource.",
-          "[YAML][ISource][Stream][Parse]") {
+  SECTION("Parse YAML document through StreamSource.", "[YAML][ISource][Stream][Parse]") {
     const YAML yaml;
     std::istringstream ss{"---\n- 1\n- 1\n- 2\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(StreamSource{ss}));
     compareYAML(yaml, "---\n- 1\n- 1\n- 2\n...\n");
   }
-  SECTION("Parse YAML mapping through StreamSource.",
-          "[YAML][ISource][Stream][Parse]") {
+  SECTION("Parse YAML mapping through StreamSource.", "[YAML][ISource][Stream][Parse]") {
     const YAML yaml;
     std::istringstream ss{"---\nname: Alice\nage: 30\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(StreamSource{ss}));
@@ -102,11 +97,10 @@ TEST_CASE("Check ISource (Stream) interface.", "[YAML][ISource][Stream]") {
     REQUIRE(NRef<String>(yaml.document(0)["name"]).value() == "Alice");
     REQUIRE(NRef<Number>(yaml.document(0)["age"]).value<int>() == 30);
   }
-  SECTION("try to read past end of StreamSource throws.",
-          "[YAML][ISource][Stream][Exception]") {
+  SECTION("try to read past end of StreamSource throws.", "[YAML][ISource][Stream][Exception]") {
     std::istringstream ss{"x"};
     StreamSource source{ss};
-    source.next(); // consume 'x' — stream now at EOF
+    source.next();  // consume 'x' — stream now at EOF
     REQUIRE_FALSE(source.more());
     REQUIRE_THROWS_AS(source.next(), ISource::Error);
   }

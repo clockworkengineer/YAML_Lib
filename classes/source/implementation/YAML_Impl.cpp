@@ -12,8 +12,7 @@
 
 namespace YAML_Lib {
 
-YAML_Impl::YAML_Impl(IStringify *stringify, IParser *parser,
-                     std::pmr::memory_resource *mr)
+YAML_Impl::YAML_Impl(IStringify* stringify, IParser* parser, std::pmr::memory_resource* mr)
     : memoryResource{mr}, documentStore{mr} {
   if (parser == nullptr) {
     defaultParser = std::make_unique<Default_Parser>(std::make_unique<Default_Translator>());
@@ -31,14 +30,14 @@ YAML_Impl::YAML_Impl(IStringify *stringify, IParser *parser,
   }
 }
 
-YAML_Impl::YAML_Impl(const Options &options)
+YAML_Impl::YAML_Impl(const Options& options)
     : memoryResource{options.memory_resource}, documentStore{options.memory_resource} {
   options.validate();
   Default_Parser::setStrictBooleans(options.strict_booleans);
 
   if (options.parser == nullptr) {
-    defaultParser = std::make_unique<Default_Parser>(
-        std::make_unique<Default_Translator>(), options);
+    defaultParser =
+        std::make_unique<Default_Parser>(std::make_unique<Default_Translator>(), options);
     yamlParser = defaultParser.get();
   } else if (options.own_parser) {
     ownedParser.reset(options.parser);
@@ -57,7 +56,7 @@ YAML_Impl::YAML_Impl(const Options &options)
   }
 }
 
-YAML_Impl::YAML_Impl(YAML_Impl &&other) noexcept
+YAML_Impl::YAML_Impl(YAML_Impl&& other) noexcept
     : memoryResource(other.memoryResource),
       defaultParser(std::move(other.defaultParser)),
       defaultStringify(std::move(other.defaultStringify)),
@@ -83,7 +82,7 @@ YAML_Impl::YAML_Impl(YAML_Impl &&other) noexcept
   other.memoryResource = nullptr;
 }
 
-YAML_Impl &YAML_Impl::operator=(YAML_Impl &&other) noexcept {
+YAML_Impl& YAML_Impl::operator=(YAML_Impl&& other) noexcept {
   if (this != &other) {
     memoryResource = other.memoryResource;
     defaultParser = std::move(other.defaultParser);
@@ -116,7 +115,7 @@ std::unique_ptr<YAML_Impl> YAML_Impl::clone() const {
   auto copy = std::make_unique<YAML_Impl>(nullptr, nullptr, memoryResource);
   std::vector<Node> clonedDocs;
   clonedDocs.reserve(documentStore.size());
-  for (const auto &doc : documentStore.getDocuments()) {
+  for (const auto& doc : documentStore.getDocuments()) {
     clonedDocs.push_back(doc.clone());
   }
   copy->documentStore.setDocuments(std::move(clonedDocs));
@@ -128,8 +127,8 @@ std::unique_ptr<YAML_Impl> YAML_Impl::clone() const {
 /// </summary>
 std::string YAML_Impl::version() {
   std::stringstream versionString;
-  versionString << "YAML_Lib Version  " << YAML_VERSION_MAJOR << "."
-                << YAML_VERSION_MINOR << "." << YAML_VERSION_PATCH;
+  versionString << "YAML_Lib Version  " << YAML_VERSION_MAJOR << "." << YAML_VERSION_MINOR << "."
+                << YAML_VERSION_PATCH;
   return versionString.str();
 }
 
@@ -138,7 +137,7 @@ static std::mutex s_pmrDefaultMutex;
 /// <summary>
 /// Function header.
 /// </summary>
-void YAML_Impl::parse(ISource &source) {
+void YAML_Impl::parse(ISource& source) {
   // RAII guard: if the caller supplied a PMR resource, install it as the PMR
   // default for the duration of parse so that all std::pmr::* containers
   // created during parse (Array/Document entries, Dictionary entries/index)
@@ -149,11 +148,10 @@ void YAML_Impl::parse(ISource &source) {
     lock.lock();
   }
   struct ResourceScope {
-    std::pmr::memory_resource *prev_;
+    std::pmr::memory_resource* prev_;
     const bool active_;
-    explicit ResourceScope(std::pmr::memory_resource *mr)
-        : prev_{mr ? std::pmr::get_default_resource() : nullptr},
-          active_{mr != nullptr} {
+    explicit ResourceScope(std::pmr::memory_resource* mr)
+        : prev_{mr ? std::pmr::get_default_resource() : nullptr}, active_{mr != nullptr} {
       if (active_) std::pmr::set_default_resource(mr);
     }
     ~ResourceScope() {
@@ -163,4 +161,4 @@ void YAML_Impl::parse(ISource &source) {
   documentStore.setDocuments(yamlParser->parse(source));
 }
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

@@ -1,7 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check IDestination (Stream) interface.",
-          "[YAML][IDestination][Stream]") {
+TEST_CASE("Check IDestination (Stream) interface.", "[YAML][IDestination][Stream]") {
   SECTION("Create StreamDestination from a std::ostringstream.",
           "[YAML][IDestination][Stream][Construct]") {
     std::ostringstream ss;
@@ -15,24 +14,21 @@ TEST_CASE("Check IDestination (Stream) interface.",
     REQUIRE(ss.str() == "x");
     REQUIRE(dest.last() == 'x');
   }
-  SECTION("Create StreamDestination and add a string.",
-          "[YAML][IDestination][Stream][Add]") {
+  SECTION("Create StreamDestination and add a string.", "[YAML][IDestination][Stream][Add]") {
     std::ostringstream ss;
     StreamDestination dest{ss};
     dest.add(std::string{"hello"});
     REQUIRE(ss.str() == "hello");
     REQUIRE(dest.last() == 'o');
   }
-  SECTION("Create StreamDestination and add a C-string.",
-          "[YAML][IDestination][Stream][Add]") {
+  SECTION("Create StreamDestination and add a C-string.", "[YAML][IDestination][Stream][Add]") {
     std::ostringstream ss;
     StreamDestination dest{ss};
     dest.add("world");
     REQUIRE(ss.str() == "world");
     REQUIRE(dest.last() == 'd');
   }
-  SECTION("Create StreamDestination and add a string_view.",
-          "[YAML][IDestination][Stream][Add]") {
+  SECTION("Create StreamDestination and add a string_view.", "[YAML][IDestination][Stream][Add]") {
     std::ostringstream ss;
     StreamDestination dest{ss};
     dest.add(std::string_view{"view"});
@@ -57,8 +53,7 @@ TEST_CASE("Check IDestination (Stream) interface.",
     dest.clear();
     REQUIRE(dest.last() == kNull);
   }
-  SECTION("Stringify YAML through StreamDestination.",
-          "[YAML][IDestination][Stream][Stringify]") {
+  SECTION("Stringify YAML through StreamDestination.", "[YAML][IDestination][Stream][Stringify]") {
     const YAML yaml;
     std::istringstream in{"---\n- 1\n- 1\n- 2\n...\n"};
     yaml.parse(StreamSource{in});
@@ -84,9 +79,10 @@ TEST_CASE("Check IDestination (Stream) interface.",
     REQUIRE(NRef<String>(yaml2.document(0)["name"]).value() == "Alice");
     REQUIRE(NRef<Number>(yaml2.document(0)["age"]).value<int>() == 30);
   }
-  SECTION("Stringify to another std::ostringstream via StreamDestination "
-          "(smoke test).",
-          "[YAML][IDestination][Stream][Stringify]") {
+  SECTION(
+      "Stringify to another std::ostringstream via StreamDestination "
+      "(smoke test).",
+      "[YAML][IDestination][Stream][Stringify]") {
     const YAML yaml;
     std::istringstream in{"key: value\n"};
     yaml.parse(StreamSource{in});

@@ -30,17 +30,17 @@ namespace YAML_Lib {
 /// @endcode
 template <std::size_t N>
 class FixedDestination final : public IDestination {
-public:
+ public:
   static_assert(N > 0, "FixedDestination capacity must be greater than zero.");
 
   /// Bind to an existing char array.  The array MUST outlive this object.
   explicit FixedDestination(char (&buf)[N]) noexcept : buf_{buf} {}
 
   FixedDestination() = delete;
-  FixedDestination(const FixedDestination &) = delete;
-  FixedDestination &operator=(const FixedDestination &) = delete;
-  FixedDestination(FixedDestination &&) = delete;
-  FixedDestination &operator=(FixedDestination &&) = delete;
+  FixedDestination(const FixedDestination&) = delete;
+  FixedDestination& operator=(const FixedDestination&) = delete;
+  FixedDestination(FixedDestination&&) = delete;
+  FixedDestination& operator=(FixedDestination&&) = delete;
   ~FixedDestination() override = default;
 
   void add(char ch) override {
@@ -56,9 +56,7 @@ public:
     overflow_ = false;
   }
 
-  [[nodiscard]] char last() override {
-    return pos_ > 0 ? buf_[pos_ - 1] : kNull;
-  }
+  [[nodiscard]] char last() override { return pos_ > 0 ? buf_[pos_ - 1] : kNull; }
 
   /// Number of bytes written so far (not counting any trailing null).
   [[nodiscard]] std::size_t size() const noexcept { return pos_; }
@@ -70,14 +68,12 @@ public:
   [[nodiscard]] static constexpr std::size_t capacity() noexcept { return N; }
 
   /// View over the bytes written so far.
-  [[nodiscard]] std::string_view view() const noexcept {
-    return std::string_view{buf_, pos_};
-  }
+  [[nodiscard]] std::string_view view() const noexcept { return std::string_view{buf_, pos_}; }
 
-private:
-  char       *buf_;
+ private:
+  char* buf_;
   std::size_t pos_{0};
-  bool        overflow_{false};
+  bool overflow_{false};
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

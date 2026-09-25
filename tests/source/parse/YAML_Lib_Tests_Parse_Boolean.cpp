@@ -1,58 +1,50 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YAML Parsing of boolean types.",
-          "[YAML][Parse][Scalar][Boolean]") {
+TEST_CASE("Check YAML Parsing of boolean types.", "[YAML][Parse][Scalar][Boolean]") {
   const YAML yaml;
-  SECTION("YAML 1.1: 'True' parses as boolean true.",
-          "[YAML][Parse][Scalar][Boolean]") {
+  SECTION("YAML 1.1: 'True' parses as boolean true.", "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{"%YAML 1.1\n---\nTrue\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)));
     REQUIRE_FALSE(!NRef<Boolean>(yaml.document(0)).value());
   }
-  SECTION("YAML 1.1: 'False' parses as boolean false.",
-          "[YAML][Parse][Scalar][Boolean]") {
+  SECTION("YAML 1.1: 'False' parses as boolean false.", "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{"%YAML 1.1\n---\nFalse\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)));
     REQUIRE_FALSE(NRef<Boolean>(yaml.document(0)).value());
   }
-  SECTION("YAML 1.1: 'On' parses as boolean true.",
-          "[YAML][Parse][Scalar][Boolean]") {
+  SECTION("YAML 1.1: 'On' parses as boolean true.", "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{"%YAML 1.1\n---\nOn\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)));
     REQUIRE_FALSE(!NRef<Boolean>(yaml.document(0)).value());
   }
-  SECTION("YAML 1.1: 'Off' parses as boolean false.",
-          "[YAML][Parse][Scalar][Boolean]") {
+  SECTION("YAML 1.1: 'Off' parses as boolean false.", "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{"%YAML 1.1\n---\nOff\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)));
     REQUIRE_FALSE(NRef<Boolean>(yaml.document(0)).value());
   }
-  SECTION("YAML 1.1: 'Yes' parses as boolean true.",
-          "[YAML][Parse][Scalar][Boolean]") {
+  SECTION("YAML 1.1: 'Yes' parses as boolean true.", "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{"%YAML 1.1\n---\nYes\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)));
     REQUIRE_FALSE(!NRef<Boolean>(yaml.document(0)).value());
   }
-  SECTION("YAML 1.1: 'No' parses as boolean false.",
-          "[YAML][Parse][Scalar][Boolean]") {
+  SECTION("YAML 1.1: 'No' parses as boolean false.", "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{"%YAML 1.1\n---\nNo\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)));
     REQUIRE_FALSE(NRef<Boolean>(yaml.document(0)).value());
   }
-  SECTION("YAML parse a boolean is not confused with string.",
-          "[YAML][Parse][Scalar][Boolean]") {
+  SECTION("YAML parse a boolean is not confused with string.", "[YAML][Parse][Scalar][Boolean]") {
     BufferSource source{
         "---\n  - True Result\n  - False Result\n  - Yes Result\n  - No "
         "Result\n  - On Result\n  - Off Result\n "};
@@ -86,8 +78,7 @@ TEST_CASE("Check YAML Parsing of boolean types.",
 TEST_CASE("Check YAML Parsing of booleans in strict YAML 1.2 mode.",
           "[YAML][Parse][Scalar][Boolean][Strict]") {
   const YAML yaml;
-  SECTION("Strict mode: 'true' parses as boolean true.",
-          "[YAML][Parse][Scalar][Boolean][Strict]") {
+  SECTION("Strict mode: 'true' parses as boolean true.", "[YAML][Parse][Scalar][Boolean][Strict]") {
     YAML::setStrictBooleans(true);
     BufferSource source{"---\ntrue\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -243,32 +234,28 @@ TEST_CASE("Check %YAML directive drives boolean schema (gap 3.9).",
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)));
     REQUIRE_FALSE(!NRef<Boolean>(yaml.document(0)).value());
   }
-  SECTION("%YAML 1.1: 'yes' is boolean true.",
-          "[YAML][Parse][Scalar][Boolean][Directive]") {
+  SECTION("%YAML 1.1: 'yes' is boolean true.", "[YAML][Parse][Scalar][Boolean][Directive]") {
     BufferSource source{"%YAML 1.1\n---\nyes\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)));
     REQUIRE_FALSE(!NRef<Boolean>(yaml.document(0)).value());
   }
-  SECTION("%YAML 1.1: 'no' is boolean false.",
-          "[YAML][Parse][Scalar][Boolean][Directive]") {
+  SECTION("%YAML 1.1: 'no' is boolean false.", "[YAML][Parse][Scalar][Boolean][Directive]") {
     BufferSource source{"%YAML 1.1\n---\nno\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)));
     REQUIRE_FALSE(NRef<Boolean>(yaml.document(0)).value());
   }
-  SECTION("%YAML 1.1: 'On' is boolean true.",
-          "[YAML][Parse][Scalar][Boolean][Directive]") {
+  SECTION("%YAML 1.1: 'On' is boolean true.", "[YAML][Parse][Scalar][Boolean][Directive]") {
     BufferSource source{"%YAML 1.1\n---\nOn\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)));
     REQUIRE_FALSE(!NRef<Boolean>(yaml.document(0)).value());
   }
-  SECTION("%YAML 1.1: 'Off' is boolean false.",
-          "[YAML][Parse][Scalar][Boolean][Directive]") {
+  SECTION("%YAML 1.1: 'Off' is boolean false.", "[YAML][Parse][Scalar][Boolean][Directive]") {
     BufferSource source{"%YAML 1.1\n---\nOff\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);

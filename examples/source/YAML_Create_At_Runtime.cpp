@@ -12,10 +12,10 @@
 namespace yl = YAML_Lib;
 namespace fs = std::filesystem;
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
   try {
     // Initialise logging.
-        std::cout << "YAML_Create_At_Runtime started ...";
+    std::cout << "YAML_Create_At_Runtime started ...";
     // Log version
     std::cout << YAML_Lib::YAML::version();
     // create an empty structure (null)
@@ -36,8 +36,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     // add another object (using an initializer list of pairs)
     yaml["object"] = {{"currency", "USD"}, {"value", 42.99}};
     // add another object that has a nested array (Node{})
-    yaml["object2"] = {{"currency", "USD"},
-                       {"array", yl::Node{23.22, 33, 55, 99.99}}};
+    yaml["object2"] = {{"currency", "USD"}, {"array", yl::Node{23.22, 33, 55, 99.99}}};
     yl::BufferDestination destination;
     yaml.stringify(destination);
     std::cout << destination.toString();
@@ -51,11 +50,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
         {"nothing", nullptr},
         {"the_answer", yl::Node{{"everything", 42}}},
         {"list", yl::Node{1, 0, 2}},
-        {"object", yl::Node{{"currency", "USD"},
-                             {"value", yl::Node{23.22, 33, 55, 99.99}}}}};
+        {"object", yl::Node{{"currency", "USD"}, {"value", yl::Node{23.22, 33, 55, 99.99}}}}};
     yaml2.stringify(destination);
     std::cout << destination.toString();
-  } catch (std::exception &ex) {
+  } catch (std::exception& ex) {
     std::cerr << "Error: " << ex.what();
   }
   std::cout << "YAML_Create_At_Runtime exited.";

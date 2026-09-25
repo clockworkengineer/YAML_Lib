@@ -16,13 +16,12 @@ namespace YAML_Lib {
  * *alias resolution, and expansion limit checking away from syntactical parsing logic.
  */
 class AliasResolver {
-public:
-  using AliasMap = std::pmr::unordered_map<std::string, std::string,
-                                          std::hash<std::string_view>,
-                                          std::equal_to<>>;
+ public:
+  using AliasMap = std::pmr::unordered_map<std::string, std::string, std::hash<std::string_view>,
+                                           std::equal_to<>>;
   using AliasSet = std::pmr::set<std::string>;
 
-  explicit AliasResolver(std::pmr::memory_resource *mr = nullptr)
+  explicit AliasResolver(std::pmr::memory_resource* mr = nullptr)
       : aliasMap(mr ? mr : std::pmr::get_default_resource()),
         activeExpansions(mr ? mr : std::pmr::get_default_resource()) {}
 
@@ -32,7 +31,7 @@ public:
     totalAliases = 0;
   }
 
-  void addAnchor(const std::string &name, const std::string &value, unsigned long maxAliases = 0) {
+  void addAnchor(const std::string& name, const std::string& value, unsigned long maxAliases = 0) {
     if (maxAliases > 0 && totalAliases >= maxAliases) {
       YAML_THROW(Error, "YAML anchor count exceeds configured limit.");
     }
@@ -40,11 +39,11 @@ public:
     ++totalAliases;
   }
 
-  [[nodiscard]] bool contains(const std::string_view &name) const {
+  [[nodiscard]] bool contains(const std::string_view& name) const {
     return aliasMap.find(std::string(name)) != aliasMap.end();
   }
 
-  [[nodiscard]] std::string getValue(const std::string_view &name) const {
+  [[nodiscard]] std::string getValue(const std::string_view& name) const {
     auto it = aliasMap.find(std::string(name));
     if (it != aliasMap.end()) {
       return it->second;
@@ -52,11 +51,11 @@ public:
     return "";
   }
 
-  [[nodiscard]] bool isExpanding(const std::string_view &name) const {
+  [[nodiscard]] bool isExpanding(const std::string_view& name) const {
     return activeExpansions.find(std::string(name)) != activeExpansions.end();
   }
 
-  void enterExpansion(const std::string &name, unsigned long maxExpansions = 0) {
+  void enterExpansion(const std::string& name, unsigned long maxExpansions = 0) {
     if (activeExpansions.find(name) != activeExpansions.end()) {
       YAML_THROW(Error, "Recursive anchor detected: '" + name + "'.");
     }
@@ -66,22 +65,16 @@ public:
     activeExpansions.insert(name);
   }
 
-  void exitExpansion(const std::string &name) {
-    activeExpansions.erase(name);
-  }
+  void exitExpansion(const std::string& name) { activeExpansions.erase(name); }
 
-  [[nodiscard]] std::size_t size() const noexcept {
-    return aliasMap.size();
-  }
+  [[nodiscard]] std::size_t size() const noexcept { return aliasMap.size(); }
 
-  [[nodiscard]] unsigned long getTotalAliases() const noexcept {
-    return totalAliases;
-  }
+  [[nodiscard]] unsigned long getTotalAliases() const noexcept { return totalAliases; }
 
-private:
+ private:
   AliasMap aliasMap;
   AliasSet activeExpansions;
   unsigned long totalAliases{0};
 };
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

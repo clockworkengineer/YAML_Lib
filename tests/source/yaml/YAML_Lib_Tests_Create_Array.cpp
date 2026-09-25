@@ -13,8 +13,8 @@ TEST_CASE("Check YAML array creation api.", "[YAML][Create][Array]") {
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[1]));
     REQUIRE(NRef<String>(yaml.document(0)[0]).value() == "pi");
-    REQUIRE_FALSE(!equalFloatingPoint(
-        NRef<Number>(yaml.document(0)[1]).value<float>(), 3.141f, 0.0001));
+    REQUIRE_FALSE(
+        !equalFloatingPoint(NRef<Number>(yaml.document(0)[1]).value<float>(), 3.141f, 0.0001));
   }
   SECTION("Initialise root YAML array with one entry containing a integer.",
           "[YAML][Create][Array][Number]") {
@@ -43,29 +43,27 @@ TEST_CASE("Check YAML array creation api.", "[YAML][Create][Array]") {
     YAML yaml;
     yaml[0] = 3.141f;
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!equalFloatingPoint(
-        NRef<Number>(yaml.document(0)[0]).value<float>(), 3.141f, 0.0001));
+    REQUIRE_FALSE(
+        !equalFloatingPoint(NRef<Number>(yaml.document(0)[0]).value<float>(), 3.141f, 0.0001));
   }
   SECTION("Initialise root YAML array with one entry containing a double.",
           "[YAML][Create][Array][Number]") {
     YAML yaml;
     yaml[0] = 3.141l;
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!equalFloatingPoint(
-        NRef<Number>(yaml.document(0)[0]).value<long double>(), 3.141l,
-        0.0001));
+    REQUIRE_FALSE(!equalFloatingPoint(NRef<Number>(yaml.document(0)[0]).value<long double>(),
+                                      3.141l, 0.0001));
   }
   SECTION("Initialise root YAML array with one entry containing a long double.",
           "[YAML][Create][Array][Number]") {
     YAML yaml;
     yaml[0] = 3.141;
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[0]));
-    REQUIRE_FALSE(!equalFloatingPoint(
-        NRef<Number>(yaml.document(0)[0]).value<double>(), 3.141, 0.0001));
+    REQUIRE_FALSE(
+        !equalFloatingPoint(NRef<Number>(yaml.document(0)[0]).value<double>(), 3.141, 0.0001));
   }
-  SECTION(
-      "Initialise root YAML array with one entry containing a const char *.",
-      "[YAML][Create][Array][String]") {
+  SECTION("Initialise root YAML array with one entry containing a const char *.",
+          "[YAML][Create][Array][String]") {
     YAML yaml;
     yaml[0] = "robert";
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[0]));
@@ -113,9 +111,8 @@ TEST_CASE("Check YAML array creation api.", "[YAML][Create][Array]") {
     REQUIRE(yamlDestination.toString() ==
             "---\n- null\n- null\n- null\n- null\n- null\n- \"test\"\n...\n");
   }
-  SECTION(
-      "Create array with free spaces add an number at the base and stringify.",
-      "[YAML][Create][Array][null]") {
+  SECTION("Create array with free spaces add an number at the base and stringify.",
+          "[YAML][Create][Array][null]") {
     YAML yaml;
     yaml[5] = "test";
     REQUIRE_FALSE(!isA<String>(yaml.document(0)[5]));
@@ -128,11 +125,9 @@ TEST_CASE("Check YAML array creation api.", "[YAML][Create][Array]") {
     REQUIRE(yamlDestination.toString() ==
             "---\n- null\n- null\n- null\n- 15\n- null\n- \"test\"\n...\n");
   }
-  SECTION("Create array with initializer list assignment.",
-          "[YAML][Create][Array][initializer]") {
+  SECTION("Create array with initializer list assignment.", "[YAML][Create][Array][initializer]") {
     YAML yaml;
-    yaml[5] = {1.0,   2.0,    3, 4.333, "5.0", "test test test test",
-               false, nullptr};
+    yaml[5] = {1.0, 2.0, 3, 4.333, "5.0", "test test test test", false, nullptr};
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[5][0]));
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[5][1]));
     REQUIRE_FALSE(!isA<Number>(yaml.document(0)[5][2]));
@@ -142,16 +137,15 @@ TEST_CASE("Check YAML array creation api.", "[YAML][Create][Array]") {
     REQUIRE_FALSE(!isA<Boolean>(yaml.document(0)[5][6]));
     REQUIRE_FALSE(!isA<Null>(yaml.document(0)[5][7]));
     REQUIRE(NRef<Array>(yaml.document(0)[5]).size() == 8);
-    REQUIRE_FALSE(!equalFloatingPoint(
-        NRef<Number>(yaml.document(0)[5][0]).value<double>(), 1.0, 0.0001));
-    REQUIRE_FALSE(!equalFloatingPoint(
-        NRef<Number>(yaml.document(0)[5][1]).value<double>(), 2.0, 0.0001));
+    REQUIRE_FALSE(
+        !equalFloatingPoint(NRef<Number>(yaml.document(0)[5][0]).value<double>(), 1.0, 0.0001));
+    REQUIRE_FALSE(
+        !equalFloatingPoint(NRef<Number>(yaml.document(0)[5][1]).value<double>(), 2.0, 0.0001));
     REQUIRE(NRef<Number>(yaml.document(0)[5][2]).value<int>() == 3);
-    REQUIRE_FALSE(!equalFloatingPoint(
-        NRef<Number>(yaml.document(0)[5][3]).value<double>(), 4.333, 0.0001));
+    REQUIRE_FALSE(
+        !equalFloatingPoint(NRef<Number>(yaml.document(0)[5][3]).value<double>(), 4.333, 0.0001));
     REQUIRE(NRef<String>(yaml.document(0)[5][4]).value() == "5.0");
-    REQUIRE(NRef<String>(yaml.document(0)[5][5]).value() ==
-            "test test test test");
+    REQUIRE(NRef<String>(yaml.document(0)[5][5]).value() == "test test test test");
     REQUIRE_FALSE(NRef<Boolean>(yaml.document(0)[5][6]).value());
     REQUIRE(NRef<Null>(yaml.document(0)[5][7]).value() == nullptr);
     BufferDestination yamlDestination;

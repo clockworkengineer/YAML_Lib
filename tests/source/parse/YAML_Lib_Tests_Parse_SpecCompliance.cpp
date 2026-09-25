@@ -5,8 +5,7 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
 
   // ---- Empty flow collections ----
 
-  SECTION("YAML parse empty inline array produces empty Array node.",
-          "[YAML][Parse][Spec][Flow]") {
+  SECTION("YAML parse empty inline array produces empty Array node.", "[YAML][Parse][Spec][Flow]") {
     BufferSource source{"---\n[]\n..."};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
@@ -23,8 +22,7 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
 
   // ---- Deeply nested flow collections ----
 
-  SECTION("YAML parse deeply nested inline dictionary.",
-          "[YAML][Parse][Spec][Flow]") {
+  SECTION("YAML parse deeply nested inline dictionary.", "[YAML][Parse][Spec][Flow]") {
     BufferSource source{"---\n{a: {b: {c: 42}}}\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
@@ -34,8 +32,7 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
     REQUIRE(NRef<Number>(yaml.document(0)["a"]["b"]["c"]).value<int>() == 42);
   }
 
-  SECTION("YAML parse inline array with inline dictionary elements.",
-          "[YAML][Parse][Spec][Flow]") {
+  SECTION("YAML parse inline array with inline dictionary elements.", "[YAML][Parse][Spec][Flow]") {
     BufferSource source{"---\n[{a: 1}, {b: 2}]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
@@ -46,8 +43,7 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
     REQUIRE(NRef<Number>(yaml.document(0)[1]["b"]).value<int>() == 2);
   }
 
-  SECTION("YAML parse mixed nested flow: dict with array values.",
-          "[YAML][Parse][Spec][Flow]") {
+  SECTION("YAML parse mixed nested flow: dict with array values.", "[YAML][Parse][Spec][Flow]") {
     BufferSource source{"---\n{first: [1, 2], second: [3, 4]}\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
@@ -98,10 +94,8 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
 
   // ---- Multi-document stream edge cases ----
 
-  SECTION("YAML stream with three documents.",
-          "[YAML][Parse][Spec][MultiDoc]") {
-    BufferSource source{
-        "---\nfoo: 1\n...\n---\nfoo: 2\n...\n---\nfoo: 3\n...\n"};
+  SECTION("YAML stream with three documents.", "[YAML][Parse][Spec][MultiDoc]") {
+    BufferSource source{"---\nfoo: 1\n...\n---\nfoo: 2\n...\n---\nfoo: 3\n...\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 3);
     REQUIRE(NRef<Number>(yaml.document(0)["foo"]).value<int>() == 1);
@@ -120,8 +114,7 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
 
   // ---- Block sequence as mapping value ----
 
-  SECTION("YAML block sequence as a mapping value.",
-          "[YAML][Parse][Spec][Block]") {
+  SECTION("YAML block sequence as a mapping value.", "[YAML][Parse][Spec][Block]") {
     BufferSource source{"---\nitems:\n  - one\n  - two\n  - three\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
@@ -137,22 +130,19 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<Dictionary>(yaml.document(0)["outer"]));
     REQUIRE(isA<Dictionary>(yaml.document(0)["outer"]["inner"]));
-    REQUIRE(NRef<String>(yaml.document(0)["outer"]["inner"]["deep"]).value() ==
-            "value");
+    REQUIRE(NRef<String>(yaml.document(0)["outer"]["inner"]["deep"]).value() == "value");
   }
 
   // ---- Numeric literal representations ----
 
-  SECTION("YAML hexadecimal integer literal is parsed as Number.",
-          "[YAML][Parse][Spec][Numeric]") {
+  SECTION("YAML hexadecimal integer literal is parsed as Number.", "[YAML][Parse][Spec][Numeric]") {
     BufferSource source{"---\nvalue: 0xFF\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Number>(yaml.document(0)["value"]));
     REQUIRE(NRef<Number>(yaml.document(0)["value"]).value<int>() == 255);
   }
 
-  SECTION("YAML octal integer literal is parsed as Number.",
-          "[YAML][Parse][Spec][Numeric]") {
+  SECTION("YAML octal integer literal is parsed as Number.", "[YAML][Parse][Spec][Numeric]") {
     BufferSource source{"---\nvalue: 0o17\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Number>(yaml.document(0)["value"]));
@@ -173,8 +163,7 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
     REQUIRE(isA<Number>(yaml.document(0)["value"]));
   }
 
-  SECTION("YAML not-a-number float literal is parsed as Number.",
-          "[YAML][Parse][Spec][Numeric]") {
+  SECTION("YAML not-a-number float literal is parsed as Number.", "[YAML][Parse][Spec][Numeric]") {
     BufferSource source{"---\nvalue: .nan\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Number>(yaml.document(0)["value"]));
@@ -211,8 +200,7 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
     REQUIRE(isA<Null>(yaml.document(0)["value"]));
   }
 
-  SECTION("YAML empty value after key colon is parsed as Null.",
-          "[YAML][Parse][Spec][Null]") {
+  SECTION("YAML empty value after key colon is parsed as Null.", "[YAML][Parse][Spec][Null]") {
     BufferSource source{"---\nvalue:\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Null>(yaml.document(0)["value"]));
@@ -220,28 +208,27 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
 
   // ---- Deeply nested block collections ----
 
-  SECTION("YAML five levels deep nested block dictionaries.",
-          "[YAML][Parse][Spec][Block][Deep]") {
-    BufferSource source{"---\n"
-                        "l1:\n"
-                        "  l2:\n"
-                        "    l3:\n"
-                        "      l4:\n"
-                        "        l5: leaf\n"};
+  SECTION("YAML five levels deep nested block dictionaries.", "[YAML][Parse][Spec][Block][Deep]") {
+    BufferSource source{
+        "---\n"
+        "l1:\n"
+        "  l2:\n"
+        "    l3:\n"
+        "      l4:\n"
+        "        l5: leaf\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(
-        NRef<String>(yaml.document(0)["l1"]["l2"]["l3"]["l4"]["l5"]).value() ==
-        "leaf");
+    REQUIRE(NRef<String>(yaml.document(0)["l1"]["l2"]["l3"]["l4"]["l5"]).value() == "leaf");
   }
 
   SECTION("YAML block sequence of block sequences (nested arrays).",
           "[YAML][Parse][Spec][Block][Deep]") {
-    BufferSource source{"---\n"
-                        "matrix:\n"
-                        "  - - 1\n"
-                        "    - 2\n"
-                        "  - - 3\n"
-                        "    - 4\n"};
+    BufferSource source{
+        "---\n"
+        "matrix:\n"
+        "  - - 1\n"
+        "    - 2\n"
+        "  - - 3\n"
+        "    - 4\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)["matrix"]));
     REQUIRE(NRef<Array>(yaml.document(0)["matrix"]).size() == 2);
@@ -252,8 +239,7 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
 
   // ---- Mixed flow and block styles ----
 
-  SECTION("YAML flow sequence as the value of a block mapping key.",
-          "[YAML][Parse][Spec][Mixed]") {
+  SECTION("YAML flow sequence as the value of a block mapping key.", "[YAML][Parse][Spec][Mixed]") {
     BufferSource source{"---\ncolors: [red, green, blue]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)["colors"]));
@@ -261,10 +247,8 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
     REQUIRE(NRef<String>(yaml.document(0)["colors"][0]).value() == "red");
   }
 
-  SECTION("YAML flow mapping as element of a block sequence.",
-          "[YAML][Parse][Spec][Mixed]") {
-    BufferSource source{
-        "---\n- {name: Alice, age: 30}\n- {name: Bob, age: 25}\n"};
+  SECTION("YAML flow mapping as element of a block sequence.", "[YAML][Parse][Spec][Mixed]") {
+    BufferSource source{"---\n- {name: Alice, age: 30}\n- {name: Bob, age: 25}\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 2);
@@ -274,32 +258,28 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
 
   // ---- Type coercion with explicit tags ----
 
-  SECTION("YAML !!str tag forces numeric string to remain a string.",
-          "[YAML][Parse][Spec][Tags]") {
+  SECTION("YAML !!str tag forces numeric string to remain a string.", "[YAML][Parse][Spec][Tags]") {
     BufferSource source{"---\nvalue: !!str 42\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)["value"]));
     REQUIRE(NRef<String>(yaml.document(0)["value"]).value() == "42");
   }
 
-  SECTION("YAML !!int tag coerces string to integer.",
-          "[YAML][Parse][Spec][Tags]") {
+  SECTION("YAML !!int tag coerces string to integer.", "[YAML][Parse][Spec][Tags]") {
     BufferSource source{"---\nvalue: !!int \"99\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Number>(yaml.document(0)["value"]));
     REQUIRE(NRef<Number>(yaml.document(0)["value"]).value<int>() == 99);
   }
 
-  SECTION("YAML !!bool tag coerces bare true to boolean true.",
-          "[YAML][Parse][Spec][Tags]") {
+  SECTION("YAML !!bool tag coerces bare true to boolean true.", "[YAML][Parse][Spec][Tags]") {
     BufferSource source{"---\nflag: !!bool true\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Boolean>(yaml.document(0)["flag"]));
     REQUIRE(NRef<Boolean>(yaml.document(0)["flag"]).value() == true);
   }
 
-  SECTION("YAML !!null tag on bare null value produces Null node.",
-          "[YAML][Parse][Spec][Tags]") {
+  SECTION("YAML !!null tag on bare null value produces Null node.", "[YAML][Parse][Spec][Tags]") {
     BufferSource source{"---\nnothing: !!null ~\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Null>(yaml.document(0)["nothing"]));
@@ -315,8 +295,7 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
     REQUIRE(NRef<String>(yaml.document(0)["value"]).value() == "it's a test");
   }
 
-  SECTION("YAML double-quoted string with escape sequence.",
-          "[YAML][Parse][Spec][String]") {
+  SECTION("YAML double-quoted string with escape sequence.", "[YAML][Parse][Spec][String]") {
     BufferSource source{"---\nvalue: \"line1\\nline2\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)["value"]));
@@ -366,11 +345,9 @@ TEST_CASE("Check YAML spec compliance edge cases.", "[YAML][Parse][Spec]") {
     REQUIRE(NRef<String>(yaml.document(0)["baz"]).value() == "qux");
   }
 
-  SECTION("YAML !!set uses ? keys with implicit null values.",
-          "[YAML][Parse][Spec][ExplicitKey]") {
+  SECTION("YAML !!set uses ? keys with implicit null values.", "[YAML][Parse][Spec][ExplicitKey]") {
     // Spec Example 2.25: Unordered Sets represented as mappings with null vals
-    BufferSource source{
-        "--- !!set\n? Mark McGwire\n? Sammy Sosa\n? Ken Griff\n"};
+    BufferSource source{"--- !!set\n? Mark McGwire\n? Sammy Sosa\n? Ken Griff\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<Dictionary>(yaml.document(0)).size() == 3);

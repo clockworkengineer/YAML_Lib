@@ -12,23 +12,21 @@
 
 namespace yl = YAML_Lib;
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
-    try {
-        const yl::YAML yaml(yl::makeStringify<yl::XML_Stringify>());
-        // Initialise logging.
-                std::cout << "YAML_Torrent_Files_To_XML started ...";
-        std::cout << YAML_Lib::YAML::version();
-        for (const auto &torrentFileName : Utility::createYAMLFileList()) {
-            yaml.parse(yl::FileSource(torrentFileName));
-            yaml.stringify(yl::FileDestination(
-                Utility::createFileName(torrentFileName, ".xml")));
-            std::cout << "Created file "
-                      << Utility::createFileName(torrentFileName, ".xml") << " from "
-                      << torrentFileName;
-        }
-    } catch (const std::exception &ex) {
-        std::cerr << "Error Processing YAML File: [" << ex.what() << "]\n";
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
+  try {
+    const yl::YAML yaml(yl::makeStringify<yl::XML_Stringify>());
+    // Initialise logging.
+    std::cout << "YAML_Torrent_Files_To_XML started ...";
+    std::cout << YAML_Lib::YAML::version();
+    for (const auto& torrentFileName : Utility::createYAMLFileList()) {
+      yaml.parse(yl::FileSource(torrentFileName));
+      yaml.stringify(yl::FileDestination(Utility::createFileName(torrentFileName, ".xml")));
+      std::cout << "Created file " << Utility::createFileName(torrentFileName, ".xml") << " from "
+                << torrentFileName;
     }
-    std::cout << "YAML_Files_To_XML exited.";
-    exit(EXIT_SUCCESS);
+  } catch (const std::exception& ex) {
+    std::cerr << "Error Processing YAML File: [" << ex.what() << "]\n";
+  }
+  std::cout << "YAML_Files_To_XML exited.";
+  exit(EXIT_SUCCESS);
 }

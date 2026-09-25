@@ -1,8 +1,7 @@
 #include "YAML_Lib_Tests.hpp"
 
 #ifdef YAML_LIB_FILE_IO
-TEST_CASE("Check IDestination (File) interface.",
-          "[YAML][IDestination][File]") {
+TEST_CASE("Check IDestination (File) interface.", "[YAML][IDestination][File]") {
   SECTION("Create FileDestination.", "[YAML][IDestination][File][Construct]") {
     std::string testFileName{generateRandomFileName()};
     REQUIRE_NOTHROW(FileDestination(testFileName));
@@ -16,8 +15,7 @@ TEST_CASE("Check IDestination (File) interface.",
     REQUIRE(source.size() == 0);
     std::filesystem::remove(testFileName);
   }
-  SECTION("Create FileDestination and add one character.",
-          "[YAML][IDestination][File][Add]") {
+  SECTION("Create FileDestination and add one character.", "[YAML][IDestination][File][Add]") {
     std::string testFileName{generateRandomFileName()};
     FileDestination source(testFileName);
     source.add('i');
@@ -35,9 +33,10 @@ TEST_CASE("Check IDestination (File) interface.",
     REQUIRE_FALSE(!compareFile("65767", testFileName));
     std::filesystem::remove(testFileName);
   }
-  SECTION("Create FileDestination, add to it, clear source and then add to it "
-          "again and check result.",
-          "[YAML][IDestination][File][Clear]") {
+  SECTION(
+      "Create FileDestination, add to it, clear source and then add to it "
+      "again and check result.",
+      "[YAML][IDestination][File][Clear]") {
     std::string testFileName{generateRandomFileName()};
     FileDestination source(testFileName);
     source.add("65767");
@@ -65,9 +64,10 @@ TEST_CASE("Check IDestination (File) interface.",
     REQUIRE_FALSE(!compareFile("65767\r\n22222\r\n33333\r\n", testFileName));
     std::filesystem::remove(testFileName);
   }
-  SECTION("Create FileDestination, add to it, clear source and then add to it "
-          "again and check result and testing last() along the way.",
-          "[YAML][IDestination][File][Clear]") {
+  SECTION(
+      "Create FileDestination, add to it, clear source and then add to it "
+      "again and check result and testing last() along the way.",
+      "[YAML][IDestination][File][Clear]") {
     std::string testFileName{generateRandomFileName()};
     FileDestination source(testFileName);
     source.add("65767");
@@ -86,4 +86,4 @@ TEST_CASE("Check IDestination (File) interface.",
     std::filesystem::remove(testFileName);
   }
 }
-#endif // YAML_LIB_FILE_IO
+#endif  // YAML_LIB_FILE_IO

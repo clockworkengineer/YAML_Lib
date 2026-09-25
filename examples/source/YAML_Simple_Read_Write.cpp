@@ -11,10 +11,10 @@
 
 namespace yl = YAML_Lib;
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
   try {
     // Initialise logging.
-        std::cout << "YAML_Simple_Read_Write started ...";
+    std::cout << "YAML_Simple_Read_Write started ...";
     std::cout << YAML_Lib::YAML::version();
     yl::YAML yaml;
     std::string inputFile = "files/simple.yaml";
@@ -22,7 +22,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     yaml.parse(yl::FileSource(inputFile));
     yaml.stringify(yl::FileDestination(outputFile));
     std::cout << "Parsed and wrote YAML file.";
-  } catch (const std::exception &ex) {
+  } catch (const std::exception& ex) {
     std::cerr << "Error: [" << ex.what() << "]\n";
   }
   std::cout << "YAML_Simple_Read_Write exited.";

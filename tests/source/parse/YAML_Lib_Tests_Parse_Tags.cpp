@@ -29,17 +29,14 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:int");
   }
 
-  SECTION("YAML parse !!float forces float type.",
-          "[YAML][Parse][Tags][Float]") {
+  SECTION("YAML parse !!float forces float type.", "[YAML][Parse][Tags][Float]") {
     BufferSource source{"---\n!!float 3.14\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Number>(yaml.document(0)));
-    REQUIRE(yaml.document(0).getTag() ==
-            "tag:yaml.org,2002:float");
+    REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:float");
   }
 
-  SECTION("YAML parse !!bool forces boolean type.",
-          "[YAML][Parse][Tags][Bool]") {
+  SECTION("YAML parse !!bool forces boolean type.", "[YAML][Parse][Tags][Bool]") {
     BufferSource source{"---\n!!bool true\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Boolean>(yaml.document(0)));
@@ -71,16 +68,14 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
 
   // ---- Custom/local ! tags ----
 
-  SECTION("YAML parse custom !tag on string value.",
-          "[YAML][Parse][Tags][Custom]") {
+  SECTION("YAML parse custom !tag on string value.", "[YAML][Parse][Tags][Custom]") {
     BufferSource source{"---\n!mytag some value\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
     REQUIRE(yaml.document(0).getTag() == "!mytag");
   }
 
-  SECTION("YAML parse !!str in a dictionary value.",
-          "[YAML][Parse][Tags][DictValue]") {
+  SECTION("YAML parse !!str in a dictionary value.", "[YAML][Parse][Tags][DictValue]") {
     BufferSource source{"---\nid: !!str 007\nname: Bond\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
@@ -88,14 +83,12 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     REQUIRE(NRef<String>(yaml.document(0)["id"]).value() == "007");
   }
 
-  SECTION("YAML parse !!int with invalid value throws.",
-          "[YAML][Parse][Tags][IntError]") {
+  SECTION("YAML parse !!int with invalid value throws.", "[YAML][Parse][Tags][IntError]") {
     BufferSource source{"---\n!!int notanumber\n"};
     REQUIRE_THROWS(yaml.parse(source));
   }
 
-  SECTION("YAML parse !!bool with invalid value throws.",
-          "[YAML][Parse][Tags][BoolError]") {
+  SECTION("YAML parse !!bool with invalid value throws.", "[YAML][Parse][Tags][BoolError]") {
     BufferSource source{"---\n!!bool notabool\n"};
     REQUIRE_THROWS(yaml.parse(source));
   }
@@ -104,14 +97,14 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     BufferSource source{"---\n!<tag:example.com,2024:item> some value\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
-    REQUIRE(yaml.document(0).getTag() ==
-            "!<tag:example.com,2024:item>");
+    REQUIRE(yaml.document(0).getTag() == "!<tag:example.com,2024:item>");
   }
 
   SECTION("YAML parse verbatim-tagged mapping key with tagged scalar value.",
           "[YAML][Parse][Tags][Verbatim]") {
-    BufferSource source{"!<tag:yaml.org,2002:str> foo :\n"
-                        "  !<!bar> baz\n"};
+    BufferSource source{
+        "!<tag:yaml.org,2002:str> foo :\n"
+        "  !<!bar> baz\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<String>(yaml.document(0)["foo"]));
@@ -150,48 +143,45 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
     REQUIRE(NRef<String>(yaml.document(1)).value() == "green");
   }
 
-  SECTION("YAML named tag handle with URI-style prefix.",
-          "[YAML][Parse][Tags][NamedHandle]") {
+  SECTION("YAML named tag handle with URI-style prefix.", "[YAML][Parse][Tags][NamedHandle]") {
     BufferSource source{"%TAG !e! tag:example.com,2024:\n---\n!e!widget foo\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
-    REQUIRE(yaml.document(0).getTag() ==
-            "tag:example.com,2024:widget");
+    REQUIRE(yaml.document(0).getTag() == "tag:example.com,2024:widget");
   }
 
-  SECTION("YAML unknown named handle throws.",
-          "[YAML][Parse][Tags][NamedHandle]") {
+  SECTION("YAML unknown named handle throws.", "[YAML][Parse][Tags][NamedHandle]") {
     BufferSource source{"---\n!x!bar baz\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
-  SECTION("YAML named tag handle on dictionary value.",
-          "[YAML][Parse][Tags][NamedHandle]") {
-    BufferSource source{
-        "%TAG !e! tag:example.com,\n---\ncolor: !e!rgb #ff0000\n"};
+  SECTION("YAML named tag handle on dictionary value.", "[YAML][Parse][Tags][NamedHandle]") {
+    BufferSource source{"%TAG !e! tag:example.com,\n---\ncolor: !e!rgb #ff0000\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<String>(yaml.document(0)["color"]));
-    REQUIRE(yaml.document(0)["color"].getTag() ==
-            "tag:example.com,rgb");
+    REQUIRE(yaml.document(0)["color"].getTag() == "tag:example.com,rgb");
   }
 
-  SECTION("YAML named tag handle defined for only first document throws in "
-          "later documents.",
-          "[YAML][Parse][Tags][NamedHandle]") {
-    BufferSource source{"%TAG !prefix! tag:example.com,2011:\n"
-                        "--- !prefix!A\n"
-                        "a: b\n"
-                        "--- !prefix!B\n"
-                        "c: d\n"};
+  SECTION(
+      "YAML named tag handle defined for only first document throws in "
+      "later documents.",
+      "[YAML][Parse][Tags][NamedHandle]") {
+    BufferSource source{
+        "%TAG !prefix! tag:example.com,2011:\n"
+        "--- !prefix!A\n"
+        "a: b\n"
+        "--- !prefix!B\n"
+        "c: d\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
   SECTION("YAML !!str after document start preserves multiline plain scalar.",
           "[YAML][Parse][Tags][Str]") {
-    BufferSource source{"--- !!str\n"
-                        "d\n"
-                        "e\n"};
+    BufferSource source{
+        "--- !!str\n"
+        "d\n"
+        "e\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() == "d e");
@@ -207,25 +197,21 @@ TEST_CASE("Check YAML parsing of tags.", "[YAML][Parse][Tags]") {
 
   // ---- !!omap and !!pairs ----
 
-  SECTION("YAML !!omap parses as a Dictionary with tag preserved.",
-          "[YAML][Parse][Tags][OMap]") {
+  SECTION("YAML !!omap parses as a Dictionary with tag preserved.", "[YAML][Parse][Tags][OMap]") {
     BufferSource source{"---\n!!omap\n- a: 1\n- b: 2\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:omap");
   }
 
-  SECTION("YAML !!omap preserves key insertion order.",
-          "[YAML][Parse][Tags][OMap]") {
+  SECTION("YAML !!omap preserves key insertion order.", "[YAML][Parse][Tags][OMap]") {
     BufferSource source{"---\n!!omap\n- z: last\n- a: first\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:omap");
   }
 
-  SECTION("YAML !!pairs parses as an Array with tag preserved.",
-          "[YAML][Parse][Tags][Pairs]") {
+  SECTION("YAML !!pairs parses as an Array with tag preserved.", "[YAML][Parse][Tags][Pairs]") {
     BufferSource source{"---\n!!pairs\n- key: value\n- key: another\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(yaml.document(0).getTag() ==
-            "tag:yaml.org,2002:pairs");
+    REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:pairs");
   }
 }

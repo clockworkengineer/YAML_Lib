@@ -1,50 +1,41 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YAML Parsing of simple scalar types.",
-          "[YAML][Parse][Scalar][String]") {
+TEST_CASE("Check YAML Parsing of simple scalar types.", "[YAML][Parse][Scalar][String]") {
   const YAML yaml;
-  SECTION("YAML parse a unquoted quoted string.",
-          "[YAML][Parse][Scalar][String]") {
+  SECTION("YAML parse a unquoted quoted string.", "[YAML][Parse][Scalar][String]") {
     BufferSource source{"---\ntest string.\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() == "test string.");
     REQUIRE(NRef<String>(yaml.document(0)).getQuote() == kNull);
   }
-  SECTION("YAML parse a double quoted string.",
-          "[YAML][Parse][Scalar][String]") {
+  SECTION("YAML parse a double quoted string.", "[YAML][Parse][Scalar][String]") {
     BufferSource source{"---\n\"test string.\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() == "test string.");
     REQUIRE(NRef<String>(yaml.document(0)).getQuote() == kDoubleQuote);
   }
-  SECTION("YAML parse a single quoted string.",
-          "[YAML][Parse][Scalar][String]") {
+  SECTION("YAML parse a single quoted string.", "[YAML][Parse][Scalar][String]") {
     BufferSource source{"---\n'test string.'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() == "test string.");
     REQUIRE(NRef<String>(yaml.document(0)).getQuote() == kApostrophe);
   }
-  SECTION(
-      "YAML parse a double quoted string with some common escape sequences in.",
-      "[YAML][Parse][Scalar][String]") {
-    BufferSource source{
-        "---\n\"test string.\\t.\\n.\\b.\\r.\\f.\\\\.\\\".\"\n"};
+  SECTION("YAML parse a double quoted string with some common escape sequences in.",
+          "[YAML][Parse][Scalar][String]") {
+    BufferSource source{"---\n\"test string.\\t.\\n.\\b.\\r.\\f.\\\\.\\\".\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
-    REQUIRE(NRef<String>(yaml.document(0)).value() ==
-            "test string.\t.\n.\b.\r.\f.\\.\".");
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "test string.\t.\n.\b.\r.\f.\\.\".");
   }
-  SECTION(
-      "YAML parse a single quoted string with some common escape sequences in.",
-      "[YAML][Parse][Scalar][String]") {
+  SECTION("YAML parse a single quoted string with some common escape sequences in.",
+          "[YAML][Parse][Scalar][String]") {
     BufferSource source{"---\n'test string.\\t.\\n.\\b.\\r.\\f.\\\\.\\\".'\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
-    REQUIRE(NRef<String>(yaml.document(0)).value() ==
-            "test string.\\t.\\n.\\b.\\r.\\f.\\\\.\\\".");
+    REQUIRE(NRef<String>(yaml.document(0)).value() == "test string.\\t.\\n.\\b.\\r.\\f.\\\\.\\\".");
   }
   // Single quoted strings have no escape translation
   SECTION("YAML parse an single quoted string with an escape sequence.",
@@ -83,8 +74,9 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
   }
   SECTION("Multiline double-quoted implicit key throws.",
           "[YAML][Parse][Scalar][String][SingleQuoteKey]") {
-    BufferSource source{"\"a\\nb\": 1\n"
-                        "\"c\n d\": 1\n"};
+    BufferSource source{
+        "\"a\\nb\": 1\n"
+        "\"c\n d\": 1\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
   SECTION("YAML parse an unquoted string with that terminated by EOF.",
@@ -96,8 +88,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
   }
   SECTION("Parse Array of plain flow scalars with blank line at end.",
           "[YAML][Parse][Examples][File]") {
-    BufferSource yamlSource{
-        "---\n- Mark Joseph\n- James Stephen\n- Ken Griffey\n\n"};
+    BufferSource yamlSource{"---\n- Mark Joseph\n- James Stephen\n- Ken Griffey\n\n"};
     REQUIRE_NOTHROW(yaml.parse(yamlSource));
     REQUIRE_FALSE(!isA<Array>(yaml.document(0)));
     REQUIRE(NRef<Array>(yaml.document(0)).size() == 3);
@@ -107,35 +98,35 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
   }
   SECTION("YAML parse a string block folded (kLineFeed -> ' ') scalar.",
           "[YAML][Parse][Scalar][String]") {
-    BufferSource source{"---\n >\n  this is not a normal string it\n  "
-                        "spans more than\n  one line\n  see?"};
+    BufferSource source{
+        "---\n >\n  this is not a normal string it\n  "
+        "spans more than\n  one line\n  see?"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() ==
             "this is not a normal string it spans more than one line see?");
   }
-  SECTION("YAML parse a string block literal scalar.",
-          "[YAML][Parse][Scalar][String]") {
-    BufferSource source{"---\n |\n  this is not a normal string it\n  "
-                        "spans more than\n  one line\n  see?"};
+  SECTION("YAML parse a string block literal scalar.", "[YAML][Parse][Scalar][String]") {
+    BufferSource source{
+        "---\n |\n  this is not a normal string it\n  "
+        "spans more than\n  one line\n  see?"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() ==
             "this is not a normal string it\nspans more than\none line\nsee?");
   }
   SECTION("YAML parse a plain string block.", "[YAML][Parse][Scalar][String]") {
-    BufferSource source{
-        "---\n  Mark McGwire\'s\n  year was crippled\n  by a knee injury."};
+    BufferSource source{"---\n  Mark McGwire\'s\n  year was crippled\n  by a knee injury."};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() ==
             "Mark McGwire's year was crippled by a knee injury.");
   }
-  SECTION(
-      "YAML parse a folded string block that is terminated to key value pair.",
-      "[YAML][Parse][Scalar][String]") {
-    BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
-                        "spans more than\n  one line\n  see?\nfoo: true\n"};
+  SECTION("YAML parse a folded string block that is terminated to key value pair.",
+          "[YAML][Parse][Scalar][String]") {
+    BufferSource source{
+        "---\nbar: >\n  this is not a normal string it\n  "
+        "spans more than\n  one line\n  see?\nfoo: true\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!NRef<Dictionary>(yaml.document(0)).contains("bar"));
@@ -148,17 +139,18 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
   }
   SECTION("YAML parse a folder string block that terminates early.",
           "[YAML][Parse][Scalar][String]") {
-    BufferSource source{"---\nbar: >\n  this is not a normal string it\n  "
-                        "spans more than\n  one line\nsee?"};
+    BufferSource source{
+        "---\nbar: >\n  this is not a normal string it\n  "
+        "spans more than\n  one line\nsee?"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
                         "YAML Syntax Error [Line: 6 Column: 1]: Missing "
                         "key/value pair from indentation level.");
   }
-  SECTION(
-      "YAML parse a literal string block that is terminated to key value pair.",
-      "[YAML][Parse][Scalar][String]") {
-    BufferSource source{"---\nbar: |\n  this is not a normal string it\n  "
-                        "spans more than\n  one line\n  see?\nfoo: true\n"};
+  SECTION("YAML parse a literal string block that is terminated to key value pair.",
+          "[YAML][Parse][Scalar][String]") {
+    BufferSource source{
+        "---\nbar: |\n  this is not a normal string it\n  "
+        "spans more than\n  one line\n  see?\nfoo: true\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 1);
     REQUIRE_FALSE(!NRef<Dictionary>(yaml.document(0)).contains("bar"));
@@ -171,8 +163,9 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
   }
   SECTION("YAML parse a literal string block that terminates early.",
           "[YAML][Parse][Scalar][String]") {
-    BufferSource source{"---\nbar: |\n  this is not a normal string it\n  "
-                        "spans more than\n  one line\nsee?"};
+    BufferSource source{
+        "---\nbar: |\n  this is not a normal string it\n  "
+        "spans more than\n  one line\nsee?"};
     REQUIRE_THROWS_WITH(yaml.parse(source),
                         "YAML Syntax Error [Line: 6 Column: 1]: Missing "
                         "key/value pair from indentation level.");
@@ -186,9 +179,10 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "Sammy Sosa completed another fine season with great stats. 63 "
             "Home Runs 0.288 Batting Average What a year!");
   }
-  SECTION("YAML parse block string folded newlines preserved for indented and"
-          "blank lines.",
-          "[YAML][Parse][Folded]") {
+  SECTION(
+      "YAML parse block string folded newlines preserved for indented and"
+      "blank lines.",
+      "[YAML][Parse][Folded]") {
     BufferSource source{
         "--- >\n Sammy Sosa completed another\n fine season with great "
         "stats.\n\n   63 Home Runs\n   0.288 Batting Average\n\n What a year!"};
@@ -197,10 +191,11 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "Sammy Sosa completed another fine season with great stats.\n\n   "
             "63 Home Runs\n   0.288 Batting Average\n\nWhat a year!");
   }
-  SECTION("YAML parse block string example with folded newlines preserved for "
-          "indented and"
-          "blank lines.",
-          "[YAML][Parse][folded]") {
+  SECTION(
+      "YAML parse block string example with folded newlines preserved for "
+      "indented and"
+      "blank lines.",
+      "[YAML][Parse][folded]") {
     BufferSource source{
         "example: >\n  Several lines of text,\n  with some \" quotes"
         " of various 'types',\n  and also a blank line:\n\n  and some text "
@@ -212,10 +207,11 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "and also a blank line:\n\nand some text with \n    extra "
             "indentation\non the next line, plus another line at the end.\n");
   }
-  SECTION("YAML parse block string example with folded newlines preserved for "
-          "indented and"
-          "blank lines plus last newline stripped.",
-          "[YAML][Parse][folded]") {
+  SECTION(
+      "YAML parse block string example with folded newlines preserved for "
+      "indented and"
+      "blank lines plus last newline stripped.",
+      "[YAML][Parse][folded]") {
     BufferSource source{
         "example: >-\n  Several lines of text,\n  with some \" quotes"
         " of various 'types',\n  and also a blank line:\n\n  and some text "
@@ -227,68 +223,65 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "and also a blank line:\n\nand some text with \n    extra "
             "indentation\non the next line, plus another line at the end.");
   }
-  SECTION("YAML parse block string example with folded newlines preserved for "
-          "indented and"
-          "blank lines plus kepp all trailing newlines.",
-          "[YAML][Parse][folded]") {
+  SECTION(
+      "YAML parse block string example with folded newlines preserved for "
+      "indented and"
+      "blank lines plus kepp all trailing newlines.",
+      "[YAML][Parse][folded]") {
     BufferSource source{
         "example: >+\n  Several lines of text,\n  with some \" quotes"
         " of various 'types',\n  and also a blank line:\n\n  and some text "
         "with\n    extra indentation\n  on the next line,\n  plus another line "
         "at the end.\n\n\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(
-        NRef<String>(yaml.document(0)["example"]).value() ==
-        "Several lines of text, with some \" quotes of various \'types\', "
-        "and also a blank line:\n\nand some text with \n    extra "
-        "indentation\non the next line, plus another line at the end.\n\n\n");
+    REQUIRE(NRef<String>(yaml.document(0)["example"]).value() ==
+            "Several lines of text, with some \" quotes of various \'types\', "
+            "and also a blank line:\n\nand some text with \n    extra "
+            "indentation\non the next line, plus another line at the end.\n\n\n");
   }
-  SECTION("YAML parse block string literal newlines preserved.",
-          "[YAML][Parse][Literal]") {
+  SECTION("YAML parse block string literal newlines preserved.", "[YAML][Parse][Literal]") {
     BufferSource source{
         "example: |\n  Several lines of text,\n  with some \" quotes"
         " of various 'types',\n  and also a blank line:\n\n  and some text "
         "with\n    extra indentation\n  on the next line,\n  plus another line "
         "at the end.\n\n\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(
-        NRef<String>(yaml.document(0)["example"]).value() ==
-        "Several lines of text,\nwith some \" quotes of various "
-        "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
-        "indentation\non the next line,\nplus another line at the end.\n");
+    REQUIRE(NRef<String>(yaml.document(0)["example"]).value() ==
+            "Several lines of text,\nwith some \" quotes of various "
+            "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
+            "indentation\non the next line,\nplus another line at the end.\n");
   }
-  SECTION("YAML parse block string literal newlines preserved and last newline "
-          "stripped.",
-          "[YAML][Parse][Literal]") {
+  SECTION(
+      "YAML parse block string literal newlines preserved and last newline "
+      "stripped.",
+      "[YAML][Parse][Literal]") {
     BufferSource source{
         "example: |-\n  Several lines of text,\n  with some \" quotes"
         " of various 'types',\n  and also a blank line:\n\n  and some text "
         "with\n    extra indentation\n  on the next line,\n  plus another line "
         "at the end.\n\n\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(
-        NRef<String>(yaml.document(0)["example"]).value() ==
-        "Several lines of text,\nwith some \" quotes of various "
-        "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
-        "indentation\non the next line,\nplus another line at the end.");
+    REQUIRE(NRef<String>(yaml.document(0)["example"]).value() ==
+            "Several lines of text,\nwith some \" quotes of various "
+            "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
+            "indentation\non the next line,\nplus another line at the end.");
   }
-  SECTION("YAML parse block string literal newlines preserved and plus keep "
-          "all trailing newlines.",
-          "[YAML][Parse][Literal]") {
+  SECTION(
+      "YAML parse block string literal newlines preserved and plus keep "
+      "all trailing newlines.",
+      "[YAML][Parse][Literal]") {
     BufferSource source{
         "example: |+\n  Several lines of text,\n  with some \" quotes"
         " of various 'types',\n  and also a blank line:\n\n  and some text "
         "with\n    extra indentation\n  on the next line,\n  plus another line "
         "at the end.\n\n\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(
-        NRef<String>(yaml.document(0)["example"]).value() ==
-        "Several lines of text,\nwith some \" quotes of various "
-        "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
-        "indentation\non the next line,\nplus another line at the end.\n\n\n");
+    REQUIRE(NRef<String>(yaml.document(0)["example"]).value() ==
+            "Several lines of text,\nwith some \" quotes of various "
+            "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
+            "indentation\non the next line,\nplus another line at the end.\n\n\n");
   }
-  SECTION("YAML parse single quoted flow scalar",
-          "[YAML][Parse][Flow Scalar]") {
+  SECTION("YAML parse single quoted flow scalar", "[YAML][Parse][Flow Scalar]") {
     BufferSource source{
         "example: \'Several lines of text,\n  containing \'\'single "
         "quotes\'\'. Escapes (like \\n) don\'\'t do anything.\n  \n  Newlines "
@@ -300,8 +293,7 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "(like \\n) don\'t do anything.\nNewlines can be added by "
             "leaving a blank line. Leading whitespace on lines is ignored.");
   }
-  SECTION("YAML parse double quoted flow scalar",
-          "[YAML][Parse][Flow Scalar]") {
+  SECTION("YAML parse double quoted flow scalar", "[YAML][Parse][Flow Scalar]") {
     BufferSource source{
         "example: \"Several lines of text,\n  containing \\\"double "
         "quotes\\\". Escapes (like \\\\n) work.\\nIn addition,\n  newlines"
@@ -317,15 +309,17 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "them from being converted to a space.\nNewlines can also be added "
             "by leaving a blank line. Leading whitespace on lines is ignored.");
   }
-  SECTION("YAML preserves folded blank line and escaped continuation content "
-          "in double-quoted scalars.",
-          "[YAML][Parse][Flow Scalar]") {
-    BufferSource source{"---\n"
-                        "\"folded \n"
-                        "to a space,\t\n"
-                        " \n"
-                        "to a line feed, or \t\\\n"
-                        " \\ \tnon-content\"\n"};
+  SECTION(
+      "YAML preserves folded blank line and escaped continuation content "
+      "in double-quoted scalars.",
+      "[YAML][Parse][Flow Scalar]") {
+    BufferSource source{
+        "---\n"
+        "\"folded \n"
+        "to a space,\t\n"
+        " \n"
+        "to a line feed, or \t\\\n"
+        " \\ \tnon-content\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() ==
@@ -348,26 +342,19 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
             "Escapes (like \\n) don\'t do anything.\nNewlines can be added by "
             "leaving a blank line. Additional leading whitespace is ignored.");
   }
-  SECTION("YAML parse various quoted scalars",
-          "[YAML][Parse][Quoted Scalars]") {
+  SECTION("YAML parse various quoted scalars", "[YAML][Parse][Quoted Scalars]") {
     BufferSource source{
         "unicode: \"Sosa did fine.\\u263A\"\ncontrol: "
         "\"\\b1998\\t1999\\t2000\\n\"\nhexesc:  \"\\x13\\x10 is "
         "\\r\\n\"\n\nsingle: \'\"Howdy!\" he cried.\'\nquoted: \' # not a "
         "\'\'comment\'\'.\'\ntie-fighter: \'|\\-*-/|\'"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(NRef<String>(yaml.document(0)["unicode"]).value() ==
-            "Sosa did fine.☺");
-    REQUIRE(NRef<String>(yaml.document(0)["control"]).value() ==
-            "\b1998\t1999\t2000\n");
-    REQUIRE(NRef<String>(yaml.document(0)["hexesc"]).value() ==
-            "\x13\x10 is \r\n");
-    REQUIRE(NRef<String>(yaml.document(0)["single"]).value() ==
-            "\"Howdy!\" he cried.");
-    REQUIRE(NRef<String>(yaml.document(0)["quoted"]).value() ==
-            " # not a 'comment'.");
-    REQUIRE(NRef<String>(yaml.document(0)["tie-fighter"]).value() ==
-            "|\\-*-/|");
+    REQUIRE(NRef<String>(yaml.document(0)["unicode"]).value() == "Sosa did fine.☺");
+    REQUIRE(NRef<String>(yaml.document(0)["control"]).value() == "\b1998\t1999\t2000\n");
+    REQUIRE(NRef<String>(yaml.document(0)["hexesc"]).value() == "\x13\x10 is \r\n");
+    REQUIRE(NRef<String>(yaml.document(0)["single"]).value() == "\"Howdy!\" he cried.");
+    REQUIRE(NRef<String>(yaml.document(0)["quoted"]).value() == " # not a 'comment'.");
+    REQUIRE(NRef<String>(yaml.document(0)["tie-fighter"]).value() == "|\\-*-/|");
   }
   SECTION("YAML parse array of block block strings literal newlines preserved.",
           "[YAML][Parse][Literal]") {
@@ -381,21 +368,20 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
         "with\n    extra indentation\n  on the next line,\n  plus another line "
         "at the end.\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
-    REQUIRE(
-        NRef<String>(yaml.document(0)[0]).value() ==
-        "Several lines of text,\nwith some \" quotes of various "
-        "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
-        "indentation\non the next line,\nplus another line at the end.");
-    REQUIRE(
-        NRef<String>(yaml.document(0)[1]).value() ==
-        "Several lines of text,\nwith some \" quotes of various "
-        "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
-        "indentation\non the next line,\nplus another line at the end.");
+    REQUIRE(NRef<String>(yaml.document(0)[0]).value() ==
+            "Several lines of text,\nwith some \" quotes of various "
+            "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
+            "indentation\non the next line,\nplus another line at the end.");
+    REQUIRE(NRef<String>(yaml.document(0)[1]).value() ==
+            "Several lines of text,\nwith some \" quotes of various "
+            "\'types\',\nand also a blank line:\n\nand some text with\n    extra "
+            "indentation\non the next line,\nplus another line at the end.");
   }
   SECTION("YAML parse a plain string block terminated by indentation level.",
           "[YAML][Parse][Scalar][String]") {
-    BufferSource source{"---\ntest1:\n   Mark McGwire\'s\n   year was "
-                        "crippled\n   by a knee injury.\ntest2: Mark Twain\n"};
+    BufferSource source{
+        "---\ntest1:\n   Mark McGwire\'s\n   year was "
+        "crippled\n   by a knee injury.\ntest2: Mark Twain\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)["test1"]).value() ==
@@ -405,9 +391,10 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
 
   // ---- YAML 1.2 §6.5 / §7.3.3 — trailing whitespace stripped before fold ---
 
-  SECTION("YAML 1.2: double-quoted scalar strips trailing spaces before raw "
-          "newline (line fold).",
-          "[YAML][Parse][Scalar][String][LineFold]") {
+  SECTION(
+      "YAML 1.2: double-quoted scalar strips trailing spaces before raw "
+      "newline (line fold).",
+      "[YAML][Parse][Scalar][String][LineFold]") {
     // Source contains actual spaces + real newline (not \n escape sequence).
     // Trailing spaces before the line break must be stripped; the newline
     // folds to a single space.
@@ -417,18 +404,20 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE(NRef<String>(yaml.document(0)).value() == "hello world");
   }
 
-  SECTION("YAML 1.2: single-quoted scalar strips trailing spaces before raw "
-          "newline (line fold).",
-          "[YAML][Parse][Scalar][String][LineFold]") {
+  SECTION(
+      "YAML 1.2: single-quoted scalar strips trailing spaces before raw "
+      "newline (line fold).",
+      "[YAML][Parse][Scalar][String][LineFold]") {
     BufferSource source{"'hello   \nworld'"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() == "hello world");
   }
 
-  SECTION("YAML 1.2: plain scalar strips trailing spaces before raw newline "
-          "(line fold).",
-          "[YAML][Parse][Scalar][String][LineFold]") {
+  SECTION(
+      "YAML 1.2: plain scalar strips trailing spaces before raw newline "
+      "(line fold).",
+      "[YAML][Parse][Scalar][String][LineFold]") {
     // Plain scalar as a mapping value; continuation line has trailing spaces
     // stripped before the fold.
     BufferSource source{"key: hello   \n  world\n"};
@@ -437,9 +426,10 @@ TEST_CASE("Check YAML Parsing of simple scalar types.",
     REQUIRE(NRef<String>(yaml.document(0)["key"]).value() == "hello world");
   }
 
-  SECTION("YAML 1.2: trailing tab before raw newline stripped in double-quoted "
-          "scalar.",
-          "[YAML][Parse][Scalar][String][LineFold]") {
+  SECTION(
+      "YAML 1.2: trailing tab before raw newline stripped in double-quoted "
+      "scalar.",
+      "[YAML][Parse][Scalar][String][LineFold]") {
     // A tab character immediately before the line break should also be
     // stripped per YAML 1.2 §6.5 (s-white = space | tab).
     BufferSource source{"\"hello\t\nworld\""};
@@ -472,8 +462,7 @@ TEST_CASE("Check YAML 1.2 plain scalar inline comment rule (§6.8).",
     BufferSource source{"url: http://host#anchor\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
-    REQUIRE(NRef<String>(yaml.document(0)["url"]).value() ==
-            "http://host#anchor");
+    REQUIRE(NRef<String>(yaml.document(0)["url"]).value() == "http://host#anchor");
   }
   SECTION("Plain scalar dict value with '#' not preceded by space is literal.",
           "[YAML][Parse][Scalar][String][InlineComment]") {
@@ -484,9 +473,10 @@ TEST_CASE("Check YAML 1.2 plain scalar inline comment rule (§6.8).",
   }
   SECTION("Quoted mapping value with trailing plain content throws.",
           "[YAML][Parse][Scalar][String][InlineComment]") {
-    BufferSource source{"key1: \"quoted1\"\n"
-                        "key2: \"quoted2\" trailing content\n"
-                        "key3: \"quoted3\"\n"};
+    BufferSource source{
+        "key1: \"quoted1\"\n"
+        "key2: \"quoted2\" trailing content\n"
+        "key3: \"quoted3\"\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
   SECTION("Quoted mapping value allows a separating inline comment.",
@@ -503,13 +493,15 @@ TEST_CASE("Check YAML 1.2 plain scalar inline comment rule (§6.8).",
     REQUIRE_FALSE(!isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)["key"]).value() == "value");
   }
-  SECTION("Block plain scalar cannot continue after inline comment on a "
-          "continuation line.",
-          "[YAML][Parse][Scalar][String][InlineComment]") {
-    BufferSource source{"---\n"
-                        "plain: a\n"
-                        "       b # end of scalar\n"
-                        "       c\n"};
+  SECTION(
+      "Block plain scalar cannot continue after inline comment on a "
+      "continuation line.",
+      "[YAML][Parse][Scalar][String][InlineComment]") {
+    BufferSource source{
+        "---\n"
+        "plain: a\n"
+        "       b # end of scalar\n"
+        "       c\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
   SECTION("Plain scalar: literal '#' then space-hash comment.",

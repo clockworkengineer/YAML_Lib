@@ -12,7 +12,8 @@ TEST_CASE("Parser honors max_documents in parse()", "[YAML][Parse][Security][max
   REQUIRE_THROWS_AS(yaml.parse(src), SyntaxError);
 }
 
-TEST_CASE("Parser honors max_parse_depth in nested structures", "[YAML][Parse][Security][max_parse_depth]") {
+TEST_CASE("Parser honors max_parse_depth in nested structures",
+          "[YAML][Parse][Security][max_parse_depth]") {
   Options options;
   options.max_parse_depth = 2;
 
@@ -22,7 +23,8 @@ TEST_CASE("Parser honors max_parse_depth in nested structures", "[YAML][Parse][S
   REQUIRE_THROWS_AS(yaml.parse(src), IParser::Error);
 }
 
-TEST_CASE("Parser honors max_alias_expansions for anchor chains", "[YAML][Parse][Security][max_alias_expansions]") {
+TEST_CASE("Parser honors max_alias_expansions for anchor chains",
+          "[YAML][Parse][Security][max_alias_expansions]") {
   Options options;
   options.max_alias_expansions = 2;
 
@@ -51,7 +53,8 @@ TEST_CASE("Parser rejects recursive alias loops", "[YAML][Parse][Security][alias
   REQUIRE_THROWS_AS(yaml.parse(src), SyntaxError);
 }
 
-TEST_CASE("Parser rejects exponential alias expansion graphs", "[YAML][Parse][Security][alias_exponential]") {
+TEST_CASE("Parser rejects exponential alias expansion graphs",
+          "[YAML][Parse][Security][alias_exponential]") {
   Options options;
   options.max_alias_expansions = 4;
 
@@ -66,7 +69,8 @@ TEST_CASE("Parser rejects exponential alias expansion graphs", "[YAML][Parse][Se
   REQUIRE_THROWS_AS(yaml.parse(src), SyntaxError);
 }
 
-TEST_CASE("Parser honors repeated alias expansions up to the limit", "[YAML][Parse][Security][alias_repeat]") {
+TEST_CASE("Parser honors repeated alias expansions up to the limit",
+          "[YAML][Parse][Security][alias_repeat]") {
   Options options;
   options.max_alias_expansions = 3;
 
@@ -79,7 +83,8 @@ TEST_CASE("Parser honors repeated alias expansions up to the limit", "[YAML][Par
   REQUIRE_NOTHROW(yaml.parse(src));
 }
 
-TEST_CASE("Parser rejects repeated alias expansions beyond the limit", "[YAML][Parse][Security][alias_repeat]") {
+TEST_CASE("Parser rejects repeated alias expansions beyond the limit",
+          "[YAML][Parse][Security][alias_repeat]") {
   Options options;
   options.max_alias_expansions = 2;
 
@@ -92,7 +97,8 @@ TEST_CASE("Parser rejects repeated alias expansions beyond the limit", "[YAML][P
   REQUIRE_THROWS_AS(yaml.parse(src), SyntaxError);
 }
 
-TEST_CASE("Parser rejects alias-based denial-of-service in flow context", "[YAML][Parse][Security][alias_dos_flow]") {
+TEST_CASE("Parser rejects alias-based denial-of-service in flow context",
+          "[YAML][Parse][Security][alias_dos_flow]") {
   Options options;
   options.max_alias_expansions = 3;
 
@@ -105,7 +111,8 @@ TEST_CASE("Parser rejects alias-based denial-of-service in flow context", "[YAML
   REQUIRE_THROWS_AS(yaml.parse(src), SyntaxError);
 }
 
-TEST_CASE("Parser rejects alias-based denial-of-service in block context", "[YAML][Parse][Security][alias_dos_block]") {
+TEST_CASE("Parser rejects alias-based denial-of-service in block context",
+          "[YAML][Parse][Security][alias_dos_block]") {
   Options options;
   options.max_alias_expansions = 2;
 
@@ -152,7 +159,8 @@ TEST_CASE("Parser rejects unclosed verbatim tag", "[YAML][Parse][Security][tag]"
   REQUIRE_THROWS_AS(yaml.parse(src), SyntaxError);
 }
 
-TEST_CASE("Parser rejects truncated unicode escape in double-quoted string", "[YAML][Parse][Security][escape]") {
+TEST_CASE("Parser rejects truncated unicode escape in double-quoted string",
+          "[YAML][Parse][Security][escape]") {
   YAML yaml;
   BufferSource src("---\nvalue: \"abc\\u123\"\n");
 

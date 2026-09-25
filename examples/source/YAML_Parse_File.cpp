@@ -20,8 +20,8 @@ static constexpr size_t kMaxFileLengthToDisplay = 16 * 1024;
 /// step.
 /// </summary>
 /// <param name="fileName">YAML file name</param>
-void processYAMLFile(const std::string &fileName) {
-  auto elapsedTime = [](const auto &start, const auto &stop) {
+void processYAMLFile(const std::string& fileName) {
+  auto elapsedTime = [](const auto& start, const auto& stop) {
     return chrono::duration_cast<chrono::microseconds>(stop - start).count();
   };
   std::cout << "Processing " << fileName;
@@ -36,20 +36,17 @@ void processYAMLFile(const std::string &fileName) {
   start = chrono::high_resolution_clock::now();
   yaml.stringify(yl::FileDestination{fileName + ".new"});
   stop = chrono::high_resolution_clock::now();
-  std::cout << elapsedTime(start, stop)
-            << " microseconds to stringify to file.";
+  std::cout << elapsedTime(start, stop) << " microseconds to stringify to file.";
   // Stringify to buffer
   start = chrono::high_resolution_clock::now();
   yaml.stringify(yamlDestination);
   stop = chrono::high_resolution_clock::now();
-  std::cout << elapsedTime(start, stop)
-            << " microseconds to stringify to buffer.";
+  std::cout << elapsedTime(start, stop) << " microseconds to stringify to buffer.";
   // Parse from buffer
   start = chrono::high_resolution_clock::now();
   yaml.parse(yl::BufferSource{yamlDestination.toString()});
   stop = chrono::high_resolution_clock::now();
-  std::cout << elapsedTime(start, stop)
-            << " microseconds to parse from buffer.";
+  std::cout << elapsedTime(start, stop) << " microseconds to parse from buffer.";
   // Display contents
   if (yamlDestination.size() < kMaxFileLengthToDisplay) {
     std::cout << "[" << yamlDestination.toString() << "]";
@@ -58,15 +55,15 @@ void processYAMLFile(const std::string &fileName) {
   std::cout << "Finished " << fileName << ".";
 }
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
   // Initialise logging.
-    std::cout << "YAML_Parse_Files started ...";
+  std::cout << "YAML_Parse_Files started ...";
   std::cout << YAML_Lib::YAML::version();
   // For each yaml parse it, stringify it and display unless its to large.
-  for (auto &fileName : Utility::createYAMLFileList()) {
+  for (auto& fileName : Utility::createYAMLFileList()) {
     try {
       processYAMLFile(fileName);
-    } catch (std::exception &ex) {
+    } catch (std::exception& ex) {
       std::cerr << "Error: " << ex.what();
     }
   }

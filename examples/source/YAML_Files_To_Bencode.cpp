@@ -12,21 +12,21 @@
 
 namespace yl = YAML_Lib;
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
-{
-    try {
-        const yl::YAML yaml(yl::makeStringify<yl::Bencode_Stringify>());
-        // Initialise logging.
-                std::cout << "YAML_Files_To_Bencode started ...";
-        std::cout << YAML_Lib::YAML::version();
-        for (const auto &yamlFileName : Utility::createYAMLFileList()) {
-            yaml.parse(yl::FileSource(yamlFileName));
-            yaml.stringify(yl::FileDestination(Utility::createFileName(yamlFileName, ".ben")));
-            std::cout << "Created file " << Utility::createFileName(yamlFileName, ".ben") << " from " << yamlFileName;
-        }
-    } catch (const std::exception &ex) {
-        std::cerr << "Error Processing Torrent File: [" << ex.what() << "]\n";
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
+  try {
+    const yl::YAML yaml(yl::makeStringify<yl::Bencode_Stringify>());
+    // Initialise logging.
+    std::cout << "YAML_Files_To_Bencode started ...";
+    std::cout << YAML_Lib::YAML::version();
+    for (const auto& yamlFileName : Utility::createYAMLFileList()) {
+      yaml.parse(yl::FileSource(yamlFileName));
+      yaml.stringify(yl::FileDestination(Utility::createFileName(yamlFileName, ".ben")));
+      std::cout << "Created file " << Utility::createFileName(yamlFileName, ".ben") << " from "
+                << yamlFileName;
     }
-    std::cout << "YAML_Files_To_Bencode exited.";
-    exit(EXIT_SUCCESS);
+  } catch (const std::exception& ex) {
+    std::cerr << "Error Processing Torrent File: [" << ex.what() << "]\n";
+  }
+  std::cout << "YAML_Files_To_Bencode exited.";
+  exit(EXIT_SUCCESS);
 }

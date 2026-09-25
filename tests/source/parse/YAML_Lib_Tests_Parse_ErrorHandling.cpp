@@ -1,7 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YAML syntax error detection.",
-          "[YAML][Parse][ErrorHandling]") {
+TEST_CASE("Check YAML syntax error detection.", "[YAML][Parse][ErrorHandling]") {
   const YAML yaml;
 
   // ---- Tab indentation ----
@@ -45,7 +44,7 @@ TEST_CASE("Check YAML syntax error detection.",
     try {
       yaml.parse(source);
       FAIL("Expected SyntaxError was not thrown.");
-    } catch (const SyntaxError &ex) {
+    } catch (const SyntaxError& ex) {
       REQUIRE(std::string{ex.what()}.find("000B") != std::string::npos);
     }
   }
@@ -66,8 +65,7 @@ TEST_CASE("Check YAML syntax error detection.",
 
   // ---- Unterminated flow collections ----
 
-  SECTION("YAML unterminated inline array throws.",
-          "[YAML][Parse][ErrorHandling][Unterminated]") {
+  SECTION("YAML unterminated inline array throws.", "[YAML][Parse][ErrorHandling][Unterminated]") {
     BufferSource source{"---\n[1, 2, 3\n"};
     REQUIRE_THROWS(yaml.parse(source));
   }
@@ -120,17 +118,15 @@ TEST_CASE("Check YAML syntax error detection.",
     try {
       yaml.parse(source);
       FAIL("Expected SyntaxError was not thrown.");
-    } catch (const SyntaxError &ex) {
-      REQUIRE(std::string{ex.what()}.find("more than once") !=
-              std::string::npos);
+    } catch (const SyntaxError& ex) {
+      REQUIRE(std::string{ex.what()}.find("more than once") != std::string::npos);
     }
   }
 
   SECTION("YAML %YAML directive allowed once per document in multi-doc stream.",
           "[YAML][Parse][ErrorHandling][Directive]") {
     // Each document may have its own %YAML directive after a ... separator
-    BufferSource source{
-        "%YAML 1.2\n---\nfoo: bar\n...\n%YAML 1.1\n---\nbaz: 1\n"};
+    BufferSource source{"%YAML 1.2\n---\nfoo: bar\n...\n%YAML 1.1\n---\nbaz: 1\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
   }
 
@@ -138,14 +134,15 @@ TEST_CASE("Check YAML syntax error detection.",
 
   SECTION("YAML <<: [*seq, *map] where *seq is a sequence throws.",
           "[YAML][Parse][ErrorHandling][MultiMerge]") {
-    BufferSource source{"---\n"
-                        "seq: &seq\n"
-                        "  - one\n"
-                        "  - two\n"
-                        "map: &map\n"
-                        "  x: 1\n"
-                        "result:\n"
-                        "  <<: [*seq, *map]\n"};
+    BufferSource source{
+        "---\n"
+        "seq: &seq\n"
+        "  - one\n"
+        "  - two\n"
+        "map: &map\n"
+        "  x: 1\n"
+        "result:\n"
+        "  <<: [*seq, *map]\n"};
     REQUIRE_THROWS(yaml.parse(source));
   }
 
@@ -154,9 +151,10 @@ TEST_CASE("Check YAML syntax error detection.",
   SECTION("YAML mapping key at wrong indentation level throws.",
           "[YAML][Parse][ErrorHandling][Indentation]") {
     // A key indented MORE than peers but not a child of those peers
-    BufferSource source{"---\n"
-                        "level1: value1\n"
-                        "    badkey: value2\n"};
+    BufferSource source{
+        "---\n"
+        "level1: value1\n"
+        "    badkey: value2\n"};
     REQUIRE_THROWS(yaml.parse(source));
   }
 
@@ -178,10 +176,11 @@ TEST_CASE("Check YAML syntax error detection.",
 
   SECTION("YAML block mapping duplicate key throws SyntaxError.",
           "[YAML][Parse][ErrorHandling][DuplicateKey]") {
-    BufferSource source{"---\n"
-                        "fruit: apple\n"
-                        "color: red\n"
-                        "fruit: orange\n"};
+    BufferSource source{
+        "---\n"
+        "fruit: apple\n"
+        "color: red\n"
+        "fruit: orange\n"};
     REQUIRE_THROWS_AS(yaml.parse(source), SyntaxError);
   }
 
@@ -199,10 +198,9 @@ TEST_CASE("Check YAML syntax error detection.",
     try {
       yaml.parse(source);
       FAIL("Expected SyntaxError was not thrown.");
-    } catch (const SyntaxError &ex) {
+    } catch (const SyntaxError& ex) {
       // The message should mention "major version" or "unsupported"
-      REQUIRE(std::string{ex.what()}.find("major version") !=
-              std::string::npos);
+      REQUIRE(std::string{ex.what()}.find("major version") != std::string::npos);
     }
   }
 
@@ -212,7 +210,7 @@ TEST_CASE("Check YAML syntax error detection.",
     try {
       yaml.parse(source);
       FAIL("Expected SyntaxError was not thrown.");
-    } catch (const SyntaxError &ex) {
+    } catch (const SyntaxError& ex) {
       REQUIRE(!std::string{ex.what()}.empty());
     }
   }
@@ -237,7 +235,7 @@ TEST_CASE("Check YAML syntax error detection.",
     try {
       yaml.parse(source);
       FAIL("Expected SyntaxError was not thrown.");
-    } catch (const SyntaxError &ex) {
+    } catch (const SyntaxError& ex) {
       REQUIRE(std::string{ex.what()}.find("foo") != std::string::npos);
     }
   }

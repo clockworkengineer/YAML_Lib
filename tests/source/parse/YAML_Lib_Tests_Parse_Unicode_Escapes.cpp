@@ -1,7 +1,6 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YAML parsing of Unicode/escape sequences.",
-          "[YAML][Parse][Escape][Unicode]") {
+TEST_CASE("Check YAML parsing of Unicode/escape sequences.", "[YAML][Parse][Escape][Unicode]") {
   const YAML yaml;
 
   // ---- YAML 1.2 single-character escape additions ----
@@ -14,8 +13,7 @@ TEST_CASE("Check YAML parsing of Unicode/escape sequences.",
     REQUIRE_THROWS(yaml.parse(source));
   }
 
-  SECTION("YAML parse double quoted string with \\a (bell).",
-          "[YAML][Parse][Escape][Bell]") {
+  SECTION("YAML parse double quoted string with \\a (bell).", "[YAML][Parse][Escape][Bell]") {
     BufferSource source{"---\n\"before\\aafter\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
@@ -32,8 +30,7 @@ TEST_CASE("Check YAML parsing of Unicode/escape sequences.",
     REQUIRE(NRef<String>(yaml.document(0)).value() == expected);
   }
 
-  SECTION("YAML parse double quoted string with \\e (escape char).",
-          "[YAML][Parse][Escape][Esc]") {
+  SECTION("YAML parse double quoted string with \\e (escape char).", "[YAML][Parse][Escape][Esc]") {
     BufferSource source{"---\n\"before\\eafter\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
@@ -59,8 +56,7 @@ TEST_CASE("Check YAML parsing of Unicode/escape sequences.",
 
   // ---- Unicode escape sequences ----
 
-  SECTION("YAML parse double quoted string with \\u (4 hex digits).",
-          "[YAML][Parse][Escape][U4]") {
+  SECTION("YAML parse double quoted string with \\u (4 hex digits).", "[YAML][Parse][Escape][U4]") {
     // \u0041 = 'A'
     BufferSource source{"---\n\"\\u0041BC\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -68,8 +64,7 @@ TEST_CASE("Check YAML parsing of Unicode/escape sequences.",
     REQUIRE(NRef<String>(yaml.document(0)).value() == "ABC");
   }
 
-  SECTION("YAML parse double quoted string with \\x (2 hex digits).",
-          "[YAML][Parse][Escape][X2]") {
+  SECTION("YAML parse double quoted string with \\x (2 hex digits).", "[YAML][Parse][Escape][X2]") {
     // \x41 = 'A'
     BufferSource source{"---\n\"\\x41BC\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
@@ -103,20 +98,21 @@ TEST_CASE("Check YAML parsing of Unicode/escape sequences.",
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
     // U+0085 in UTF-8 is 0xC2 0x85
-    const std::string expected = "before\xC2\x85"
-                                 "after";
+    const std::string expected =
+        "before\xC2\x85"
+        "after";
     REQUIRE(NRef<String>(yaml.document(0)).value() == expected);
   }
 
-  SECTION(
-      "YAML parse double quoted string with \\_ (non-breaking space U+00A0).",
-      "[YAML][Parse][Escape][NBSP]") {
+  SECTION("YAML parse double quoted string with \\_ (non-breaking space U+00A0).",
+          "[YAML][Parse][Escape][NBSP]") {
     BufferSource source{"---\n\"before\\_after\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
     // U+00A0 in UTF-8 is 0xC2 0xA0
-    const std::string expected = "before\xC2\xA0"
-                                 "after";
+    const std::string expected =
+        "before\xC2\xA0"
+        "after";
     REQUIRE(NRef<String>(yaml.document(0)).value() == expected);
   }
 
@@ -126,20 +122,21 @@ TEST_CASE("Check YAML parsing of Unicode/escape sequences.",
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
     // U+2028 in UTF-8 is 0xE2 0x80 0xA8
-    const std::string expected = "before\xE2\x80\xA8"
-                                 "after";
+    const std::string expected =
+        "before\xE2\x80\xA8"
+        "after";
     REQUIRE(NRef<String>(yaml.document(0)).value() == expected);
   }
 
-  SECTION(
-      "YAML parse double quoted string with \\P (paragraph separator U+2029).",
-      "[YAML][Parse][Escape][ParaSep]") {
+  SECTION("YAML parse double quoted string with \\P (paragraph separator U+2029).",
+          "[YAML][Parse][Escape][ParaSep]") {
     BufferSource source{"---\n\"before\\Pafter\"\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
     // U+2029 in UTF-8 is 0xE2 0x80 0xA9
-    const std::string expected = "before\xE2\x80\xA9"
-                                 "after";
+    const std::string expected =
+        "before\xE2\x80\xA9"
+        "after";
     REQUIRE(NRef<String>(yaml.document(0)).value() == expected);
   }
 

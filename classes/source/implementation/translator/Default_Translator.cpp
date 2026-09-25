@@ -35,16 +35,13 @@ static const std::vector<std::pair<const char, const char>> escapeSequences{
 /// <param name="numberOfCharacters">Number of characters left in
 /// source.</param> <param name="utf16Buffer">Buffer to append UTF-16 characters
 /// to.</param>
-void decodeUTF32(std::string_view::const_iterator &current,
-                 const ptrdiff_t numberOfCharacters,
-                 std::u16string &utf16Buffer) {
+void decodeUTF32(std::string_view::const_iterator& current, const ptrdiff_t numberOfCharacters,
+                 std::u16string& utf16Buffer) {
   if (numberOfCharacters >= 9) {
-    const std::array hexDigits{(current[1]), (current[2]), (current[3]),
-                               (current[4]), (current[5]), (current[6]),
-                               (current[7]), (current[8]), kNull};
-    char *end;
-    const uint32_t codePoint =
-        static_cast<uint32_t>(std::strtoul(hexDigits.data(), &end, 16));
+    const std::array hexDigits{(current[1]), (current[2]), (current[3]), (current[4]), (current[5]),
+                               (current[6]), (current[7]), (current[8]), kNull};
+    char* end;
+    const uint32_t codePoint = static_cast<uint32_t>(std::strtoul(hexDigits.data(), &end, 16));
     if (*end == kNull) {
       current += hexDigits.size();
       if (codePoint <= 0xFFFF) {
@@ -70,16 +67,14 @@ void decodeUTF32(std::string_view::const_iterator &current,
 /// <param name="current">Current character position.</param>
 /// <param name="numberOfCharacters">Number of characters left in source
 /// string.</param> <returns>UTF16 character for "\uxxxx".</returns>
-char16_t decodeUTF16(std::string_view::const_iterator &current,
+char16_t decodeUTF16(std::string_view::const_iterator& current,
                      const ptrdiff_t numberOfCharacters) {
   if (numberOfCharacters >= 5) {
     char16_t utf16value{};
     // Hex digits will be ascii so can throw away high order byte of char
-    const std::array hexDigits{(current[1]), (current[2]), (current[3]),
-                               (current[4]), kNull};
-    char *end;
-    utf16value +=
-        static_cast<char16_t>(std::strtol(hexDigits.data(), &end, 16));
+    const std::array hexDigits{(current[1]), (current[2]), (current[3]), (current[4]), kNull};
+    char* end;
+    utf16value += static_cast<char16_t>(std::strtol(hexDigits.data(), &end, 16));
     if (*end == kNull) {
       current += hexDigits.size();
       return utf16value;
@@ -94,15 +89,13 @@ char16_t decodeUTF16(std::string_view::const_iterator &current,
 /// <param name="current">Current character position.</param>
 /// <param name="numberOfCharacters">Number of characters left in source
 /// string.</param> <returns>UTF16 character for ""\x00"".</returns>
-char16_t decodeUTF8(std::string_view::const_iterator &current,
-                    const ptrdiff_t numberOfCharacters) {
+char16_t decodeUTF8(std::string_view::const_iterator& current, const ptrdiff_t numberOfCharacters) {
   if (numberOfCharacters >= 3) {
     char16_t utf16value{};
     // Hex digits will be ascii so can throw away high order byte of char
     const std::array hexDigits{(current[1]), (current[2]), kNull};
-    char *end;
-    utf16value +=
-        static_cast<char16_t>(std::strtol(hexDigits.data(), &end, 16));
+    char* end;
+    utf16value += static_cast<char16_t>(std::strtol(hexDigits.data(), &end, 16));
     if (*end == kNull) {
       current += hexDigits.size();
       return utf16value;
@@ -153,7 +146,7 @@ bool isValidSurrogateLower(const char16_t utf16Char) {
 /// </summary>
 /// <param name="utf16Buffer">UTF16 string.</param>
 /// <returns>false if string contains an unpaired surrogate.</returns>
-bool unpairedSurrogatesInBuffer(const std::u16string &utf16Buffer) {
+bool unpairedSurrogatesInBuffer(const std::u16string& utf16Buffer) {
   int index = 0;
   while (index <= static_cast<int>(utf16Buffer.size()) - 1) {
     if (isValidSurrogateUpper(utf16Buffer[index]) &&
@@ -183,26 +176,24 @@ bool isASCII(const char16_t utf16Char) {
 Default_Translator::Default_Translator() {
   // Initialise tables used to convert to/from single character
   // escape sequences within a YAML string.
-  for (const auto &[key, value] : escapeSequences) {
+  for (const auto& [key, value] : escapeSequences) {
     fromEscape[key] = value;
     toEscape[value] = key;
   }
   // YAML 1.2 read-only single-char escapes (no output escaping needed)
-  fromEscape['0'] =
-      '\0'; // \0 -> null char (read-only; converter rejects null output)
-  fromEscape[' '] = ' '; // \  -> space (read-only; spaces don't need escaping)
-  fromEscape['/'] = '/'; // \/ -> slash (read-only; slashes don't need escaping)
-  fromEscape['\t'] =
-      '\t'; // \<TAB> -> tab (read-only; YAML 1.2 §7.3.2 #x9 alias)
+  fromEscape['0'] = '\0';   // \0 -> null char (read-only; converter rejects null output)
+  fromEscape[' '] = ' ';    // \  -> space (read-only; spaces don't need escaping)
+  fromEscape['/'] = '/';    // \/ -> slash (read-only; slashes don't need escaping)
+  fromEscape['\t'] = '\t';  // \<TAB> -> tab (read-only; YAML 1.2 §7.3.2 #x9 alias)
   // YAML 1.2 multi-byte Unicode escape sequences (bidirectional)
   fromEscape['N'] = 0x0085;
-  toEscape[0x0085] = 'N'; // \N -> Next Line (U+0085)
+  toEscape[0x0085] = 'N';  // \N -> Next Line (U+0085)
   fromEscape['_'] = 0x00A0;
-  toEscape[0x00A0] = '_'; // \_ -> NBSP (U+00A0)
+  toEscape[0x00A0] = '_';  // \_ -> NBSP (U+00A0)
   fromEscape['L'] = 0x2028;
-  toEscape[0x2028] = 'L'; // \L -> Line Separator (U+2028)
+  toEscape[0x2028] = 'L';  // \L -> Line Separator (U+2028)
   fromEscape['P'] = 0x2029;
-  toEscape[0x2029] = 'P'; // \P -> Para Separator (U+2029)
+  toEscape[0x2029] = 'P';  // \P -> Para Separator (U+2029)
 }
 
 /// <summary>
@@ -216,7 +207,7 @@ std::string
 /// <summary>
 /// Function header.
 /// </summary>
-Default_Translator::from(const std::string_view &escapedString) const {
+Default_Translator::from(const std::string_view& escapedString) const {
   std::u16string utf16Buffer;
   for (auto current = escapedString.begin(); current != escapedString.end();) {
     // Normal character
@@ -234,16 +225,13 @@ Default_Translator::from(const std::string_view &escapedString) const {
       }
       // UTF16 "\uxxxx"
       else if (*current == 'u') {
-        utf16Buffer +=
-            decodeUTF16(current, std::distance(current, escapedString.end()));
+        utf16Buffer += decodeUTF16(current, std::distance(current, escapedString.end()));
         // UTF32 "\Uxxxxxxxx"
       } else if (*current == 'U') {
-        decodeUTF32(current, std::distance(current, escapedString.end()),
-                    utf16Buffer);
+        decodeUTF32(current, std::distance(current, escapedString.end()), utf16Buffer);
         // UTF8 "\x00"
       } else if (*current == 'x') {
-        utf16Buffer +=
-            decodeUTF8(current, std::distance(current, escapedString.end()));
+        utf16Buffer += decodeUTF8(current, std::distance(current, escapedString.end()));
       }
       // Invalid escaped character — only the sequences listed in YAML 1.2
       // §7.3.1 are valid; anything else (e.g. \. or \%) must be rejected.
@@ -266,7 +254,7 @@ Default_Translator::from(const std::string_view &escapedString) const {
 /// </summary>
 /// <param name="rawString">String to convert.</param>
 /// <returns>YAML string with escapes.</returns>
-std::string Default_Translator::to(const std::string_view &rawString) const {
+std::string Default_Translator::to(const std::string_view& rawString) const {
   std::string escapedString;
   for (char16_t utf16Char : toUtf16(std::string(rawString))) {
     // Control characters
@@ -285,4 +273,4 @@ std::string Default_Translator::to(const std::string_view &rawString) const {
   }
   return escapedString;
 }
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

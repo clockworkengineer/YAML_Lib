@@ -10,7 +10,7 @@
 
 namespace YAML_Lib {
 
-StringifierFactory &StringifierFactory::instance() {
+StringifierFactory& StringifierFactory::instance() {
   static StringifierFactory factory;
   return factory;
 }
@@ -29,18 +29,10 @@ std::string StringifierFactory::normalizeName(std::string_view name) {
 }
 
 void StringifierFactory::registerDefaults() {
-  registerCreator(StringifyFormat::YAML, []() {
-    return std::make_unique<Default_Stringify>();
-  });
-  registerCreator(StringifyFormat::JSON, []() {
-    return std::make_unique<JSON_Stringify>();
-  });
-  registerCreator(StringifyFormat::XML, []() {
-    return std::make_unique<XML_Stringify>();
-  });
-  registerCreator(StringifyFormat::Bencode, []() {
-    return std::make_unique<Bencode_Stringify>();
-  });
+  registerCreator(StringifyFormat::YAML, []() { return std::make_unique<Default_Stringify>(); });
+  registerCreator(StringifyFormat::JSON, []() { return std::make_unique<JSON_Stringify>(); });
+  registerCreator(StringifyFormat::XML, []() { return std::make_unique<XML_Stringify>(); });
+  registerCreator(StringifyFormat::Bencode, []() { return std::make_unique<Bencode_Stringify>(); });
 
   registerCreator("YAML", []() { return std::make_unique<Default_Stringify>(); });
   registerCreator("JSON", []() { return std::make_unique<JSON_Stringify>(); });
@@ -78,4 +70,4 @@ std::unique_ptr<IStringify> StringifierFactory::create(std::string_view formatNa
   return nullptr;
 }
 
-} // namespace YAML_Lib
+}  // namespace YAML_Lib

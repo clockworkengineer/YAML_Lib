@@ -1,22 +1,22 @@
 #include "YAML_Lib_Tests.hpp"
 
-TEST_CASE("Check YAML anchor edge cases and binary tag.",
-          "[YAML][Parse][Anchors]") {
+TEST_CASE("Check YAML anchor edge cases and binary tag.", "[YAML][Parse][Anchors]") {
   const YAML yaml;
 
   // ---- Multi-alias merge key: <<: [*a, *b] ----
 
   SECTION("YAML <<: [*a, *b] merges both aliases into one mapping.",
           "[YAML][Parse][Anchors][MultiMerge]") {
-    BufferSource source{"---\n"
-                        "base: &base\n"
-                        "  x: 1\n"
-                        "  y: 2\n"
-                        "ext: &ext\n"
-                        "  z: 3\n"
-                        "combined:\n"
-                        "  <<: [*base, *ext]\n"
-                        "  w: 4\n"};
+    BufferSource source{
+        "---\n"
+        "base: &base\n"
+        "  x: 1\n"
+        "  y: 2\n"
+        "ext: &ext\n"
+        "  z: 3\n"
+        "combined:\n"
+        "  <<: [*base, *ext]\n"
+        "  w: 4\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)["combined"]));
     REQUIRE(NRef<Number>(yaml.document(0)["combined"]["x"]).value<int>() == 1);
@@ -27,35 +27,35 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
 
   SECTION("YAML <<: [*a, *b] first alias has priority on conflicting keys.",
           "[YAML][Parse][Anchors][MultiMerge]") {
-    BufferSource source{"---\n"
-                        "a: &a\n"
-                        "  color: red\n"
-                        "  size: large\n"
-                        "b: &b\n"
-                        "  color: blue\n"
-                        "  weight: heavy\n"
-                        "merged:\n"
-                        "  <<: [*a, *b]\n"};
+    BufferSource source{
+        "---\n"
+        "a: &a\n"
+        "  color: red\n"
+        "  size: large\n"
+        "b: &b\n"
+        "  color: blue\n"
+        "  weight: heavy\n"
+        "merged:\n"
+        "  <<: [*a, *b]\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     // *a's color: red takes priority over *b's color: blue
     REQUIRE(NRef<String>(yaml.document(0)["merged"]["color"]).value() == "red");
-    REQUIRE(NRef<String>(yaml.document(0)["merged"]["size"]).value() ==
-            "large");
-    REQUIRE(NRef<String>(yaml.document(0)["merged"]["weight"]).value() ==
-            "heavy");
+    REQUIRE(NRef<String>(yaml.document(0)["merged"]["size"]).value() == "large");
+    REQUIRE(NRef<String>(yaml.document(0)["merged"]["weight"]).value() == "heavy");
   }
 
   SECTION("YAML <<: [*a, *b] explicit local keys override all merged keys.",
           "[YAML][Parse][Anchors][MultiMerge]") {
-    BufferSource source{"---\n"
-                        "a: &a\n"
-                        "  x: 10\n"
-                        "b: &b\n"
-                        "  x: 20\n"
-                        "  y: 30\n"
-                        "result:\n"
-                        "  <<: [*a, *b]\n"
-                        "  x: 99\n"};
+    BufferSource source{
+        "---\n"
+        "a: &a\n"
+        "  x: 10\n"
+        "b: &b\n"
+        "  x: 20\n"
+        "  y: 30\n"
+        "result:\n"
+        "  <<: [*a, *b]\n"
+        "  x: 99\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     // Local x: 99 overrides both *a's x: 10 and *b's x: 20
     REQUIRE(NRef<Number>(yaml.document(0)["result"]["x"]).value<int>() == 99);
@@ -66,26 +66,25 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
 
   SECTION("YAML inner anchor defined inside outer anchor is accessible.",
           "[YAML][Parse][Anchors][Nested]") {
-    BufferSource source{"---\n"
-                        "outer: &outer\n"
-                        "  inner: &inner\n"
-                        "    value: 42\n"
-                        "copy_inner: *inner\n"};
+    BufferSource source{
+        "---\n"
+        "outer: &outer\n"
+        "  inner: &inner\n"
+        "    value: 42\n"
+        "copy_inner: *inner\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)["copy_inner"]));
-    REQUIRE(
-        NRef<Number>(yaml.document(0)["copy_inner"]["value"]).value<int>() ==
-        42);
+    REQUIRE(NRef<Number>(yaml.document(0)["copy_inner"]["value"]).value<int>() == 42);
   }
 
-  SECTION("YAML anchor of a sequence resolves to array node.",
-          "[YAML][Parse][Anchors][Sequence]") {
-    BufferSource source{"---\n"
-                        "items: &items\n"
-                        "  - one\n"
-                        "  - two\n"
-                        "  - three\n"
-                        "copy: *items\n"};
+  SECTION("YAML anchor of a sequence resolves to array node.", "[YAML][Parse][Anchors][Sequence]") {
+    BufferSource source{
+        "---\n"
+        "items: &items\n"
+        "  - one\n"
+        "  - two\n"
+        "  - three\n"
+        "copy: *items\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)["copy"]));
     REQUIRE(NRef<Array>(yaml.document(0)["copy"]).size() == 3);
@@ -95,13 +94,14 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
 
   SECTION("YAML alias used multiple times creates independent copies.",
           "[YAML][Parse][Anchors][Reuse]") {
-    BufferSource source{"---\n"
-                        "template: &tmpl\n"
-                        "  x: 1\n"
-                        "  y: 2\n"
-                        "first: *tmpl\n"
-                        "second: *tmpl\n"
-                        "third: *tmpl\n"};
+    BufferSource source{
+        "---\n"
+        "template: &tmpl\n"
+        "  x: 1\n"
+        "  y: 2\n"
+        "first: *tmpl\n"
+        "second: *tmpl\n"
+        "third: *tmpl\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(NRef<Number>(yaml.document(0)["first"]["x"]).value<int>() == 1);
     REQUIRE(NRef<Number>(yaml.document(0)["second"]["y"]).value<int>() == 2);
@@ -144,31 +144,26 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
 
   // ---- Valid anchor/alias still works ----
 
-  SECTION("YAML parse valid anchor and alias does not throw.",
-          "[YAML][Parse][Anchors][Valid]") {
+  SECTION("YAML parse valid anchor and alias does not throw.", "[YAML][Parse][Anchors][Valid]") {
     BufferSource source{"---\nfoo: &anchor bar\nbaz: *anchor\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)["baz"]).value() == "bar");
   }
 
-  SECTION("YAML anchor defined before use resolves correctly.",
-          "[YAML][Parse][Anchors][Valid]") {
+  SECTION("YAML anchor defined before use resolves correctly.", "[YAML][Parse][Anchors][Valid]") {
     BufferSource source{
         "---\ndefaults: &defaults\n  adapter: postgres\n  encoding: "
         "unicode\ndevelopment:\n  <<: *defaults\n  database: myapp_dev\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<Dictionary>(yaml.document(0)["development"]));
-    REQUIRE(NRef<String>(yaml.document(0)["development"]["adapter"]).value() ==
-            "postgres");
-    REQUIRE(NRef<String>(yaml.document(0)["development"]["database"]).value() ==
-            "myapp_dev");
+    REQUIRE(NRef<String>(yaml.document(0)["development"]["adapter"]).value() == "postgres");
+    REQUIRE(NRef<String>(yaml.document(0)["development"]["database"]).value() == "myapp_dev");
   }
 
-  SECTION(
-      "YAML anchor with standalone tag token captures following block value.",
-      "[YAML][Parse][Anchors][Valid]") {
+  SECTION("YAML anchor with standalone tag token captures following block value.",
+          "[YAML][Parse][Anchors][Valid]") {
     BufferSource source{"---\n&a4 !!map\n&a5 !!str key5: value4\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
@@ -184,8 +179,7 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
     REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:str");
   }
 
-  SECTION("YAML !!map with tagged anchored key parses.",
-          "[YAML][Parse][Anchors][Valid]") {
+  SECTION("YAML !!map with tagged anchored key parses.", "[YAML][Parse][Anchors][Valid]") {
     BufferSource source{"---\n!!map\n!!str &a10 key10: value9\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
@@ -194,20 +188,21 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
 
   SECTION("YAML stream preserves anchor and tag parsing across documents.",
           "[YAML][Parse][Anchors][Valid]") {
-    BufferSource source{"---\n"
-                        "&a1\n"
-                        "!!str\n"
-                        "scalar1\n"
-                        "---\n"
-                        "!!str\n"
-                        "&a2\n"
-                        "scalar2\n"
-                        "---\n"
-                        "&a3\n"
-                        "!!str scalar3\n"
-                        "---\n"
-                        "&a4 !!map\n"
-                        "&a5 !!str key5: value4\n"};
+    BufferSource source{
+        "---\n"
+        "&a1\n"
+        "!!str\n"
+        "scalar1\n"
+        "---\n"
+        "!!str\n"
+        "&a2\n"
+        "scalar2\n"
+        "---\n"
+        "&a3\n"
+        "!!str scalar3\n"
+        "---\n"
+        "&a4 !!map\n"
+        "&a5 !!str key5: value4\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(yaml.getNumberOfDocuments() == 4);
     REQUIRE(isA<Dictionary>(yaml.document(3)));
@@ -222,19 +217,16 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
     REQUIRE(NRef<String>(yaml.document(0)).value() == "scalar2");
   }
 
-  SECTION(
-      "YAML tag followed by anchor and scalar parses for core tag coercion.",
-      "[YAML][Parse][Anchors][Valid]") {
+  SECTION("YAML tag followed by anchor and scalar parses for core tag coercion.",
+          "[YAML][Parse][Anchors][Valid]") {
     BufferSource source{"---\n- &a !!str a\n- !!int &c 4\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)[0]).value() == "a");
-    REQUIRE(yaml.document(0)[0].getTag() ==
-            "tag:yaml.org,2002:str");
+    REQUIRE(yaml.document(0)[0].getTag() == "tag:yaml.org,2002:str");
     REQUIRE(isA<Number>(yaml.document(0)[1]));
     REQUIRE(NRef<Number>(yaml.document(0)[1]).value<int>() == 4);
-    REQUIRE(yaml.document(0)[1].getTag() ==
-            "tag:yaml.org,2002:int");
+    REQUIRE(yaml.document(0)[1].getTag() == "tag:yaml.org,2002:int");
   }
 
   SECTION("YAML anchor followed by tagged scalar on next line parses.",
@@ -245,14 +237,14 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
     REQUIRE(NRef<String>(yaml.document(0)).value() == "scalar3");
   }
 
-  SECTION("YAML tags on empty scalars parse correctly (FH7J).",
-          "[YAML][Parse][Anchors][Valid]") {
-    BufferSource source{"---\n"
-                        "- !!str\n"
-                        "-\n"
-                        "  !!null : a\n"
-                        "  b: !!str\n"
-                        "- !!str : !!null\n"};
+  SECTION("YAML tags on empty scalars parse correctly (FH7J).", "[YAML][Parse][Anchors][Valid]") {
+    BufferSource source{
+        "---\n"
+        "- !!str\n"
+        "-\n"
+        "  !!null : a\n"
+        "  b: !!str\n"
+        "- !!str : !!null\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Array>(yaml.document(0)));
     REQUIRE(isA<String>(yaml.document(0)[0]));
@@ -271,18 +263,15 @@ TEST_CASE("Check YAML anchor edge cases and binary tag.",
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<String>(yaml.document(0)));
     REQUIRE(NRef<String>(yaml.document(0)).value() == "SGVsbG8gV29ybGQ=");
-    REQUIRE(yaml.document(0).getTag() ==
-            "tag:yaml.org,2002:binary");
+    REQUIRE(yaml.document(0).getTag() == "tag:yaml.org,2002:binary");
   }
 
-  SECTION("YAML !!binary tag in dictionary value.",
-          "[YAML][Parse][Tags][Binary]") {
+  SECTION("YAML !!binary tag in dictionary value.", "[YAML][Parse][Tags][Binary]") {
     BufferSource source{"---\ndata: !!binary AAEC\n"};
     REQUIRE_NOTHROW(yaml.parse(source));
     REQUIRE(isA<Dictionary>(yaml.document(0)));
     REQUIRE(isA<String>(yaml.document(0)["data"]));
     REQUIRE(NRef<String>(yaml.document(0)["data"]).value() == "AAEC");
-    REQUIRE(yaml.document(0)["data"].getTag() ==
-            "tag:yaml.org,2002:binary");
+    REQUIRE(yaml.document(0)["data"].getTag() == "tag:yaml.org,2002:binary");
   }
 }
