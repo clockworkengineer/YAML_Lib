@@ -123,10 +123,11 @@ bool Number::stringToNumber(const std::string_view& number) {
     std::string s(sv);
     value = std::strtold(s.c_str(), &endptr);
     if (errno != 0 || endptr != s.c_str() + s.size() || endptr == s.c_str()) {
-      return false;
+      result.ec = std::errc::invalid_argument;
+    } else {
+      result.ec = std::errc{};
+      result.ptr = end;
     }
-    *this = Number(value);
-    return true;
   } else {
     // Floating-point: from_chars (GCC 11+ / Clang 12+ / MSVC 16.4+).
     result = std::from_chars(begin, end, value);
