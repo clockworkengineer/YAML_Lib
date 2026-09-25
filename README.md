@@ -1,5 +1,10 @@
 # YAML_Lib
 
+[![CI](https://github.com/clockworkengineer/YAML_Lib/actions/workflows/ci.yml/badge.svg)](https://github.com/clockworkengineer/YAML_Lib/actions/workflows/ci.yml)
+[![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE.txt)
+[![Buy Me a Coffee](https://img.shields.io/badge/Donate-Buy%20Me%20A%20Coffee-orange.svg)](https://www.buymeacoffee.com/clockworkengineer)
+
 YAML_Lib is a lightweight, header-friendly C++20 library for parsing, manipulating, and generating YAML. It converts YAML text into a typed node tree that can be interrogated, modified, and stringified back to YAML — or to JSON, XML, and Bencode via pluggable stringifiers.
 
 ## Features
@@ -428,18 +433,10 @@ All examples are in `examples/source/`:
 - [Feature Plan](docs/PARSER_FEATURES_AND_PLAN.md)
 - [YAML 1.2.2 Specification](https://yaml.org/spec/1.2.2/)
 
-## Support
-
-If you find `YAML_Lib` helpful and would like to support its development, you can buy me a coffee:
-
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/roberttizz1)
-
-[Buy Me a Coffee — roberttizz1](https://buymeacoffee.com/roberttizz1)
-
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for branch workflow, style checks, static analysis, and PR guidance.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+YAML_Lib is licensed under the [MIT License](LICENSE.txt).

@@ -134,6 +134,7 @@ std::string YAML_FileReader::read(const std::string_view &fileName) {
     if (!yamlFile) {
       YAML_THROW(Error, "Failed to read YAML file '" + std::string(fileName) + "'.");
     }
+    [[fallthrough]];
   case YAML::Format::utf8:
     translated = readYAMLString(yamlFile);
     break;
@@ -164,6 +165,7 @@ void YAML_FileWriter::write(const std::string_view &fileName,
   case YAML::Format::utf8BOM:
     yamlFile << static_cast<unsigned char>(0xEF) << static_cast<unsigned char>(0xBB)
              << static_cast<unsigned char>(0xBF);
+    [[fallthrough]];
   case YAML::Format::utf8:
     writeYAMLString(yamlFile, yamlString);
     break;
