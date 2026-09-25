@@ -7,6 +7,18 @@
 /// <param name="yamlFileName">Test YAML data file name</param>
 /// <returns>Full path to a test data file</returns>
 std::string prefixTestDataPath(const std::string& yamlFileName) {
+#ifdef YAML_TEST_DATA_DIR
+  auto configuredPath = std::filesystem::path(YAML_TEST_DATA_DIR) / yamlFileName;
+  if (std::filesystem::exists(configuredPath)) {
+    return configuredPath.string();
+  }
+#endif
+  for (const auto& candidate : {"./files", "../files", "./Debug/files", "./Release/files"}) {
+    auto p = std::filesystem::current_path() / candidate / yamlFileName;
+    if (std::filesystem::exists(p)) {
+      return p.string();
+    }
+  }
   if (std::filesystem::is_directory("./files")) {
     return (std::filesystem::current_path() / "./files" / yamlFileName).string();
   } else {
