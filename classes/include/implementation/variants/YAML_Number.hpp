@@ -102,7 +102,7 @@ bool Number::stringToNumber(const std::string_view& number) {
   }
   const char* begin = sv.data();
   const char* end = sv.data() + sv.size();
-  std::from_chars_result result;
+  std::from_chars_result result{};
   if constexpr (std::is_same_v<T, int> || std::is_same_v<T, long> || std::is_same_v<T, long long>) {
     // NOTE: YAML 1.2 defines octal as "0o<digits>" only; C-style "0NNN"
     // leading-zero octal is NOT valid in YAML 1.2 and must not be treated as
