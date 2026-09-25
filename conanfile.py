@@ -5,7 +5,7 @@ import os
 
 class YamlLibConan(ConanFile):
     name = "yaml_lib"
-    version = "1.2.0"
+    version = "1.3.0"
     license = "MIT"
     author = "Rob Turner"
     url = "https://github.com/clockworkengineer/YAML_Lib"

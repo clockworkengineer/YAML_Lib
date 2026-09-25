@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
-project(YAML_Lib VERSION 1.2.0 DESCRIPTION "YAML C++ Library" LANGUAGES CXX)
+project(YAML_Lib VERSION 1.3.0 DESCRIPTION "YAML C++ Library" LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
