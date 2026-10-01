@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.0] - unreleased
+## [1.4.0] - unreleased
 
 ### Added
 - **C++23 Standard Baseline**: Upgraded library baseline to modern C++23 (`CMAKE_CXX_STANDARD 23`).

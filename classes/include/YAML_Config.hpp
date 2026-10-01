@@ -1,9 +1,9 @@
 #pragma once
 
 #define YAML_LIB_VERSION_MAJOR 1
-#define YAML_LIB_VERSION_MINOR 3
+#define YAML_LIB_VERSION_MINOR 4
 #define YAML_LIB_VERSION_PATCH 0
-#define YAML_LIB_VERSION_STRING "1.3.0"
+#define YAML_LIB_VERSION_STRING "1.4.0"
 
 // Backward compatibility macros
 #ifndef YAML_VERSION_MAJOR
