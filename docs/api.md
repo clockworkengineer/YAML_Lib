@@ -1,47 +1,74 @@
----
-
-## See Also
-
-- [User Guide](guide.md)
-- [README](../README.md)
 # YAML_Lib API Reference
 
-All public symbols live in the `YAML_Lib` namespace. Include `YAML.hpp` and `YAML_Core.hpp`.
+All public symbols live in the `YAML_Lib` namespace. Standard entry headers are [`YAML.hpp`](file:///home/robt/projects/YAML_Lib/classes/include/YAML.hpp) and [`YAML_Core.hpp`](file:///home/robt/projects/YAML_Lib/classes/include/YAML_Core.hpp), with specialized modules [`YAML_Format.hpp`](file:///home/robt/projects/YAML_Lib/classes/include/YAML_Format.hpp) and [`YAML_Serialization.hpp`](file:///home/robt/projects/YAML_Lib/classes/include/YAML_Serialization.hpp).
+
+## See Also
+- [User Guide](guide.md)
+- [C++23 Modern Features & Migration](cpp23_features.md)
+- [Object & Container Serialization](serialization.md)
+- [Embedded & Minimal Builds](embedded_and_minimal.md)
+- [SOLID Architecture](solid_architecture.md)
+- [Extending YAML_Lib](extending_yaml_lib.md)
+- [README](../README.md)
+
+---
 
 ## Table of Contents
 - [YAML class](#yaml-class)
+- [Node class & Ergonomic Accessors](#node-class--ergonomic-accessors)
 - [Node types](#node-types)
-- [Node access helpers](#node-access-helpers)
+- [Formatting Support (`YAML_Format.hpp`)](#formatting-support-yaml_formathpp)
+- [Serialization Framework (`YAML_Serialization.hpp`)](#serialization-framework-yaml_serializationhpp)
+- [Segregated Facade Headers](#segregated-facade-headers)
 - [I/O — Sources](#io--sources)
 - [I/O — Destinations](#io--destinations)
+- [Options & Security Hardening](#options--security-hardening)
 - [Error types](#error-types)
-- [Free functions](#free-functions)
+- [Strategy & Extensibility Interfaces (SOLID)](#strategy--extensibility-interfaces-solid)
 
 ---
 
 ## YAML class
 
+Header: `#include "YAML.hpp"`
+
 ```cpp
 class YAML {
 public:
-  // Constructors
+  // Constructors & Rule of Five
   explicit YAML(IStringify* stringify = nullptr, IParser* parser = nullptr);
-  explicit YAML(const std::string_view& yamlString);  // parse immediately
+  explicit YAML(const std::string_view& yamlString);
   explicit YAML(const Options& options);
   explicit YAML(std::pmr::memory_resource* memory_resource);
   YAML(const ArrayInitializer& array);
   YAML(const DictionaryInitializer& dictionary);
+  YAML(const YAML& other);
+  YAML& operator=(const YAML& other);
+  YAML(YAML&& other) noexcept;
+  YAML& operator=(YAML&& other) noexcept;
+  ~YAML();
+
+  // Deep clone
+  [[nodiscard]] std::unique_ptr<YAML> clone() const;
 
   // Library version string
   [[nodiscard]] static std::string version();
 
-  // Convenience parse helpers
+  // Convenience parse helpers (Throwing)
   [[nodiscard]] static std::unique_ptr<YAML> fromString(const std::string_view& yamlString);
+  [[nodiscard]] static std::unique_ptr<YAML> load(const std::string_view& yamlString);
 #ifdef YAML_LIB_FILE_IO
   [[nodiscard]] static std::unique_ptr<YAML> fromFileToYAML(const std::string_view& fileName);
   [[nodiscard]] static std::unique_ptr<YAML> loadFile(const std::string_view& fileName);
 #endif
-  [[nodiscard]] static std::unique_ptr<YAML> load(const std::string_view& yamlString);
+
+  // C++23 Monadic parse helpers (std::expected)
+#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L
+  [[nodiscard]] static std::expected<YAML, std::string> loadExpected(const std::string_view& yamlString);
+  [[nodiscard]] static std::expected<YAML, std::string> loadExpected(ISource& source);
+  [[nodiscard]] std::expected<void, std::string> parseExpected(ISource& source);
+  [[nodiscard]] std::expected<void, std::string> parseExpected(ISource&& source);
+#endif
 
   // Parse and stringify
   void parse(ISource& source) const;
@@ -53,6 +80,8 @@ public:
 
   [[nodiscard]] std::string toString() const;
   [[nodiscard]] std::string dump() const;
+  [[nodiscard]] std::string dump(const std::string_view& format) const;
+  [[nodiscard]] std::string stringify(const std::string_view& format) const;
   void stringify(IDestination& destination) const;
   void stringify(IDestination&& destination) const;
 #ifndef YAML_LIB_NO_EXCEPTIONS
@@ -67,19 +96,25 @@ public:
   [[nodiscard]] Node& document(unsigned long index);
   [[nodiscard]] const Node& document(unsigned long index) const;
 
-  // Traverse the entire tree
-  void traverse(IAction& action);
-  void traverse(IAction& action) const;
+  // Modern Ergonomic Accessors on first document
+  template <typename T>
+  [[nodiscard]] decltype(auto) as(const std::string_view& key) const;
 
-#ifdef YAML_LIB_SAX_API
-  void traverseEvents(IYAMLEvents& handler) const;
-#endif
+  template <typename T>
+  [[nodiscard]] auto value_or(const std::string_view& key, T&& fallback) const;
 
-  // Index into the first document by key or position
+  // Subscript operator into the first document
   [[nodiscard]] Node& operator[](const std::string_view& key);
   [[nodiscard]] const Node& operator[](const std::string_view& key) const;
   [[nodiscard]] Node& operator[](std::size_t index);
   [[nodiscard]] const Node& operator[](std::size_t index) const;
+
+  // Tree Traversal
+  void traverse(IAction& action);
+  void traverse(IAction& action) const;
+#ifdef YAML_LIB_SAX_API
+  void traverseEvents(IYAMLEvents& handler) const;
+#endif
 
 #ifdef YAML_LIB_FILE_IO
   [[nodiscard]] static std::string fromFile(const std::string_view& fileName);
@@ -91,243 +126,217 @@ public:
 
   static void setStrictBooleans(bool strict) noexcept;
 
-  // Notes
-  // - `fromFile()` reads raw file contents into a string.
-  // - `loadFile()` parses the file contents into a YAML object.
-
   enum class Format : uint8_t { utf8, utf8BOM, utf16BE, utf16LE, utf32BE, utf32LE };
 };
 ```
 
-## Options
+---
+
+## Node class & Ergonomic Accessors
+
+Header: `#include "YAML_Core.hpp"`
+
+```cpp
+struct Node {
+  // Constructors & Rule of Five
+  Node();
+  template <typename T> Node(T&& value);
+  Node(const Node& other);
+  Node(Node&& other) noexcept;
+  Node& operator=(const Node& other);
+  Node& operator=(Node&& other) noexcept;
+
+  // Deep clone
+  [[nodiscard]] Node clone() const;
+
+  // Dynamic Container Promotion & Subscript
+  Node& operator[](const std::string_view& key); // Auto-promotes to Dictionary
+  const Node& operator[](const std::string_view& key) const;
+  Node& operator[](std::size_t index);           // Auto-promotes to Array
+  const Node& operator[](std::size_t index) const;
+
+  // Modern C++23 Ergonomic Interrogation
+  template <typename T>
+  [[nodiscard]] decltype(auto) as() const;
+
+  template <typename T>
+  [[nodiscard]] bool is() const noexcept;
+
+  template <typename T>
+  [[nodiscard]] auto value_or(T&& fallback) const;
+
+  template <typename T>
+  [[nodiscard]] auto value_or(const std::string_view& key, T&& fallback) const;
+
+  template <typename T>
+  [[nodiscard]] std::optional<T> get_if() const noexcept;
+
+  // Range and Structured Bindings Iteration
+  [[nodiscard]] auto items();
+  [[nodiscard]] auto items() const;
+};
+```
+
+### Legacy Cast Helpers
+
+For backward compatibility with earlier versions:
+```cpp
+template<typename T> bool isA(const Node& node);
+template<typename T> T& NRef(Node& node);
+template<typename T> const T& NRef(const Node& node);
+```
+
+---
+
+## Node types
+
+Every value in the tree is represented by one of the following variant structures:
+
+- **`String`**: YAML scalar string with quotation indicator (`kNull`, `kSingleQuote`, `kDoubleQuote`).
+- **`Number`**: Numeric scalar stored in narrowest exact type (`int`, `long`, `long long`, `float`, `double`, `long double`).
+- **`Boolean`**: Boolean scalar (`true`/`false`).
+- **`Null`**: Empty scalar, `null`, or `~`.
+- **`Timestamp`**: ISO 8601 date and time representation (`value()`, `toString()`).
+- **`Array`**: Sequence of `Node` elements (`size()`, `empty()`, standard iterators `begin()`/`end()`).
+- **`Dictionary`**: Key-value mapping (`size()`, `contains()`, `items()`, `find()`).
+- **`Document`**: Top-level document wrapper.
+- **`Comment`**: Comment node.
+
+---
+
+## Formatting Support (`YAML_Format.hpp`)
+
+Header: `#include "YAML_Format.hpp"`
+
+Provides `std::formatter` template specializations when `<format>` is supported:
+
+```cpp
+template <> struct std::formatter<YAML_Lib::Node> : std::formatter<std::string_view>;
+template <> struct std::formatter<YAML_Lib::YAML> : std::formatter<std::string_view>;
+```
+
+**Usage:**
+```cpp
+std::string text = std::format("Config: {}", yaml);
+std::string entry = std::format("Host is {}", yaml["host"]);
+```
+
+---
+
+## Serialization Framework (`YAML_Serialization.hpp`)
+
+Header: `#include "YAML_Serialization.hpp"`
+
+Non-intrusive object serialization and deserialization via ADL.
+
+### Macro
+
+```cpp
+YAML_LIB_DEFINE_TYPE_NON_INTRUSIVE(TypeName, member1, member2, ...)
+```
+
+### Functions
+
+```cpp
+template <typename T> void to_yaml(YAML_Lib::Node& node, const T& value);
+template <typename T> void from_yaml(const YAML_Lib::Node& node, T& value);
+```
+
+### Supported Types
+- Primitives (`int`, `double`, `bool`, `std::string`, `std::string_view`, etc.)
+- `std::vector<T>`
+- `std::map<std::string, T>`
+- `std::unordered_map<std::string, T>`
+- `std::optional<T>`
+
+---
+
+## Segregated Facade Headers
+
+To minimize include dependencies and compile times, `YAML_Lib` provides segregated facade headers:
+
+- **[`YAML_Reader.hpp`](file:///home/robt/projects/YAML_Lib/classes/include/YAML_Reader.hpp)**: Exposes only parsing components (`IParser`, `ISource`, `YAML_FileReader`).
+- **[`YAML_Writer.hpp`](file:///home/robt/projects/YAML_Lib/classes/include/YAML_Writer.hpp)**: Exposes only stringification components (`IStringify`, `IDestination`, `YAML_FileWriter`).
+- **[`YAML_DOM.hpp`](file:///home/robt/projects/YAML_Lib/classes/include/YAML_DOM.hpp)**: Exposes tree structures and nodes (`Node`, `INodeFactory`, `YAML_Core.hpp`).
+
+---
+
+## I/O — Sources
+
+All sources implement `ISource`. Pass by value or lvalue reference to `yaml.parse()`:
+
+- **`BufferSource`**: In-memory string view source (`BufferSource(const std::string_view& buffer)`).
+- **`FileSource`**: File-based binary stream source (`FileSource(const std::string_view& filename)`).
+- **`StreamSource`**: Generic seekable input stream source (`StreamSource(std::istream& stream)`).
+
+---
+
+## I/O — Destinations
+
+All destinations implement `IDestination`. Pass to `yaml.stringify()`:
+
+- **`BufferDestination`**: In-memory buffer accumulator (`BufferDestination()`, `toString()`).
+- **`FileDestination`**: Binary file output writer (`FileDestination(const std::string_view& filename)`).
+- **`StreamDestination`**: Generic output stream destination (`StreamDestination(std::ostream& stream)`).
+
+---
+
+## Options & Security Hardening
 
 ```cpp
 struct Options {
-  IStringify* stringifier;
-  IParser* parser;
-  std::pmr::memory_resource* memory_resource;
-  bool strict_booleans;
-  unsigned long max_documents;
-  unsigned long max_parse_depth;
-  unsigned long max_alias_expansions;
+  IStringify* stringifier{nullptr};
+  IParser* parser{nullptr};
+  bool own_stringifier{true};
+  bool own_parser{true};
+  std::pmr::memory_resource* memory_resource{nullptr};
+  bool strict_booleans{false};
+  unsigned long max_documents{32};
+  unsigned long max_parse_depth{128};
+  unsigned long max_alias_expansions{64};
+  unsigned long max_aliases{0};
+  unsigned long max_scalar_length{0};
+  unsigned long max_collection_size{0};
 
   [[nodiscard]] static Options secureOptions();
   void validate() const;
 };
 ```
 
-`Options::secureOptions()` returns a conservative runtime configuration for untrusted input.
-
-### Initializer list types
-
-| Type alias | Description |
-|------------|-------------|
-| `ArrayInitializer` | `std::initializer_list<InitializerListTypes>` |
-| `DictionaryInitializer` | `std::initializer_list<std::pair<std::string, InitializerListTypes>>` |
-| `InitializerListTypes` | `std::variant<int, long, long long, float, double, long double, bool, std::string, std::nullptr_t, Node>` |
-
----
-
-## Node types
-
-Every value in the tree is a `Node` holding one of the following variant types.
-
-### `String`
-Represents a YAML scalar string.
-```cpp
-NRef<String>(node).value()          // → std::string
-NRef<String>(node).getQuote()       // → char: kNull (plain), kDoubleQuote, kApostrophe
-NRef<String>(node).getQuote()       // set via setValue / construction
-```
-
-### `Number`
-Represents any numeric scalar (integer or floating-point).
-```cpp
-NRef<Number>(node).value<int>()         // convert to int
-NRef<Number>(node).value<double>()      // convert to double
-NRef<Number>(node).is<int>()            // true if stored as int
-NRef<Number>(node).is<double>()         // true if stored as double
-```
-Stored type is the narrowest type that fits the literal: `int`, `long`, `long long`, `float`, `double`, or `long double`.
-
-### `Boolean`
-```cpp
-NRef<Boolean>(node).value()    // → bool
-```
-Accepted literals: `true`/`false`, `yes`/`no`, `on`/`off` (case-insensitive).
-
-### `Null`
-Represents `null`, `~`, or an empty scalar.
-```cpp
-isA<Null>(node)   // type check only; no data
-```
-
-### `Timestamp`
-ISO 8601 date or datetime; also created by `!!timestamp` tag.
-```cpp
-NRef<Timestamp>(node).value()   // → std::string (raw value as parsed)
-```
-
-### `Array`
-```cpp
-NRef<Array>(node).size()        // → std::size_t
-node[0]                         // → Node& (first element)
-```
-
-### `Dictionary`
-```cpp
-NRef<Dictionary>(node).contains("key")   // → bool
-NRef<Dictionary>(node).size()            // → std::size_t
-node["key"]                              // → Node&
-```
-
-### `Document`
-Wraps a top-level YAML document returned by `yaml.document(n)`.
-
-### `Comment`
-Represents a YAML comment node (read-only; not round-tripped).
-
----
-
-## Node access helpers
-
-```cpp
-// Type check — returns true if node holds variant T
-template<typename T>
-bool isA(const Node& node);
-
-// Typed reference — throws Node::Error if the type does not match
-template<typename T>
-T& NRef(Node& node);
-
-template<typename T>
-const T& NRef(const Node& node);
-```
-
-**Example:**
-```cpp
-if (isA<String>(node)) {
-    const std::string& s = NRef<String>(node).value();
-}
-```
-
----
-
-## I/O — Sources
-
-All sources implement `ISource`. Pass by value (rvalue) or lvalue reference to `yaml.parse()`.
-
-### `BufferSource`
-```cpp
-explicit BufferSource(const std::string_view& buffer);
-```
-Parse from an in-memory string.
-
-### `FileSource`
-```cpp
-explicit FileSource(const std::string_view& filename);
-```
-Parse from a file opened in binary mode.
-
-### `StreamSource`
-```cpp
-explicit StreamSource(std::istream& stream);
-```
-Parse from any seekable input stream (`std::istringstream`, `std::ifstream`, etc.).  
-The stream must support `seekg`/`tellg` (non-seekable streams like `std::cin` are not supported).
-
-**Common `ISource` methods** (also usable directly for custom tokenisation):
-
-| Method | Description |
-|--------|-------------|
-| `char current()` | Peek at the current character |
-| `void next()` | Advance by one character |
-| `bool more()` | Returns `false` at EOF |
-| `void reset()` | Seek back to the beginning |
-| `std::size_t position()` | Current byte offset |
-| `void save()` | Push position onto a stack |
-| `void restore()` | Pop and seek back |
-| `bool match(std::string_view)` | Consume the string if present; returns `true` if matched |
-
----
-
-## I/O — Destinations
-
-All destinations implement `IDestination`. Pass by value or lvalue reference to `yaml.stringify()`.
-
-### `BufferDestination`
-```cpp
-BufferDestination();
-std::string toString() const;   // retrieve accumulated output
-std::size_t size() const;
-void clear();
-```
-
-### `FileDestination`
-```cpp
-explicit FileDestination(const std::string_view& filename);
-void close();
-```
-Writes in binary mode with `\r\n` line endings on Windows.
-
-### `StreamDestination`
-```cpp
-explicit StreamDestination(std::ostream& stream);
-```
-Write to any output stream (`std::ostringstream`, `std::ofstream`, `std::cout`, etc.).
-
-**Common `IDestination` methods:**
-
-| Method | Description |
-|--------|-------------|
-| `void add(char)` | Append a single character |
-| `void add(const std::string&)` | Append a string |
-| `void add(const char*)` | Append a C-string |
-| `void add(std::string_view)` | Append a string view |
-| `char last()` | Last character written (`kNull` if nothing written or after `clear()`) |
-| `void clear()` | Reset the destination |
+`Options::secureOptions()` returns recommended settings for untrusted input:
+- `strict_booleans = true`
+- `max_documents = 1`
+- `max_parse_depth = 64`
+- `max_alias_expansions = 64`
+- `max_aliases = 256`
+- `max_scalar_length = 64 * 1024`
+- `max_collection_size = 1024`
 
 ---
 
 ## Error types
 
-| Type | Base | When thrown |
-|------|------|-------------|
-| `SyntaxError` | `std::runtime_error` | Malformed YAML input during `parse()` |
-| `Node::Error` | `std::runtime_error` | Wrong type in `NRef<T>()`, missing document, etc. |
-| `ISource::Error` | `std::runtime_error` | Read past EOF, bad stream state, backup underflow |
-| `IDestination::Error` | `std::runtime_error` | Write failure |
+All exceptions derive from `YAML_Lib::Exception` (which inherits from `std::runtime_error`):
 
----
+| Exception | Thrown When |
+| :--- | :--- |
+| `SyntaxError` | Malformed YAML syntax encountered during parsing. |
+| `Node::Error` | Invalid node variant conversion or missing element in `NRef`. |
+| `ISource::Error` | Read past EOF, corrupted stream, or backup stack underflow. |
+| `IDestination::Error` | Output write failure. |
 
-## Free functions
-
+In `-DYAML_LIB_NO_EXCEPTIONS=ON` mode, exceptions are replaced by calls to the panic handler:
 ```cpp
-// YAML_Lib::YAML static helpers
-std::string YAML::fromFile(const std::string_view& fileName);
-void        YAML::toFile(const std::string_view& fileName,
-                          const std::string_view& yamlString,
-                          YAML::Format format = YAML::Format::utf8);
-YAML::Format YAML::getFileFormat(const std::string_view& fileName);
+void Error::setPanicHandler(void (*handler)(const std::string& message));
 ```
-
-`fromFile` reads the entire file into a `std::string`.  
-`getFileFormat` inspects the byte-order mark (BOM) to detect UTF-8/UTF-16/UTF-32 encoding.
 
 ---
 
 ## Strategy & Extensibility Interfaces (SOLID)
 
-- **`IDOMParser`**: Segregated interface for vector DOM parsing (`virtual std::vector<Node> parse(ISource &source) = 0`).
-- **`ISAXParser`**: Segregated interface for push-based SAX event parsing (`virtual void parseSAX(ISource &source, IYAMLEvents &events) = 0`).
-- **`ISchema` / `CoreSchema`**: Strategy interface for scalar type resolution and tag handle coercions.
-- **`INodeFactory` / `DefaultNodeFactory`**: Abstract factory interface for node variant allocation.
-- **`StringifierFactory`**: Thread-safe strategy registry for dynamic stringifier format creators (`"YAML"`, `"JSON"`, `"XML"`, `"Bencode"`).
-- **`DocumentStore`**: Container manager separating document tree storage from facade coordination.
-- **`YAML_FileReader` / `YAML_FileWriter`**: File system I/O stream reading and BOM detection components.
-
----
-
-For practical examples see the [User Guide](guide.md), [SOLID Architecture Guide](solid_architecture.md), or [Extending YAML_Lib](extending_yaml_lib.md).
-
-
+- **`IDOMParser`**: Interface for vector DOM parsing (`parse(ISource &)`).
+- **`ISAXParser`**: Interface for push-based SAX event parsing (`parseSAX(ISource &, IYAMLEvents &)`).
+- **`ISchema` / `CoreSchema`**: Strategy for scalar resolution and tag coercions.
+- **`INodeFactory` / `DefaultNodeFactory`**: Abstract factory for node variant construction.
+- **`StringifierFactory`**: Thread-safe registry for output format creators (`"YAML"`, `"JSON"`, `"XML"`, `"Bencode"`).
+- **`DocumentStore`**: Container manager isolating document storage from facade coordination.

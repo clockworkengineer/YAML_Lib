@@ -1,778 +1,425 @@
----
-
-## Troubleshooting
-
-**Common issues:**
-
-- *Build errors about `std::string_view`*: Ensure you are using C++20 or newer and a modern compiler (GCC 10+, Clang 15+, MSVC 2019+). If using precompiled headers, make sure `<string_view>` is included.
-- *Type errors with `NRef<T>`*: Always check node type with `isA<T>(node)` before using `NRef<T>(node)`.
-- *Parse errors*: Catch `SyntaxError` and check your YAML for syntax mistakes or unsupported features.
-- *File I/O errors*: Make sure `YAML_LIB_FILE_IO` is enabled and files exist/are accessible.
-
-For more, see the [README Troubleshooting section](../README.md#troubleshooting).
-
----
-
-## See Also
-
-- [API Reference](api.md)
-- [README](../README.md)
 # YAML_Lib User Guide
 
+`YAML_Lib` is a modern, lightweight, header-friendly C++23 library for parsing, manipulating, serializing, and generating YAML. It represents every YAML value as a typed `Node` in a tree that you can read, modify, and stringify back to text — or to JSON, XML, and Bencode via pluggable stringifiers. The library supports the full YAML 1.2 specification including complex anchor/alias graphs, core schema types, `%YAML` and `%TAG` directives, ISO 8601 timestamps, and pluggable I/O sources and destinations.
+
+---
+
 ## Table of Contents
-- [Introduction](#introduction)
-- [Installation](#installation)
-- [Library design principles](#library-design-principles)
+
+- [Troubleshooting & Compiler Support](#troubleshooting--compiler-support)
+- [Installation & Integration](#installation--integration)
+- [Library Design Principles](#library-design-principles)
 - [Parsing YAML](#parsing-yaml)
-- [Accessing nodes](#accessing-nodes)
-- [Modifying and building YAML](#modifying-and-building-yaml)
-- [Stringifying YAML](#stringifying-yaml)
-- [Working with multiple documents](#working-with-multiple-documents)
-- [Advanced types](#advanced-types)
-- [Tags and directives](#tags-and-directives)
-- [Anchors, aliases, and merge keys](#anchors-aliases-and-merge-keys)
-- [Error handling](#error-handling)
-- [Custom I/O — StreamSource and StreamDestination](#custom-io--streamsource-and-streamdestination)
-- [Traversal with IAction](#traversal-with-iaction)
+  - [Throwing vs Monadic Parsing (`std::expected`)](#throwing-vs-monadic-parsing-stdexpected)
+  - [Parsing from Buffers, Files, and Streams](#parsing-from-buffers-files-and-streams)
+- [Accessing Nodes](#accessing-nodes)
+  - [Modern Ergonomic Interrogation (`as`, `is`, `value_or`, `get_if`)](#modern-ergonomic-interrogation-as-is-value_or-get_if)
+  - [Structured Bindings & Range Iteration](#structured-bindings--range-iteration)
+  - [Advanced Variant Access (`isA`, `NRef`)](#advanced-variant-access-isa-nref)
+- [Modifying and Building YAML](#modifying-and-building-yaml)
+  - [Dynamic Container Auto-Promotion](#dynamic-container-auto-promotion)
+  - [Initializer Lists & Hierarchical Construction](#initializer-lists--hierarchical-construction)
+- [Stringifying & Formatting YAML](#stringifying--formatting-yaml)
+  - [Standard Stringification & File Output](#standard-stringification--file-output)
+  - [`std::format` String Formatting](#stdformat-string-formatting)
+- [Object & Container Serialization (`YAML_Serialization.hpp`)](#object--container-serialization-yaml_serializationhpp)
+- [Working with Multiple Documents](#working-with-multiple-documents)
+- [Advanced Types, Tags, and Directives](#advanced-types-tags-and-directives)
+- [Anchors, Aliases, and Merge Keys](#anchors-aliases-and-merge-keys)
+- [Error Handling & Security Hardening](#error-handling--security-hardening)
+- [Extensibility & Custom I/O](#extensibility--custom-io)
 - [SAX Event Traversal](#sax-event-traversal)
-- [Alternative output formats](#alternative-output-formats)
-- [Examples](#examples)
+- [Alternative Output Formats (JSON, XML, Bencode)](#alternative-output-formats-json-xml-bencode)
+- [Example Programs](#example-programs)
 
 ---
 
-## Introduction
+## Troubleshooting & Compiler Support
 
-YAML_Lib is a C++20 library for parsing, building, and generating YAML. It represents every YAML value as a typed `Node` in a tree that you can read, modify, and stringify back to text. The library supports the full YAML 1.2 specification including complex anchor/alias patterns, all core schema types, `%YAML` and `%TAG` directives, ISO 8601 timestamps, and pluggable I/O sources and destinations.
+### Compiler Requirements
+- **Linux**: GCC 13.0+ or Clang 17.0+
+- **macOS**: Apple Clang 16.0+ (Xcode 16+)
+- **Windows**: MSVC 2022 v17.8+ (toolset v143)
+
+### Common Issues
+- **Missing C++23 features (`<expected>`, `<format>`)**: Verify your compiler standard flag is set to `-std=c++23` (or `/std:c++latest` / `/std:c++23` on MSVC).
+- **Type conversions on Node**: Use `node.as<T>()` for automatic type conversion or `node.value_or("key", fallback)` to gracefully handle missing fields.
+- **Clang on Linux with GCC 14 libstdc++ (LLVM #93734)**: If compiling with Clang against GCC 14 standard headers in C++23 mode, CMake automatically detects and uses GCC 13 toolchain directories when available.
+- **File I/O Disabled**: If `loadFile()` or `FileSource` are undefined, ensure `YAML_LIB_FILE_IO=ON` (the default) in your CMake configuration.
 
 ---
 
-## Installation
+## Installation & Integration
+
+### Building with CMake
 
 ```sh
-git clone <repo-url> YAML_Lib
+git clone https://github.com/clockworkengineer/YAML_Lib.git
 cd YAML_Lib
-cmake -S . -B build
-cmake --build build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j$(nproc)
+sudo cmake --install build
 ```
 
-Add to your own CMake project:
+### Adding to your CMake Project
+
 ```cmake
-add_subdirectory(YAML_Lib)
-target_link_libraries(your_target PRIVATE YAML_Lib)
+find_package(YAML_Lib REQUIRED)
+
+add_executable(my_app main.cpp)
+target_link_libraries(my_app PRIVATE YAML_Lib::YAML_Lib)
 ```
 
-Include the two main headers:
+### Main Headers
 ```cpp
 #include "YAML.hpp"
 #include "YAML_Core.hpp"
-using namespace YAML_Lib;
+// Optional modern modules:
+#include "YAML_Format.hpp"        // std::format support
+#include "YAML_Serialization.hpp" // Non-intrusive object serialization
 ```
 
-## Library design principles
+---
 
-YAML_Lib is designed to be a practical, attribute-driven C++ library. It focuses on:
+## Library Design Principles
 
-- **Intuitive API design** — simple top-level helpers like `YAML::load()` and `YAML::dump()` for common workloads.
-- **Comprehensive documentation** — examples, API reference, and public header guidance across `docs/`.
-- **Reliability and security** — conservative defaults via `Options::secureOptions()` and documented no-exceptions behavior.
-- **Portability** — optional feature flags for file I/O, SAX, and timestamps so the library adapts to embedded or cross-platform builds.
-- **Flexibility** — public extension points for custom sources, destinations, stringifiers, and parsers.
-- **Low dependency footprint** — runtime is standard-library-only.
-- **Modularity** — public headers are kept stable and supported, while implementation details remain in `classes/source/implementation` and `classes/include/implementation`.
-
-Use this guide for practical usage, and `docs/public_api.md` to understand the stable public include surface.
-
-### Build-time feature options
-
-YAML_Lib exposes configurable build-time features through CMake options.
-
-- `YAML_LIB_NO_EXCEPTIONS` — disable C++ exceptions and use the error panic handler.
-- `YAML_LIB_FILE_IO` — enable file I/O support for `FileSource`, `FileDestination`, `YAML::fromFile()`, `YAML::toFile()`, and `YAML::getFileFormat()`.
-- `YAML_LIB_SAX_API` — enable SAX-style event processing with `IYAMLEvents` and `YAML::traverseEvents()`.
-- `YAML_LIB_TIMESTAMP_PARSE` — enable timestamp parsing helpers and `Timestamp` node support.
-
-Example:
-
-```sh
-cmake -S . -B build -DYAML_LIB_FILE_IO=OFF -DYAML_LIB_NO_EXCEPTIONS=ON
-cmake --build build
-```
-
-See `docs/public_api.md` for the installed public header set.
-
-### Dependency footprint
-
-`YAML_Lib` does not depend on third-party runtime libraries beyond the C++ standard library. Optional dependencies are used only for tests and examples, and can be disabled with CMake build options.
-
-See `docs/dependencies.md` for full dependency and license details.
-
-### Platform compatibility
-
-YAML_Lib supports portable builds on Linux, macOS, and Windows.
-
-- Linux and macOS builds use the POSIX-compatible converter implementation.
-- Windows builds use a native Windows UTF converter implementation.
-- Enable `YAML_LIB_FILE_IO=OFF` for bare-metal or filesystem-constrained environments.
-
-### Runtime configuration with `Options`
-
-`Options` provides runtime control over parser/stringifier selection, memory resource usage, and strict boolean parsing.
-
-```cpp
-#include "YAML.hpp"
-#include "YAML_Core.hpp"
-using namespace YAML_Lib;
-
-Options options = Options::secureOptions();
-options.memory_resource = std::pmr::get_default_resource();
-
-YAML yaml(options);
-yaml.parse(BufferSource{"---\nvalue: yes\n"});
-
-const auto &doc = yaml.document(0);
-if (isA<String>(doc["value"])) {
-    std::string value = NRef<String>(doc["value"]).value();
-}
-
-### Efficient memory allocation with MonotonicArena
-
-For repeated parse workloads or performance-critical paths, use `MonotonicArena` to allocate all parse-time data from a single stack-backed arena:
-
-```cpp
-MonotonicArena<65536> arena;
-YAML yaml(arena.resource());
-yaml.parse(BufferSource{"---\nvalue: 42\n"});
-```
-
-This avoids heap allocation overhead for `std::pmr` containers created during parse, while the arena is freed in one bulk step when it goes out of scope.
-```
-
-### Security best practices
-
-When parsing untrusted YAML, configure parser limits explicitly to prevent malicious inputs from exhausting resources.
-
-```cpp
-Options options = Options::secureOptions();
-```
-
-- `max_documents` limits how many documents are accepted in a stream. This includes both explicit documents started with `---` and the implicit initial document when no leading document marker is present.
-- `max_parse_depth` protects against deeply nested structures.
-- `max_alias_expansions` defends against alias explosion attacks such as billion-laughs-style alias graphs.
-- `strict_booleans` avoids YAML 1.1 boolean coercion for untrusted values.
-- `memory_resource` enables fast, bulk allocation from a custom PMR resource such as `MonotonicArena`.
-
-If you build with `YAML_LIB_NO_EXCEPTIONS=ON`, register a custom error handler via `YAML_Lib::setErrorHandler(...)` so parse failures can be reported before the library aborts.
-
-```cpp
-YAML_Lib::setErrorHandler([](std::string_view message, unsigned long line, unsigned long column) noexcept {
-  std::cerr << "YAML parse failure at " << line << ":" << column << ": " << message << '\n';
-  std::exit(EXIT_FAILURE); // Handler must not return.
-});
-
-YAML_Lib::YAML yaml;
-yaml.parse(YAML_Lib::BufferSource{"---\ninvalid: ["});
-```
-
-> Note: In no-exceptions builds, `YAML::tryParse()` and `YAML::tryStringify()` are unavailable. Use `setErrorHandler()` to observe errors instead of exception handling.
-
-### Custom I/O and stringification
-
-YAML_Lib is designed for extensibility through public abstractions:
-
-- `ISource` for custom input streams
-- `IDestination` for custom output sinks
-- `IStringify` for custom serialization formats
-- `IParser` for custom parsing logic
-
-Custom components are installed through `Options`:
-
-```cpp
-struct CustomDestination : IDestination {
-  std::string output;
-  void add(char ch) override { output.push_back(ch); }
-  void clear() override { output.clear(); }
-  char last() override { return output.empty() ? '\0' : output.back(); }
-};
-
-struct PrefixStringify : IStringify {
-  void stringify(const Node &yNode, IDestination &destination, unsigned long) const override {
-    destination.add('[');
-    if (isA<Dictionary>(yNode)) {
-      destination.add("DICT]");
-    } else {
-      destination.add("NODE]");
-    }
-  }
-};
-
-Options options;
-options.stringifier = makeStringify<PrefixStringify>();
-YAML yaml(options);
-yaml.parse(BufferSource{"---\nname: Alice\n"});
-
-CustomDestination dest;
-yaml.stringify(dest);
-std::cout << dest.output; // [DICT]
-```
-
-For custom parsers, assign an `IParser*` to `options.parser` and the library will use it instead of the built-in parser.
-
-```cpp
-struct CustomParser : IParser {
-  std::vector<Node> parse(ISource &source) override {
-    // Example: minimal parser wrapper that reads all input and returns a single empty document.
-    while (source.more()) {
-      source.next();
-    }
-    return {Node(Dictionary{})};
-  }
-};
-
-Options options;
-options.parser = new CustomParser();
-YAML yaml(options);
-// Remember: the custom parser object must outlive the YAML instance.
-```
-
-### Custom input sources
-
-You can also extend YAML_Lib with a custom `ISource` implementation if you need to parse from a non-standard stream, network buffer, or chunked input source.
-
-```cpp
-struct CustomSource : ISource {
-  explicit CustomSource(std::string text) : buffer(std::move(text)) {}
-
-  char current() const override { return buffer[pos]; }
-  void next() override {
-    if (!more()) throw ISource::Error("CustomSource: read past end");
-    if (buffer[pos] == '\n') {
-      lineNo++;
-      column = 1;
-    } else {
-      column++;
-    }
-    pos++;
-  }
-  bool more() const override { return pos < buffer.size(); }
-  void reset() override { pos = 0; lineNo = 1; column = 1; }
-  std::size_t position() override { return pos; }
-  void save() override { contexts.emplace_back(lineNo, column, pos); }
-  void restore() override {
-    if (contexts.empty()) throw ISource::Error("CustomSource::restore() without save");
-    const auto c = contexts.back(); contexts.pop_back();
-    lineNo = c.lineNo; column = c.column; pos = c.bufferPosition;
-  }
-  void discardSave() override {
-    if (contexts.empty()) throw ISource::Error("CustomSource::discardSave() without save");
-    contexts.pop_back();
-  }
-
-private:
-  void backup(unsigned long length) override {
-    if (length > pos) throw ISource::Error("CustomSource::backup() beyond start");
-    pos -= length;
-    // recompute line/column from the beginning for simplicity
-    lineNo = 1; column = 1;
-    for (std::size_t i = 0; i < pos; ++i) {
-      if (buffer[i] == '\n') {
-        lineNo++; column = 1;
-      } else {
-        column++;
-      }
-    }
-  }
-
-  std::string buffer;
-  std::size_t pos{};
-  std::vector<Context> contexts;
-};
-```
-
-Custom input sources integration is useful when you need to parse from non-seekable or in-memory data without copying into a `BufferSource` first.
+`YAML_Lib` is engineered around:
+- **100% SOLID Architecture**: Single-responsibility lexers, document stores, schema strategies (`ISchema`), and factory strategies (`INodeFactory`).
+- **Segregated Facade Headers**: Include only what you need: [`YAML_Reader.hpp`](file:///home/robt/projects/YAML_Lib/classes/include/YAML_Reader.hpp) for parsing, [`YAML_Writer.hpp`](file:///home/robt/projects/YAML_Lib/classes/include/YAML_Writer.hpp) for stringification, or [`YAML_DOM.hpp`](file:///home/robt/projects/YAML_Lib/classes/include/YAML_DOM.hpp) for tree manipulation.
+- **Zero Runtime Dependencies**: Depends strictly on the C++ standard library.
+- **Security Hardening**: Defensive defaults via `Options::secureOptions()` to safeguard against document flooding and entity explosion attacks.
 
 ---
 
 ## Parsing YAML
 
-### From a string buffer
-```cpp
-YAML yaml;
-yaml.parse(BufferSource{"---\nname: Alice\nage: 30\n"});
-```
+### Throwing vs Monadic Parsing (`std::expected`)
 
-### From a file
-```cpp
-yaml.parse(FileSource{"config.yaml"});
-```
+#### 1. Modern Monadic Parsing (Recommended in C++23)
+Non-throwing, functional error handling using `std::expected`:
 
-### Convenience: parse a file directly into YAML
 ```cpp
-std::unique_ptr<YAML> yaml = YAML::loadFile("config.yaml");
-if (yaml && yaml->getNumberOfDocuments() > 0) {
-    std::cout << yaml->dump();
+auto result = YAML_Lib::YAML::loadExpected("server:\n  host: 127.0.0.1\n  port: 8080\n");
+if (result) {
+    YAML_Lib::YAML& doc = *result;
+    std::cout << "Host: " << doc["server"]["host"].as<std::string>() << "\n";
+} else {
+    std::cerr << "Parse error: " << result.error() << "\n";
 }
 ```
 
-> Note: `YAML::fromFile()` reads raw file contents into a string; `YAML::loadFile()` parses the file into a `YAML` object.
+#### 2. Traditional Throwing Parsing
+Throws `YAML_Lib::SyntaxError` on malformed YAML:
 
-### From any std::istream
 ```cpp
-std::istringstream ss{"key: value\n"};
-yaml.parse(StreamSource{ss});
+try {
+    auto doc = YAML_Lib::YAML::fromString("name: Alice\nage: 30\n");
+} catch (const YAML_Lib::SyntaxError& e) {
+    std::cerr << "Syntax error: " << e.what() << "\n";
+}
 ```
 
-`StreamSource` requires the stream to be seekable (`std::istringstream`, `std::ifstream` in binary mode). It is not suitable for non-seekable streams like `std::cin`.
+### Parsing from Buffers, Files, and Streams
 
-### Convenience: parse a file to string
 ```cpp
-std::string text = YAML::fromFile("config.yaml");
-yaml.parse(BufferSource{text});
+// 1. From an in-memory string view
+YAML_Lib::YAML yaml1;
+yaml1.parse(YAML_Lib::BufferSource{"key: value\n"});
+
+// 2. Direct file parse helper
+std::unique_ptr<YAML_Lib::YAML> yaml2 = YAML_Lib::YAML::loadFile("config.yaml");
+
+// 3. From standard input stream (std::ifstream, std::istringstream)
+std::ifstream file("config.yaml", std::ios::binary);
+YAML_Lib::YAML yaml3;
+yaml3.parse(YAML_Lib::StreamSource{file});
 ```
 
-### Robust parse and stringify wrappers
+---
 
-When exceptions are enabled, use `YAML::tryParse()` and `YAML::tryStringify()` to capture errors without throwing.
+## Accessing Nodes
+
+### Modern Ergonomic Interrogation (`as`, `is`, `value_or`, `get_if`)
+
+`YAML_Lib` 1.4.0 provides intuitive, type-safe member accessors directly on `Node` and `YAML`:
 
 ```cpp
-std::string errorMessage;
-if (!yaml.tryParse(BufferSource{"---\nvalue: [\n"}, errorMessage)) {
-  std::cerr << "Parse failed: " << errorMessage << '\n';
+YAML_Lib::YAML doc("host: localhost\nport: 8080\nactive: true\nload: 0.85\n");
+
+// Direct type conversion
+std::string host = doc["host"].as<std::string>();
+int port         = doc["port"].as<int>();
+bool active      = doc["active"].as<bool>();
+double load      = doc["load"].as<double>();
+
+// Type queries without exceptions
+if (doc["port"].is<int>()) {
+    std::cout << "Port is an integer.\n";
 }
 
-struct CaptureDestination : IDestination {
-  std::string output;
-  void add(char ch) override { output.push_back(ch); }
-  void clear() override { output.clear(); }
-  char last() override { return output.empty() ? '\0' : output.back(); }
-};
+// Fallbacks for optional or missing fields
+int timeout = doc.value_or("timeout", 30);
+std::string env = doc["env"].value_or("production");
 
-CaptureDestination dest;
-if (!yaml.tryStringify(dest, errorMessage)) {
-  std::cerr << "Stringify failed: " << errorMessage << '\n';
+// Optional extraction with std::optional
+if (auto optPort = doc["port"].get_if<int>()) {
+    std::cout << "Configured port: " << *optPort << "\n";
+}
+
+// Top-level document shortcuts
+int p = doc.as<int>("port");
+```
+
+### Structured Bindings & Range Iteration
+
+Mappings and arrays provide standard C++ iteration interfaces:
+
+#### 1. Dictionary Structured Bindings (`items()`)
+```cpp
+YAML_Lib::YAML yaml("workers: 4\nthreads: 16\nqueue: 1024\n");
+
+for (auto&& [key, value] : yaml.document(0).items()) {
+    std::cout << key << " = " << value.as<int>() << "\n";
+}
+```
+
+#### 2. Sequence Range-Based Loops
+```cpp
+YAML_Lib::YAML yaml("ports: [80, 443, 8080]\n");
+
+auto& arr = YAML_Lib::NRef<YAML_Lib::Array>(yaml["ports"]);
+for (auto&& item : arr) {
+    std::cout << "Port: " << item.as<int>() << "\n";
+}
+```
+
+### Advanced Variant Access (`isA`, `NRef`)
+
+For low-level variant inspection:
+```cpp
+const auto& node = doc["host"];
+if (YAML_Lib::isA<YAML_Lib::String>(node)) {
+    const std::string& val = YAML_Lib::NRef<YAML_Lib::String>(node).value();
 }
 ```
 
 ---
 
-## Accessing nodes
+## Modifying and Building YAML
 
-After parsing, access the first document with `yaml.document(0)`:
+### Dynamic Container Auto-Promotion
+
+Assigning to a subscript on a default-constructed (or `Null`) node automatically promotes it to a `Dictionary` or `Array`:
 
 ```cpp
-const Node& doc = yaml.document(0);
+YAML_Lib::Node root; // Null initially
+
+// Automatically promotes root to Dictionary:
+root["database"]["host"] = "db.internal";
+root["database"]["port"] = 5432;
+
+// Automatically promotes "replicas" to Array:
+root["database"]["replicas"][0] = "db-replica-1";
+root["database"]["replicas"][1] = "db-replica-2";
 ```
 
-### Type-checking with `isA<T>`
+### Initializer Lists & Hierarchical Construction
 
-Always check the node type before casting:
 ```cpp
-if (isA<String>(doc["name"])) {
-    std::string name = NRef<String>(doc["name"]).value();
-}
-if (isA<Number>(doc["age"])) {
-    int age = NRef<Number>(doc["age"]).value<int>();
-}
-if (isA<Boolean>(doc["active"])) {
-    bool active = NRef<Boolean>(doc["active"]).value();
-}
-if (isA<Null>(doc["nothing"])) {
-    // value is null
-}
-```
-
-### Typed access with `NRef<T>`
-
-`NRef<T>(node)` returns a typed reference. It throws `Node::Error` if the type does not match:
-```cpp
-std::string city = NRef<String>(doc["address"]["city"]).value();
-int count        = NRef<Number>(doc["count"]).value<int>();
-double ratio     = NRef<Number>(doc["ratio"]).value<double>();
-bool flag        = NRef<Boolean>(doc["flag"]).value();
-```
-
-### Dictionary membership test
-```cpp
-if (NRef<Dictionary>(doc).contains("optional_key")) {
-    // safe to access
-}
-```
-
-### Array access
-```cpp
-std::size_t n = NRef<Array>(doc["scores"]).size();
-for (std::size_t i = 0; i < n; ++i) {
-    int score = NRef<Number>(doc["scores"][i]).value<int>();
-}
-```
-
-### Number precision
-
-`Number` stores values using the narrowest type that fits the literal.  
-Use `.is<T>()` to query and `.value<T>()` to convert:
-```cpp
-NRef<Number>(node).is<int>()        // stored as int?
-NRef<Number>(node).value<long>()    // convert to long
-NRef<Number>(node).value<double>()  // convert to double
-```
-
----
-
-## Modifying and building YAML
-
-### Assign scalar values
-```cpp
-YAML yaml;
-yaml["name"]  = "Bob";
-yaml["score"] = 42;
-yaml["ratio"] = 3.14;
-yaml["valid"] = true;
-yaml["empty"] = nullptr;
-```
-
-### Build an array
-```cpp
-yaml["items"] = {1, 2, 3};
-```
-
-### Build a dictionary
-```cpp
-yaml["address"] = {{"city", "London"}, {"zip", "EC1A"}};
-```
-
-### Nest structures with `Node{}`
-```cpp
-yaml["profile"] = {
-    {"name", "Alice"},
-    {"scores", Node{95, 87, 92}},
-    {"address", Node{{"city", "London"}, {"zip", "EC1A"}}}
-};
-```
-
-### Construct from initializer list
-```cpp
-const YAML yaml = {
-    {"pi",    3.141},
-    {"name",  "Niels"},
-    {"list",  Node{1, 0, 2}},
-    {"obj",   Node{{"key", "val"}}}
+YAML_Lib::YAML doc = {
+    {"service", "Payments"},
+    {"version", 1.4},
+    {"enabled", true},
+    {"endpoints", YAML_Lib::Node{"/charge", "/refund", "/status"}},
+    {"metadata", YAML_Lib::Node{{"env", "prod"}, {"dc", "us-east"}}}
 };
 ```
 
 ---
 
-## Stringifying YAML
+## Stringifying & Formatting YAML
 
-### To a string buffer
+### Standard Stringification & File Output
+
 ```cpp
-BufferDestination dest;
-yaml.stringify(dest);
-std::string output = dest.toString();
+// Direct string dump
+std::string text = doc.dump();
+
+// Stringify to an in-memory buffer
+YAML_Lib::BufferDestination dest;
+doc.stringify(dest);
+std::string bufferOutput = dest.toString();
+
+// Write directly to file
+YAML_Lib::FileDestination fileDest("output.yaml");
+doc.stringify(fileDest);
+
+// Write to any std::ostream
+doc.stringify(YAML_Lib::StreamDestination{std::cout});
 ```
 
-### To a file
+### `std::format` String Formatting
+
+Include [`YAML_Format.hpp`](file:///home/robt/projects/YAML_Lib/classes/include/YAML_Format.hpp) to enable native standard library formatting:
+
 ```cpp
-yaml.stringify(FileDestination{"output.yaml"});
-```
+#include "YAML.hpp"
+#include "YAML_Format.hpp"
+#include <format>
 
-To write with a specific encoding:
-```cpp
-YAML::toFile("output.yaml", dest.toString(), YAML::Format::utf8BOM);
-```
-
-### To any std::ostream
-```cpp
-std::ostringstream ss;
-yaml.stringify(StreamDestination{ss});
-std::cout << ss.str();
-
-// Or directly to cout
-yaml.stringify(StreamDestination{std::cout});
-```
-
----
-
-## Performance and memory usage
-
-YAML_Lib is designed to minimize reallocations during parsing and stringify.
-- `YAML::stringify()` pre-reserves output buffer capacity based on document count.
-- `YAML::toString()` uses a direct string buffer destination for faster output assembly.
-- Parser string extraction paths reserve working storage before accumulating scalar content.
-
-Use the `YAML_Parse_File` example to measure parse and stringify latency for real YAML files.
-For large synthetic inputs, run the new `YAML_Performance_Profile` example:
-```bash
-./YAML_Performance_Profile 100000
+std::string summary = std::format("App: {}, Config: {}", doc["service"], doc);
 ```
 
 ---
 
-## Working with multiple documents
+## Object & Container Serialization (`YAML_Serialization.hpp`)
+
+`YAML_Lib` provides non-intrusive struct and container serialization via [`YAML_Serialization.hpp`](file:///home/robt/projects/YAML_Lib/classes/include/YAML_Serialization.hpp):
 
 ```cpp
-YAML yaml;
-yaml.parse(BufferSource{
-    "---\nfirst: 1\n"
-    "---\nsecond: 2\n"
+#include "YAML.hpp"
+#include "YAML_Serialization.hpp"
+
+struct ClientConfig {
+    std::string endpoint;
+    int timeout_ms{5000};
+    std::vector<std::string> headers;
+};
+YAML_LIB_DEFINE_TYPE_NON_INTRUSIVE(ClientConfig, endpoint, timeout_ms, headers)
+
+int main() {
+    ClientConfig client{"https://api.service.io", 3000, {"Auth: Bearer 123"}};
+
+    // Serialize to Node
+    YAML_Lib::Node node;
+    YAML_Lib::to_yaml(node, client);
+
+    // Deserialize from Node
+    ClientConfig restored;
+    YAML_Lib::from_yaml(node, restored);
+}
+```
+
+See the dedicated [Object Serialization Guide](serialization.md) for nested structs, maps, optionals, and custom overloads.
+
+---
+
+## Working with Multiple Documents
+
+A single stream may contain multiple YAML documents separated by `---` or `...`:
+
+```cpp
+YAML_Lib::YAML stream;
+stream.parse(YAML_Lib::BufferSource{
+    "---\nservice: auth\n"
+    "---\nservice: billing\n"
 });
 
-unsigned long n = yaml.getNumberOfDocuments();  // 2
-const Node& doc0 = yaml.document(0);
-const Node& doc1 = yaml.document(1);
+std::cout << "Documents parsed: " << stream.getNumberOfDocuments() << "\n"; // 2
+std::cout << "Doc 0 service: " << stream.document(0)["service"].as<std::string>() << "\n";
+std::cout << "Doc 1 service: " << stream.document(1)["service"].as<std::string>() << "\n";
 ```
 
 ---
 
-## Advanced types
+## Advanced Types, Tags, and Directives
 
 ### Timestamps
-
-YAML_Lib automatically recognises ISO 8601 date and datetime strings and creates `Timestamp` nodes:
-
+ISO 8601 timestamps are parsed into `Timestamp` nodes automatically:
 ```cpp
-yaml.parse(BufferSource{"---\ncreated: 2024-04-05\n"});
-if (isA<Timestamp>(yaml.document(0)["created"])) {
-    std::string ts = NRef<Timestamp>(yaml.document(0)["created"]).value();
-    // ts == "2024-04-05"
+YAML_Lib::YAML doc("started: 2026-10-01T15:30:00Z\n");
+if (doc["started"].is<YAML_Lib::Timestamp>()) {
+    std::cout << "Date: " << doc["started"].as<std::string>() << "\n";
 }
 ```
 
-Supported formats:
-- `YYYY-MM-DD`
-- `YYYY-MM-DDThh:mm:ssZ`
-- `YYYY-MM-DDThh:mm:ss±hh:mm`
-
-### Special float values
-```cpp
-yaml.parse(BufferSource{"---\n- .inf\n- -.inf\n- .nan\n"});
-```
-Parsed as `std::numeric_limits<double>::infinity()`, `-infinity()`, and `quiet_NaN()`.
-
-### Octal and hex integers
-```cpp
-yaml.parse(BufferSource{"---\nhex: 0xFF\noct: 0o17\n"});
-// hex → 255, oct → 15
+### Explicit Tags
+```yaml
+id: !!str 007
+count: !!int "42"
 ```
 
 ---
 
-## Tags and directives
+## Anchors, Aliases, and Merge Keys
 
-### Standard `!!` tags
-
-Force a specific type regardless of the literal value:
-```yaml
-id:      !!str 007        # stored as String "007"
-count:   !!int "99"       # stored as Number 99
-enabled: !!bool yes       # stored as Boolean true
-nothing: !!null ~         # stored as Null
-```
-
-```cpp
-NRef<String>(doc["id"]).value()           // "007"
-NRef<Number>(doc["count"]).value<int>()   // 99
-```
-
-### Custom and verbatim tags
-```yaml
-- !mytag foo          # custom tag
-- !<tag:example.com>  # verbatim URI tag
-```
-Access the tag string:
-```cpp
-std::string tag = node.getVariant().getTag();
-```
-
-### `%TAG` named handles
+Full YAML 1.2 anchor and merge key (`<<`) support:
 
 ```yaml
-%TAG !e! tag:example.com,2024:
----
-item: !e!widget foo   # expands to tag:example.com,2024:widget
-```
-
-### `%YAML` directive
-
-```yaml
-%YAML 1.2
----
-key: value
-```
-Only YAML major version 1 is supported; a different major version throws `SyntaxError`.
-
----
-
-## Anchors, aliases, and merge keys
-
-```yaml
----
 defaults: &defaults
   timeout: 30
   retries: 3
 
 production:
-  <<: *defaults        # merge key — copies timeout and retries
-  host: prod.example
+  <<: *defaults
+  host: prod.domain.internal
 ```
 
 ```cpp
-int timeout = NRef<Number>(doc["production"]["timeout"]).value<int>();  // 30
-```
-
-Multi-source merge with priority:
-```yaml
-<<: [*base, *overrides]   # overrides takes priority over base
+YAML_Lib::YAML doc(rawYaml);
+int timeout = doc["production"]["timeout"].as<int>(); // 30
 ```
 
 ---
 
-## Error handling
+## Error Handling & Security Hardening
 
-### Catch parse errors
+### Secure Parser Options for Untrusted Input
+
 ```cpp
-try {
-    yaml.parse(BufferSource{"bad: [\n"});
-} catch (const SyntaxError& ex) {
-    std::cerr << "Parse error: " << ex.what() << "\n";
-    // e.g. "YAML Syntax Error [Line: 1 Column: 8]: ..."
-}
+YAML_Lib::Options opts = YAML_Lib::Options::secureOptions();
+// Enforces strict booleans, max depth (64), max alias expansions (64), and scalar size caps.
+YAML_Lib::YAML secureParser(opts);
 ```
 
-### Catch type errors
+### Exception-Free Embedded Hardening
+
+When compiled with `-DYAML_LIB_NO_EXCEPTIONS=ON`, register a custom panic handler:
+
 ```cpp
-try {
-    int n = NRef<Number>(stringNode).value<int>();   // throws
-} catch (const Node::Error& ex) {
-    std::cerr << "Type error: " << ex.what() << "\n";
-}
+YAML_Lib::Error::setPanicHandler([](const std::string& err) {
+    std::cerr << "CRITICAL PARSE ERROR: " << err << "\n";
+});
 ```
 
-### Defensive patterns
-```cpp
-// Check type before accessing
-if (isA<Number>(doc["count"])) {
-    int count = NRef<Number>(doc["count"]).value<int>();
-}
+See the [Embedded & Minimal Systems Guide](embedded_and_minimal.md) for full instructions.
 
-// Check key existence before indexing a dictionary
-if (NRef<Dictionary>(doc).contains("optional")) {
-    auto& v = doc["optional"];
-}
+---
+
+## Extensibility & Custom I/O
+
+- **Custom Sources**: Implement `ISource` to stream from sockets, ring buffers, or shared memory.
+- **Custom Destinations**: Implement `IDestination` for zero-copy output.
+- **Custom Formats**: Register custom format stringifiers via `StringifierFactory::instance().registerCreator("MY_FORMAT", creator)`.
+
+See the [Extending YAML_Lib Guide](extending_yaml_lib.md) and [SOLID Architecture Guide](solid_architecture.md).
+
+---
+
+## Alternative Output Formats (JSON, XML, Bencode)
+
+```cpp
+YAML_Lib::YAML doc("name: YAML_Lib\nversion: 1.4\n");
+
+std::string json    = doc.dump("JSON");
+std::string xml     = doc.dump("XML");
+std::string bencode = doc.dump("Bencode");
 ```
 
 ---
 
-## Custom I/O — StreamSource and StreamDestination
+## Example Programs
 
-For integration with existing C++ stream pipelines:
+Executable examples located in [`examples/source/`](file:///home/robt/projects/YAML_Lib/examples/source):
 
-```cpp
-// Parse from a network or pipe stream
-void parseFromStream(std::istream& input) {
-    YAML yaml;
-    yaml.parse(StreamSource{input});
-    // ...
-}
-
-// Stringify into an existing output stream
-void stringifyToStream(const YAML& yaml, std::ostream& output) {
-    yaml.stringify(StreamDestination{output});
-}
-```
-
-For custom sources beyond the built-in three, implement `ISource`. For custom output, implement `IDestination`. See `classes/include/interface/ISource.hpp` and `IDestination.hpp`.
-
-## Testing and extending YAML_Lib
-
-YAML_Lib includes test coverage for public APIs, custom parser/stringifier extensions, and parser security limits.
-
-- Add new test cases under `tests/source/` using Catch2 `TEST_CASE` and `SECTION`.
-- Use custom test helpers to mock `ISource`, `IDestination`, and `IStringify` behavior.
-- Keep tests focused on a single public-contract behavior and avoid external dependencies unless testing file I/O.
-
-Review `docs/testing.md` for concrete instructions and example fake implementations.
-
----
-
-## SAX Event Traversal
-
-YAML_Lib also supports SAX-style event callbacks when `YAML_LIB_SAX_API` is enabled. Implement `IYAMLEvents` to receive tree traversal events and use `YAML::traverseEvents()` to walk a parsed document without manually recursing over nodes.
-
-```cpp
-struct PrintEvents : IYAMLEvents {
-  void onDocumentStart() override { std::cout << "document start\n"; }
-  void onKey(std::string_view key) override { std::cout << "key: " << key << "\n"; }
-  void onScalar(NodeType type, std::string_view value) override {
-    std::cout << "scalar: " << value << " (" << static_cast<int>(type) << ")\n";
-  }
-  void onDocumentEnd() override { std::cout << "document end\n"; }
-};
-
-YAML yaml;
-yaml.parse(BufferSource{"---\nname: Alice\n"});
-PrintEvents events;
-yaml.traverseEvents(events);
-```
-
-`IYAMLEvents` is optional and only available when the library is built with `YAML_LIB_SAX_API=ON`.
-
-## Traversal with IAction
-
-Implement `IAction` to visit every node in the tree:
-
-```cpp
-struct MyVisitor : public IAction {
-    void onNode(Node& node) override {
-        if (isA<String>(node)) {
-            // process string node
-        }
-    }
-};
-
-MyVisitor v;
-yaml.traverse(v);
-```
-
----
-
-## Alternative output formats
-
-YAML_Lib ships with built-in stringifiers for JSON, XML, and Bencode. Pass a stringifier to the `YAML` constructor:
-
-```cpp
-// JSON output (example — using built-in JSON stringifier)
-// See examples/source/YAML_Files_To_JSON.cpp for details.
-```
-
-Each stringifier implements `IStringify`. To use one:
-```cpp
-YAML yaml{new YourStringify()};
-yaml.parse(BufferSource{yamlText});
-BufferDestination dest;
-yaml.stringify(dest);
-```
-
----
-
-## Examples
-
-All programs are in `examples/source/`. Build them with the main CMake build.
-
-| Program | What it shows |
-|---------|---------------|
-| `YAML_Simple_Read_Write.cpp` | Parse a file, write to another file |
-| `YAML_Parse_File.cpp` | Batch parse with timing measurements |
-| `YAML_Create_At_Runtime.cpp` | Build YAML in code; initializer lists |
-| `YAML_Nested_Structure_Demo.cpp` | Deep nesting, traversal |
-| `YAML_Custom_IO.cpp` | Custom parser/stringifier integration |
-| `YAML_Files_To_JSON.cpp` | Reformat YAML as JSON |
-| `YAML_Files_To_XML.cpp` | Reformat YAML as XML |
-| `YAML_Files_To_Bencode.cpp` | Reformat YAML as Bencode |
-| `YAML_Analyze_File.cpp` | Inspect structure and statistics |
-| `YAML_Fibonacci.cpp` | Build a sequence programmatically |
-| `YAML_Error_Handling_Demo.cpp` | All error handling patterns |
-| `YAML_Advanced_Types_Demo.cpp` | Timestamps, `%TAG`, binary, anchors, merge keys, multi-doc |
-
----
-
-For a complete method listing see the [API Reference](api.md).
-
+| File | Feature Covered |
+| :--- | :--- |
+| `YAML_Simple_Read_Write.cpp` | Parsing and serializing to files |
+| `YAML_Create_At_Runtime.cpp` | Dynamic building and initializer lists |
+| `YAML_Files_To_JSON.cpp` | Converting YAML documents to JSON |
+| `YAML_Files_To_XML.cpp` | Converting YAML documents to XML |
+| `YAML_Files_To_Bencode.cpp` | Converting YAML documents to Bencode |
+| `YAML_Custom_IO.cpp` | Implementing custom `ISource` and `IDestination` |
+| `YAML_Error_Handling_Demo.cpp` | Syntax error recovery and diagnostics |
+| `YAML_Advanced_Types_Demo.cpp` | Timestamps, tags, anchors, and merge keys |
+| `YAML_Performance_Profile.cpp` | Large dataset parse and stringify throughput |

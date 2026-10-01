@@ -41,7 +41,7 @@ YAML_Lib is a lightweight, header-friendly C++23 library for parsing, manipulati
 YAML_Lib is built around a small set of practical library attributes:
 
 - **Intuitive API design** with easy-to-use static helpers, optional runtime customization, and stable public headers.
-- **Comprehensive documentation** through `docs/guide.md`, `docs/api.md`, `docs/solid_architecture.md`, and `docs/extending_yaml_lib.md`.
+- **Comprehensive documentation** through `docs/guide.md`, `docs/api.md`, `docs/cpp23_features.md`, `docs/serialization.md`, `docs/embedded_and_minimal.md`, `docs/solid_architecture.md`, and `docs/extending_yaml_lib.md`.
 - **High reliability** with explicit parser limits, secure `Options`, and strong error-handling guidance.
 - **Performance and efficiency** via `std::pmr::memory_resource` support and lightweight core data structures.
 - **Maintainability** through clean header boundaries, modular implementation, and documented extension points.
@@ -212,7 +212,7 @@ See the [User Guide](docs/guide.md) and [examples/source/](examples/source/) for
 
 **Common issues:**
 
-- *Build errors about `std::string_view`*: Ensure you are using C++20 or newer and a modern compiler (GCC 10+, Clang 15+, MSVC 2019+). If using precompiled headers, make sure `<string_view>` is included.
+- *Build errors about `std::string_view` or C++23 features*: Ensure you are using C++23 or newer and a modern compiler (GCC 13+, Clang 17+, AppleClang 16+, MSVC 2022 17.8+). If using precompiled headers, make sure `<string_view>` is included.
 - *Type errors with `NRef<T>`*: Always check node type with `isA<T>(node)` before using `NRef<T>(node)`.
 - *Parse errors*: Catch `SyntaxError` and check your YAML for syntax mistakes or unsupported features.
 - *File I/O errors*: Make sure `YAML_LIB_FILE_IO` is enabled and files exist/are accessible.
@@ -436,9 +436,16 @@ All examples are in `examples/source/`:
 
 - [API Reference](docs/api.md)
 - [User Guide](docs/guide.md)
+- [C++23 Modern Features & Migration](docs/cpp23_features.md)
+- [Object & Container Serialization](docs/serialization.md)
+- [Embedded & Minimal Systems Guide](docs/embedded_and_minimal.md)
 - [Public API](docs/public_api.md)
+- [SOLID Architecture Guide](docs/solid_architecture.md)
+- [Extending YAML_Lib](docs/extending_yaml_lib.md)
+- [Portability Guide](docs/portability.md)
+- [Dependencies](docs/dependencies.md)
+- [Testing Guide](docs/testing.md)
 - [Attribute-driven refactor notes](docs/attribute-driven-refactor.md)
-- [Feature Plan](docs/PARSER_FEATURES_AND_PLAN.md)
 - [YAML 1.2.2 Specification](https://yaml.org/spec/1.2.2/)
 
 ## Contributing

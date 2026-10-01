@@ -1,6 +1,6 @@
 # SOLID Architecture Guide
 
-`YAML_Lib` is designed around a 100% **SOLID** object-oriented C++20 architecture. This guide details how each of the five SOLID design principles is implemented within the codebase.
+`YAML_Lib` is designed around a 100% **SOLID** object-oriented C++23 architecture. This guide details how each of the five SOLID design principles is implemented within the codebase.
 
 ---
 
@@ -54,6 +54,7 @@ The library is open for extension without modifying core parsing or stringifying
 
 - **[`StringifierFactory`](../classes/include/implementation/common/YAML_StringifierFactory.hpp)**: Strategy registry that allows registering custom output format generators (e.g. TOML, CSV) dynamically.
 - **[`ISchema`](../classes/include/interface/ISchema.hpp)** & **[`CoreSchema`](../classes/include/implementation/common/YAML_CoreSchema.hpp)**: Strategy interface for customizable scalar resolution and tag coercion rules (e.g. Core Schema, JSON Schema, Failsafe Schema).
+- **[`YAML_Serialization.hpp`](../classes/include/YAML_Serialization.hpp)**: Non-intrusive ADL-based serialization open for third-party type customization without altering class definitions.
 
 ---
 
@@ -76,6 +77,9 @@ Clients depend only on the minimal interface methods they require:
   - `YAML_Reader.hpp`: Only read/parse types.
   - `YAML_Writer.hpp`: Only write/stringify types.
   - `YAML_DOM.hpp`: Only DOM tree manipulation types.
+- **Modular Capability Headers**:
+  - `YAML_Format.hpp`: Segregated `std::format` integration kept out of core headers.
+  - `YAML_Serialization.hpp`: Segregated object mapping macros and container converters.
 
 ---
 

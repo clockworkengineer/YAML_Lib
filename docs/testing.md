@@ -1,28 +1,50 @@
 # Testing YAML_Lib
 
-YAML_Lib includes unit tests, integration tests, and parser resilience coverage. This document explains how to run tests, add new ones, and extend test coverage for public APIs and custom I/O.
+`YAML_Lib` includes a comprehensive automated test framework encompassing unit tests, integration tests, contract verification, header compile isolation tests, fuzz harnesses, and sanitizer builds.
 
-## Running tests
+This document details how to run tests, add new test cases, and validate specialized build configurations.
 
-1. Configure and build the project:
+---
+
+## Running Tests
+
+### 1. Configure and Build the Test Suite
 
 ```sh
-cmake -S . -B build
-cmake --build build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_YAML_TESTS=ON
+cmake --build build -j$(nproc)
 ```
 
-2. Run the full test suite with CTest:
+### 2. Execute Full Test Suite via CTest
 
 ```sh
 ctest --test-dir build --output-on-failure
 ```
 
-3. Validate hardened build configurations:
+### 3. Running Specific Subsets
 
+To execute only the unit tests:
 ```sh
-cmake -S . -B build_no_file_io -DYAML_LIB_FILE_IO=OFF
-cmake --build build_no_file_io --target YAML_Lib
+ctest --test-dir build -R "YAML_Lib_Unit_Tests" --output-on-failure
+```
 
+To execute header compilation independence tests:
+```sh
+ctest --test-dir build -R "YAML_Lib_Header_Compile_Tests" --output-on-failure
+```
+
+To run a specific Catch2 tag or test section directly:
+```sh
+./build/tests/YAML_Lib_Unit_Tests "[Cpp23]"
+./build/tests/YAML_Lib_Unit_Tests "[YAML][API]"
+```
+
+---
+
+## Validating Specialized Build Configurations
+
+### 1. Minimal Embedded Build (Zero Filesystem & Zero SAX)
+```sh
 cmake -S . -B build_minimal \
   -DBUILD_YAML_EXAMPLES=OFF \
   -DBUILD_YAML_TESTS=OFF \
@@ -31,127 +53,76 @@ cmake -S . -B build_minimal \
   -DYAML_LIB_SAX_API=OFF \
   -DYAML_LIB_TIMESTAMP_PARSE=OFF
 cmake --build build_minimal --target YAML_Lib
-
-cmake -S . -B build_no_exceptions -DYAML_LIB_NO_EXCEPTIONS=ON
-cmake --build build_no_exceptions --target YAML_Lib
 ```
 
-> Note: Catch2-based unit tests cannot run under `-fno-exceptions`. The library build itself is the best no-exceptions validation, and this repository includes a small compile-only target `YAML_Lib_NoExceptions_Compile_Tests` to verify the panic handler API.
-
-4. Refer to `docs/attribute-checklist.md` for a Phase 7 audit summary of library attributes.
-
-3. To build and run fuzz tests:
-
+### 2. Exception-Free Build (`-fno-exceptions`)
 ```sh
-cmake -S . -B build -DBUILD_YAML_PARSER_FUZZ_TESTS=ON
-cmake --build build
-./build/tests/YAML_Lib_Fuzz_Tests
+cmake -S . -B build_no_exceptions -DYAML_LIB_NO_EXCEPTIONS=ON
+cmake --build build_no_exceptions --target YAML_Lib_NoExceptions_Compile_Tests
+```
+> **Note**: Catch2 requires exceptions to report assertion failures. Therefore, unit test executables are excluded under `-fno-exceptions`. Instead, the repository provides the compile-only target `YAML_Lib_NoExceptions_Compile_Tests` to ensure error handling, panic callbacks, and non-throwing code paths compile cleanly without `-fexceptions`.
+
+### 3. Address & Undefined Behavior Sanitizers
+Run the dedicated sanitizer build script:
+```sh
+./scripts/Linux-Build-Sanitizers.sh
 ```
 
-## Security-focused testing
+### 4. Fuzz Testing
+```sh
+cmake -S . -B build_fuzz -DBUILD_YAML_PARSER_FUZZ_TESTS=ON
+cmake --build build_fuzz
+./build_fuzz/tests/YAML_Lib_Fuzz_Tests
+```
 
-- The Jenkins pipeline now builds both `Release` and `Debug` with `BUILD_YAML_PARSER_FUZZ_TESTS=ON` and executes the test suite regularly.
-- Use `scripts/Linux-Build-Sanitizers.sh` to validate AddressSanitizer and UndefinedBehaviorSanitizer builds with the unit test suite.
-- `YAML_Lib_Fuzz_Tests` is labeled with `fuzz` and `security` to make it easy to run security test jobs.
-- `scripts/Linux-Style-Check.sh` includes `clang-format` checks and runs `clang-tidy` when the tool is available.
+---
 
-## Test structure
+## Test Directory Structure
 
-- `tests/source/parse/` — parser feature and compliance tests
-- `tests/source/stringify/` — stringifier output tests for YAML, JSON, XML, and Bencode
-- `tests/source/io/` — source/destination I/O implementation tests
-- `tests/source/misc/` — API behavior, option coverage, custom parser/stringifier behaviors, and security tests
-- `tests/include/YAML_Lib_Tests.hpp` — shared test utilities and Catch2 configuration
+- `tests/source/misc/YAML_Lib_Tests_Cpp23.cpp` — Comprehensive C++23 test suite:
+  - `std::expected` non-throwing parsing (`loadExpected`, `parseExpected`)
+  - Modern ergonomic accessors (`as<T>()`, `is<T>()`, `value_or()`, `get_if<T>()`)
+  - Container auto-promotion on `operator[]`
+  - Structured bindings and iteration with `items()`
+  - Sequence range-based `for` loops
+  - Native `std::format` integration (`YAML_Format.hpp`)
+  - Non-intrusive object serialization and STL container mapping (`YAML_Serialization.hpp`)
+- `tests/source/misc/YAML_Lib_Tests_HeaderCompile.cpp` & `YAML_Lib_Tests_Header_Interfaces.cpp` — Verifies every public header compiles in total isolation without implicit prerequisites (IWYU).
+- `tests/source/contract/YAML_Lib_Tests_SourceContract.cpp` — Formal behavioral contract testing for `ISource` and `IDestination` implementations.
+- `tests/source/parse/` — Spec compliance and parser edge-case suites (including 758 YAML Test Suite cases).
+- `tests/source/stringify/` — Output generators for YAML, JSON, XML, and Bencode.
+- `tests/source/io/` — Buffer, file, and stream I/O adapter tests.
+- `tests/include/YAML_Lib_Tests.hpp` — Shared Catch2 test environment and utilities.
 
-## Adding tests
+---
 
-Use Catch2 `TEST_CASE` and `SECTION` for new coverage.
+## Adding New Tests
 
-### Example
-
-Add a new file under `tests/source/misc/` or a domain-specific subfolder.
+Add new test cases using Catch2 `TEST_CASE` and `SECTION`:
 
 ```cpp
-TEST_CASE("YAML::Options preserves strict boolean parsing", "[YAML][Options][Parse]") {
-  YAML_Lib::Options options;
-  options.strict_booleans = true;
+#include "YAML_Lib_Tests.hpp"
+#include "YAML_Serialization.hpp"
 
-  YAML_Lib::YAML yaml(options);
-  yaml.parse(YAML_Lib::BufferSource{"---\nvalue: yes\n"});
+struct Point { int x; int y; };
+YAML_LIB_DEFINE_TYPE_NON_INTRUSIVE(Point, x, y)
 
-  REQUIRE(isA<YAML_Lib::String>(yaml.document(0)["value"]));
+TEST_CASE("Custom Point serialization", "[YAML][Cpp23][Serialization]") {
+  Point p{10, 20};
+  YAML_Lib::Node n;
+  to_yaml(n, p);
+
+  REQUIRE(n["x"].as<int>() == 10);
+  REQUIRE(n["y"].as<int>() == 20);
+
+  Point restored;
+  from_yaml(n, restored);
+  REQUIRE(restored.x == 10);
+  REQUIRE(restored.y == 20);
 }
 ```
 
-## Extending tests with custom I/O and stringifiers
-
-YAML_Lib was designed for testability. You can implement `ISource`, `IDestination`, `IStringify`, and `IParser` directly in tests to verify custom behaviors without relying on production I/O.
-
-- `ISource` custom test sources can simulate streams, files, or protocol buffers.
-- `IDestination` test destinations can capture or validate output without filesystem dependencies.
-- `IStringify` fake stringifiers can verify `YAML::stringify()` uses the configured serializer.
-- `IParser` fake parsers can verify `YAML::parse()` delegates to custom parsing logic.
-
-A concrete test example is available in `tests/source/misc/YAML_Lib_Tests_Testability.cpp`.
-
-## Attribute 8 — High Testability
-
-This library tracks testability through focused, attribute-driven test coverage.
-
-- Use consistent Catch2 tags to group related cases: `[YAML][Options][Validation]`, `[YAML][Testability]`, `[YAML][API][Integration]`, `[YAML][Security]`.
-- Add new tests under `tests/source/misc/` or domain-specific folders when covering API quality, runtime options, or custom adapters.
-- The `YAML_Lib_Unit_Tests` executable is now labeled for CTest as `unit`, `testability`, and `api`.
-- The fuzz harness executable is labeled `fuzz` and `security`.
-
-Run the unit test suite with CTest labels:
-
+Ensure formatting conforms to `.clang-format` before committing:
 ```sh
-ctest --test-dir build -L unit --output-on-failure
-```
-
-Run security-focused fuzz/resilience tests if enabled:
-
-```sh
-ctest --test-dir build -L fuzz --output-on-failure
-```
-
-For example-based integration coverage, enable example builds and run a small example program after build:
-
-```sh
-cmake -S . -B build -DBUILD_YAML_EXAMPLES=ON
-cmake --build build
-./build/examples/YAML_Simple_Read_Write
-```
-
-This helps keep example programs as lightweight integration checks for the public API.
-
-## Best practices
-
-- Keep tests small and focused on one behavior.
-- Use `REQUIRE` for hard assertions and `CHECK` for non-fatal checks.
-- Avoid depending on external files unless testing file I/O explicitly.
-- Use fake sources/destinations for parser or stringifier contract testing.
-
-## Code style and maintainability
-
-- Keep public API headers lean and stable; internal implementation headers should remain hidden unless explicitly exposed by `YAML_Core.hpp`, `YAML.hpp`, or the public interface.
-- Use the existing `YAML_Lib_Tests_HeaderCompile` target as a maintainability gate for public header stability.
-- Run header-only validation for supported feature combinations, especially minimal and no-exceptions builds.
-- Add focused public API tests for top-level helpers such as `YAML::load()`, `YAML::dump()`, `YAML::toString()`, and `YAML::loadFile()`.
-- Prefer one responsibility per source file, especially in parser and stringify implementation modules.
-- Document all public interfaces with clear lifetime and ownership semantics for callers.
-- Use consistent doxygen-style comments for stable public contracts, and keep implementation details in `classes/source/implementation`.
-
-## Running a single test case
-
-Use CTest with a regex filter:
-
-```sh
-ctest --test-dir build -R "YAML_Lib_Unit_Tests" --output-on-failure
-```
-
-Or run a specific Catch2 executable directly with section matching:
-
-```sh
-./build/tests/YAML_Lib_Unit_Tests -c "YAML\[Testability\]"
+./scripts/Linux-Style-Check.sh
 ```
