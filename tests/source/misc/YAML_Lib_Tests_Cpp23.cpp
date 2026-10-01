@@ -17,8 +17,8 @@ struct ServerConfig {
 YAML_LIB_DEFINE_TYPE_NON_INTRUSIVE(ServerConfig, host, port, enabled)
 
 TEST_CASE("C++23 — std::expected parsing support.", "[YAML][Cpp23][Expected]") {
-#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L && \
-    !defined(YAML_LIB_NO_EXCEPTIONS) && defined(__cpp_exceptions)
+#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L
+#if !defined(YAML_LIB_NO_EXCEPTIONS) && defined(__cpp_exceptions)
   SECTION("loadExpected parses valid YAML successfully") {
     auto res = YAML::loadExpected("name: Alice\nage: 30\n");
     REQUIRE(res.has_value());
@@ -47,6 +47,7 @@ TEST_CASE("C++23 — std::expected parsing support.", "[YAML][Cpp23][Expected]")
     auto res = yaml.parseExpected(src);
     REQUIRE_FALSE(res.has_value());
   }
+#endif
 #endif
 }
 

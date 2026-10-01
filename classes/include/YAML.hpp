@@ -178,8 +178,8 @@ class YAML {
   }
 #endif
 
-#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L && \
-    !defined(YAML_LIB_NO_EXCEPTIONS) && defined(__cpp_exceptions)
+#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L
+#if !defined(YAML_LIB_NO_EXCEPTIONS) && defined(__cpp_exceptions)
   /**
    * @brief Parse YAML from a string and return std::expected containing YAML or error string.
    * @param yaml_string YAML text to parse
@@ -196,14 +196,15 @@ class YAML {
    */
   [[nodiscard]] static std::expected<YAML, std::string> loadExpected(ISource& source);
 #endif
+#endif
 
   /**
    * @brief Stringify the node tree to a string (YAML format).
    * @return YAML string
    */
-  [[nodiscard]] std::string dump() const {
-    return toString();
-  }
+  // clang-format off
+  [[nodiscard]] std::string dump() const { return toString(); }
+  // clang-format on
 
   /**
    * @brief Stringify the node tree to a formatted string using a named format.
@@ -324,10 +325,11 @@ class YAML {
   [[nodiscard]] bool tryParse(ISource&& source, std::string& errorMessage);
 #endif
 
-#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L && \
-    !defined(YAML_LIB_NO_EXCEPTIONS) && defined(__cpp_exceptions)
+#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L
+#if !defined(YAML_LIB_NO_EXCEPTIONS) && defined(__cpp_exceptions)
   [[nodiscard]] std::expected<void, std::string> parseExpected(ISource& source);
   [[nodiscard]] std::expected<void, std::string> parseExpected(ISource&& source);
+#endif
 #endif
 
   /**

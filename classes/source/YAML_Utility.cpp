@@ -34,8 +34,8 @@ std::string YAML::toString() const {
   return dest.toString();
 }
 
-#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L && \
-    !defined(YAML_LIB_NO_EXCEPTIONS) && defined(__cpp_exceptions)
+#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L
+#if !defined(YAML_LIB_NO_EXCEPTIONS) && defined(__cpp_exceptions)
 std::expected<YAML, std::string> YAML::loadExpected(const std::string_view& yaml_string) {
   try {
     BufferSource source{yaml_string};
@@ -75,6 +75,7 @@ std::expected<void, std::string> YAML::parseExpected(ISource& source) {
 std::expected<void, std::string> YAML::parseExpected(ISource&& source) {
   return parseExpected(source);
 }
+#endif
 #endif
 
 std::string formatNodeHelper(const Node& node) {
