@@ -2,6 +2,25 @@
 
 namespace YAML_Lib {
 
+// Node special member function definitions and Node::make (defined here where container types are
+// complete)
+inline Node::Node() = default;
+inline Node::Node(Node&&) noexcept = default;
+inline Node& Node::operator=(Node&&) noexcept = default;
+inline Node::~Node() = default;
+
+template <typename T, typename... Args>
+inline Node Node::make(Args&&... args) {
+  Node n;
+  if constexpr (std::is_same_v<T, Array> || std::is_same_v<T, Dictionary> ||
+                std::is_same_v<T, Document>) {
+    n.getVariant() = std::make_unique<T>(std::forward<Args>(args)...);
+  } else {
+    n.getVariant() = T(std::forward<Args>(args)...);
+  }
+  return n;
+}
+
 // =======================
 // What is Node variant ?
 // =======================

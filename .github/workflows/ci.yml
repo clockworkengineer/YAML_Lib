@@ -14,7 +14,6 @@ jobs:
   format-and-lint:
     name: Code Formatting & Quality Checks
     runs-on: ubuntu-24.04
-    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,23 +29,13 @@ jobs:
           ./scripts/Linux-Style-Check.sh
 
   build-and-test-linux:
-    name: Linux / ${{ matrix.os }} / ${{ matrix.cxx }} / ${{ matrix.build_type }}
-    runs-on: ${{ matrix.os }}
+    name: Linux / ${{ matrix.cxx }} / ${{ matrix.build_type }}
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-22.04, ubuntu-24.04 ]
         build_type: [ Debug, Release ]
-        cxx: [ g++-11, g++-13, clang++-15, clang++-18 ]
-        exclude:
-          - os: ubuntu-22.04
-            cxx: g++-13
-          - os: ubuntu-22.04
-            cxx: clang++-18
-          - os: ubuntu-24.04
-            cxx: g++-11
-          - os: ubuntu-24.04
-            cxx: clang++-15
+        cxx: [ g++-13, g++-14, clang++-17, clang++-18 ]
 
     steps:
       - name: Checkout repository
@@ -74,6 +63,8 @@ jobs:
         run: |
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_C_COMPILER=${{ env.CC }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
             -DBUILD_YAML_TESTS=ON \
             -DYAML_LIB_FILE_IO=ON \
             -DBUILD_YAML_EXAMPLES=ON
@@ -188,9 +179,9 @@ jobs:
         run: |
           mkdir -p /tmp/consumer_test
           cat << 'EOF' > /tmp/consumer_test/CMakeLists.txt
-          cmake_minimum_required(VERSION 3.18)
+          cmake_minimum_required(VERSION 3.20)
           project(ConsumerTest CXX)
-          set(CMAKE_CXX_STANDARD 20)
+          set(CMAKE_CXX_STANDARD 23)
           set(CMAKE_CXX_STANDARD_REQUIRED ON)
           find_package(YAML_Lib REQUIRED)
           add_executable(consumer main.cpp)

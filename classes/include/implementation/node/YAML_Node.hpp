@@ -21,16 +21,16 @@ struct Node {
   // Node Error
   YAML_MAKE_ERROR(Error, "Node Error");
   // Constructors/Destructors
-  Node() = default;
+  Node();
   template <typename T>
   explicit Node(T value);
   Node(const YAML::ArrayInitializer& array);
   Node(const YAML::DictionaryInitializer& dictionary);
   Node(const Node& other) = delete;
   Node& operator=(const Node& other) = delete;
-  Node(Node&& other) = default;
-  Node& operator=(Node&& other) = default;
-  ~Node() = default;
+  Node(Node&& other) noexcept;
+  Node& operator=(Node&& other) noexcept;
+  ~Node();
 
   // Deep-copy / clone this node and its entire subtree
   [[nodiscard]] Node clone() const;
@@ -86,16 +86,7 @@ struct Node {
   [[nodiscard]] decltype(auto) items() const;
   // Make Node — scalars stored inline, containers via unique_ptr
   template <typename T, typename... Args>
-  static Node make(Args&&... args) {
-    Node n;
-    if constexpr (std::is_same_v<T, Array> || std::is_same_v<T, Dictionary> ||
-                  std::is_same_v<T, Document>) {
-      n.yNodeVariant = std::make_unique<T>(std::forward<Args>(args)...);
-    } else {
-      n.yNodeVariant = T(std::forward<Args>(args)...);
-    }
-    return n;
-  }
+  static Node make(Args&&... args);
 
  private:
   NodeVariant yNodeVariant;
