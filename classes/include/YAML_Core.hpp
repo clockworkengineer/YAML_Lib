@@ -95,6 +95,6 @@ inline T YAML::value_or(const std::string_view& key, T&& fallback) const {
     return std::forward<T>(fallback);
   }
   const auto& doc = document(0);
-  return doc.template value_or(key, std::forward<T>(fallback));
+  return doc.value_or(key, std::forward<T>(fallback));
 }
 }  // namespace YAML_Lib

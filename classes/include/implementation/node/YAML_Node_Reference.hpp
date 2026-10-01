@@ -434,7 +434,7 @@ T Node::value_or(T&& fallback) const {
 template <typename T>
 T Node::value_or(const std::string_view& key, T&& fallback) const {
   if (isA<Dictionary>(*this) && NRef<Dictionary>(*this).contains(key)) {
-    return (*this)[key].template value_or(std::forward<T>(fallback));
+    return (*this)[key].value_or(std::forward<T>(fallback));
   }
   return std::forward<T>(fallback);
 }
