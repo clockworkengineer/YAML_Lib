@@ -7,6 +7,22 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Workaround for LLVM issue #93734: Clang 17/18 with GCC 14 libstdc++ in C++23 mode fails
+# with 'no matching function for call to get' due to libstdc++ 14 pair-like/tuple-like constraints.
+# When compiling with Clang on Linux without an explicit stdlib or toolchain override,
+# use GCC 13's libstdc++ if available.
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  if(NOT CMAKE_CXX_FLAGS MATCHES "-stdlib=" AND NOT CMAKE_CXX_FLAGS MATCHES "--gcc-install-dir" AND NOT CMAKE_CXX_FLAGS MATCHES "--gcc-toolchain")
+    file(GLOB _GCC13_DIRS "/usr/lib/gcc/*-linux-gnu*/13" "/usr/lib/gcc/x86_64-linux-gnu/13")
+    if(_GCC13_DIRS)
+      list(GET _GCC13_DIRS 0 _GCC13_DIR)
+      message(STATUS "Clang on Linux with C++23: using GCC 13 toolchain at ${_GCC13_DIR} (LLVM #93734 workaround)")
+      add_compile_options("--gcc-install-dir=${_GCC13_DIR}")
+      add_link_options("--gcc-install-dir=${_GCC13_DIR}")
+    endif()
+  endif()
+endif()
+
 # Platform-specific options
 if(MSVC)
   set(PLATFORM "windows")

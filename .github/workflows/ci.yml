@@ -47,7 +47,7 @@ jobs:
           if [[ "${{ matrix.cxx }}" =~ "clang" ]]; then
             pkg="${{ matrix.cxx }}"
             pkg="${pkg/clang++/clang}"
-            sudo apt-get install -y "${pkg}"
+            sudo apt-get install -y "${pkg}" g++-13 libstdc++-13-dev
             echo "CC=${pkg}" >> $GITHUB_ENV
           else
             sudo apt-get install -y ${{ matrix.cxx }}
@@ -150,7 +150,7 @@ jobs:
       - name: Install Clang
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang-18
+          sudo apt-get install -y clang-18 g++-13 libstdc++-13-dev
 
       - name: Run Sanitizer Build & Tests
         env:

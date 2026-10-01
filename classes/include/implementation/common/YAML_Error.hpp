@@ -41,7 +41,7 @@ struct Error final : Exception {
       : Exception(std::string("YAML Error: ").append(message)) {}
 
   explicit Error(const std::pair<unsigned long, unsigned long>& position,
-                 const std::string_view& message = "")
+                 const std::string_view& message)
       : Exception(std::string("YAML Error [Line: ")
                       .append(std::to_string(position.first))
                       .append(" Column: ")
@@ -59,7 +59,7 @@ struct SyntaxError final : Exception {
       : Exception(std::string("YAML Syntax Error: ").append(message)) {}
 
   explicit SyntaxError(const std::pair<unsigned long, unsigned long>& position,
-                       const std::string_view message = "")
+                       const std::string_view& message)
       : Exception(std::string("YAML Syntax Error [Line: ")
                       .append(std::to_string(position.first))
                       .append(" Column: ")
