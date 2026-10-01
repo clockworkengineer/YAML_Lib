@@ -424,11 +424,18 @@ T Node::value_or(T&& fallback) const {
   if (isEmpty() || isA<Null>(*this)) {
     return std::forward<T>(fallback);
   }
+#if !defined(YAML_LIB_NO_EXCEPTIONS) && defined(__cpp_exceptions)
   try {
     return as<std::remove_cvref_t<T>>();
   } catch (...) {
     return std::forward<T>(fallback);
   }
+#else
+  if (is<std::remove_cvref_t<T>>()) {
+    return as<std::remove_cvref_t<T>>();
+  }
+  return std::forward<T>(fallback);
+#endif
 }
 
 template <typename T>
@@ -442,11 +449,15 @@ T Node::value_or(const std::string_view& key, T&& fallback) const {
 template <typename T>
 std::optional<T> Node::get_if() const {
   if (is<T>()) {
+#if !defined(YAML_LIB_NO_EXCEPTIONS) && defined(__cpp_exceptions)
     try {
       return as<T>();
     } catch (...) {
       return std::nullopt;
     }
+#else
+    return as<T>();
+#endif
   }
   return std::nullopt;
 }

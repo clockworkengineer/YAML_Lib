@@ -178,7 +178,8 @@ class YAML {
   }
 #endif
 
-#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L
+#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L && \
+    !defined(YAML_LIB_NO_EXCEPTIONS) && defined(__cpp_exceptions)
   /**
    * @brief Parse YAML from a string and return std::expected containing YAML or error string.
    * @param yaml_string YAML text to parse
@@ -323,7 +324,8 @@ class YAML {
   [[nodiscard]] bool tryParse(ISource&& source, std::string& errorMessage);
 #endif
 
-#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L
+#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L && \
+    !defined(YAML_LIB_NO_EXCEPTIONS) && defined(__cpp_exceptions)
   [[nodiscard]] std::expected<void, std::string> parseExpected(ISource& source);
   [[nodiscard]] std::expected<void, std::string> parseExpected(ISource&& source);
 #endif
