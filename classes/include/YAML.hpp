@@ -218,9 +218,9 @@ class YAML {
    * @param format Format name (e.g. "YAML", "JSON", "XML", "Bencode", or custom format).
    * @return Formatted string
    */
-  [[nodiscard]] std::string stringify(const std::string_view& format) const {
-    return dump(format);
-  }
+  // clang-format off
+  [[nodiscard]] std::string stringify(const std::string_view& format) const { return dump(format); }
+  // clang-format on
 
  public:
   /**
