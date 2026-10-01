@@ -31,6 +31,14 @@ struct SequenceBase {
   [[nodiscard]] const Entries& value() const { return entries_; }
   [[nodiscard]] std::string toString() const { return ""; }
 
+  // Range and iterator support
+  [[nodiscard]] auto begin() noexcept { return entries_.begin(); }
+  [[nodiscard]] auto end() noexcept { return entries_.end(); }
+  [[nodiscard]] auto begin() const noexcept { return entries_.begin(); }
+  [[nodiscard]] auto end() const noexcept { return entries_.end(); }
+  [[nodiscard]] auto cbegin() const noexcept { return entries_.cbegin(); }
+  [[nodiscard]] auto cend() const noexcept { return entries_.cend(); }
+
   Node& operator[](const std::size_t index) {
     if (index < entries_.size()) {
       return entries_[index];

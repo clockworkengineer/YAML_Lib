@@ -16,6 +16,13 @@
 #include <string>
 #include <string_view>
 #include <variant>
+#include <optional>
+#if defined(__has_include)
+  #if __has_include(<expected>)
+    #include <expected>
+  #endif
+#endif
+#include "YAML_Format.hpp"
 
 namespace YAML_Lib {
 
@@ -171,6 +178,22 @@ class YAML {
   }
 #endif
 
+#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L
+  /**
+   * @brief Parse YAML from a string and return std::expected containing YAML or error string.
+   * @param yaml_string YAML text to parse
+   * @return std::expected<YAML, std::string>
+   */
+  [[nodiscard]] static std::expected<YAML, std::string> loadExpected(const std::string_view& yaml_string);
+
+  /**
+   * @brief Parse YAML from an input source and return std::expected containing YAML or error string.
+   * @param source Input source
+   * @return std::expected<YAML, std::string>
+   */
+  [[nodiscard]] static std::expected<YAML, std::string> loadExpected(ISource& source);
+#endif
+
   /**
    * @brief Stringify the node tree to a string (YAML format).
    * @return YAML string
@@ -294,6 +317,11 @@ class YAML {
   [[nodiscard]] bool tryParse(ISource&& source, std::string& errorMessage);
 #endif
 
+#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L
+  [[nodiscard]] std::expected<void, std::string> parseExpected(ISource& source);
+  [[nodiscard]] std::expected<void, std::string> parseExpected(ISource&& source);
+#endif
+
   /**
    * @brief Stringify the node tree to a destination (no whitespace formatting).
    * @param destination Output destination
@@ -349,6 +377,25 @@ class YAML {
    */
   [[nodiscard]] Node& operator[](std::size_t index);
   [[nodiscard]] const Node& operator[](std::size_t index) const;
+
+  /**
+   * @brief Access and convert a mapping entry by key using modern as<T>().
+   * @param key Mapping key
+   * @return Converted value
+   */
+  template <typename T>
+  [[nodiscard]] decltype(auto) as(const std::string_view& key);
+  template <typename T>
+  [[nodiscard]] decltype(auto) as(const std::string_view& key) const;
+
+  /**
+   * @brief Access a mapping entry or return fallback if missing/null.
+   * @param key Mapping key
+   * @param fallback Default value
+   * @return Converted value or fallback
+   */
+  template <typename T>
+  [[nodiscard]] T value_or(const std::string_view& key, T&& fallback) const;
 
 #ifdef YAML_LIB_FILE_IO
   /**

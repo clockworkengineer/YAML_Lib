@@ -9,8 +9,8 @@ class YamlLibConan(ConanFile):
     license = "MIT"
     author = "Rob Turner"
     url = "https://github.com/clockworkengineer/YAML_Lib"
-    description = "Fast, modern C++20 YAML library with DOM and JSON/YAML conversion support"
-    topics = ("yaml", "json", "parser", "cpp20", "dom")
+    description = "Fast, modern C++23 YAML library with DOM and JSON/YAML conversion support"
+    topics = ("yaml", "json", "parser", "cpp23", "dom")
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],

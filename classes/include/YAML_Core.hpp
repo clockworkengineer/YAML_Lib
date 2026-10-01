@@ -57,6 +57,9 @@
 // Array::toKey/resize, Dictionary::toKey, Document::resize
 #include "implementation/node/YAML_Node_Creation.hpp"  // Node(T) ctors: uses NRef, Boolean, Number, Null, String
 #include "implementation/node/YAML_Node_Index.hpp"  // Node::operator[]: uses isA, NRef
+// 6b. C++23 extensions: formatting and object serialization
+#include "YAML_Format.hpp"
+#include "YAML_Serialization.hpp"
 // 7. Supporting infrastructure
 #include "YAML_Config.hpp"
 #include "implementation/io/YAML_Sources.hpp"
@@ -71,3 +74,27 @@
 #include "implementation/translator/Default_Translator.hpp"
 #include "implementation/parser/Default_Parser.hpp"
 #include "implementation/stringify/Default_Stringify.hpp"
+
+// ============================================================================
+// YAML class template convenience method implementations
+// ============================================================================
+namespace YAML_Lib {
+template <typename T>
+inline decltype(auto) YAML::as(const std::string_view& key) {
+  return (*this)[key].template as<T>();
+}
+
+template <typename T>
+inline decltype(auto) YAML::as(const std::string_view& key) const {
+  return (*this)[key].template as<T>();
+}
+
+template <typename T>
+inline T YAML::value_or(const std::string_view& key, T&& fallback) const {
+  if (getNumberOfDocuments() == 0) {
+    return std::forward<T>(fallback);
+  }
+  const auto& doc = document(0);
+  return doc.template value_or(key, std::forward<T>(fallback));
+}
+}  // namespace YAML_Lib

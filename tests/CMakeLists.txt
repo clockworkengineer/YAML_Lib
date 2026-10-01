@@ -79,7 +79,8 @@ set(TEST_SOURCES
   source/misc/YAML_Lib_Tests_Phase3.cpp
   source/misc/YAML_Lib_Tests_PublicAPI.cpp
   source/misc/YAML_Lib_Tests_HighTestability.cpp
-  source/misc/YAML_Lib_Tests_SAX.cpp)
+  source/misc/YAML_Lib_Tests_SAX.cpp
+  source/misc/YAML_Lib_Tests_Cpp23.cpp)
 
 add_executable(${TEST_EXECUTABLE} ${TEST_SOURCES})
 target_include_directories(${TEST_EXECUTABLE} PRIVATE

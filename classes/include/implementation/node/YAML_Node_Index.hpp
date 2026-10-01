@@ -5,7 +5,7 @@ namespace YAML_Lib {
 
 // Dictionary
 inline Node& Node::operator[](const std::string_view& key) {
-  if (isA<Hole>(*this)) {
+  if (isEmpty() || isA<Hole>(*this)) {
     *this = make<Dictionary>();
   }
   if (isA<Dictionary>(*this)) {
@@ -23,7 +23,7 @@ inline const Node& Node::operator[](const std::string_view& key) const {
 }
 // Array
 inline Node& Node::operator[](const std::size_t index) {
-  if (isA<Hole>(*this)) {
+  if (isEmpty() || isA<Hole>(*this)) {
     *this = make<Array>();
   }
   if (isA<Array>(*this)) {

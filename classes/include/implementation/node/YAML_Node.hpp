@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory_resource>
+#include <optional>
 
 namespace YAML_Lib {
 
@@ -57,6 +58,32 @@ struct Node {
   // String conversion helpers (bodies defined in YAML_Node_Reference.hpp)
   [[nodiscard]] std::string toString() const;
   [[nodiscard]] std::string toKey() const;
+
+  // Modern C++23 type query and conversion accessors
+  template <typename T>
+  [[nodiscard]] bool is() const noexcept;
+
+  template <typename T>
+  [[nodiscard]] decltype(auto) as();
+
+  template <typename T>
+  [[nodiscard]] decltype(auto) as() const;
+
+  template <typename T>
+  [[nodiscard]] T value_or(T&& fallback) const;
+
+  template <typename T>
+  [[nodiscard]] T value_or(const std::string_view& key, T&& fallback) const;
+
+  template <typename T>
+  [[nodiscard]] std::optional<T> get_if() const;
+
+  // Dictionary entries view helper
+  template <typename = void>
+  [[nodiscard]] decltype(auto) items();
+
+  template <typename = void>
+  [[nodiscard]] decltype(auto) items() const;
   // Make Node — scalars stored inline, containers via unique_ptr
   template <typename T, typename... Args>
   static Node make(Args&&... args) {

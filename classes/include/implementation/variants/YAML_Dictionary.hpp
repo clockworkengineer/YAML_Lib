@@ -84,6 +84,17 @@ struct Dictionary {
   [[nodiscard]] std::string toKey() const;
   [[nodiscard]] std::string toString() const { return ""; }
 
+  // Iterators and items view
+  [[nodiscard]] auto begin() noexcept { return yNodeDictionary.begin(); }
+  [[nodiscard]] auto end() noexcept { return yNodeDictionary.end(); }
+  [[nodiscard]] auto begin() const noexcept { return yNodeDictionary.begin(); }
+  [[nodiscard]] auto end() const noexcept { return yNodeDictionary.end(); }
+  [[nodiscard]] auto cbegin() const noexcept { return yNodeDictionary.cbegin(); }
+  [[nodiscard]] auto cend() const noexcept { return yNodeDictionary.cend(); }
+
+  [[nodiscard]] Entries& items() noexcept { return yNodeDictionary; }
+  [[nodiscard]] const Entries& items() const noexcept { return yNodeDictionary; }
+
  private:
   // Search for a given entry by key using the O(1) hash-map index
   [[nodiscard]] Entries::iterator findKey(const std::string_view& key);
@@ -95,6 +106,25 @@ struct Dictionary {
   std::pmr::unordered_map<std::string, std::size_t, StringViewHash, StringViewEqual>
       yNodeDictionaryIndex;
 };
+
+// Structured binding support for DictionaryEntry: auto&& [key, value]
+template <std::size_t I>
+decltype(auto) get(DictionaryEntry& entry) noexcept {
+  if constexpr (I == 0) {
+    return entry.getKey();
+  } else {
+    return entry.getNode();
+  }
+}
+
+template <std::size_t I>
+decltype(auto) get(const DictionaryEntry& entry) noexcept {
+  if constexpr (I == 0) {
+    return entry.getKey();
+  } else {
+    return entry.getNode();
+  }
+}
 
 inline Dictionary::Entries::iterator
 /// <summary>
@@ -123,3 +153,18 @@ Dictionary::findKey(const std::string_view& key) const {
   return yNodeDictionary.cbegin() + static_cast<std::ptrdiff_t>(indexIt->second);
 }
 }  // namespace YAML_Lib
+
+namespace std {
+template <>
+struct tuple_size<YAML_Lib::DictionaryEntry> : std::integral_constant<std::size_t, 2> {};
+
+template <>
+struct tuple_element<0, YAML_Lib::DictionaryEntry> {
+  using type = std::string_view;
+};
+
+template <>
+struct tuple_element<1, YAML_Lib::DictionaryEntry> {
+  using type = YAML_Lib::Node;
+};
+}  // namespace std

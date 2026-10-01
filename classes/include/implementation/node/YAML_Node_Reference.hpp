@@ -292,4 +292,154 @@ inline Node Node::clone() const {
   return copy;
 }
 
+// Forward declaration of deserialization hook for user types
+template <typename T>
+void from_yaml(const Node& n, T& val);
+
+// ============================================================================
+// Modern C++23 type query and conversion accessors
+// ============================================================================
+
+template <typename T>
+bool Node::is() const noexcept {
+  using CleanT = std::remove_cvref_t<T>;
+  if constexpr (std::is_same_v<CleanT, std::string> || std::is_same_v<CleanT, std::string_view>) {
+    return isA<String>(*this);
+  } else if constexpr (std::is_same_v<CleanT, bool>) {
+    return isA<Boolean>(*this);
+  } else if constexpr (std::is_integral_v<CleanT> || std::is_floating_point_v<CleanT>) {
+    return isA<Number>(*this);
+  } else if constexpr (std::is_same_v<CleanT, Array>) {
+    return isA<Array>(*this);
+  } else if constexpr (std::is_same_v<CleanT, Dictionary>) {
+    return isA<Dictionary>(*this);
+  } else if constexpr (std::is_same_v<CleanT, Timestamp>) {
+    return isA<Timestamp>(*this);
+  } else if constexpr (std::is_same_v<CleanT, Null> || std::is_null_pointer_v<CleanT>) {
+    return isA<Null>(*this);
+  } else if constexpr (std::is_same_v<CleanT, String> || std::is_same_v<CleanT, Number> ||
+                       std::is_same_v<CleanT, Boolean> || std::is_same_v<CleanT, Hole> ||
+                       std::is_same_v<CleanT, Comment> || std::is_same_v<CleanT, Document>) {
+    return isA<CleanT>(*this);
+  } else {
+    return false;
+  }
+}
+
+template <typename T>
+decltype(auto) Node::as() {
+  using CleanT = std::remove_cvref_t<T>;
+  if constexpr (std::is_same_v<CleanT, std::string>) {
+    if (isA<String>(*this)) {
+      return std::string(NRef<String>(*this).value());
+    } else if (isA<Number>(*this)) {
+      return NRef<Number>(*this).toString();
+    } else if (isA<Boolean>(*this)) {
+      return NRef<Boolean>(*this).toKey();
+    }
+    return NRef<String>(*this).toString();
+  } else if constexpr (std::is_same_v<CleanT, std::string_view>) {
+    return NRef<String>(*this).value();
+  } else if constexpr (std::is_same_v<CleanT, bool>) {
+    return NRef<Boolean>(*this).value();
+  } else if constexpr (std::is_integral_v<CleanT> || std::is_floating_point_v<CleanT>) {
+    return NRef<Number>(*this).value<CleanT>();
+  } else if constexpr (std::is_same_v<CleanT, Array>) {
+    return NRef<Array>(*this);
+  } else if constexpr (std::is_same_v<CleanT, Dictionary>) {
+    return NRef<Dictionary>(*this);
+  } else if constexpr (std::is_same_v<CleanT, Timestamp>) {
+    return NRef<Timestamp>(*this);
+  } else if constexpr (std::is_same_v<CleanT, String>) {
+    return NRef<String>(*this);
+  } else if constexpr (std::is_same_v<CleanT, Number>) {
+    return NRef<Number>(*this);
+  } else if constexpr (std::is_same_v<CleanT, Boolean>) {
+    return NRef<Boolean>(*this);
+  } else {
+    CleanT val{};
+    from_yaml(*this, val);
+    return val;
+  }
+}
+
+template <typename T>
+decltype(auto) Node::as() const {
+  using CleanT = std::remove_cvref_t<T>;
+  if constexpr (std::is_same_v<CleanT, std::string>) {
+    if (isA<String>(*this)) {
+      return std::string(NRef<String>(*this).value());
+    } else if (isA<Number>(*this)) {
+      return NRef<Number>(*this).toString();
+    } else if (isA<Boolean>(*this)) {
+      return NRef<Boolean>(*this).toKey();
+    }
+    return NRef<String>(*this).toString();
+  } else if constexpr (std::is_same_v<CleanT, std::string_view>) {
+    return NRef<String>(*this).value();
+  } else if constexpr (std::is_same_v<CleanT, bool>) {
+    return NRef<Boolean>(*this).value();
+  } else if constexpr (std::is_integral_v<CleanT> || std::is_floating_point_v<CleanT>) {
+    return NRef<Number>(*this).value<CleanT>();
+  } else if constexpr (std::is_same_v<CleanT, Array>) {
+    return NRef<Array>(*this);
+  } else if constexpr (std::is_same_v<CleanT, Dictionary>) {
+    return NRef<Dictionary>(*this);
+  } else if constexpr (std::is_same_v<CleanT, Timestamp>) {
+    return NRef<Timestamp>(*this);
+  } else if constexpr (std::is_same_v<CleanT, String>) {
+    return NRef<String>(*this);
+  } else if constexpr (std::is_same_v<CleanT, Number>) {
+    return NRef<Number>(*this);
+  } else if constexpr (std::is_same_v<CleanT, Boolean>) {
+    return NRef<Boolean>(*this);
+  } else {
+    CleanT val{};
+    from_yaml(*this, val);
+    return val;
+  }
+}
+
+template <typename T>
+T Node::value_or(T&& fallback) const {
+  if (isEmpty() || isA<Null>(*this)) {
+    return std::forward<T>(fallback);
+  }
+  try {
+    return as<std::remove_cvref_t<T>>();
+  } catch (...) {
+    return std::forward<T>(fallback);
+  }
+}
+
+template <typename T>
+T Node::value_or(const std::string_view& key, T&& fallback) const {
+  if (isA<Dictionary>(*this) && NRef<Dictionary>(*this).contains(key)) {
+    return (*this)[key].template value_or(std::forward<T>(fallback));
+  }
+  return std::forward<T>(fallback);
+}
+
+template <typename T>
+std::optional<T> Node::get_if() const {
+  if (is<T>()) {
+    try {
+      return as<T>();
+    } catch (...) {
+      return std::nullopt;
+    }
+  }
+  return std::nullopt;
+}
+
+template <typename>
+decltype(auto) Node::items() {
+  return NRef<Dictionary>(*this).items();
+}
+
+template <typename>
+decltype(auto) Node::items() const {
+  return NRef<Dictionary>(*this).items();
+}
+
 }  // namespace YAML_Lib

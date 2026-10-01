@@ -3,7 +3,7 @@ project(YAML_Lib VERSION 1.3.0 DESCRIPTION "YAML C++ Library" LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -67,6 +67,8 @@ set(YAML_PUBLIC_HEADERS
   classes/include/YAML_Reader.hpp
   classes/include/YAML_Writer.hpp
   classes/include/YAML_DOM.hpp
+  classes/include/YAML_Format.hpp
+  classes/include/YAML_Serialization.hpp
   ${CMAKE_CURRENT_BINARY_DIR}/YAML_Config.hpp
 )
 

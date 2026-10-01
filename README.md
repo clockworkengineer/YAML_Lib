@@ -1,11 +1,11 @@
 # YAML_Lib
 
 [![CI](https://github.com/clockworkengineer/YAML_Lib/actions/workflows/ci.yml/badge.svg)](https://github.com/clockworkengineer/YAML_Lib/actions/workflows/ci.yml)
-[![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
+[![C++23](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/w/cpp/23)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE.txt)
 [![Buy Me a Coffee](https://img.shields.io/badge/Donate-Buy%20Me%20A%20Coffee-orange.svg)](https://www.buymeacoffee.com/clockworkengineer)
 
-YAML_Lib is a lightweight, header-friendly C++20 library for parsing, manipulating, and generating YAML. It converts YAML text into a typed node tree that can be interrogated, modified, and stringified back to YAML — or to JSON, XML, and Bencode via pluggable stringifiers.
+YAML_Lib is a lightweight, header-friendly C++23 library for parsing, manipulating, and generating YAML. It converts YAML text into a typed node tree that can be interrogated, modified, and stringified back to YAML — or to JSON, XML, and Bencode via pluggable stringifiers.
 
 ## Features
 
@@ -21,13 +21,21 @@ YAML_Lib is a lightweight, header-friendly C++20 library for parsing, manipulati
 - **Explicit mapping keys** — `? key\n: value` block form
 - **Unicode** — full YAML 1.2 escape set including `\U` 8-digit SMP codepoints
 
+### Modern C++23 Capabilities
+- **`std::expected` Functional Parsing** — non-throwing monadic parse error reporting with `YAML::loadExpected()` and `YAML::parseExpected()`.
+- **Streamlined Ergonomic Access** — direct typed queries via `node.as<T>()`, `node.is<T>()`, `node.value_or()`, and `node.get_if<T>()`.
+- **Structured Bindings & Iteration** — seamless mapping iteration: `for (auto&& [key, value] : dict.items())` and sequence loops `for (auto&& item : array)`.
+- **Automatic Container Promotion** — default-constructed nodes dynamically promote on assignment: `node["key"] = 123` or `node[0] = "first"`.
+- **`std::format` Integration** — native formatter specializations for `YAML_Lib::Node` and `YAML_Lib::YAML`: `std::format("{}", node)`.
+- **Non-Intrusive Type & Container Serialization** — macro `YAML_LIB_DEFINE_TYPE_NON_INTRUSIVE(Type, ...)` and automatic serialization for `std::vector`, `std::map`, and `std::optional`.
+
 ### Library Design
 - **100% SOLID Architecture** — decoupled parser lexing, container storage (`DocumentStore`), schema strategies (`ISchema`/`CoreSchema`), and node factory strategies (`INodeFactory`).
 - **Segregated Facade Headers** — include only what you need: `YAML_Reader.hpp` for parsing, `YAML_Writer.hpp` for stringification, or `YAML_DOM.hpp` for tree manipulation.
 - **Extensible I/O** — parse from `BufferSource`, `FileSource`, or `StreamSource` (`std::istream&`); stringify to `BufferDestination`, `FileDestination`, or `StreamDestination` (`std::ostream&`)
 - **Pluggable stringifiers** — built-in YAML, JSON, XML, and Bencode output via `StringifierFactory`; custom stringifiers via `IStringify`
 - **Traversal** — visitor pattern via `IAction` for tree-wide operations
-- **Exception-based error reporting** — `SyntaxError` on malformed input; `Node::Error` on type violations
+- **Error reporting** — `SyntaxError` on malformed input, `std::expected` non-throwing mode, or panic handlers in no-exceptions mode
 
 ## Library Attributes
 YAML_Lib is built around a small set of practical library attributes:
@@ -50,16 +58,16 @@ The library also provides convenient file helpers such as `YAML::loadFile()` for
 ## Getting Started
 
 ### Requirements
-- C++20 or newer (GCC, Clang, MSVC all supported)
+- C++23 or newer (GCC 13+, Clang 17+, MSVC 2022 17.8+ supported)
 - CMake 3.18+
 - No runtime dependencies beyond the C++ standard library
 
 ### Supported platforms
-- Linux with GCC 11+ or Clang 16+
-- macOS with Apple Clang 15+ / Xcode 15+
-- Windows with MSVC 2019+ / Visual Studio 2022
+- Linux with GCC 13+ or Clang 17+
+- macOS with Apple Clang 16+ / Xcode 16+
+- Windows with MSVC 2022 (v143, 17.8+)
 
-Unicode transcoding uses a pure, portable standard C++20 UTF-8 / UTF-16 codec across all supported operating systems without platform-specific dependencies.
+Unicode transcoding uses a pure, portable standard C++23 UTF-8 / UTF-16 codec across all supported operating systems without platform-specific dependencies.
 
 This project is built with strict warnings on supported platforms:
 - Linux/macOS: `-Wall -Werror -pedantic`

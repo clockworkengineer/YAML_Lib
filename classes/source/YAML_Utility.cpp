@@ -34,4 +34,54 @@ std::string YAML::toString() const {
   return dest.toString();
 }
 
+#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202211L
+std::expected<YAML, std::string> YAML::loadExpected(const std::string_view& yaml_string) {
+  try {
+    BufferSource source{yaml_string};
+    YAML yaml;
+    yaml.parse(source);
+    return yaml;
+  } catch (const std::exception& ex) {
+    return std::unexpected(std::string(ex.what()));
+  } catch (...) {
+    return std::unexpected(std::string("Unknown parse error occurred."));
+  }
+}
+
+std::expected<YAML, std::string> YAML::loadExpected(ISource& source) {
+  try {
+    YAML yaml;
+    yaml.parse(source);
+    return yaml;
+  } catch (const std::exception& ex) {
+    return std::unexpected(std::string(ex.what()));
+  } catch (...) {
+    return std::unexpected(std::string("Unknown parse error occurred."));
+  }
+}
+
+std::expected<void, std::string> YAML::parseExpected(ISource& source) {
+  try {
+    parse(source);
+    return {};
+  } catch (const std::exception& ex) {
+    return std::unexpected(std::string(ex.what()));
+  } catch (...) {
+    return std::unexpected(std::string("Unknown parse error occurred."));
+  }
+}
+
+std::expected<void, std::string> YAML::parseExpected(ISource&& source) {
+  return parseExpected(source);
+}
+#endif
+
+std::string formatNodeHelper(const Node& node) {
+  return node.toString();
+}
+
+std::string formatYAMLHelper(const YAML& yaml) {
+  return yaml.toString();
+}
+
 }  // namespace YAML_Lib

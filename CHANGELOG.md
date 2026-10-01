@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.0] - unreleased
 
+### Added
+- **C++23 Standard Baseline**: Upgraded library baseline to modern C++23 (`CMAKE_CXX_STANDARD 23`).
+- **`std::expected` Functional Parsing**: Added `YAML::loadExpected()` and `yaml.parseExpected()` returning `std::expected<YAML, std::string>` and `std::expected<void, std::string>` for non-throwing, monadic pipeline workflows.
+- **Modern Ergonomic Accessors**: Added `node.as<T>()`, `node.is<T>()`, `node.value_or()`, and `node.get_if<T>()` alongside `yaml.as<T>()` and `yaml.value_or()` shortcuts.
+- **Automatic Container Dynamic Promotion**: Default-constructed nodes automatically promote to `Dictionary` or `Array` upon first index assignment (`node["key"] = 123` or `node[0] = "item"`).
+- **Structured Bindings & Range Iteration**: Added `items()` and tuple protocol (`get<I>`, `std::tuple_size`, `std::tuple_element`) on `DictionaryEntry` enabling `for (auto&& [key, value] : dict.items())` and standard range iteration on `Array`.
+- **`std::format` Integration**: Implemented native `std::formatter<YAML_Lib::Node>` and `std::formatter<YAML_Lib::YAML>` specializations in `YAML_Format.hpp`.
+- **Non-Intrusive Object & Container Serialization**: Created `YAML_Serialization.hpp` with `YAML_LIB_DEFINE_TYPE_NON_INTRUSIVE(Type, ...)` and out-of-the-box serializers for `std::vector`, `std::map`, `std::unordered_map`, and `std::optional`.
+
 ## [1.2.0] - 2026-09-23
 
 ### Added

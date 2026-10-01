@@ -24,3 +24,12 @@
 #include <sstream>
 #include <memory_resource>
 #include <string_view>
+#include <optional>
+#if defined(__has_include)
+  #if __has_include(<expected>)
+    #include <expected>
+  #endif
+  #if __has_include(<format>)
+    #include <format>
+  #endif
+#endif
