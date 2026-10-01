@@ -9,9 +9,9 @@
 #include <string_view>
 
 #if defined(__has_include)
-  #if __has_include(<format>)
-    #include <format>
-  #endif
+#if __has_include(<format>)
+#include <format>
+#endif
 #endif
 
 namespace YAML_Lib {

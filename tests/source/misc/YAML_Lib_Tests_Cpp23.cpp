@@ -49,7 +49,8 @@ TEST_CASE("C++23 — std::expected parsing support.", "[YAML][Cpp23][Expected]")
 #endif
 }
 
-TEST_CASE("C++23 — Modern as<T>() and is<T>() accessors on Node and YAML.", "[YAML][Cpp23][Accessors]") {
+TEST_CASE("C++23 — Modern as<T>() and is<T>() accessors on Node and YAML.",
+          "[YAML][Cpp23][Accessors]") {
   const YAML yaml("title: YAML_Lib\nversion: 2\nactive: true\nratio: 3.14\n");
   const auto& doc = yaml.document(0);
 
@@ -94,7 +95,8 @@ TEST_CASE("C++23 — Modern as<T>() and is<T>() accessors on Node and YAML.", "[
   }
 }
 
-TEST_CASE("C++23 — Structured bindings and dictionary iteration.", "[YAML][Cpp23][StructuredBindings]") {
+TEST_CASE("C++23 — Structured bindings and dictionary iteration.",
+          "[YAML][Cpp23][StructuredBindings]") {
   YAML yaml("a: 10\nb: 20\nc: 30\n");
   auto& dict = NRef<Dictionary>(yaml.document(0));
 
